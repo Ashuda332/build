@@ -14,8 +14,8 @@ export const LICENSES = {
   'CC0-1.0': { name: 'CC0 1.0 (public domain)', url: 'https://creativecommons.org/publicdomain/zero/1.0/', attribution: false },
   'CC-BY-4.0': { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0/', attribution: true }
 };
-export const CATEGORIES = ['sofa', 'armchair', 'ottoman', 'coffee-table', 'side-table', 'tv-unit', 'bed', 'nightstand', 'wardrobe', 'dresser', 'desk', 'chair', 'dining-table', 'dining-chair', 'bookshelf', 'kitchen', 'appliance', 'bath', 'lamp', 'plant', 'decor', 'rug', 'door', 'window', 'outdoor', 'pooja'];
-export const ROOMS = ['living', 'lounge', 'dining', 'kitchen', 'master', 'bedroom', 'study', 'bath', 'pooja', 'utility', 'balcony', 'terrace', 'foyer', 'any'];
+export const CATEGORIES = ['sofa', 'armchair', 'ottoman', 'coffee-table', 'side-table', 'tv-unit', 'bed', 'nightstand', 'wardrobe', 'dresser', 'desk', 'chair', 'dining-table', 'dining-chair', 'bookshelf', 'kitchen', 'appliance', 'bath', 'lamp', 'plant', 'decor', 'rug', 'door', 'window', 'outdoor', 'outdoor-light', 'pooja'];
+export const ROOMS = ['living', 'lounge', 'dining', 'kitchen', 'master', 'bedroom', 'study', 'bath', 'pooja', 'utility', 'balcony', 'terrace', 'foyer', 'exterior', 'any'];
 export const STATUS = ['review', 'active', 'disabled'];
 
 export const sha256 = buf => crypto.createHash('sha256').update(buf).digest('hex');

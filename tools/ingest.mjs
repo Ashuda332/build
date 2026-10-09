@@ -4,7 +4,7 @@
    node tools/ingest.mjs --src <url or .glb/.gltf path> --id velvet-sofa --name "Velvet sofa" \
      --category sofa --rooms living,lounge --license CC-BY-4.0 --author "Wayfair, LLC" \
      --source-url <page the licence is stated on> [--styles luxury-modern,contemporary] [--tiers 2,3] \
-     [--front +z] [--max-texture 1024] [--simplify 0.5] [--allow-duplicate]
+     [--front +z] [--height 1.2] [--max-texture 1024] [--simplify 0.5] [--allow-duplicate]
    node tools/ingest.mjs --approve <id>      publish a reviewed asset (status review → active)
    node tools/ingest.mjs --disable <id>      take an asset out of use (kept for saved designs)
 
@@ -58,6 +58,8 @@ root.listCameras().forEach(c => c.dispose()); root.listAnimations().forEach(a =>
 // front of the piece faces +Z; rotate if the source faces another way
 const turn = { '+z': 0, '-z': Math.PI, '+x': -Math.PI / 2, '-x': Math.PI / 2 }[args.front || '+z']; if (turn == null) die('--front must be +z, -z, +x or -x');
 if (turn) { const s = root.listScenes()[0], q = [0, Math.sin(turn / 2), 0, Math.cos(turn / 2)]; s.listChildren().forEach(n => { const w = doc.createNode('front').setRotation(q); s.removeChild(n); w.addChild(n); s.addChild(w); }); }
+// models authored in other units: scale uniformly so the model stands at the given real height (metres)
+if (args.height) { const s0 = root.listScenes()[0], b0 = getBounds(s0), k = +args.height / (b0.max[1] - b0.min[1]); if (!(k > 0) || !isFinite(k)) die('cannot scale to --height'); s0.listChildren().forEach(n => { const w = doc.createNode('scale').setScale([k, k, k]); s0.removeChild(n); w.addChild(n); s0.addChild(w); }); }
 const tex = +(args['max-texture'] || 1024);
 // keep every vertex attribute: material variants can use a second UV set that prune cannot see
 const steps = [weld(), dedup(), prune({ keepAttributes: true }), center({ pivot: 'below' }), textureCompress({ encoder: sharp, targetFormat: 'webp', resize: [tex, tex] })];

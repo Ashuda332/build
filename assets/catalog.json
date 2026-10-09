@@ -89,6 +89,44 @@
       "imported": "2026-10-09"
     },
     {
+      "id": "garden-lantern",
+      "version": 1,
+      "status": "active",
+      "name": "Lantern on a post",
+      "category": "outdoor-light",
+      "rooms": [
+        "exterior"
+      ],
+      "styles": [],
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "file": "garden-lantern.glb",
+      "thumb": "garden-lantern.webp",
+      "size": [
+        0.845,
+        1.4,
+        0.253
+      ],
+      "front": "+z",
+      "pivot": "bottom-centre",
+      "units": "m",
+      "triangles": 5394,
+      "bytes": 307176,
+      "perf": "light",
+      "variants": [],
+      "license": "CC0-1.0",
+      "author": "Microsoft (sbtron); Draco version by Frank Galligan",
+      "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Lantern",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Lantern/glTF-Binary/Lantern.glb",
+      "attribution": null,
+      "sha256": "5412823abc167557031a7cd97b021de028b02becd9f3678f42d964a0f2d6ecda",
+      "sourceSha256": "a79458c4b02d695187a952f23a63b8bf278e7bc3d316a3c2a314f2d6974181f1",
+      "imported": "2026-10-09"
+    },
+    {
       "id": "glass-vase-flowers",
       "version": 1,
       "status": "active",

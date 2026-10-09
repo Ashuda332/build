@@ -22,3 +22,5 @@ jobs:
         run: node tests/run-placement.mjs --quick
       - name: Furniture UI — styles, library, save and reopen
         run: node tests/ui-flow.mjs
+      - name: Bungalow exterior styles on different houses
+        run: node tests/exterior.mjs
