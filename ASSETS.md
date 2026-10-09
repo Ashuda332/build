@@ -24,6 +24,7 @@ A model that does not fit a room is not shrunk to fit. The engine tries a smalle
 | `silk-pouf` | Pleated silk pouf | CC BY 4.0 | Wayfair, LLC (model by Eric Chadwick) — [SpecularSilkPouf](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/SpecularSilkPouf) |
 | `potted-plant` | Potted caladium plant | CC BY 4.0 | Darmstadt Graphics Group GmbH, after an original by Rico Cilliers (CC0) — [DiffuseTransmissionPlant](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/DiffuseTransmissionPlant) |
 | `drum-table-lamp` | Drum shade table lamp | CC BY 4.0 | Wayfair, LLC (model by Eric Chadwick) — [IridescenceLamp](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/IridescenceLamp) |
+| `garden-lantern` | Lantern on a post (scaled to 1.4 m with `--height`) | CC0 | Microsoft (sbtron); Draco version by Frank Galligan — [Lantern](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Lantern) |
 | `glass-vase-flowers` | Glass vase with flowers | CC0 | Eric Chadwick (vase), Rico Cilliers (flowers) — [GlassVaseFlowers](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/GlassVaseFlowers) |
 
 The licence and author of each model were copied from the "Legal" section of that model's README in the Khronos repository. The app shows CC BY credits under the 3D view ("Model credits") and in the library panel. To rebuild the whole set, run `tools/import-khronos-furniture.sh`.
@@ -85,6 +86,49 @@ Each style changes:
 
 The budget range (Low, Mid, High, Ultra luxury) still decides which models are allowed and the price shown.
 
+## Bungalow exterior styles
+
+Under the 3D view, **Exterior** offers ten styles and a Custom option:
+- Neo-classical palace villa
+- Colonial verandah villa
+- Modern cantilever villa
+- Modern Indian luxury
+- Contemporary stone and timber
+- Modern tropical villa
+- Minimalist contemporary
+- Premium urban bungalow
+- Traditional luxury bungalow
+- Modern Indian fusion
+- Custom (your own picks from Front elevation)
+
+The same ten styles appear as chips at the top of **Front elevation**.
+
+**Architecture, not only finishes.** The first three styles change the building's massing, built from the house's own outline: the outside edge of each storey, the main door, the parking and the gates.
+- **Neo-classical palace villa.** A double-height portico centred on the main door, kept clear of the parking and the car gate. It has square columns with gold bands, an entablature, a pediment with a medallion and steps when the setback allows. It also has cornices with dentils at every floor, a blue-tiled hipped roof, white balustrades on the terraces, and a compound wall of pillars with gold jaali panels and wrought-iron gates.
+- **Colonial verandah villa.** A front verandah of round columns and arches with a pediment and balustrade, beside the parking. It also has floor bands and a slate hipped roof with deep eaves on wooden brackets.
+- **Modern cantilever villa.** A thick white roof slab that floats 4 ft past the front and 2 ft past the sides, and a cantilevered sunshade over the ground floor. A deep white frame surrounds the feature bay. It also has a ledge-stone pier, wood cladding, glass railings, and a stone compound wall with planters and a slatted gate.
+
+Under a hipped roof the roof parapets and the stair cabin are not drawn; the roof is reached through the attic. Porticos, verandahs and cantilevers need a structural engineer's check.
+
+**What a style controls.** Each style is a set of real facade elements from the elevation studio, with fallbacks: portal frames, cladding, ledge stone, wood-look panels, louvers, fins, jaali screens, sunshades, canopies, columns, cornice, pediment, tiled roof, pergola, planters, uplights, LED lines, gate, boundary-wall cladding and hedge. A style also sets:
+- the palette
+- wall finishes per floor (PBR stone, brick, wood cladding or plaster)
+- glass or bar railings
+- landscaping: round trees or palms, and garden lanterns
+- the light: day or golden hour
+
+**How it fits the house.** The elevation studio places elements from the house's own geometry: feature bay, piers, floors, stair bay, entrance and roof. When a style is applied, each element is tried on this house in turn. Cladding is also tried on other zones. An element is kept only where it fits, and the app says which ones were left out. The plan, floors, openings and structure never change.
+
+**Comparing and choosing.** **Compare exterior styles** renders every style on the same house side by side. Nothing changes until you pick **Use this design**, and the app asks before replacing elements you picked yourself. **Day / Golden hour / Evening** switches the light. Styles are saved with the design.
+
+**Structural note.** Frames, canopies and cantilevers are shown for the look. The app tells the user to have a structural engineer confirm them.
+
+**Sources.**
+- Architectural inspiration came from the user's reference images.
+- `garden-lantern` (Khronos "Lantern", CC0) is the only exterior model in the library.
+- Palms, trees, hedges and every facade element are drawn in code.
+- None of ArchDaily, Dezeen, Houzz, Behance, Pinterest, Sketchfab or BlenderKit could be reached from the build environment, and none of them is used.
+
 ## How rooms are arranged
 
 Living rooms and bedrooms are planned, not filled first-fit.
@@ -107,6 +151,7 @@ Every try still has to pass the same placement rules. The design seed breaks tie
 ## Tests
 
 - `node tests/run-placement.mjs` checks the placement rules over 576 briefs (×3 design options) across budget ranges and styles. Add `--quick` for a short run.
+- `node tests/exterior.mjs` applies every exterior style to five houses (20×40 to 40×60 ft, G to G+2). It checks that every facade element stays inside the plot, the plan is unchanged and each style renders, and that Compare leaves the chosen style alone until one is used.
 - `node tests/ui-flow.mjs` checks that styles swap models, the rules still hold, a design saves and reopens, and the library filters work.
 - `node tests/render-3d.mjs <dir> <style> <tier>` saves screenshots of the furnished dollhouse.
 
