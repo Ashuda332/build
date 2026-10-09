@@ -1996,7 +1996,7 @@ function furnRugTex(T, kind) {
   const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; FURN_TEX[kind] = t; return t;
 }
 // draws every piece of one room. y0 = floor top. cap = height the walls are cut at (dollhouse view) or null.
-function furn3D(T, grp, room, items, y0, ix, mat, cap) {
+function furn3D(T, grp, room, items, y0, ix, mat, cap, ctx) {
   const S = FURN_SKIN[ix] || FURN_SKIN[1], hi = ix >= 2, top = cap == null ? 99 : cap;
   const wood = mat(S.wood, { roughness: S.woodR }), dark = mat(S.dark, { roughness: 0.55 }), fab = mat(S.fab, { roughness: 0.96 }), cush = mat(S.cush, { roughness: 0.97 }),
     headM = mat(S.head, { roughness: S.bed === 'plain' || S.bed === 'panel' ? S.woodR : 0.95 }), linen = mat(S.linen, { roughness: 0.95 }), duvet = mat(S.duvet, { roughness: 0.95 }), accent = mat(S.accent, { roughness: 0.95 }),
@@ -2017,7 +2017,10 @@ function furn3D(T, grp, room, items, y0, ix, mat, cap) {
   const toWorld = (q, w, u0, v0, du, dv) => w === 'top' ? { x: q.x + u0, y: q.y + v0, w: du, h: dv } : w === 'bottom' ? { x: q.x + q.w - u0 - du, y: q.y + q.h - v0 - dv, w: du, h: dv } : w === 'left' ? { x: q.x + v0, y: q.y + q.h - u0 - du, w: dv, h: du } : { x: q.x + q.w - v0 - dv, y: q.y + u0, w: dv, h: du };
   const M = mainRect(room), inM = (R, pad) => R.x >= M.x + pad && R.y >= M.y + pad && R.x + R.w <= M.x + M.w - pad && R.y + R.h <= M.y + M.h - pad;
   const solids = items.filter(p => p.solid);
-  const free = R => inM(R, 0.3) && !room.subs.some(s => ovl(R, s) > 0.01) && !solids.some(p => ovl(R, p) > 0.01);
+  const SW = (ctx && ctx.sw) || [], EN = (ctx && ctx.ent) || [];
+  // a decor spot is free only off the door swings, 2 ft 6 in clear of every doorway and outside each piece's front space
+  const free = R => inM(R, 0.3) && !room.subs.some(s => ovl(R, s) > 0.01) && !solids.some(p => ovl(R, p) > 0.01) && !SW.some(b => ovl(R, b) > 0.01) &&
+    !EN.some(([x, y]) => Math.hypot(Math.max(R.x - x, 0, x - R.x - R.w), Math.max(R.y - y, 0, y - R.y - R.h)) < 2.5) && !items.some(p => p.clr && ovl(R, p.clr) > 0.01);
   const rug = R => { if (!S.rug) return; const x0 = Math.max(R.x, M.x + 0.4), y1 = Math.max(R.y, M.y + 0.4), x1 = Math.min(R.x + R.w, M.x + M.w - 0.4), y2 = Math.min(R.y + R.h, M.y + M.h - 0.4); if (x1 - x0 < 2 || y2 - y1 < 2) return; const me = new T.Mesh(new T.BoxGeometry(x1 - x0, 0.03, y2 - y1), new T.MeshStandardMaterial({ map: furnRugTex(T, S.rug), roughness: 1 })); me.position.set((x0 + x1) / 2, y0 + 0.015, (y1 + y2) / 2); me.receiveShadow = true; me.userData.fur = 1; grp.add(me); };
   const plant = (x, z, big) => { const g = piece(x, z, 0); cyl(g, 0, 0, 0, big ? 0.55 : 0.4, big ? 0.42 : 0.3, big ? 1.4 : 1, pot, 16); [[0, 2.4, 0, 0.8], [0.35, 3.1, 0.2, 0.6], [-0.3, 3.3, -0.2, 0.55], [0.1, 3.9, -0.1, 0.5]].forEach(([a, b2, c, r]) => sph(g, a * (big ? 1 : 0.7), (big ? b2 : b2 * 0.7), c * (big ? 1 : 0.7), r * (big ? 1 : 0.75), leaf, 1.15)); cyl(g, 0, big ? 1.3 : 0.9, 0, 0.05, 0.05, big ? 1.5 : 1, mat('#5B4636'), 6); };
   const lamp = (g, x, y, z) => { cyl(g, x, y, z, 0.2, 0.24, 0.1, hi ? metal : porc, 16); cyl(g, x, y + 0.1, z, 0.05, 0.05, 0.8, hi ? metal : steel, 8); cyl(g, x, y + 0.75, z, 0.3, 0.42, 0.55, shade, 20); };
@@ -2180,30 +2183,181 @@ function furn3D(T, grp, room, items, y0, ix, mat, cap) {
     }
   });
 }
-// cars and bikes in the parking, coloured by range
+/* ---------- cars and bikes in the parking: a real model for each range ----------
+   Low: white hatchback · Mid: red sedan · High: blue SUV · Ultra luxury: black luxury saloon.
+   Bikes: scooter · commuter motorcycle · sports bike · touring superbike. Sizes in ft, real proportions. */
+const CAR_SPEC = [
+  { n: 'Hatchback', L: 12.6, W: 5.55, H: 5.0, gc: 0.55, r: 0.98, wb: 8.0, fo: 2.2, belt: 3.05, hood: 3.0, nose: 2.5, deck: 0, cR: 0.5, rR: 1.7, rF: 7.0, ws: 9.4, paint: '#E9EAEC', met: 0.25, rim: 'steel', plate: 'OD 05 AK 4821' },
+  { n: 'Sedan', L: 14.5, W: 5.7, H: 4.85, gc: 0.55, r: 1.02, wb: 8.6, fo: 2.6, belt: 3.1, hood: 2.95, nose: 2.35, deck: 3.15, cR: 3.0, rR: 4.9, rF: 8.5, ws: 10.9, paint: '#9E1B22', met: 0.55, rim: 'alloy', plate: 'OD 02 BT 7310' },
+  { n: 'SUV', L: 14.6, W: 6.0, H: 5.6, gc: 0.75, r: 1.18, wb: 8.9, fo: 2.6, belt: 3.6, hood: 3.5, nose: 3.05, deck: 0, cR: 0.4, rR: 1.0, rF: 9.6, ws: 11.4, paint: '#1F3550', met: 0.6, rim: 'dark', plate: 'OD 33 CK 2299' },
+  { n: 'Luxury saloon', L: 16.3, W: 6.15, H: 4.8, gc: 0.5, r: 1.1, wb: 10.2, fo: 2.8, belt: 3.15, hood: 2.95, nose: 2.4, deck: 3.2, cR: 3.3, rR: 5.6, rF: 9.9, ws: 12.6, paint: '#121418', met: 0.7, rim: 'chrome', plate: 'OD 02 VP 0001' }
+];
+const CAR_RES = {};
+// a soft studio sky for reflections on paint, chrome and glass (works without the photo mode)
+function carEnv(T) {
+  if (CAR_RES.env) return CAR_RES.env;
+  const c = document.createElement('canvas'); c.width = 512; c.height = 256; const g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 256);
+  gr.addColorStop(0, '#8FB0CF'); gr.addColorStop(0.42, '#E4EDF3'); gr.addColorStop(0.5, '#FBFAF6'); gr.addColorStop(0.53, '#7D817C'); gr.addColorStop(1, '#2E302E'); g.fillStyle = gr; g.fillRect(0, 0, 512, 256);
+  g.fillStyle = 'rgba(255,255,255,0.95)'; [[60, 40, 90, 22], [230, 30, 120, 18], [400, 48, 70, 26]].forEach(([x, y, w, h]) => g.fillRect(x, y, w, h));
+  const t = new T.CanvasTexture(c); t.mapping = T.EquirectangularReflectionMapping; t.colorSpace = T.SRGBColorSpace; CAR_RES.env = t; return t;
+}
+function carPlateTex(T, text) {
+  const k = 'plate' + text; if (CAR_RES[k]) return CAR_RES[k];
+  const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d');
+  g.fillStyle = '#F7F7F2'; g.fillRect(0, 0, 256, 64); g.strokeStyle = '#111'; g.lineWidth = 4; g.strokeRect(3, 3, 250, 58);
+  g.fillStyle = '#1C3F94'; g.fillRect(6, 6, 26, 52); g.fillStyle = '#fff'; g.font = 'bold 13px Arial'; g.textAlign = 'center'; g.fillText('IND', 19, 50);
+  g.fillStyle = '#111'; g.font = 'bold 34px Arial'; g.fillText(text, 144, 45);
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; CAR_RES[k] = t; return t;
+}
 function furnVehicle(T, grp, v, y0, ix, mat) {
+  ix = Math.max(0, Math.min(3, ix | 0));
+  const env = carEnv(T), vert = v.h >= v.w, Wr = vert ? v.w : v.h, Lr = vert ? v.h : v.w;
   const tag = me => { me.castShadow = true; me.receiveShadow = true; me.userData.fur = 1; return me; };
-  const vert = v.h >= v.w, W = vert ? v.w : v.h, Lc = vert ? v.h : v.w, g = new T.Group();
-  if (vert) g.position.set(v.x, y0, v.y); else { g.position.set(v.x, y0, v.y + v.h); g.rotation.y = Math.PI / 2; }
-  grp.add(g);
-  const bx = (x, y, z, w, h, d, m, r) => { const me = tag(new T.Mesh(furnRBox(T, w, h, d, r), m)); me.position.set(x + w / 2, y + h / 2, z + d / 2); g.add(me); return me; };
-  const wheel = (x, y, z, r, t) => { const me = tag(new T.Mesh(new T.CylinderGeometry(r, r, t, 24), mat('#16181A', { roughness: 0.8 }))); me.rotation.z = Math.PI / 2; me.position.set(x, y, z); g.add(me); const hub = tag(new T.Mesh(new T.CylinderGeometry(r * 0.55, r * 0.55, t + 0.04, 16), mat('#B8BDC2', { metalness: 0.8, roughness: 0.3 }))); hub.rotation.z = Math.PI / 2; hub.position.set(x, y, z); g.add(hub); };
+  const M = (k, o2) => CAR_RES['m' + k] || (CAR_RES['m' + k] = new T.MeshPhysicalMaterial(Object.assign({ envMap: env, envMapIntensity: 1 }, o2)));
+  const chrome = M('chrome', { color: '#E9ECEF', metalness: 1, roughness: 0.08 }), rubber = M('rubber', { color: '#141516', roughness: 0.92, envMapIntensity: 0.2 }), plastic = M('plastic', { color: '#1B1C1E', roughness: 0.6, envMapIntensity: 0.4 }),
+    gloss = M('gloss', { color: '#0B0C0D', roughness: 0.15, clearcoat: 1 }), glass = M('glass', { color: '#0F1A22', metalness: 0.3, roughness: 0.04, transparent: true, opacity: 0.84, envMapIntensity: 1.4 }),
+    head = M('head', { color: '#F4F8FF', emissive: '#DDEBFF', emissiveIntensity: 0.55, roughness: 0.05, metalness: 0.4 }), tail = M('tail', { color: '#9E0F12', emissive: '#E3141B', emissiveIntensity: 0.55, roughness: 0.1 }),
+    seat = M('seat' + ix, { color: ['#2E2F31', '#3A332D', '#2B2B2B', '#C7B08C'][ix], roughness: 0.75, envMapIntensity: 0.3 });
+  const outer = new T.Group(); outer.position.set(v.x + v.w / 2, y0, v.y + v.h / 2); if (!vert) outer.rotation.y = Math.PI / 2; outer.userData.vehicle = v.t; grp.add(outer);
+  const add = (geo, m, x, y, z, par) => { const me = tag(new T.Mesh(geo, m)); me.position.set(x || 0, y || 0, z || 0); (par || car).add(me); return me; };
+  const rb = (x, y, z, w, h, d, m, r, par) => add(furnRBox(T, w, h, d, r), m, x + w / 2, y + h / 2, z + d / 2, par); // x, y, z = corner
+  const rod = (p, q, t, m, par) => { const a = new T.Vector3(...p), b = new T.Vector3(...q), d = b.clone().sub(a), me = tag(new T.Mesh(furnRBox(T, t, d.length() + t * 0.6, t, t * 0.4), m)); me.position.copy(a).add(b).multiplyScalar(0.5); me.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), d.normalize()); (par || car).add(me); return me; };
+  const wheel = (x, z, r, tw, kind, par, discOnly) => {
+    const g = new T.Group(); g.position.set(x, r, z); (par || car).add(g); const sx = Math.sign(x) || 1;
+    const tor = new T.TorusGeometry(r - tw * 0.38, tw * 0.38, 14, 40); tor.rotateY(Math.PI / 2); const ty = add(tor, rubber, 0, 0, 0, g); ty.scale.x = 1.15;
+    const side = new T.CylinderGeometry(r - tw * 0.3, r - tw * 0.3, tw * 0.8, 36); side.rotateZ(Math.PI / 2); add(side, rubber, 0, 0, 0, g);
+    const rr = r * (kind === 'chrome' ? 0.7 : 0.62), rimM = kind === 'steel' ? M('steelrim', { color: '#9DA2A7', metalness: 0.8, roughness: 0.35 }) : kind === 'dark' ? M('darkrim', { color: '#33363A', metalness: 0.9, roughness: 0.25 }) : kind === 'chrome' ? chrome : M('alloy', { color: '#C9CDD2', metalness: 1, roughness: 0.18 });
+    const rim = new T.CylinderGeometry(rr, rr, tw * 0.82, 36); rim.rotateZ(Math.PI / 2); add(rim, M('rimback', { color: '#2A2C2F', metalness: 0.6, roughness: 0.5 }), 0, 0, 0, g);
+    const fx = sx * tw * 0.42;
+    const disc = new T.CylinderGeometry(rr * 0.78, rr * 0.78, 0.06, 28); disc.rotateZ(Math.PI / 2); add(disc, M('disc', { color: '#8A8D90', metalness: 0.9, roughness: 0.4 }), sx * tw * 0.15, 0, 0, g);
+    rb(sx * tw * 0.2 - 0.09, rr * 0.35, -0.2, 0.18, 0.45, 0.4, M('cal' + ix, { color: ix === 3 ? '#B3121A' : ix === 2 ? '#C9A24B' : '#4A4D50', roughness: 0.4, metalness: 0.3 }), 0.05, g);
+    if (kind === 'steel') { const cap = new T.CylinderGeometry(rr * 0.98, rr * 0.98, 0.06, 32); cap.rotateZ(Math.PI / 2); add(cap, M('hubcap', { color: '#B9BDC1', metalness: 0.7, roughness: 0.3 }), fx, 0, 0, g); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, h = add(new T.CylinderGeometry(0.07, 0.07, 0.08, 10).rotateZ(Math.PI / 2), plastic, fx + sx * 0.01, Math.cos(a) * rr * 0.6, Math.sin(a) * rr * 0.6, g); void h; } }
+    else { const n = kind === 'alloy' ? 5 : kind === 'dark' ? 10 : 14, sw = kind === 'alloy' ? 0.22 : kind === 'dark' ? 0.11 : 0.08; add(new T.TorusGeometry(rr * 0.97, 0.05, 8, 40).rotateY(Math.PI / 2), rimM, fx, 0, 0, g); for (let i = 0; i < n; i++) { const a = i * Math.PI * 2 / n, me = rb(0, 0, 0, 0.08, rr * 0.82, sw, rimM, 0.02, g); me.position.set(fx, Math.cos(a) * rr * 0.47, Math.sin(a) * rr * 0.47); me.rotation.x = -a; } }
+    const hub = new T.CylinderGeometry(rr * 0.2, rr * 0.2, 0.12, 20); hub.rotateZ(Math.PI / 2); add(hub, discOnly ? chrome : rimM, fx + sx * 0.02, 0, 0, g);
+    return g;
+  };
+  let car;
   if (v.t === 'car') {
-    const body = mat(['#C3C7CC', '#8E1F24', '#1F2A36', '#141414'][ix] || '#8E1F24', { metalness: 0.6, roughness: 0.28 }), tint = mat('#1B2530', { roughness: 0.08, metalness: 0.5, transparent: true, opacity: 0.88 });
-    const cw = W - 0.6, x0 = 0.3, l = Math.min(Lc - 0.2, ix >= 2 ? 15.5 : 13.5), z0 = (Lc - l) / 2, r = 1.05;
-    bx(x0, 0.75, z0, cw, 1.75, l, body, 0.4);
-    bx(x0 + 0.25, 2.35, z0 + l * 0.3, cw - 0.5, 1.55, l * 0.45, tint, 0.35);
-    bx(x0 + 0.3, 3.8, z0 + l * 0.34, cw - 0.6, 0.18, l * 0.37, body, 0.08);
-    [[z0 + 0.06, '#FFF7E0', 1], [z0 + l - 0.12, '#C21E1E', 0.6]].forEach(([z, c, e]) => [x0 + 0.35, x0 + cw - 1.15].forEach(x => bx(x, 1.9, z, 0.8, 0.3, 0.06, mat(c, { emissive: c, emissiveIntensity: e }))));
-    bx(x0 + cw / 2 - 0.9, 1.15, z0 - 0.02, 1.8, 0.55, 0.05, mat('#111316', { roughness: 0.4 }));
-    [x0 - 0.15, x0 + cw - 0.05].forEach(x => bx(x, 2.75, z0 + l * 0.3, 0.2, 0.22, 0.35, body));
-    [z0 + l * 0.18, z0 + l * 0.8].forEach(z => [x0 + 0.3, x0 + cw - 0.3].forEach(x => wheel(x, r, z, r, 0.7)));
-  } else {
-    const fr = mat(['#2F4B7C', '#1F1F1F', '#B3261E', '#C9A24B'][ix] || '#2F4B7C', { metalness: 0.5, roughness: 0.35 }), cx = W / 2;
-    [Lc * 0.15 + 0.3, Lc * 0.85 - 0.3].forEach(z => wheel(cx, 0.95, z, 0.95, 0.3));
-    bx(cx - 0.35, 1.2, Lc * 0.3, 0.7, 1.1, Lc * 0.4, fr, 0.2); bx(cx - 0.3, 2.3, Lc * 0.38, 0.6, 0.25, Lc * 0.3, mat('#1B1B1B', { roughness: 0.8 }), 0.1);
-    bx(cx - 0.08, 1.1, Lc * 0.15, 0.16, 2.2, 0.16, fr); bx(cx - 1.1, 3.25, Lc * 0.15 - 0.05, 2.2, 0.1, 0.1, mat('#2A2A2A'));
+    const S = CAR_SPEC[ix], s = Math.min(1, (Lr - 0.2) / S.L, (Wr - 0.15) / S.W), L = S.L, W = S.W, H = S.H, bv = 0.22, ins = bv;
+    car = new T.Group(); car.scale.setScalar(s); car.position.z = -L * s / 2; outer.add(car);
+    const paint = M('paint' + ix, { color: S.paint, metalness: S.met, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 1.2 });
+    const zf = L - S.fo, zr = zf - S.wb, R = S.r + 0.16, belt = S.belt;
+    // body side profile (z from the back, y up), shrunk by the bevel so the finished body meets the real sizes
+    const sh = new T.Shape(), i = ins;
+    sh.moveTo(0.35, S.gc + 0.3);
+    sh.quadraticCurveTo(i, S.gc + 0.4, i, S.gc + 1.0);
+    if (S.deck) { sh.lineTo(i + 0.05, S.deck - 0.55); sh.quadraticCurveTo(i + 0.1, S.deck - i, 0.9, S.deck - i); sh.lineTo(S.cR - 0.3, S.deck - i + 0.04); sh.lineTo(S.cR, belt - i); }
+    else { sh.lineTo(i + 0.05, belt - 0.35); sh.quadraticCurveTo(i + 0.08, belt - i, 0.55, belt - i); }
+    sh.lineTo(S.ws, belt - i);
+    sh.quadraticCurveTo(S.ws + 0.6, S.hood - i + 0.08, S.ws + 1.2, S.hood - i + 0.04);
+    sh.lineTo(L - 1.0, S.hood - i - 0.12);
+    sh.quadraticCurveTo(L - i, S.hood - i - 0.18, L - i, S.nose - 0.35);
+    sh.lineTo(L - i, S.gc + 0.75); sh.quadraticCurveTo(L - i, S.gc + i, L - 0.6, S.gc + i);
+    sh.lineTo(zf + R + i, S.gc + i); sh.lineTo(zf + R + i, S.r); sh.absarc(zf, S.r, R + i, 0, Math.PI, false); sh.lineTo(zf - R - i, S.gc + i);
+    sh.lineTo(zr + R + i, S.gc + i); sh.lineTo(zr + R + i, S.r); sh.absarc(zr, S.r, R + i, 0, Math.PI, false); sh.lineTo(zr - R - i, S.gc + i);
+    sh.lineTo(0.6, S.gc + i);
+    const ext = (shape, depth, b, steps) => { const g = new T.ExtrudeGeometry(shape, { depth, bevelEnabled: b > 0, bevelThickness: b, bevelSize: b, bevelSegments: 5, curveSegments: steps || 18 }); g.rotateY(-Math.PI / 2); g.translate(depth / 2, 0, 0); return g; };
+    const body = ext(sh, W - 2 * bv, bv);
+    { // rounded flanks: fullest at the middle of the door, pulled in at the sill and the shoulder
+      const p = body.attributes.position, mid = (S.gc + belt) / 2, hh = (belt - S.gc) / 2; for (let k = 0; k < p.count; k++) { const t = (p.getY(k) - mid) / hh; p.setX(k, p.getX(k) * (1 - 0.05 * Math.min(1.6, t * t))); } body.computeVertexNormals(); }
+    add(body, paint);
+    // glass house with tumblehome (narrower at the roof) and the roof skin
+    const Wc = W - 0.95, taper = g => { const p = g.attributes.position; for (let k = 0; k < p.count; k++) { const y = p.getY(k), t = Math.max(0, Math.min(1, (y - belt) / (H - belt))); p.setX(k, p.getX(k) * (1 - 0.16 * t)); } g.computeVertexNormals(); return g; };
+    const gh = new T.Shape(); gh.moveTo(S.cR - 0.1, belt - 0.12); gh.quadraticCurveTo(S.rR - (S.deck ? 0.6 : 0.05), H - 0.35, S.rR + 0.35, H - 0.14); gh.lineTo(S.rF - 0.35, H - 0.14); gh.quadraticCurveTo(S.rF + 0.6, H - 0.3, S.ws, belt - 0.12); gh.lineTo(S.cR - 0.1, belt - 0.12);
+    add(taper(ext(gh, Wc, 0.1)), glass);
+    const roof = new T.Shape(); roof.moveTo(S.rR - 0.05, H - 0.32); roof.quadraticCurveTo(S.rR + 0.1, H - 0.02, S.rR + 0.6, H - 0.02); roof.lineTo(S.rF - 0.55, H - 0.02); roof.quadraticCurveTo(S.rF - 0.05, H - 0.02, S.rF + 0.25, H - 0.32); roof.lineTo(S.rR - 0.05, H - 0.32);
+    add(taper(ext(roof, Wc + 0.12, 0.06)), paint);
+    if (ix >= 2) { const sr = rb(-Wc * 0.3, H + 0.03, S.rR + 0.9, Wc * 0.6, 0.04, S.rF - S.rR - 1.6, glass, 0.15); void sr; }
+    if (ix === 2) [-1, 1].forEach(sd => { rod([sd * Wc * 0.38, H + 0.12, S.rR + 0.4], [sd * Wc * 0.38, H + 0.12, S.rF - 0.4], 0.09, chrome); [S.rR + 0.5, S.rF - 0.5].forEach(z => rod([sd * Wc * 0.38, H, z], [sd * Wc * 0.38, H + 0.12, z], 0.08, plastic)); });
+    // pillars on both sides
+    const xAt = y => (Wc / 2 + 0.07) * (1 - 0.16 * Math.max(0, Math.min(1, (y - belt) / (H - belt))));
+    [-1, 1].forEach(sd => {
+      const P = (z, y) => [sd * xAt(y), y, z];
+      rod(P(S.ws - 0.1, belt), P(S.rF - 0.2, H - 0.12), 0.2, paint);
+      rod(P(S.cR + 0.05, belt), P(S.rR + 0.3, H - 0.12), S.deck ? 0.22 : 0.38, paint);
+      const zB = S.deck ? (S.cR + S.ws) / 2 + 0.3 : S.rR + (S.rF - S.rR) * 0.55;
+      rod(P(zB + 0.12, belt), P(zB, H - 0.12), 0.3, ix >= 2 ? gloss : paint);
+      if (!S.deck && ix === 2) rod(P(S.rR + 1.4, belt), P(S.rR + 1.3, H - 0.12), 0.24, paint);
+      // chrome window line, door seams and handles
+      if (ix >= 1) rod(P(S.cR + 0.1, belt - 0.05), P(S.ws - 0.1, belt - 0.05), 0.05, ix === 3 ? chrome : plastic);
+      const xs = sd * (W / 2 + 0.005);
+      [S.ws - 0.15, zB + 0.2, Math.max(zr + R + 0.2, S.cR + 0.4)].forEach(z => rb(xs * 0.985 - 0.015, S.gc + 1.0, z, 0.03, belt - S.gc - 1.2, 0.03, plastic));
+      [S.ws - 1.1, zB - 1.0].forEach(z => rb(xs - 0.03 + sd * 0.02, belt - 0.42, z, 0.06, 0.1, 0.5, ix === 0 ? plastic : chrome, 0.03));
+      // mirror
+      rb(sd * (W / 2 - 0.05) - 0.1, belt + 0.05, S.ws - 0.45, 0.2, 0.12, 0.25, plastic, 0.04);
+      rb(sd * (W / 2 + 0.25) - 0.2, belt + 0.1, S.ws - 0.55, 0.4, 0.4, 0.3, ix === 0 ? plastic : paint, 0.12);
+      // lights
+      rb(sd * (W / 2 - 0.75) - 0.6, S.nose - 0.55, L - 0.42, 1.2, 0.34, 0.5, head, 0.1);
+      if (ix >= 2) rb(sd * (W / 2 - 0.75) - 0.6, S.nose - 0.66, L - 0.2, 1.2, 0.05, 0.3, head, 0.02);
+      rb(sd * (W / 2 - 0.65) - 0.5, (S.deck || belt) - 0.62, -0.02, 1.0, 0.3, 0.35, tail, 0.08);
+      if (ix === 2) { const ar = new T.TorusGeometry(R + 0.06, 0.12, 8, 24, Math.PI); ar.rotateY(Math.PI / 2); [zf, zr].forEach(z => add(ar, plastic, sd * (W / 2 - 0.02), S.r, z)); rb(sd * (W / 2 - 0.02) - 0.1, S.gc + 0.15, zr + R + 0.2, 0.2, 0.4, zf - zr - 2 * R - 0.4, plastic, 0.08); }
+    });
+    if (ix >= 2) rb(-W / 2 + 0.9, (S.deck || belt) - 0.5, -0.03, W - 1.8, 0.07, 0.1, tail, 0.03);
+    // grille, bumpers, plates
+    if (ix === 3) { rb(-0.8, S.gc + 1.0, L - 0.22, 1.6, S.nose - S.gc - 1.15, 0.3, chrome, 0.06); for (let k = 0; k < 7; k++) rb(-0.7 + k * 0.23, S.gc + 1.08, L + 0.05, 0.05, S.nose - S.gc - 1.35, 0.06, chrome); }
+    else rb(-W * 0.24, S.nose - 0.95, L - 0.2, W * 0.48, 0.45, 0.3, ix === 2 ? gloss : plastic, 0.1);
+    rb(-W * 0.32, S.gc + 0.35, L - 0.22, W * 0.64, 0.35, 0.3, plastic, 0.1);
+    if (ix === 2) rb(-W * 0.3, S.gc + 0.22, L - 0.15, W * 0.6, 0.12, 0.25, chrome, 0.04);
+    rb(-W * 0.36, S.gc + 0.25, 0.02, W * 0.72, 0.3, 0.3, plastic, 0.1);
+    const pg = furnRBox(T, 1.7, 0.42, 0.04, 0.02), pm = CAR_RES['pm' + ix] || (CAR_RES['pm' + ix] = [plastic, plastic, plastic, plastic, new T.MeshStandardMaterial({ map: carPlateTex(T, S.plate), roughness: 0.4 }), new T.MeshStandardMaterial({ map: carPlateTex(T, S.plate), roughness: 0.4 })]);
+    const pf = tag(new T.Mesh(pg, pm)); pf.position.set(0, S.gc + 0.82, L + 0.0); car.add(pf);
+    const pr = tag(new T.Mesh(pg, pm)); pr.position.set(0, S.gc + 0.95, -0.02); pr.rotation.y = Math.PI; car.add(pr);
+    if (ix === 3) { rb(-0.12, S.hood - 0.05, L - 1.3, 0.24, 0.3, 0.08, chrome, 0.03); [-0.35, 0.35].forEach(x => { const ex = new T.CylinderGeometry(0.17, 0.17, 0.3, 20); ex.rotateX(Math.PI / 2); add(ex, chrome, x * W * 1.6, S.gc + 0.35, 0.05); }); }
+    else if (ix >= 1) { const ex = new T.CylinderGeometry(0.12, 0.12, 0.3, 16); ex.rotateX(Math.PI / 2); add(ex, chrome, W * 0.3, S.gc + 0.3, 0.05); }
+    // inside: dashboard, steering, seats (seen through the glass)
+    rb(-Wc / 2 + 0.1, belt - 0.6, S.ws - 1.3, Wc - 0.2, 0.75, 1.1, plastic, 0.15);
+    const sw = new T.TorusGeometry(0.42, 0.06, 8, 24); const swm = add(sw, plastic, Wc * 0.22, belt + 0.15, S.ws - 1.55); swm.rotation.x = -0.5;
+    [-1, 1].forEach(sd => { rb(sd * Wc * 0.22 - 0.85, S.gc + 0.95, S.ws - 4.0, 1.7, 0.5, 1.8, seat, 0.2); rb(sd * Wc * 0.22 - 0.85, S.gc + 1.3, S.ws - 4.15, 1.7, 2.1, 0.45, seat, 0.2); });
+    if (S.wb > 8.3) { rb(-Wc / 2 + 0.25, S.gc + 0.95, S.cR + 0.3, Wc - 0.5, 0.5, 1.7, seat, 0.2); rb(-Wc / 2 + 0.25, S.gc + 1.3, S.cR + 0.05, Wc - 0.5, 1.9, 0.45, seat, 0.2); }
+    // wheels
+    const tw = ix >= 2 ? 0.8 : 0.68;
+    [zf, zr].forEach(z => [-1, 1].forEach(sd => wheel(sd * (W / 2 - tw / 2 - 0.02), z, S.r, tw, S.rim)));
+    return;
   }
+  // two-wheelers
+  const bc = ['#C9CED3', '#1F1F1F', '#B3261E', '#0F2F4F'][ix], paint = M('bpaint' + ix, { color: bc, metalness: 0.5, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.08 });
+  const L = 6.2, s = Math.min(1, (Lr - 0.2) / L);
+  car = new T.Group(); car.scale.setScalar(s); car.position.z = -L * s / 2; outer.add(car);
+  const r = ix === 0 ? 0.55 : 0.95, zf = L - (ix === 0 ? 0.9 : 1.1), zr = ix === 0 ? 1.0 : 1.15, tw = ix === 0 ? 0.32 : ix >= 2 ? 0.45 : 0.3;
+  const w1 = wheel(0, zf, r, tw, ix === 0 ? 'steel' : ix === 1 ? 'alloy' : 'chrome', car, true), w2 = wheel(0, zr, r, ix >= 2 ? tw + 0.25 : tw, ix === 0 ? 'steel' : ix === 1 ? 'alloy' : 'chrome', car, true); void w1; void w2;
+  if (ix === 0) {
+    rb(-0.45, 0.55, 1.4, 0.9, 0.18, 2.7, plastic, 0.06); rb(-0.5, 0.6, zr - 0.55, 1.0, 1.35, 1.9, paint, 0.35); rb(-0.48, 1.9, zr - 0.35, 0.96, 0.25, 2.1, seat, 0.12);
+    rb(-0.55, 0.6, zf - 0.65, 1.1, 2.5, 0.55, paint, 0.25); rod([0, 1.0, zf], [0, 3.1, zf - 0.4], 0.14, chrome); rod([-0.85, 3.25, zf - 0.45], [0.85, 3.25, zf - 0.45], 0.1, plastic); rb(-0.3, 2.8, zf - 0.15, 0.6, 0.35, 0.25, head, 0.1); rb(-0.6, 0.95, zf - 0.55, 1.2, 0.7, 0.9, paint, 0.3);
+    return;
+  }
+  rod([0, r, zf], [0, 3.0, zf - 0.65], 0.14, chrome); [-0.2, 0.2].forEach(x => rod([x, r, zr], [x, 1.8, zr + 1.6], 0.1, chrome));
+  rb(-0.35, 1.0, zr + 1.0, 0.7, 0.9, 1.6, plastic, 0.12);
+  rb(-0.55, 2.0, zr + 1.9, 1.1, 0.8, 1.8, paint, 0.35);
+  rb(-0.45, 2.15, zr + 0.4, 0.9, 0.3, 1.6, seat, 0.12);
+  rb(-0.35, 1.95, zr - 0.4, 0.7, 0.35, 0.9, paint, 0.12);
+  rod([-0.95, 3.15, zf - 0.75], [0.95, 3.15, zf - 0.75], 0.08, ix >= 2 ? plastic : chrome);
+  rb(-0.3, 2.6, zf - 0.55, 0.6, 0.4, 0.3, head, 0.12); rb(-0.2, 2.0, zr - 0.75, 0.4, 0.15, 0.1, tail, 0.03);
+  const ex = new T.CylinderGeometry(0.16, 0.2, 1.8, 16); ex.rotateX(Math.PI / 2); const em = add(ex, chrome, 0.45, 1.0, zr + 0.3); em.rotation.x = -0.15;
+  if (ix >= 2) { rb(-0.45, 1.6, zf - 1.35, 0.9, 1.4, 0.7, paint, 0.3); rb(-0.4, 3.2, zf - 0.85, 0.8, 0.6, 0.06, glass, 0.03); }
+}
+// doors in the cut-away view: frame, leaf and handle, standing open the way the plan swings them
+function doors3D(T, grp, D, o, F, base, ix, mat, cap) {
+  const S = FURN_SKIN[ix] || FURN_SKIN[1], H = Math.min(DOOR_H - 0.05, cap == null ? 99 : cap), capM = mat('#2B2D30', { roughness: 0.6 });
+  const leafC = ['#CDB28E', '#8A5A33', '#5A3B26', '#3E2A1E'][ix] || '#8A5A33', frameM = mat(['#9C7A55', '#6E4526', '#3B2A1E', '#2A1C14'][ix] || '#6E4526', { roughness: 0.5 }), hm = mat(S.metal, { metalness: S.metalM, roughness: 0.3 });
+  const tag = me => { me.castShadow = true; me.receiveShadow = true; me.userData.fur = 1; return me; };
+  const bx = (g, x, y, z, w, h, d, m) => { const me = tag(new T.Mesh(furnRBox(T, w, h, d, 0.015), m)); me.position.set(x + w / 2, y + h / 2, z + d / 2); g.add(me); return me; };
+  const list = doorDraw(D, o, F).map(x => ({ seg: x.seg, side: x.side, main: x.d.kind === 'main' }));
+  F.rooms.forEach(r => { if (!r.void) subDoorsOf(r).forEach(d => list.push({ seg: d.seg, side: d.side, bath: true })); });
+  list.forEach(dd => {
+    const [x1, y1, x2, y2] = dd.seg, w = Math.hypot(x2 - x1, y2 - y1); if (w < 1) return;
+    const ux = (x2 - x1) / w, uy = (y2 - y1) / w, sv = SWING_DIR[dd.side] || [0, 0];
+    // frame (chaukhat): two jambs at the ends of the opening
+    [[x1, y1], [x2, y2]].forEach(([px, py], k) => { const g = new T.Group(); g.position.set(px, base, py); g.rotation.y = Math.atan2(-uy, ux); grp.add(g); bx(g, k ? -0.2 : 0, 0, -0.22, 0.2, H, 0.44, frameM); });
+    // leaf, hinged at (x1, y1), open about 80 degrees toward its swing side
+    const a = 80 * Math.PI / 180, dx = Math.cos(a) * ux + Math.sin(a) * sv[0], dz = Math.cos(a) * uy + Math.sin(a) * sv[1];
+    const g = new T.Group(); g.position.set(x1 + ux * 0.2, base, y1 + uy * 0.2); g.rotation.y = Math.atan2(-dz, dx); grp.add(g);
+    const lw = w - 0.45, lm = mat(dd.bath && ix === 0 ? '#E3E1DC' : leafC, { roughness: ix >= 2 ? 0.35 : 0.55 }), t = dd.main ? 0.2 : 0.13;
+    bx(g, 0.05, 0.02, -t / 2, lw, H - 0.04, t, lm);
+    if (ix >= 1 || dd.main) [-1, 1].forEach(sd => { [[0.35, 0.5, H * 0.42], [0.35, H * 0.55, H - 0.4 - H * 0.55]].forEach(([px, py, ph]) => { if (ph > 0.3) bx(g, 0.05 + px, py, sd > 0 ? t / 2 : -t / 2 - 0.03, lw - 0.7, ph, 0.03, mat(dd.main ? '#5A3B26' : leafC, { roughness: 0.7 })); }); });
+    if (dd.main && ix >= 2) bx(g, 0.05 + lw * 0.45, 0.6, t / 2, 0.1, H - 1.2, 0.04, hm);
+    if (H > 3.4) [-1, 1].forEach(sd => { bx(g, lw - 0.35, 3.25, sd > 0 ? t / 2 : -t / 2 - 0.12, 0.08, 0.08, 0.12, hm); bx(g, lw - 0.62, 3.25, sd > 0 ? t / 2 + 0.06 : -t / 2 - 0.12, 0.35, 0.07, 0.06, hm); });
+    if (cap != null && H < DOOR_H - 0.06) bx(g, 0.04, H, -t / 2 - 0.01, lw + 0.02, 0.06, t + 0.02, capM);
+  });
 }
 function furnitureBoxes(room, FP, swings, D, o, F) {
   FP = FP || INT_PAL[0];
@@ -4566,9 +4720,10 @@ function buildHouse3D(T, D, o, opts) {
       if (!cut && f === nF - 1) sGeo(L - landE, L, 0, Sw, base + FH - SLAB, base + FH, m); // arrival on the roof
     }
     if (SG && f > 0 && f === nF - 1 && !FM.toRoof && F.rooms.some(r => r.type === 'stair')) sGeo(SG.L - SG.landE, SG.L, 0, SG.S, base - SLAB, base, mat('#BDB6AA'));
+    if (opts.furn && cut && !opts.walk) try { doors3D(T, grp, D, o, F, base + 0.06, furnSkinIx(), mat, wallTop); } catch (e) { console.warn(e); }
     if (opts.furn) F.rooms.forEach(r => {
       if (r.void) return;
-      try { furn3D(T, grp, r, furnOf(D, o, F, r), base + 0.06, furnSkinIx(), mat, cut ? wallTop : null); if (r.type === 'parking') vehiclesIn(mainRect(r), r.pk || '4w').forEach(v => furnVehicle(T, grp, v, base + 0.06, furnSkinIx(), mat)); }
+      try { furn3D(T, grp, r, furnOf(D, o, F, r), base + 0.06, furnSkinIx(), mat, cut ? wallTop : null, { sw: swingsOf(D, o, F), ent: roomEntries(D, o, F, r) }); if (r.type === 'parking') vehiclesIn(mainRect(r), r.pk || '4w').forEach(v => furnVehicle(T, grp, v, base + 0.06, furnSkinIx(), mat)); }
       catch (e) { console.warn(e); furnitureBoxes(r, LK.int, null, D, o, F).forEach(x => box(x.x, base + 0.06 + x.z, x.y, x.w, x.ht, x.h, mat(x.col))); }
     });
     // inside view of one floor: size of each piece, and the free walkway in front of it (green)
@@ -4637,7 +4792,7 @@ function buildHouse3D(T, D, o, opts) {
   // compound wall with gate gap, trees
   if (cutAt == null && !opts.inSite) {
     const RP = rearParkGeom(b), pave = mat('#B9B4AA', { roughness: 0.95 });
-    if (RP) { box(RP.gx0, 0.03, RP.pad.y + RP.pad.h, RP.gw, 0.08, b.d - 0.45 - RP.pad.y - RP.pad.h, pave, false); box(RP.pad.x, 0.03, RP.pad.y, RP.pad.w, 0.08, RP.pad.h, pave, false); const W = Math.min(RP.pad.w - 1, 16); vehicleBoxes(vehiclesIn({ x: RP.pad.x + (RP.side === 'left' ? 0.5 : RP.pad.w - W), y: RP.pad.y + 0.4, w: W, h: RP.pad.h - 0.8 }, RP.kind)).forEach(v => box(v.x, v.z, v.y, v.w, v.ht, v.h, mat(v.col))); }
+    if (RP) { box(RP.gx0, 0.03, RP.pad.y + RP.pad.h, RP.gw, 0.08, b.d - 0.45 - RP.pad.y - RP.pad.h, pave, false); box(RP.pad.x, 0.03, RP.pad.y, RP.pad.w, 0.08, RP.pad.h, pave, false); const W = Math.min(RP.pad.w - 1, 16); vehiclesIn({ x: RP.pad.x + (RP.side === 'left' ? 0.5 : RP.pad.w - W), y: RP.pad.y + 0.4, w: W, h: RP.pad.h - 0.8 }, RP.kind).forEach(v => furnVehicle(T, grp, v, 0.11, furnSkinIx(), mat)); }
     [['N', 'E', 1.7, '#3E6D8C'], ['N', 'W', 2.2, '#8C9399']].forEach(([d1, d2, ins, col]) => { const [px, py] = sitePoint(b, d1, d2, ins); box(px - 1.1, 0.02, py - 1.1, 2.2, 0.12, 2.2, mat(col), false); });
     const gate = RP ? { rect: { x: RP.gx0 - 0.25, w: RP.gw + 0.5 } } : o.floors[0].rooms.find(r => r.type === 'parking') || o.floors[0].rooms.find(r => r.type === 'living') || o.floors[0].rooms[0];
     const gx = gate.rect.x, gw = Math.min(10, gate.rect.w - 0.5), cwm = mat('#E5E1D8');
