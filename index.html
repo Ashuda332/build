@@ -110,7 +110,8 @@ main.wide{max-width:1000px}
 .fine{font-size:13px;color:var(--mute);margin-top:22px;text-align:center;line-height:1.5}
 .warn{background:var(--amber-soft);color:var(--amber);border-radius:14px;padding:12px 16px;font-size:15px;margin-top:18px}
 .panel{background:#fff;border:1px solid var(--line2);border-radius:22px;padding:16px;margin-top:18px}
-.ph{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}.ph b{font-size:17px}
+.ph{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.fskin{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;width:100%}.fsk-l{font-weight:600;font-size:13px}.fsk-p{font-size:12.5px;color:var(--mute)}.fsk-p small{font-size:11px}.ph b{font-size:17px}
 .opts-ab{margin-top:22px}
 .v3{text-align:center;background:var(--soft);border-radius:16px;overflow:hidden;padding:0}
 .v3 .btn{margin:34px 0 8px}.v3 .hint{padding-bottom:28px}
@@ -1748,7 +1749,7 @@ function wallRect(M, wall, len, dep, pos) {
 const OPP_WALL = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' };
 // Furniture sized to the room. Every piece keeps a clear space in front of it, and a 2 ft wide path
 // must still run from every door of the room to every piece and to the other doors. A piece that would block it is left out.
-const FURN_NAME = { bed: 'Bed', wardrobe: 'Wardrobe', sofa: 'Sofa', table: 'Teapoy', tv: 'TV unit', dtable: 'Dining table', counter: 'Kitchen platform', study: 'Study table' };
+const FURN_NAME = { bed: 'Bed', nstand: 'Bedside table', fridge: 'Fridge', wardrobe: 'Wardrobe', sofa: 'Sofa', table: 'Teapoy', tv: 'TV unit', dtable: 'Dining table', counter: 'Kitchen platform', study: 'Study table' };
 function roomEntries(D, o, F, room) {
   const R = room.rect, pts = [], inR = (x, y) => x > R.x + 0.05 && x < R.x + R.w - 0.05 && y > R.y + 0.05 && y < R.y + R.h - 0.05;
   const push = seg => { const [x1, y1, x2, y2] = seg, mx = (x1 + x2) / 2, my = (y1 + y2) / 2, L = Math.hypot(x2 - x1, y2 - y1) || 1, nx = -(y2 - y1) / L, ny = (x2 - x1) / L; [[mx + nx * 1.1, my + ny * 1.1], [mx - nx * 1.1, my - ny * 1.1]].forEach(([x, y]) => { if (inR(x, y)) pts.push([x, y]); }); };
@@ -1827,7 +1828,13 @@ function furnLayout(room, swings, entries) {
       [0.3, len / 2 + 0.2].forEach(a => out.push(Object.assign(horiz ? { x: bed.x + a, y: bed.wall === 'top' ? bed.y + 0.3 : bed.y + bed.h - 0.3 - pd, w: pw, h: pd } : { x: bed.wall === 'left' ? bed.x + 0.3 : bed.x + bed.w - 0.3 - pd, y: bed.y + a, w: pd, h: pw }, { role: 'pillow' })));
       out.push(Object.assign(horiz ? { x: bed.x, y: bed.wall === 'top' ? bed.y - 0.2 : bed.y + bed.h - 0.2, w: bed.w, h: 0.4 } : { x: bed.wall === 'left' ? bed.x - 0.2 : bed.x + bed.w - 0.2, y: bed.y, w: 0.4, h: bed.h }, { role: 'head', d3only: true }));
       bed.label = 'Bed ' + ftIn(len) + ' × ' + ftIn(horiz ? bed.h : bed.w);
+      // bedside tables at the head, one each side, only where the path round the bed stays open
+      const ns = 1.4;
+      [-1, 1].forEach(sd => { const q = horiz ? { x: sd < 0 ? bed.x - 0.15 - ns : bed.x + bed.w + 0.15, y: bed.wall === 'top' ? bed.y : bed.y + bed.h - ns, w: ns, h: ns } : { x: bed.wall === 'left' ? bed.x : bed.x + bed.w - ns, y: sd < 0 ? bed.y - 0.15 - ns : bed.y + bed.h + 0.15, w: ns, h: ns }; if (!fits(q, null, bed)) return; out.push(Object.assign(q, { role: 'nstand', solid: true, wall: bed.wall, host: bed, name: FURN_NAME.nstand })); if (!walk()) out.pop(); });
     }
+    // wardrobe 2 ft deep on a free wall, with 2 ft 6 in in front to open the shutters
+    { const c = []; for (const len of [6, 5, 4, 3]) walls.forEach(w => { ['start', 'end'].forEach(p => c.push([wallRect(M, w, len, 2, p), w])); c.push(...along(w, len, 2).map(q => [q, w])); });
+      const wd = tryAdd(c, ([q, w]) => item(q, 'wardrobe', w, 2.5)); if (wd) wd.label = 'Wardrobe ' + ftIn(Math.max(wd.w, wd.h)) + ' × 2′'; }
   } else if (t === 'study') {
     const c = []; walls.forEach(w => c.push(...along(w, 4, 2).map(q => [q, w]))); const sd = tryAdd(c, ([q, w]) => item(q, 'study', w, 2.5)); if (sd) sd.label = 'Study table 4′ × 2′';
   } else if (t === 'living' || t === 'lounge') {
@@ -1878,6 +1885,9 @@ function furnLayout(room, swings, entries) {
       (horiz ? ['left', 'right'] : ['top', 'bottom']).forEach(w => { const room2 = horiz ? M.h : M.w; for (const L2 of [room2 - 2.2 - 3.5, 3]) { if (L2 < 2.5) continue; const q = wallRect(M, w, L2, 2, main.wall === 'top' || main.wall === 'left' ? 'start' : 'end'); if (horiz) q.y = main.wall === 'top' ? main.y + main.h : main.y - q.h; else q.x = main.wall === 'left' ? main.x + main.w : main.x - q.w; legs.push([q, w]); } });
       const leg = tryAdd(legs, ([q, w]) => item(q, 'counter', w, 3));
       if (leg) leg.label = 'Platform ' + ftIn(Math.max(leg.w, leg.h)) + ' × 2′';
+      // fridge in a corner, clear of the platform aisle
+      const fc = []; ['top', 'bottom', 'left', 'right'].forEach(w => ['start', 'end'].forEach(p => fc.push([wallRect(M, w, 2.4, 2.3, p), w])));
+      tryAdd(fc, ([q, w]) => q.w >= 2.2 && q.h >= 2.2 ? item(q, 'fridge', w, 3) : null);
     }
   } else if (t === 'parking') {
     vehiclesIn(M, room.pk || '4w').forEach(v => out.push({ x: v.x, y: v.y, w: v.w, h: v.h, role: v.t, veh: v }));
@@ -1893,6 +1903,8 @@ function furnLayout(room, swings, entries) {
       if (wc) out.push(Object.assign(wc, { role: 'wc' }));
       const bs = C.map(c => box(c, 1.6, 1.2)).find(q => ok(q) && (!wc || ovl(q, wc) < 0.01));
       if (bs) out.push(Object.assign(bs, { role: 'basin' }));
+      // shower corner with a glass screen (3D only)
+      if (s.type === 'bath' && Math.min(s.w, s.h) >= 4.4) { const sz = Math.min(3, Math.min(s.w, s.h) - 1.2), sh = C.map(c => box(c, sz, sz)).find(q => ok(q) && (!wc || ovl(q, wc) < 0.01) && (!bs || ovl(q, bs) < 0.01)); if (sh) out.push(Object.assign(sh, { role: 'shower', d3only: true })); }
     }
     if (s.type === 'pooja') out.push({ x: s.x + 0.4, y: s.y + 0.4, w: s.w - 0.8, h: 1.2, role: 'altar' });
   });
@@ -1921,6 +1933,277 @@ function furniture(room, F, swings, L, D, o) {
     if (L) { const mx = (x0 + x1) / 2, my = (y0 + y1) / 2; L.push({ x: mx + (dx ? 0 : 1.6), y: my + (dx ? 0.55 : 0), lines: [[ftIn(p.clear) + ' free', 'fc', 1]], fs: 0.46, minFs: 0.36, pri: 5, drop: true, bold: false, area: { x: mx - 2.6, y: my - 1.2, w: 5.2, h: 2.4 } }); }
   });
   return h;
+}
+/* ---------- furniture in 3D: real shapes for every piece, in four skins that follow the budget range ---------- */
+// One skin per range (Low, Mid, High, Ultra luxury). The 3D view starts with the skin of the range picked on the budget step; the buyer can switch.
+const FURN_SKIN = [
+  { id: 'low', n: 'Low', what: 'Ply + laminate, cotton fabric, steel fittings',
+    wood: '#B98E5F', woodR: 0.7, dark: '#7A5A3C', fab: '#8E918A', cush: '#A3A69E', head: '#B98E5F', linen: '#EEEAE2', duvet: '#7F98AC', accent: '#C27C4E',
+    metal: '#A9AEB3', metalM: 0.55, top: '#CFC8BC', topR: 0.55, cab: '#ECE7DE', ward: '#E6DED0', fridge: '#EDEEEE', glassTop: false, rug: null, legs: 'block', bed: 'plain', vanity: false, wallWC: false, plant: false },
+  { id: 'mid', n: 'Mid', what: 'Engineered wood in teak finish, linen-blend fabric, granite top',
+    wood: '#A47551', woodR: 0.6, dark: '#5B4636', fab: '#A8836A', cush: '#B99A82', head: '#7A5638', linen: '#F3EFE7', duvet: '#E2D6C4', accent: '#6E8B87',
+    metal: '#B9BEC3', metalM: 0.7, top: '#3B3A3A', topR: 0.3, cab: '#F1ECE3', ward: '#A47551', fridge: '#C5C9CD', glassTop: false, rug: 'jute', legs: 'wood', bed: 'panel', vanity: false, wallWC: false, plant: false },
+  { id: 'high', n: 'High', what: 'Solid sheesham / walnut, quartz top, upholstered bed and sofa',
+    wood: '#6D4C35', woodR: 0.5, dark: '#2B2B2B', fab: '#4E6272', cush: '#5E7383', head: '#B7AE9F', linen: '#FAF8F4', duvet: '#D7DEE2', accent: '#C9A46B',
+    metal: '#2A2A2A', metalM: 0.6, top: '#ECEAE5', topR: 0.2, cab: '#3E4A52', ward: '#D8D2C8', fridge: '#2E3135', glassTop: true, rug: 'geo', legs: 'metal', bed: 'upholstered', vanity: true, wallWC: true, plant: true },
+  { id: 'ultra', n: 'Ultra luxury', what: 'Solid teak, Italian marble, velvet, brass — designer pieces',
+    wood: '#4A3022', woodR: 0.35, dark: '#1F1A17', fab: '#2F5D50', cush: '#3A6D5F', head: '#E8DCC8', linen: '#FFFDF8', duvet: '#E9DFCF', accent: '#B5532F',
+    metal: '#C9A24B', metalM: 0.9, top: '#F2EFEA', topR: 0.12, cab: '#E9E3D8', ward: '#4A3022', fridge: '#BFC3C7', glassTop: false, rug: 'persian', legs: 'brass', bed: 'tufted', vanity: true, wallWC: true, plant: true }
+];
+// ₹ per piece for each range — BhuChain estimate (to be confirmed), Bhubaneswar / Cuttack retail 2026. Kitchen platform is per running ft.
+const FURN_PRICE = {
+  bed: [16000, 38000, 85000, 240000], nstand: [2500, 6500, 16000, 45000], wardrobe: [14000, 34000, 78000, 210000],
+  sofa: [18000, 42000, 110000, 320000], table: [3000, 9000, 24000, 75000], tv: [6000, 16000, 42000, 125000],
+  dtable: [8000, 20000, 48000, 150000], chair: [1500, 4500, 12000, 35000], study: [5000, 12000, 30000, 80000],
+  counter: [2200, 4800, 9000, 18000], fridge: [18000, 32000, 65000, 160000],
+  wc: [4000, 9000, 24000, 72000], basin: [2500, 7000, 18000, 52000], shower: [3000, 9000, 28000, 85000], altar: [5000, 15000, 42000, 150000]
+};
+function furnSkinIx() { const v = typeof ST !== 'undefined' ? ST.furnSkin : null; if (v != null && FURN_SKIN[v]) return +v; return typeof ST !== 'undefined' ? (TI[ST.tier] ?? 1) : 1; }
+function furnCost(D, o, ix) {
+  let t = 0;
+  o.floors.forEach(F => F.rooms.forEach(r => { if (r.void) return; furnOf(D, o, F, r).forEach(p => { const P = FURN_PRICE[p.role]; if (P) t += p.role === 'counter' ? P[ix] * Math.max(p.w, p.h) : P[ix]; }); }));
+  return t;
+}
+function furnSkinBar(D, o) {
+  const ix = furnSkinIx(); let cost = 0; try { cost = furnCost(D, o, ix); } catch (e) {}
+  return '<div class="fskin"><span class="fsk-l">Furniture</span><div class="seg2 sm">' + FURN_SKIN.map((s, i) => '<button class="' + (i === ix ? 'on' : '') + '" data-a="fskin" data-v="' + i + '" title="' + esc(s.what) + '">' + esc(s.n) + '</button>').join('') + '</div><button class="tog vtog' + (ST.furnSizes ? ' on' : '') + '" data-a="fsizes"><span class="dot"></span>Sizes</button><span class="fsk-p">' + esc(FURN_SKIN[ix].what) + (cost ? ' · whole house ≈ <b>' + rup(cost) + '</b> <small>(BhuChain estimate)</small>' : '') + '</span></div>';
+}
+// a box with rounded edges (cushions, mattresses, pillows) — a box whose corners are pushed onto spheres
+const FURN_GEO = new Map();
+function furnRBox(T, w, h, d, r) {
+  r = Math.max(0, Math.min(r || 0, w / 2 - 0.002, h / 2 - 0.002, d / 2 - 0.002));
+  const k = w.toFixed(3) + ',' + h.toFixed(3) + ',' + d.toFixed(3) + ',' + r.toFixed(3); if (FURN_GEO.has(k)) return FURN_GEO.get(k);
+  let g;
+  if (r < 0.01) g = new T.BoxGeometry(w, h, d);
+  else {
+    g = new T.BoxGeometry(w, h, d, 5, 5, 5); const p = g.attributes.position, ix = w / 2 - r, iy = h / 2 - r, iz = d / 2 - r;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i), z = p.getZ(i), cx = Math.max(-ix, Math.min(ix, x)), cy = Math.max(-iy, Math.min(iy, y)), cz = Math.max(-iz, Math.min(iz, z));
+      let dx = x - cx, dy = y - cy, dz = z - cz; const L = Math.hypot(dx, dy, dz); if (L > 1e-6) { dx *= r / L; dy *= r / L; dz *= r / L; }
+      p.setXYZ(i, cx + dx, cy + dy, cz + dz);
+    }
+    g.computeVertexNormals();
+  }
+  FURN_GEO.set(k, g); return g;
+}
+const FURN_TEX = {};
+function furnRugTex(T, kind) {
+  if (FURN_TEX[kind]) return FURN_TEX[kind];
+  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+  if (kind === 'jute') { g.fillStyle = '#C9B48F'; g.fillRect(0, 0, 256, 256); for (let i = 0; i < 256; i += 6) { g.fillStyle = i % 12 ? '#BBA47D' : '#D6C39F'; g.fillRect(0, i, 256, 3); } g.strokeStyle = '#8E7752'; g.lineWidth = 10; g.strokeRect(5, 5, 246, 246); }
+  else if (kind === 'geo') { g.fillStyle = '#E4DED3'; g.fillRect(0, 0, 256, 256); g.strokeStyle = '#4A4F55'; g.lineWidth = 3; for (let x = -256; x < 512; x += 42) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 128, 128); g.lineTo(x, 256); g.stroke(); } g.lineWidth = 8; g.strokeRect(10, 10, 236, 236); }
+  else { g.fillStyle = '#7A2E2A'; g.fillRect(0, 0, 256, 256); g.fillStyle = '#E7D9BC'; g.fillRect(22, 22, 212, 212); g.fillStyle = '#2F4A5C'; g.fillRect(34, 34, 188, 188); g.fillStyle = '#C9A24B'; g.beginPath(); g.moveTo(128, 60); g.lineTo(196, 128); g.lineTo(128, 196); g.lineTo(60, 128); g.closePath(); g.fill(); g.fillStyle = '#7A2E2A'; g.beginPath(); g.arc(128, 128, 30, 0, 7); g.fill(); for (let i = 0; i < 8; i++) { g.fillStyle = '#C9A24B'; g.fillRect(40 + i * 24, 40, 10, 10); g.fillRect(40 + i * 24, 206, 10, 10); } }
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; FURN_TEX[kind] = t; return t;
+}
+// draws every piece of one room. y0 = floor top. cap = height the walls are cut at (dollhouse view) or null.
+function furn3D(T, grp, room, items, y0, ix, mat, cap) {
+  const S = FURN_SKIN[ix] || FURN_SKIN[1], hi = ix >= 2, top = cap == null ? 99 : cap;
+  const wood = mat(S.wood, { roughness: S.woodR }), dark = mat(S.dark, { roughness: 0.55 }), fab = mat(S.fab, { roughness: 0.96 }), cush = mat(S.cush, { roughness: 0.97 }),
+    headM = mat(S.head, { roughness: S.bed === 'plain' || S.bed === 'panel' ? S.woodR : 0.95 }), linen = mat(S.linen, { roughness: 0.95 }), duvet = mat(S.duvet, { roughness: 0.95 }), accent = mat(S.accent, { roughness: 0.95 }),
+    metal = mat(S.metal, { metalness: S.metalM, roughness: 0.3 }), stone = mat(S.top, { roughness: S.topR }), cab = mat(S.cab, { roughness: 0.45 }), ward = mat(S.ward, { roughness: 0.5 }),
+    porc = mat('#F7F7F5', { roughness: 0.18 }), black = mat('#18191B', { roughness: 0.35 }), steel = mat('#C8CCD0', { metalness: 0.75, roughness: 0.28 }), screen = mat('#0E1620', { roughness: 0.12, metalness: 0.3 }),
+    glass = mat('#BFD6DE', { transparent: true, opacity: 0.3, roughness: 0.05 }), mirror = mat('#DCE6EA', { metalness: 0.95, roughness: 0.04 }), gap = mat('#2A2826', { roughness: 0.8 }),
+    shade = mat('#FFF1D6', { emissive: '#FFD9A0', emissiveIntensity: 0.35, roughness: 0.9 }), leaf = mat('#3F7A3A', { roughness: 0.9 }), pot = mat(hi ? '#2E2E2E' : '#B5643A', { roughness: 0.7 });
+  const legM = S.legs === 'brass' ? metal : S.legs === 'metal' ? black : S.legs === 'wood' ? wood : dark;
+  const tag = me => { me.castShadow = true; me.receiveShadow = true; me.userData.fur = 1; return me; };
+  const piece = (x, z, ry) => { const g = new T.Group(); g.position.set(x, y0, z); g.rotation.y = ry || 0; grp.add(g); return g; };
+  const bx = (g, x, y, z, w, h, d, m, r) => { if (w <= 0.005 || h <= 0.005 || d <= 0.005) return null; const me = tag(new T.Mesh(furnRBox(T, w, h, d, r), m)); me.position.set(x + w / 2, y + h / 2, z + d / 2); g.add(me); return me; };
+  const cyl = (g, x, y, z, r1, r2, h, m, seg) => { const me = tag(new T.Mesh(new T.CylinderGeometry(r1, r2, h, seg || 20), m)); me.position.set(x, y + h / 2, z); g.add(me); return me; };
+  const sph = (g, x, y, z, r, m, sy) => { const me = tag(new T.Mesh(new T.SphereGeometry(r, 16, 12), m)); me.position.set(x, y, z); if (sy) me.scale.y = sy; g.add(me); return me; };
+  const legs4 = (g, x, z, w, d, h, ins) => { const t = S.legs === 'block' ? 0.16 : 0.12; [[x + ins, z + ins], [x + w - ins - t, z + ins], [x + ins, z + d - ins - t], [x + w - ins - t, z + d - ins - t]].forEach(([a, c]) => { if (S.legs === 'brass' || S.legs === 'wood') cyl(g, a + t / 2, 0, c + t / 2, t * 0.45, t * 0.3, h, legM, 10); else bx(g, a, 0, c, t, h, t, legM); }); };
+  // local frame of a piece against a wall: x runs along the wall, z goes into the room
+  const orient = (q, w) => { const hz = w === 'top' || w === 'bottom', L = hz ? q.w : q.h, Dp = hz ? q.h : q.w; const g = w === 'top' ? piece(q.x, q.y, 0) : w === 'bottom' ? piece(q.x + q.w, q.y + q.h, Math.PI) : w === 'left' ? piece(q.x, q.y + q.h, Math.PI / 2) : piece(q.x + q.w, q.y, -Math.PI / 2); return { g, L, Dp }; };
+  const toLocal = (q, w, px, py) => w === 'top' ? [px - q.x, py - q.y] : w === 'bottom' ? [q.x + q.w - px, q.y + q.h - py] : w === 'left' ? [q.y + q.h - py, px - q.x] : [py - q.y, q.x + q.w - px];
+  const toWorld = (q, w, u0, v0, du, dv) => w === 'top' ? { x: q.x + u0, y: q.y + v0, w: du, h: dv } : w === 'bottom' ? { x: q.x + q.w - u0 - du, y: q.y + q.h - v0 - dv, w: du, h: dv } : w === 'left' ? { x: q.x + v0, y: q.y + q.h - u0 - du, w: dv, h: du } : { x: q.x + q.w - v0 - dv, y: q.y + u0, w: dv, h: du };
+  const M = mainRect(room), inM = (R, pad) => R.x >= M.x + pad && R.y >= M.y + pad && R.x + R.w <= M.x + M.w - pad && R.y + R.h <= M.y + M.h - pad;
+  const solids = items.filter(p => p.solid);
+  const free = R => inM(R, 0.3) && !room.subs.some(s => ovl(R, s) > 0.01) && !solids.some(p => ovl(R, p) > 0.01);
+  const rug = R => { if (!S.rug) return; const x0 = Math.max(R.x, M.x + 0.4), y1 = Math.max(R.y, M.y + 0.4), x1 = Math.min(R.x + R.w, M.x + M.w - 0.4), y2 = Math.min(R.y + R.h, M.y + M.h - 0.4); if (x1 - x0 < 2 || y2 - y1 < 2) return; const me = new T.Mesh(new T.BoxGeometry(x1 - x0, 0.03, y2 - y1), new T.MeshStandardMaterial({ map: furnRugTex(T, S.rug), roughness: 1 })); me.position.set((x0 + x1) / 2, y0 + 0.015, (y1 + y2) / 2); me.receiveShadow = true; me.userData.fur = 1; grp.add(me); };
+  const plant = (x, z, big) => { const g = piece(x, z, 0); cyl(g, 0, 0, 0, big ? 0.55 : 0.4, big ? 0.42 : 0.3, big ? 1.4 : 1, pot, 16); [[0, 2.4, 0, 0.8], [0.35, 3.1, 0.2, 0.6], [-0.3, 3.3, -0.2, 0.55], [0.1, 3.9, -0.1, 0.5]].forEach(([a, b2, c, r]) => sph(g, a * (big ? 1 : 0.7), (big ? b2 : b2 * 0.7), c * (big ? 1 : 0.7), r * (big ? 1 : 0.75), leaf, 1.15)); cyl(g, 0, big ? 1.3 : 0.9, 0, 0.05, 0.05, big ? 1.5 : 1, mat('#5B4636'), 6); };
+  const lamp = (g, x, y, z) => { cyl(g, x, y, z, 0.2, 0.24, 0.1, hi ? metal : porc, 16); cyl(g, x, y + 0.1, z, 0.05, 0.05, 0.8, hi ? metal : steel, 8); cyl(g, x, y + 0.75, z, 0.3, 0.42, 0.55, shade, 20); };
+  const chair = (par, x, z, ry, office) => {
+    const g = new T.Group(); g.position.set(x, 0, z); g.rotation.y = ry; par.add(g);
+    const w = 1.35, d = 1.3, sh = 1.5;
+    if (office) { cyl(g, 0, 0.05, 0, 0.08, 0.08, sh - 0.2, black, 8); [0, 1, 2, 3, 4].forEach(i => { const a = i * Math.PI * 2 / 5, m = bx(g, -0.06, 0.05, 0, 0.12, 0.08, 0.95, black); m.position.set(Math.sin(a) * 0.45, 0.09, Math.cos(a) * 0.45); m.rotation.y = a; }); bx(g, -w / 2, sh - 0.15, -d / 2, w, 0.3, d, fab, 0.12); bx(g, -w / 2 + 0.05, sh + 0.2, -d / 2 - 0.05, w - 0.1, 1.6, 0.25, fab, 0.12); return; }
+    if (ix === 0) { bx(g, -w / 2, sh - 0.1, -d / 2, w, 0.1, d, wood); legs4(g, -w / 2, -d / 2, w, d, sh - 0.1, 0.05); bx(g, -w / 2 + 0.05, sh, -d / 2, 0.14, 1.5, 0.14, wood); bx(g, w / 2 - 0.19, sh, -d / 2, 0.14, 1.5, 0.14, wood); bx(g, -w / 2 + 0.05, sh + 0.8, -d / 2, w - 0.1, 0.6, 0.1, wood); return; }
+    if (ix === 1) { bx(g, -w / 2, sh - 0.12, -d / 2, w, 0.12, d, wood); bx(g, -w / 2 + 0.06, sh, -d / 2 + 0.06, w - 0.12, 0.14, d - 0.12, cush, 0.06); legs4(g, -w / 2, -d / 2, w, d, sh - 0.12, 0.05); bx(g, -w / 2 + 0.05, sh, -d / 2, w - 0.1, 1.6, 0.14, wood, 0.03); return; }
+    bx(g, -w / 2, sh - 0.25, -d / 2, w, 0.4, d, fab, 0.14); bx(g, -w / 2 + 0.03, sh, -d / 2 - 0.02, w - 0.06, ix === 3 ? 1.9 : 1.6, 0.32, fab, ix === 3 ? 0.15 : 0.1); legs4(g, -w / 2, -d / 2, w, d, sh - 0.25, 0.1);
+  };
+  const subOf = q => room.subs.find(s => q.x + q.w / 2 > s.x && q.x + q.w / 2 < s.x + s.w && q.y + q.h / 2 > s.y && q.y + q.h / 2 < s.y + s.h);
+  const backWall = (q, s, longAlongWall) => { if (!s) return q.w >= q.h ? 'top' : 'left'; const dT = q.y - s.y, dB = s.y + s.h - q.y - q.h, dL = q.x - s.x, dR = s.x + s.w - q.x - q.w; const hzWall = longAlongWall ? q.w >= q.h : q.h > q.w; return hzWall ? (dT <= dB ? 'top' : 'bottom') : (dL <= dR ? 'left' : 'right'); };
+  const hostCounter = (px, py) => items.find(p => p.role === 'counter' && px >= p.x - 0.05 && px <= p.x + p.w + 0.05 && py >= p.y - 0.05 && py <= p.y + p.h + 0.05);
+  items.forEach(q => {
+    const role = q.role;
+    if (q.veh || role === 'head' || role === 'pillow') return;
+    if (role === 'bed') {
+      const { g, L, Dp } = orient(q, q.wall), fh = 1.15, hb0 = 0.3;
+      if (S.bed === 'plain') { bx(g, 0.05, 0.4, hb0, L - 0.1, fh - 0.4, Dp - hb0, wood, 0.03); legs4(g, 0.05, hb0, L - 0.1, Dp - hb0, 0.4, 0.1); }
+      else if (S.bed === 'panel') bx(g, 0, 0, hb0, L, fh, Dp - hb0, wood, 0.04);
+      else { bx(g, 0.35, 0, hb0 + 0.3, L - 0.7, 0.3, Dp - hb0 - 0.6, dark); bx(g, 0, 0.3, hb0, L, fh - 0.3, Dp - hb0, headM, 0.14); if (ix === 3) bx(g, -0.02, fh - 0.1, hb0 - 0.02, L + 0.04, 0.05, Dp - hb0 + 0.04, metal); }
+      bx(g, 0.15, fh, hb0 + 0.1, L - 0.3, 0.6, Dp - hb0 - 0.25, linen, 0.16);
+      const dz = hb0 + (Dp - hb0) * 0.34; bx(g, 0.08, fh + 0.3, dz, L - 0.16, 0.42, Dp - dz - 0.1, duvet, 0.14); bx(g, 0.07, fh + 0.62, dz - 0.05, L - 0.14, 0.18, 0.75, linen, 0.08);
+      if (ix >= 1) bx(g, 0.03, fh + 0.66, Dp - 1.7, L - 0.06, 0.12, 1.15, accent, 0.05);
+      const pw = Math.min(2.3, (L - 0.75) / 2); [0.3, L - 0.3 - pw].forEach(x => bx(g, x, fh + 0.55, hb0 + 0.25, pw, 0.42, 1.25, mat('#FFFFFF', { roughness: 0.95 }), 0.2));
+      if (hi) { [L / 2 - 1.05, L / 2 + 0.1].forEach((x, i) => bx(g, x, fh + 0.6, hb0 + 1.45, 0.95, 0.75, 0.3, i ? accent : cush, 0.14)); }
+      if (S.bed === 'plain') bx(g, 0, 0, 0, L, 3.2, hb0, wood, 0.04);
+      else if (S.bed === 'panel') { bx(g, -0.15, 0, 0, L + 0.3, 3.8, hb0, headM, 0.05); bx(g, 0.35, 1.9, hb0, L - 0.7, 1.5, 0.05, wood, 0.02); }
+      else if (S.bed === 'upholstered') bx(g, -0.25, 0, 0, L + 0.5, Math.min(4.4, top), hb0 + 0.1, headM, 0.2);
+      else { const H = Math.min(5.4, top), W = L + 1.2, n = Math.max(6, Math.round(W / 0.55)), cw = W / n; bx(g, -0.6, 0, -0.02, W, H, 0.12, wood); for (let i = 0; i < n; i++) bx(g, -0.6 + i * cw + 0.02, 0.9, 0.08, cw - 0.04, H - 1.1, 0.3, headM, 0.12); bx(g, -0.6, H - 0.08, -0.02, W, 0.08, 0.4, metal); }
+      if (S.rug && hi) rug(toWorld(q, q.wall, -1.8, Dp * 0.38, L + 3.6, Dp * 0.62 + 1.6));
+      return;
+    }
+    if (role === 'nstand') { const { g, L, Dp } = orient(q, q.wall); bx(g, 0.05, ix === 0 ? 0 : 0.35, 0.05, L - 0.1, ix === 0 ? 1.8 : 1.45, Dp - 0.1, hi ? dark : wood, 0.04); if (ix) legs4(g, 0.05, 0.05, L - 0.1, Dp - 0.1, 0.35, 0.08); bx(g, 0.15, 1.15, Dp - 0.06, L - 0.3, 0.025, 0.03, gap); bx(g, L / 2 - 0.2, 1.4, Dp - 0.05, 0.4, 0.05, 0.06, hi ? metal : steel); lamp(g, L / 2, 1.8, Dp * 0.45); return; }
+    if (role === 'wardrobe') {
+      const { g, L, Dp } = orient(q, q.wall), H = Math.min(7, top), n = Math.max(2, Math.round(L / 1.6)), dw = L / n; if (H < 7) bx(g, -0.01, H, -0.01, L + 0.02, 0.08, Dp + 0.02, mat('#2B2D30', { roughness: 0.6 }));
+      bx(g, 0, 0, 0, L, 0.3, Dp - 0.1, dark); bx(g, 0, 0.3, 0, L, H - 0.3, Dp, ward, 0.03);
+      for (let i = 1; i < n; i++) bx(g, i * dw - 0.015, 0.35, Dp, 0.03, H - 0.4, 0.02, gap);
+      if (ix >= 1 && H > 5.8) bx(g, 0.05, 5.6, Dp, L - 0.1, 0.03, 0.02, gap);
+      for (let i = 0; i < n; i++) { const left = i % 2 === 0, hx = left ? (i + 1) * dw - 0.22 : i * dw + 0.17; if (ix === 3 && i === n - 1) bx(g, i * dw + 0.2, 0.8, Dp + 0.005, dw - 0.4, Math.min(4.4, H - 1.1), 0.02, mirror); bx(g, hx, 2.6, Dp + 0.01, 0.05, ix >= 2 ? 2 : 0.6, 0.07, ix >= 2 ? metal : steel); }
+      return;
+    }
+    if (role === 'sofa') {
+      const { g, L, Dp } = orient(q, q.wall), legH = ix === 0 ? 0 : 0.35, arm = 0.5, n = L >= 5.5 ? 3 : 2, cw = (L - 2 * arm) / n;
+      bx(g, 0, legH, 0, L, 1.05 - legH, Dp, fab, 0.1); bx(g, 0, legH, 0, L, 2.7 - legH, 0.6, fab, 0.14);
+      [0, L - arm].forEach(x => bx(g, x, legH, 0, arm, 2.0 - legH, Dp, fab, 0.15));
+      for (let i = 0; i < n; i++) { bx(g, arm + i * cw + 0.02, 1.05, 0.6, cw - 0.04, 0.42, Dp - 0.65, cush, 0.15); if (ix >= 1) bx(g, arm + i * cw + 0.04, 1.4, 0.48, cw - 0.08, 1.2, 0.45, cush, 0.2); }
+      if (ix >= 1) { [arm + 0.12, L - arm - 1.1].forEach((x, i) => bx(g, x, 1.5, 0.9, 0.98, 0.95, 0.32, i && hi ? mat(S.head, { roughness: 0.95 }) : accent, 0.16)); }
+      if (legH) legs4(g, 0.08, 0.08, L - 0.16, Dp - 0.16, legH, 0.1);
+      if (S.plant) { const ends = [toWorld(q, q.wall, -1.4, 0.2, 1.2, 1.2), toWorld(q, q.wall, L + 0.2, 0.2, 1.2, 1.2)]; const sp = ends.find(free); if (sp) plant(sp.x + sp.w / 2, sp.y + sp.h / 2, true); }
+      return;
+    }
+    if (role === 'table') {
+      const g = piece(q.x, q.y, 0), w = q.w, d = q.h, H = 1.4;
+      if (ix === 0) { bx(g, 0, H - 0.12, 0, w, 0.12, d, wood, 0.02); legs4(g, 0, 0, w, d, H - 0.12, 0.08); }
+      else if (ix === 1) { bx(g, 0, H - 0.15, 0, w, 0.15, d, wood, 0.03); bx(g, 0.12, 0.3, 0.12, w - 0.24, 0.08, d - 0.24, wood); legs4(g, 0, 0, w, d, H - 0.15, 0.06); }
+      else if (ix === 2) { bx(g, 0.15, 0, 0.15, w - 0.3, H - 0.2, d - 0.3, dark, 0.03); bx(g, -0.05, H - 0.2, -0.05, w + 0.1, 0.08, d + 0.1, glass, 0.02); }
+      else { const r = Math.min(w, d) / 2; cyl(g, w / 2, 0, d / 2, r * 0.55, r * 0.6, H - 0.15, metal, 28); const tp = cyl(g, w / 2, H - 0.15, d / 2, r, r, 0.15, stone, 40); tp.scale.x = Math.max(1, w / d); tp.scale.z = Math.max(1, d / w); }
+      sph(g, w * 0.35, H + 0.18, d * 0.5, 0.22, hi ? metal : accent, 0.8); bx(g, w * 0.55, H, d * 0.3, 0.7, 0.12, 0.5, accent, 0.02);
+      if (S.rug) { const s = q.host || q, x0 = Math.min(s.x, q.x) - 0.8, y1 = Math.min(s.y, q.y) - 0.8; rug({ x: x0, y: y1, w: Math.max(s.x + s.w, q.x + q.w) + 0.8 - x0, h: Math.max(s.y + s.h, q.y + q.h) + 0.8 - y1 }); }
+      return;
+    }
+    if (role === 'tv') {
+      const { g, L, Dp } = orient(q, q.wall), tw = Math.min(L - 0.3, hi ? 4.7 : 3.9), th = tw * 0.5625;
+      if (hi) { const H = Math.min(top, 7.5), n = Math.max(6, Math.round(L / 0.35)); for (let i = 0; i < n; i++) bx(g, i * L / n + 0.02, 0, 0, L / n - 0.06, H, 0.12, i % 2 ? wood : dark); }
+      const uy = ix >= 2 ? 0.8 : ix === 1 ? 0 : 0.45, uh = ix >= 2 ? 1.1 : ix === 1 ? 1.5 : 1.1, z0 = hi ? 0.12 : 0;
+      bx(g, 0, uy, z0, L, uh, Dp - z0, ix === 3 ? stone : hi ? dark : wood, 0.03); if (ix === 0) legs4(g, 0, z0, L, Dp - z0, uy, 0.1);
+      const n = Math.max(2, Math.round(L / 1.6)); for (let i = 1; i < n; i++) bx(g, i * L / n - 0.015, uy + 0.1, Dp, 0.03, uh - 0.2, 0.02, gap);
+      const ty = uy + uh + 0.3; if (ty + th <= top + 0.6 || cap == null) { bx(g, L / 2 - 0.35, uy + uh, Dp * 0.4, 0.7, 0.04, 0.5, black); bx(g, L / 2 - 0.05, uy + uh, Dp * 0.4 + 0.2, 0.1, 0.35, 0.08, black); bx(g, (L - tw) / 2, ty, Dp * 0.4 + 0.15, tw, th, 0.1, black, 0.02); bx(g, (L - tw) / 2 + 0.05, ty + 0.05, Dp * 0.4 + 0.255, tw - 0.1, th - 0.1, 0.01, screen); }
+      if (hi) bx(g, L / 2 - 1.4, uy + uh, Dp * 0.65, 2.8, 0.22, 0.3, black, 0.08);
+      if (S.plant) { const sp = [toWorld(q, q.wall, -1.3, 0.1, 1.1, 1.1), toWorld(q, q.wall, L + 0.2, 0.1, 1.1, 1.1)].find(free); if (sp) plant(sp.x + sp.w / 2, sp.y + sp.h / 2, false); }
+      return;
+    }
+    if (role === 'dtable') {
+      const g = piece(q.x, q.y, 0), w = q.w, d = q.h, H = 2.5, vert = d > w;
+      if (ix === 0) { bx(g, 0, H - 0.12, 0, w, 0.12, d, wood, 0.02); legs4(g, 0, 0, w, d, H - 0.12, 0.1); }
+      else if (ix === 1) { bx(g, 0, H - 0.16, 0, w, 0.16, d, wood, 0.03); legs4(g, 0, 0, w, d, H - 0.16, 0.2); }
+      else if (ix === 2) { bx(g, 0, H - 0.14, 0, w, 0.14, d, wood, 0.02); [0.25, (vert ? d : w) - 0.37].forEach(a => { if (vert) { bx(g, 0.2, 0, a, w - 0.4, 0.1, 0.12, black); bx(g, w / 2 - 0.06, 0, a, 0.12, H - 0.14, 0.12, black); } else { bx(g, a, 0, 0.2, 0.12, 0.1, d - 0.4, black); bx(g, a, 0, d / 2 - 0.06, 0.12, H - 0.14, 0.12, black); } }); }
+      else { bx(g, -0.05, H - 0.15, -0.05, w + 0.1, 0.15, d + 0.1, stone, 0.05); [0.3, 0.7].forEach(f => { const cx = vert ? w / 2 : w * f, cz = vert ? d * f : d / 2; cyl(g, cx, 0, cz, 0.55, 0.55, 0.1, metal, 28); cyl(g, cx, 0.1, cz, 0.15, 0.22, H - 0.25, metal, 16); }); }
+      if (ix >= 1) bx(g, vert ? w / 2 - 0.4 : 0.2, H, vert ? 0.2 : d / 2 - 0.4, vert ? 0.8 : w - 0.4, 0.01, vert ? d - 0.4 : 0.8, accent);
+      cyl(g, w / 2, H, d / 2, 0.45, 0.3, 0.25, hi ? metal : porc, 24); [-0.15, 0.12].forEach((a, i) => sph(g, w / 2 + a, H + 0.3, d / 2 + (i ? -0.1 : 0.1), 0.17, mat(i ? '#D9832B' : '#C2412D', { roughness: 0.6 })));
+      const cx = q.x + w / 2, cz = q.y + d / 2;
+      (q.parts || items.filter(c => c.role === 'chair')).forEach(c => { const x = c.x + c.w / 2 - q.x, z = c.y + c.h / 2 - q.y; chair(g, x, z, Math.atan2(cx - (c.x + c.w / 2), cz - (c.y + c.h / 2))); });
+      if (S.rug && hi) rug({ x: q.x - 2.2, y: q.y - 2.2, w: w + 4.4, h: d + 4.4 });
+      return;
+    }
+    if (role === 'counter') {
+      const { g, L, Dp } = orient(q, q.wall), n = Math.max(1, Math.round(L / 1.5)), dw = L / n;
+      bx(g, 0.05, 0, 0.05, L - 0.1, 0.3, Dp - 0.25, gap); bx(g, 0, 0.3, 0, L, 2.38, Dp - 0.08, cab, 0.02);
+      for (let i = 1; i < n; i++) bx(g, i * dw - 0.015, 0.35, Dp - 0.08, 0.03, 2.28, 0.02, gap);
+      if (ix >= 1) bx(g, 0.03, 2.1, Dp - 0.08, L - 0.06, 0.03, 0.02, gap);
+      for (let i = 0; i < n; i++) { if (ix === 0) sph(g, i * dw + dw - 0.25, 1.9, Dp - 0.04, 0.06, steel); else bx(g, i * dw + 0.25, 2.3, Dp - 0.06, dw - 0.5, 0.05, 0.06, ix >= 2 ? metal : steel); }
+      bx(g, -0.02, 2.68, -0.02, L + 0.04, 0.13, Dp + 0.04, stone, 0.02);
+      if (hi) bx(g, 0, 2.81, 0, L, Math.min(1.8, top - 2.81), 0.05, stone);
+      const hobs = items.filter(p => p.role === 'hob' && hostCounter(p.cx, p.cy) === q);
+      if (hobs.length && ix >= 1 && cap == null) { const us = hobs.map(h => toLocal(q, q.wall, h.cx, h.cy)[0]), u = us.reduce((a, b2) => a + b2, 0) / us.length; bx(g, u - 1.3, 5.1, 0, 2.6, 0.45, 1.7, hi ? black : steel, 0.04); bx(g, u - 0.45, 5.55, 0, 0.9, 1.9, 0.8, hi ? black : steel); }
+      return;
+    }
+    if (role === 'hob') {
+      const g = piece(q.cx, q.cy, 0);
+      if (ix === 0) { bx(g, -0.55, 2.81, -0.5, 1.1, 0.22, 1.0, steel, 0.03); cyl(g, 0, 3.03, 0, 0.28, 0.28, 0.04, black); cyl(g, 0, 3.07, 0, 0.12, 0.12, 0.05, mat('#555A5F')); return; }
+      bx(g, -0.6, 2.81, -0.55, 1.2, 0.03, 1.1, ix >= 2 ? black : mat('#2D2F31', { roughness: 0.2 }), 0.01); cyl(g, 0, 2.84, 0, 0.3, 0.3, 0.02, ix >= 2 ? mat('#3A3D40', { roughness: 0.2 }) : black); if (ix < 2) cyl(g, 0, 2.86, 0, 0.13, 0.13, 0.06, steel); return;
+    }
+    if (role === 'sink') {
+      const g = piece(q.x, q.y, 0), c = hostCounter(q.x + q.w / 2, q.y + q.h / 2);
+      bx(g, 0, 2.81, 0, q.w, 0.02, q.h, steel); bx(g, 0.12, 2.82, 0.12, q.w - 0.24, 0.005, q.h - 0.24, mat('#5A5F64', { metalness: 0.6, roughness: 0.35 }));
+      if (c) { const lw = toLocal(c, c.wall, q.x + q.w / 2, q.y + q.h / 2), W = toWorld(c, c.wall, lw[0] - 0.05, 0.15, 0.1, 0.1); const tg = piece(W.x + W.w / 2, W.y + W.h / 2, 0); cyl(tg, 0, 2.81, 0, 0.05, 0.06, 1.1, ix === 3 ? metal : steel, 10); sph(tg, 0, 3.9, 0, 0.08, ix === 3 ? metal : steel); }
+      return;
+    }
+    if (role === 'upper') {
+      if (cap != null) return;
+      const c = hostCounter(q.x + q.w / 2, q.y + q.h / 2) || items.find(p => p.role === 'counter'); if (!c) return;
+      const { g, L, Dp } = orient(q, c.wall), n = Math.max(1, Math.round(L / 1.5)), dw = L / n;
+      bx(g, 0, 5.2, 0, L, 2, Dp, cab, 0.02); for (let i = 1; i < n; i++) bx(g, i * dw - 0.015, 5.25, Dp, 0.03, 1.9, 0.02, gap);
+      for (let i = 0; i < n; i++) bx(g, i * dw + 0.25, 5.3, Dp, dw - 0.5, 0.05, 0.05, ix >= 2 ? metal : steel);
+      return;
+    }
+    if (role === 'fridge') { const { g, L, Dp } = orient(q, q.wall), fm = mat(S.fridge, { metalness: ix >= 1 ? 0.5 : 0, roughness: 0.3 }), H = Math.min(6, top); if (H < 6) bx(g, 0.1, H, 0.1, L - 0.2, 0.08, Dp - 0.2, mat('#2B2D30', { roughness: 0.6 })); bx(g, 0.1, 0, 0.1, L - 0.2, H, Dp - 0.2, fm, 0.08); if (ix === 3) { bx(g, L / 2 - 0.01, 0.1, Dp - 0.1, 0.02, H - 0.2, 0.01, gap); [L / 2 - 0.2, L / 2 + 0.15].forEach(x => bx(g, x, 2, Dp - 0.08, 0.05, 1.8, 0.08, metal)); } else { if (H > 4.3) { bx(g, 0.12, 4.2, Dp - 0.1, L - 0.24, 0.02, 0.01, gap); bx(g, L - 0.45, 4.4, Dp - 0.08, 0.06, 1, 0.08, steel); } bx(g, L - 0.45, 2.6, Dp - 0.08, 0.06, 1.3, 0.08, steel); } return; }
+    if (role === 'study') {
+      const { g, L, Dp } = orient(q, q.wall);
+      bx(g, 0, 2.35, 0, L, 0.12, Dp, wood, 0.03);
+      if (ix === 0) legs4(g, 0, 0, L, Dp, 2.35, 0.05); else { bx(g, L - 1.3, 0, 0.05, 1.2, 2.35, Dp - 0.1, hi ? dark : wood, 0.02); [0.8, 1.6].forEach(y => bx(g, L - 1.2, y, Dp - 0.04, 1, 0.02, 0.02, gap)); bx(g, 0.05, 0, 0.1, 0.12, 2.35, Dp - 0.2, hi ? dark : wood); }
+      bx(g, L / 2 - 0.9, 2.47, 0.4, 1.4, 0.03, 0.5, black); bx(g, L / 2 - 0.15, 2.47, 0.3, 0.3, 0.6, 0.1, black); bx(g, L / 2 - 1.1, 2.9, 0.25, 2.2, 1.25, 0.08, black, 0.02); bx(g, L / 2 - 1.05, 2.95, 0.335, 2.1, 1.15, 0.005, screen);
+      lamp(g, 0.5, 2.47, 0.5); chair(g, L / 2, Dp + 0.75, Math.PI, ix >= 1);
+      return;
+    }
+    if (role === 'wc') {
+      const s = subOf(q), w = backWall(q, s, false), { g, L, Dp } = orient(q, w), cx = L / 2;
+      if (S.wallWC) { bx(g, cx - 0.8, 0, 0, 1.6, Math.min(3.6, top), 0.3, stone); bx(g, cx - 0.3, 3, 0.3, 0.6, 0.4, 0.03, metal); }
+      else { bx(g, cx - 0.65, 1.3, 0.05, 1.3, 1.1, 0.5, porc, 0.1); bx(g, cx - 0.7, 2.4, 0.03, 1.4, 0.08, 0.55, porc, 0.03); }
+      const z0 = S.wallWC ? 0.3 : 0.55, bowlY = S.wallWC ? 0.7 : 0;
+      if (!S.wallWC) cyl(g, cx, 0, z0 + 0.6, 0.32, 0.4, 0.9, porc, 20);
+      const bowl = cyl(g, cx, bowlY + (S.wallWC ? 0 : 0.9), z0 + 0.75, 0.55, 0.42, S.wallWC ? 0.75 : 0.45, porc, 28); bowl.scale.z = 1.35;
+      const lid = cyl(g, cx, bowlY + (S.wallWC ? 0.75 : 1.35), z0 + 0.75, 0.56, 0.56, 0.06, porc, 28); lid.scale.z = 1.35;
+      return;
+    }
+    if (role === 'basin') {
+      const s = subOf(q), w = backWall(q, s, true), { g, L, Dp } = orient(q, w);
+      if (S.vanity) { bx(g, 0, 0.7, 0, L, 1.6, Dp, hi && ix === 3 ? wood : dark, 0.03); bx(g, -0.02, 2.3, -0.02, L + 0.04, 0.12, Dp + 0.04, stone, 0.02); const b = cyl(g, L / 2, 2.42, Dp * 0.52, 0.5, 0.36, 0.38, porc, 28); b.scale.z = 0.85; cyl(g, L / 2, 2.42, 0.18, 0.05, 0.05, 0.9, metal, 10); }
+      else { cyl(g, L / 2, 0, Dp * 0.4, 0.22, 0.3, 2.3, porc, 16); bx(g, L / 2 - 0.85, 2.3, 0.05, 1.7, 0.45, Math.min(1.25, Dp), porc, 0.15); cyl(g, L / 2, 2.75, 0.2, 0.04, 0.04, 0.35, steel, 10); }
+      if (cap == null) bx(g, L / 2 - 0.9, 3.9, 0, 1.8, 2.4, 0.05, mirror, 0.02);
+      return;
+    }
+    if (role === 'shower') {
+      const s = subOf(q) || q, g = piece(0, 0, 0), H = Math.min(6.5, top);
+      bx(g, q.x, 0, q.y, q.w, 0.08, q.h, mat(hi ? '#D8D3CB' : '#C9CDD0', { roughness: 0.6 }));
+      if (q.x - s.x > 0.4) bx(g, q.x, 0, q.y, 0.04, H, q.h, glass); if (s.x + s.w - q.x - q.w > 0.4) bx(g, q.x + q.w - 0.04, 0, q.y, 0.04, H, q.h, glass);
+      if (q.y - s.y > 0.4) bx(g, q.x, 0, q.y, q.w, H, 0.04, glass); if (s.y + s.h - q.y - q.h > 0.4) bx(g, q.x, 0, q.y + q.h - 0.04, q.w, H, 0.04, glass);
+      if (cap == null) cyl(g, q.x + q.w / 2, 6.7, q.y + q.h / 2, hi ? 0.5 : 0.25, hi ? 0.5 : 0.25, 0.05, ix === 3 ? metal : steel, 24);
+      return;
+    }
+    if (role === 'altar') {
+      const g = piece(q.x, q.y, 0), w = q.w, d = q.h, base = hi ? stone : wood, trim = hi ? metal : mat('#C9963C', { metalness: 0.5, roughness: 0.4 });
+      bx(g, 0, 0, 0, w, 2.3, d, base, 0.03); bx(g, 0.1, 2.3, 0.05, w - 0.2, 0.08, d - 0.1, trim);
+      bx(g, 0.2, 2.38, 0.05, w - 0.4, 1.3, d - 0.2, base, 0.03); bx(g, 0.4, 2.48, d - 0.16, w - 0.8, 1.0, 0.02, mat('#7A2E2A', { roughness: 0.8 }));
+      const dm = sph(g, w / 2, 3.68, d / 2 - 0.05, Math.min(0.55, w / 3), hi ? metal : trim, 0.9); dm.scale.z = 0.8; cyl(g, w / 2, 4.1, d / 2 - 0.05, 0.02, 0.08, 0.35, trim, 8);
+      sph(g, w / 2, 2.55, d - 0.25, 0.07, mat('#FFB347', { emissive: '#FF9A1F', emissiveIntensity: 1.2 }));
+      return;
+    }
+  });
+}
+// cars and bikes in the parking, coloured by range
+function furnVehicle(T, grp, v, y0, ix, mat) {
+  const tag = me => { me.castShadow = true; me.receiveShadow = true; me.userData.fur = 1; return me; };
+  const vert = v.h >= v.w, W = vert ? v.w : v.h, Lc = vert ? v.h : v.w, g = new T.Group();
+  if (vert) g.position.set(v.x, y0, v.y); else { g.position.set(v.x, y0, v.y + v.h); g.rotation.y = Math.PI / 2; }
+  grp.add(g);
+  const bx = (x, y, z, w, h, d, m, r) => { const me = tag(new T.Mesh(furnRBox(T, w, h, d, r), m)); me.position.set(x + w / 2, y + h / 2, z + d / 2); g.add(me); return me; };
+  const wheel = (x, y, z, r, t) => { const me = tag(new T.Mesh(new T.CylinderGeometry(r, r, t, 24), mat('#16181A', { roughness: 0.8 }))); me.rotation.z = Math.PI / 2; me.position.set(x, y, z); g.add(me); const hub = tag(new T.Mesh(new T.CylinderGeometry(r * 0.55, r * 0.55, t + 0.04, 16), mat('#B8BDC2', { metalness: 0.8, roughness: 0.3 }))); hub.rotation.z = Math.PI / 2; hub.position.set(x, y, z); g.add(hub); };
+  if (v.t === 'car') {
+    const body = mat(['#C3C7CC', '#8E1F24', '#1F2A36', '#141414'][ix] || '#8E1F24', { metalness: 0.6, roughness: 0.28 }), tint = mat('#1B2530', { roughness: 0.08, metalness: 0.5, transparent: true, opacity: 0.88 });
+    const cw = W - 0.6, x0 = 0.3, l = Math.min(Lc - 0.2, ix >= 2 ? 15.5 : 13.5), z0 = (Lc - l) / 2, r = 1.05;
+    bx(x0, 0.75, z0, cw, 1.75, l, body, 0.4);
+    bx(x0 + 0.25, 2.35, z0 + l * 0.3, cw - 0.5, 1.55, l * 0.45, tint, 0.35);
+    bx(x0 + 0.3, 3.8, z0 + l * 0.34, cw - 0.6, 0.18, l * 0.37, body, 0.08);
+    [[z0 + 0.06, '#FFF7E0', 1], [z0 + l - 0.12, '#C21E1E', 0.6]].forEach(([z, c, e]) => [x0 + 0.35, x0 + cw - 1.15].forEach(x => bx(x, 1.9, z, 0.8, 0.3, 0.06, mat(c, { emissive: c, emissiveIntensity: e }))));
+    bx(x0 + cw / 2 - 0.9, 1.15, z0 - 0.02, 1.8, 0.55, 0.05, mat('#111316', { roughness: 0.4 }));
+    [x0 - 0.15, x0 + cw - 0.05].forEach(x => bx(x, 2.75, z0 + l * 0.3, 0.2, 0.22, 0.35, body));
+    [z0 + l * 0.18, z0 + l * 0.8].forEach(z => [x0 + 0.3, x0 + cw - 0.3].forEach(x => wheel(x, r, z, r, 0.7)));
+  } else {
+    const fr = mat(['#2F4B7C', '#1F1F1F', '#B3261E', '#C9A24B'][ix] || '#2F4B7C', { metalness: 0.5, roughness: 0.35 }), cx = W / 2;
+    [Lc * 0.15 + 0.3, Lc * 0.85 - 0.3].forEach(z => wheel(cx, 0.95, z, 0.95, 0.3));
+    bx(cx - 0.35, 1.2, Lc * 0.3, 0.7, 1.1, Lc * 0.4, fr, 0.2); bx(cx - 0.3, 2.3, Lc * 0.38, 0.6, 0.25, Lc * 0.3, mat('#1B1B1B', { roughness: 0.8 }), 0.1);
+    bx(cx - 0.08, 1.1, Lc * 0.15, 0.16, 2.2, 0.16, fr); bx(cx - 1.1, 3.25, Lc * 0.15 - 0.05, 2.2, 0.1, 0.1, mat('#2A2A2A'));
+  }
 }
 function furnitureBoxes(room, FP, swings, D, o, F) {
   FP = FP || INT_PAL[0];
@@ -4229,7 +4512,8 @@ function buildHouse3D(T, D, o, opts) {
       const mine = ops.filter(op => { const [x1, y1, x2, y2] = op.seg; return sg.horiz ? Math.abs(y1 - sg.at) < 0.06 && Math.abs(y2 - sg.at) < 0.06 && Math.min(x1, x2) >= sg.a - 0.1 && Math.max(x1, x2) <= sg.z + 0.1 : Math.abs(x1 - sg.at) < 0.06 && Math.abs(x2 - sg.at) < 0.06 && Math.min(y1, y2) >= sg.a - 0.1 && Math.max(y1, y2) <= sg.z + 0.1; })
         .map(op => { const [x1, y1, x2, y2] = op.seg; return { a: sg.horiz ? Math.min(x1, x2) : Math.min(y1, y2), z: sg.horiz ? Math.max(x1, x2) : Math.max(y1, y2), kind: op.kind }; }).sort((p, q) => p.a - q.a);
       const wcol = sg.outer ? st.wall : intCol;
-      const piece = (a, z, y0, y1, m) => { if (z - a < 0.02 || y1 - y0 < 0.02) return; if (sg.horiz) box(a, base + y0, sg.at - th / 2, z - a, y1 - y0, th, m); else box(sg.at - th / 2, base + y0, a, th, y1 - y0, z - a, m); };
+      const piece = (a, z, y0, y1, m) => { if (z - a < 0.02 || y1 - y0 < 0.02) return; if (sg.horiz) box(a, base + y0, sg.at - th / 2, z - a, y1 - y0, th, m); else box(sg.at - th / 2, base + y0, a, th, y1 - y0, z - a, m);
+        if (cut && y1 >= wallTop - 0.01) { const cm = mat('#2B2D30', { roughness: 0.6 }); if (sg.horiz) box(a, base + y1, sg.at - th / 2 - 0.02, z - a, 0.08, th + 0.04, cm, false); else box(sg.at - th / 2 - 0.02, base + y1, a, th + 0.04, 0.08, z - a, cm, false); } };
       let cur = sg.a;
       mine.forEach(op => {
         if (op.a < cur - 0.01) return; // overlapping opening already cut
@@ -4282,9 +4566,13 @@ function buildHouse3D(T, D, o, opts) {
       if (!cut && f === nF - 1) sGeo(L - landE, L, 0, Sw, base + FH - SLAB, base + FH, m); // arrival on the roof
     }
     if (SG && f > 0 && f === nF - 1 && !FM.toRoof && F.rooms.some(r => r.type === 'stair')) sGeo(SG.L - SG.landE, SG.L, 0, SG.S, base - SLAB, base, mat('#BDB6AA'));
-    if (opts.furn) F.rooms.forEach(r => { if (!r.void) furnitureBoxes(r, LK.int, null, D, o, F).forEach(x => box(x.x, base + 0.06 + x.z, x.y, x.w, x.ht, x.h, mat(x.col))); });
+    if (opts.furn) F.rooms.forEach(r => {
+      if (r.void) return;
+      try { furn3D(T, grp, r, furnOf(D, o, F, r), base + 0.06, furnSkinIx(), mat, cut ? wallTop : null); if (r.type === 'parking') vehiclesIn(mainRect(r), r.pk || '4w').forEach(v => furnVehicle(T, grp, v, base + 0.06, furnSkinIx(), mat)); }
+      catch (e) { console.warn(e); furnitureBoxes(r, LK.int, null, D, o, F).forEach(x => box(x.x, base + 0.06 + x.z, x.y, x.w, x.ht, x.h, mat(x.col))); }
+    });
     // inside view of one floor: size of each piece, and the free walkway in front of it (green)
-    if (opts.furn && cutAt === f) F.rooms.forEach(r => {
+    if (opts.furn && cutAt === f && ST.furnSizes) F.rooms.forEach(r => {
       if (r.void) return;
       furnOf(D, o, F, r).forEach(p => {
         if (!p.label) return;
@@ -4860,7 +5148,7 @@ SCR.layout = () => {
   // one view at a time
   const VIEWS = (b.site ? [['land', b.site.villa ? 'Estate' : 'Land']] : []).concat([['plan', 'Plan'], ['rooms', 'Rooms'], ['3d', '3D'], ['front', 'Front'], ['lights', 'Lights']]);
   h += '<div class="seg2 vsw" role="tablist">' + VIEWS.map(v => '<button role="tab" class="' + (view === v[0] ? 'on' : '') + '" data-a="view" data-v="' + v[0] + '">' + v[1] + '</button>').join('') + '</div>';
-  h += '<div class="hero">' + (view === 'land' && b.site ? '<div class="panel"><div class="ph"><b>' + (b.site.villa ? ESTATE[vtOf(b)].n + ' — site plan' : 'Site plan') + ' — your whole land (' + b.site.W + ' × ' + b.site.D + ' ft)</b></div>' + sitePlanSvg(D, o) + gardenLegend(D, o) + '<p class="hint">The house takes ' + b.site.Wv + ' × ' + b.site.Dv + ' ft at the front. The rest is planned as lawn, garden' + (siteLayout(D).pool ? ', a swimming pool' : '') + (siteLayout(D).gazebo ? ', a gazebo' : '') + ' — not left empty. The floor plans below show the house part.' + (siteLayout(D).lawn > 20000 ? ' About ' + Math.round(siteLayout(D).lawn / 1000) + ',000 sq ft stays lawn — for income, choose “Rental units” on the home step to see how many units fit.' : '') + '</p></div>' : view === '3d' ? '<div class="panel"><div class="ph"><b>3D</b><button class="btn mini walkbtn' + (ds.walk ? ' on' : '') + '" data-a="walk">' + (ds.walk ? 'Back to 3D model' : 'Walk inside') + '</button>' + (ds.show3d && !ds.walk ? '<div class="seg2 sm">' + [['ext', 'Outside']].concat(o.floors.map((x, i) => ['f' + i, x.label])).map(m => '<button class="' + (ds.v3 === m[0] ? 'on' : '') + '" data-a="v3" data-v="' + m[0] + '">' + esc(m[1]) + '</button>').join('') + '</div><div class="seg2 sm"><button class="' + (ds.night ? '' : 'on') + '" data-a="night" data-v="0">Day</button><button class="' + (ds.night ? 'on' : '') + '" data-a="night" data-v="1">Night lights</button></div>' : '') + '</div><div id="dz3d" class="v3">' + (ds.show3d ? '<p class="load">Loading 3D…</p>' : '<button class="btn" data-a="make3d">See it in 3D</button><p class="hint">Outside and inside every floor. Drag to turn.</p>') + '</div></div>' : view === 'front' ? '<div class="panel"><div class="ph"><b>Front elevation</b><div class="seg2 sm">' + Object.keys(STYLES).map(k => '<button class="' + (b.style === k ? 'on' : '') + '" data-a="style" data-v="' + k + '">' + esc(STYLES[k].name) + '</button>').join('') + '</div></div>' + elevationSvg(D, o) + '</div>' : view === 'lights' ? lightPanel(D, o, F) : view === 'rooms' ? roomStudioView(D, o) : '<div class="panel"><div class="ph"><div class="seg2 sm">' + o.floors.map((x, i) => '<button class="' + (i === ds.floor ? 'on' : '') + '" data-a="floor" data-v="' + i + '">' + esc(x.label) + '</button>').join('') + '<button class="' + (isRoof ? 'on' : '') + '" data-a="floor" data-v="' + nFl + '">Roof</button></div>' + (!isRoof && F.fi === 0 ? '<button class="tog vtog' + (ST.vgrid ? ' on' : '') + '" data-a="vgrid"><span class="dot"></span>Vastu Purush</button>' : '') + (!isRoof ? '<button class="tog vtog' + (ds.edit ? ' on' : '') + '" data-a="gedit"><span class="dot"></span>Resize rooms</button><button class="tog vtog' + (ds.meas ? ' on' : '') + '" data-a="meas"><span class="dot"></span>Measure</button>' : '') + '</div>' + (ds.edit && !isRoof ? '<p class="edit-hint">Drag a gold line. The rooms on both sides change together — on every floor, because the columns run through the whole house.</p>' : '') + '<div id="planbox" class="' + (ds.edit && !isRoof ? 'editing' : ds.meas && !isRoof ? 'measuring' : '') + '">' + (ds.meas && !isRoof ? '<p class="edit-hint">Click two points on the plan to measure between them.</p>' : '') + (isRoof ? roofPlanSvg(D, o) : planSvg(D, o, F, { furn: !ds.edit, edit: ds.edit, vastu: !ds.edit && ST.vgrid && F.fi === 0 })) + '<div id="gtip" hidden></div></div></div>') + (view === 'plan' && !isRoof ? decorLegend(D, o, F) + sizeStrip(D, o) : '') + '</div>';
+  h += '<div class="hero">' + (view === 'land' && b.site ? '<div class="panel"><div class="ph"><b>' + (b.site.villa ? ESTATE[vtOf(b)].n + ' — site plan' : 'Site plan') + ' — your whole land (' + b.site.W + ' × ' + b.site.D + ' ft)</b></div>' + sitePlanSvg(D, o) + gardenLegend(D, o) + '<p class="hint">The house takes ' + b.site.Wv + ' × ' + b.site.Dv + ' ft at the front. The rest is planned as lawn, garden' + (siteLayout(D).pool ? ', a swimming pool' : '') + (siteLayout(D).gazebo ? ', a gazebo' : '') + ' — not left empty. The floor plans below show the house part.' + (siteLayout(D).lawn > 20000 ? ' About ' + Math.round(siteLayout(D).lawn / 1000) + ',000 sq ft stays lawn — for income, choose “Rental units” on the home step to see how many units fit.' : '') + '</p></div>' : view === '3d' ? '<div class="panel"><div class="ph"><b>3D</b><button class="btn mini walkbtn' + (ds.walk ? ' on' : '') + '" data-a="walk">' + (ds.walk ? 'Back to 3D model' : 'Walk inside') + '</button>' + (ds.show3d && !ds.walk ? '<div class="seg2 sm">' + [['ext', 'Outside']].concat(o.floors.map((x, i) => ['f' + i, x.label])).map(m => '<button class="' + (ds.v3 === m[0] ? 'on' : '') + '" data-a="v3" data-v="' + m[0] + '">' + esc(m[1]) + '</button>').join('') + '</div><div class="seg2 sm"><button class="' + (ds.night ? '' : 'on') + '" data-a="night" data-v="0">Day</button><button class="' + (ds.night ? 'on' : '') + '" data-a="night" data-v="1">Night lights</button></div>' + furnSkinBar(D, o) : '') + '</div><div id="dz3d" class="v3">' + (ds.show3d ? '<p class="load">Loading 3D…</p>' : '<button class="btn" data-a="make3d">See it in 3D</button><p class="hint">Outside and inside every floor. Drag to turn.</p>') + '</div></div>' : view === 'front' ? '<div class="panel"><div class="ph"><b>Front elevation</b><div class="seg2 sm">' + Object.keys(STYLES).map(k => '<button class="' + (b.style === k ? 'on' : '') + '" data-a="style" data-v="' + k + '">' + esc(STYLES[k].name) + '</button>').join('') + '</div></div>' + elevationSvg(D, o) + '</div>' : view === 'lights' ? lightPanel(D, o, F) : view === 'rooms' ? roomStudioView(D, o) : '<div class="panel"><div class="ph"><div class="seg2 sm">' + o.floors.map((x, i) => '<button class="' + (i === ds.floor ? 'on' : '') + '" data-a="floor" data-v="' + i + '">' + esc(x.label) + '</button>').join('') + '<button class="' + (isRoof ? 'on' : '') + '" data-a="floor" data-v="' + nFl + '">Roof</button></div>' + (!isRoof && F.fi === 0 ? '<button class="tog vtog' + (ST.vgrid ? ' on' : '') + '" data-a="vgrid"><span class="dot"></span>Vastu Purush</button>' : '') + (!isRoof ? '<button class="tog vtog' + (ds.edit ? ' on' : '') + '" data-a="gedit"><span class="dot"></span>Resize rooms</button><button class="tog vtog' + (ds.meas ? ' on' : '') + '" data-a="meas"><span class="dot"></span>Measure</button><button class="tog vtog" data-a="plan3d" data-v="' + F.fi + '"><span class="dot"></span>3D with furniture</button>' : '') + '</div>' + (ds.edit && !isRoof ? '<p class="edit-hint">Drag a gold line. The rooms on both sides change together — on every floor, because the columns run through the whole house.</p>' : '') + '<div id="planbox" class="' + (ds.edit && !isRoof ? 'editing' : ds.meas && !isRoof ? 'measuring' : '') + '">' + (ds.meas && !isRoof ? '<p class="edit-hint">Click two points on the plan to measure between them.</p>' : '') + (isRoof ? roofPlanSvg(D, o) : planSvg(D, o, F, { furn: !ds.edit, edit: ds.edit, vastu: !ds.edit && ST.vgrid && F.fi === 0 })) + '<div id="gtip" hidden></div></div></div>') + (view === 'plan' && !isRoof ? decorLegend(D, o, F) + sizeStrip(D, o) : '') + '</div>';
   h += '</div><div class="st-side">';
   // three numbers
   let P = null; try { P = priceList(D, o); } catch (e) { }
@@ -5334,7 +5622,7 @@ function dress3D(T, root, model, noEdges) {
       else if (e) o.material = cm('e', '#F6F3EC');
       else o.material = cm('c' + (hsl.l > 0.55 ? 3 : hsl.l > 0.36 ? 2 : hsl.l > 0.2 ? 1 : 0), ['#B9B6B0', '#D3D0CA', '#E6E3DD', '#F5F3EF'][hsl.l > 0.55 ? 3 : hsl.l > 0.36 ? 2 : hsl.l > 0.2 ? 1 : 0]);
     }
-    if (!noEdges && big && !glassy && edges < 3500 && o.castShadow !== false) { add.push(o); edges++; }
+    if (!noEdges && big && !glassy && !o.userData.fur && edges < 3500 && o.castShadow !== false) { add.push(o); edges++; }
   });
   const geoCache = new Map();
   add.forEach(o => { const p = o.geometry.parameters, k = p.width.toFixed(2) + ',' + p.height.toFixed(2) + ',' + p.depth.toFixed(2); let g = geoCache.get(k); if (!g) { g = new T.EdgesGeometry(o.geometry, 20); geoCache.set(k, g); } const l = new T.LineSegments(g, edgeM); l.raycast = () => {}; o.add(l); });
@@ -7320,6 +7608,9 @@ const ACT = {
   stprint: () => { const t = document.title; document.title = 'BhuChain-Structure-Plan'; const back = () => { document.title = t; window.removeEventListener('afterprint', back); }; window.addEventListener('afterprint', back); window.print(); },
   make3d: async () => { show3dView(); const host = $('#dz3d'); if (!host) return; host.innerHTML = '<p class="load">Loading 3D… (needs internet the first time)</p>'; try { if (!window.THREE) await loadScript(THREE_URL); } catch (e) { host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } S.design.show3d = true; keepY(() => {}); },
   night: el => { show3dView(); S.design.night = el.dataset.v === '1'; if (!S.design.show3d || !window.THREE) { ACT.make3d(); } else keepY(() => {}); if (S.design.night) setTimeout(() => { const el2 = document.getElementById('dz3d'); if (el2) el2.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300); },
+  fskin: el => { ST.furnSkin = +el.dataset.v; keepY(() => {}); },
+  fsizes: () => { ST.furnSizes = !ST.furnSizes; keepY(() => {}); },
+  plan3d: el => { const ds = S.design; ds.v3 = 'f' + el.dataset.v; ds.night = false; ds.walk = false; ds.view = '3d'; if (!ds.show3d || !window.THREE) { keepY(() => {}); ACT.make3d(); } else keepY(() => {}); },
   v3: el => { S.design.v3 = el.dataset.v; document.querySelectorAll('[data-a="v3"]').forEach(b => b.classList.toggle('on', b === el)); mount3D(); },
   pick: el => keepY(() => { ST.pick[el.dataset.id] = +el.dataset.v; }),
   steelbrand: el => keepY(() => { const cur = itemChoice(ITEMS.find(i => i.steel)); ST.steel = { grade: cur.grade, brand: el.dataset.v }; }),
