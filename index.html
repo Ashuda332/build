@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&display=swap" rel="stylesheet">
 <script>/* light / dark: follows the phone or computer setting until the person picks one */
 (function () {
@@ -111,7 +112,9 @@ main.wide{max-width:1000px}
 .warn{background:var(--amber-soft);color:var(--amber);border-radius:14px;padding:12px 16px;font-size:15px;margin-top:18px}
 .panel{background:#fff;border:1px solid var(--line2);border-radius:22px;padding:16px;margin-top:18px}
 .ph{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.fskin{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;width:100%}.fsk-l{font-weight:600;font-size:13px}.fsk-p{font-size:12.5px;color:var(--mute)}.fsk-p small{font-size:11px}.ph b{font-size:17px}
+.fskin{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;width:100%}.fsk-st{font-size:13px;display:flex;gap:6px;align-items:center}.fsk-st select,.flib select,.flib input{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}.fsk-acts{gap:6px}.fsk-om{color:var(--amber)}.fimp{cursor:pointer}
+.fe-x{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:inherit}.fe-m{margin:8px 0 0;padding:7px 9px;border-radius:10px;font-size:12.5px}.fe-m.bad{background:var(--red-soft);color:var(--red)}
+.flib{position:fixed;inset:0;background:rgba(10,14,20,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}.flib-c{background:var(--bg);color:var(--ink);border-radius:20px;max-width:980px;width:100%;max-height:92vh;overflow:auto;padding:18px}.flib-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}.flib-h b{font-size:18px}.flib-h span{color:var(--mute);font-size:13px;flex:1}.flib-f{display:flex;flex-wrap:wrap;gap:8px 12px;margin:12px 0;font-size:13px}.flib-f input{flex:1;min-width:180px}.flib-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}.flib-i{display:flex;gap:10px;background:var(--soft);border-radius:14px;padding:10px}.flib-i img{width:96px;height:96px;object-fit:contain;flex:none;background:#fff;border-radius:10px}.flib-i div{display:flex;flex-direction:column;gap:4px;min-width:0}.flib-i small{color:var(--mute);font-size:11.5px}.flib-lic a{color:inherit}.flib-i .flib-v{display:flex;flex-direction:row;flex-wrap:wrap;gap:4px}.flib-i .btn{align-self:flex-start}.flib-v button{font:inherit;font-size:11px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;background:var(--bg);color:inherit;cursor:pointer}.flib-v button.on{border-color:var(--ink);font-weight:600}.flib-n{color:var(--mute);font-size:12px;margin-top:12px}html[data-theme="dark"] .flib-i img{background:#e9ecef}.v3credit{position:absolute;right:62px;bottom:14px;max-width:min(520px,calc(100% - 300px));font-size:11px;line-height:1.35;color:#3a3f45;text-align:right}.v3cr-b{font:inherit;font-size:11px;border:0;border-radius:999px;padding:5px 10px;background:rgba(255,255,255,.85);color:inherit;cursor:pointer}.v3cr-t{display:none;margin-top:6px;text-align:left;background:rgba(255,255,255,.92);border-radius:10px;padding:8px 10px;max-height:120px;overflow:auto}.v3credit.open .v3cr-t{display:block}@media(max-width:640px){.v3credit{left:8px;right:8px;bottom:64px;max-width:none}}.v3credit a{color:inherit}html[data-theme="dark"] .v3cr-b,html[data-theme="dark"] .v3cr-t{background:rgba(20,24,30,.85);color:#cfd5dc}.fsk-l{font-weight:600;font-size:13px}.fsk-p{font-size:12.5px;color:var(--mute)}.fsk-p small{font-size:11px}.ph b{font-size:17px}
 .opts-ab{margin-top:22px}
 .v3{text-align:center;background:var(--soft);border-radius:16px;overflow:hidden;padding:0}
 .v3 .btn{margin:34px 0 8px}.v3 .hint{padding-bottom:28px}
@@ -1749,7 +1752,7 @@ function wallRect(M, wall, len, dep, pos) {
 const OPP_WALL = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' };
 // Furniture sized to the room. Every piece keeps a clear space in front of it, and a 2 ft wide path
 // must still run from every door of the room to every piece and to the other doors. A piece that would block it is left out.
-const FURN_NAME = { bed: 'Bed', nstand: 'Bedside table', fridge: 'Fridge', wardrobe: 'Wardrobe', sofa: 'Sofa', table: 'Teapoy', tv: 'TV unit', dtable: 'Dining table', counter: 'Kitchen platform', study: 'Study table' };
+const FURN_NAME = { bed: 'Bed', nstand: 'Bedside table', fridge: 'Fridge', armchair: 'Accent chair', ottoman: 'Pouf', plant: 'Plant', wardrobe: 'Wardrobe', sofa: 'Sofa', table: 'Teapoy', tv: 'TV unit', dtable: 'Dining table', counter: 'Kitchen platform', study: 'Study table' };
 function roomEntries(D, o, F, room) {
   const R = room.rect, pts = [], inR = (x, y) => x > R.x + 0.05 && x < R.x + R.w - 0.05 && y > R.y + 0.05 && y < R.y + R.h - 0.05;
   const push = seg => { const [x1, y1, x2, y2] = seg, mx = (x1 + x2) / 2, my = (y1 + y2) / 2, L = Math.hypot(x2 - x1, y2 - y1) || 1, nx = -(y2 - y1) / L, ny = (x2 - x1) / L; [[mx + nx * 1.1, my + ny * 1.1], [mx - nx * 1.1, my - ny * 1.1]].forEach(([x, y]) => { if (inR(x, y)) pts.push([x, y]); }); };
@@ -1758,11 +1761,30 @@ function roomEntries(D, o, F, room) {
   if (room.type === 'parking' && F.fi === 0) pts.push([R.x + R.w / 2, R.y + R.h - 1.1]);
   return pts;
 }
+// windows and french doors on this room's walls, as bands reaching into the room: tall pieces keep off windows, nothing stands in a french door
+function winBands(D, o, F, room) {
+  const R = room.rect, out = [];
+  openingsFor(D, o, F).forEach(op => {
+    if (op.kind !== 'window' && op.kind !== 'french') return;
+    const [x1, y1, x2, y2] = op.seg, hz = Math.abs(y1 - y2) < 0.01, a = Math.min(hz ? x1 : y1, hz ? x2 : y2), z = Math.max(hz ? x1 : y1, hz ? x2 : y2), at = hz ? y1 : x1, dep = op.kind === 'french' ? 3 : 1.5;
+    if (hz ? (z <= R.x + 0.05 || a >= R.x + R.w - 0.05) : (z <= R.y + 0.05 || a >= R.y + R.h - 0.05)) return;
+    if (hz && Math.abs(at - R.y) < 0.06) out.push({ x: a, y: R.y, w: z - a, h: dep, kind: op.kind });
+    else if (hz && Math.abs(at - R.y - R.h) < 0.06) out.push({ x: a, y: R.y + R.h - dep, w: z - a, h: dep, kind: op.kind });
+    else if (!hz && Math.abs(at - R.x) < 0.06) out.push({ x: R.x, y: a, w: dep, h: z - a, kind: op.kind });
+    else if (!hz && Math.abs(at - R.x - R.w) < 0.06) out.push({ x: R.x + R.w - dep, y: a, w: dep, h: z - a, kind: op.kind });
+  });
+  return out;
+}
+const TALL_ROLES = ['wardrobe', 'fridge'];
 function furnOf(D, o, F, room) {
-  const SW = swingsOf(D, o, F);
-  if (!F._fu || F._fu.src !== SW) F._fu = { src: SW, m: new Map() };
-  if (!F._fu.m.has(room)) F._fu.m.set(room, furnLayout(room, SW, roomEntries(D, o, F, room)));
-  return F._fu.m.get(room);
+  // cached per floor; the budget range, the style, the library and the user's own changes all change the arrangement
+  const SW = swingsOf(D, o, F), st = typeof furnStyle === 'function' ? furnStyle() : { id: 'auto' }, gk = (typeof FURN_GEN !== 'undefined' ? FURN_GEN : 0) + '|' + furnSkinIx() + '|' + st.id + '|' + JSON.stringify((typeof ST !== 'undefined' && ST.furnPref) || 0);
+  if (!F._fu || F._fu.src !== SW || F._fu.gk !== gk) F._fu = { src: SW, gk, m: new Map() };
+  const ed = typeof furnEditOf === 'function' ? furnEditOf(D, o, F, room) : null, ek = JSON.stringify(ed || 0), c = F._fu.m.get(room);
+  if (c && c.ek === ek) return c.v;
+  const opts = Object.assign({ pick: cat => typeof furnPickAssets === 'function' ? furnPickAssets(cat, room.type) : [], plants: furnSkinFor(furnSkinIx()).plant, compact: !!st.compact, sparse: !!st.sparse }, ed || {});
+  const v = furnLayout(room, SW, roomEntries(D, o, F, room), winBands(D, o, F, room), opts);
+  F._fu.m.set(room, { ek, v }); return v;
 }
 // grid walk inside the room: can a person (2 ft wide) get from the first door to every target?
 function walkCheck(room, bodies, entries, targets) {
@@ -1796,29 +1818,39 @@ function frontClear(it, room, bodies) {
   });
   return Math.max(0, d);
 }
-function furnLayout(room, swings, entries) {
-  const M = mainRect(room), t = room.type, out = [], R = room.rect;
+function furnLayout(room, swings, entries, wins, ed) {
+  ed = ed || {};
+  const M = mainRect(room), t = room.type, out = [], R = room.rect, WB = wins || [], PIN = ed.pins || [], GONE = ed.removed || [], VAR = ed.vari | 0, PICK = ed.pick || (() => []), COMPACT = !!ed.compact, SPARSE = !!ed.sparse;
   const blocks = (swings || []).concat(room.subs.map(s => ({ x: s.x - 0.1, y: s.y - 0.1, w: s.w + 0.2, h: s.h + 0.2 }))), bhit = (q, b) => b.sq ? hitSwing(q, b) : ovl(q, b) > 0.04;
   const inside = q => q.x >= M.x - 0.01 && q.y >= M.y - 0.01 && q.x + q.w <= M.x + M.w + 0.01 && q.y + q.h <= M.y + M.h + 0.01;
   const inRoom = q => q.x >= R.x - 0.01 && q.y >= R.y - 0.01 && q.x + q.w <= R.x + R.w + 0.01 && q.y + q.h <= R.y + R.h + 0.01 && !room.subs.some(s => ovl(q, s) > 0.04);
   const bodies = () => out.filter(p => p.solid);
   const walk = entries && entries.length ? () => walkCheck(room, bodies(), entries, out.filter(p => p.clr).map(p => p.clr)) : () => true;
   // a piece fits when its body is clear of doors, baths and other pieces (and their front space), and its own front space is inside the room and empty
-  const fits = (q, clr, host) => inside(q) && !blocks.some(b => bhit(q, b)) && !out.some(p => p.solid && ovl(q, p) > 0.02) && !out.some(p => p.clr && p !== host && ovl(q, p.clr) > 0.04) &&
+  const winHit = q => WB.some(b => (b.kind === 'french' || TALL_ROLES.includes(q.role)) && ovl(q, b) > 0.04);
+  const fits = (q, clr, host) => inside(q) && !blocks.some(b => bhit(q, b)) && !winHit(q) && !out.some(p => p.solid && ovl(q, p) > 0.02) && !out.some(p => p.clr && p !== host && ovl(q, p.clr) > 0.04) &&
     (!clr || (inRoom(clr) && !out.some(p => p.solid && p !== host && ovl(clr, p) > 0.04)));
   const tryAdd = (cands, mk) => { for (const q of cands) { const it = mk(q); if (!it || !fits(it, it.clr, it.host)) continue; const extra = it.parts || []; out.push(it); extra.forEach(x => out.push(x)); if (walk()) return it; out.splice(out.indexOf(it), 1 + extra.length); } return null; };
   const dirOf = w => ({ top: [0, 1], bottom: [0, -1], left: [1, 0], right: [-1, 0] })[w];
   const front = (q, w, dep) => { const [dx, dy] = dirOf(w); return dx > 0 ? { x: q.x + q.w, y: q.y, w: dep, h: q.h } : dx < 0 ? { x: q.x - dep, y: q.y, w: dep, h: q.h } : dy > 0 ? { x: q.x, y: q.y + q.h, w: q.w, h: dep } : { x: q.x, y: q.y - dep, w: q.w, h: dep }; };
-  const walls = M.h >= M.w ? ['top', 'bottom', 'left', 'right'] : ['left', 'right', 'top', 'bottom'];
-  const along = (w, len, dep) => { const horiz = w === 'top' || w === 'bottom', L = horiz ? M.w : M.h, pos = []; if (L < len + 0.4) return pos; for (let a = 0.2; a <= L - len - 0.2 + 1e-6; a += 0.5) pos.push(a); pos.sort((p, q) => Math.abs(p - (L - len) / 2) - Math.abs(q - (L - len) / 2)); return pos.map(a => { const q = wallRect(M, w, len, dep, 'start'); if (horiz) q.x = M.x + a; else q.y = M.y + a; return q; }); };
+  // "try another design" turns the order the walls and spots are tried in
+  const walls0 = M.h >= M.w ? ['top', 'bottom', 'left', 'right'] : ['left', 'right', 'top', 'bottom'], walls = walls0.slice(VAR % 4).concat(walls0.slice(0, VAR % 4)), aim = [0.5, 0.25, 0.75, 0.5][VAR % 4];
+  const along = (w, len, dep) => { const horiz = w === 'top' || w === 'bottom', L = horiz ? M.w : M.h, pos = []; if (L < len + 0.4) return pos; for (let a = 0.2; a <= L - len - 0.2 + 1e-6; a += 0.5) pos.push(a); pos.sort((p, q) => Math.abs(p - (L - len) * aim) - Math.abs(q - (L - len) * aim)); return pos.map(a => { const q = wallRect(M, w, len, dep, 'start'); if (horiz) q.x = M.x + a; else q.y = M.y + a; return q; }); };
   const item = (q, role, w, clrDep, extra) => Object.assign({ x: q.x, y: q.y, w: q.w, h: q.h, role, solid: true, wall: w, dir: dirOf(w), clr: clrDep ? front(q, w, clrDep) : null, name: FURN_NAME[role] }, extra || {});
+  const chairsFor = (q, n) => { const vert = q.h > q.w, chairs = [], per = n / 2; for (let i = 0; i < per; i++) { const f = (i + 0.5) / per; [-1, 1].forEach(sd => chairs.push(vert ? { x: q.x + q.w / 2 + sd * (q.w / 2 + 0.45) - 0.6, y: q.y + q.h * f - 0.6, w: 1.2, h: 1.2, role: 'chair', solid: true } : { x: q.x + q.w * f - 0.6, y: q.y + q.h / 2 + sd * (q.h / 2 + 0.45) - 0.6, w: 1.2, h: 1.2, role: 'chair', solid: true })); } return chairs; };
+  // a spot for decor: clear of everything above and 2 ft 6 in away from every doorway
+  const nearDoor = q => (entries || []).some(([x, y]) => Math.hypot(Math.max(q.x - x, 0, x - q.x - q.w), Math.max(q.y - y, 0, y - q.y - q.h)) < 2.5);
   if (M.w < 4 || M.h < 4) return out;
+  // pieces the user placed by hand stay where they are; everything else is arranged around them
+  const CLR = { bed: 2, sofa: 4, wardrobe: 2.5, study: 2.5, fridge: 3 };
+  PIN.forEach(p => { const it = item(p, p.role, p.wall, CLR[p.role] || 0, { pinned: true, asset: p.asset || null, variant: p.variant || null, label: p.label || null, name: p.name || FURN_NAME[p.role], seats: p.seats || null }); if (p.role === 'dtable') it.parts = chairsFor(it, p.seats || 4); if (p.role === 'table') it.host = null; out.push(it); (it.parts || []).forEach(c => out.push(c)); });
+  const has = r => out.some(p => p.role === r) || GONE.includes(r);
   const short = Math.min(M.w, M.h);
   if (t === 'master' || t === 'bedroom') {
     // biggest bed that still leaves a 2 ft path round it: king 6 ft, queen 5 ft, double 4 ft 6 in, single 3 ft
     const sizes = (t === 'master' && short >= 11 ? [6, 5] : short >= 10 ? [5, 4.5] : [4.5, 3]).concat([3]);
-    let bed = null;
-    for (const bw of sizes) {
+    let bed = out.find(p => p.role === 'bed') || null;
+    if (!bed && !GONE.includes('bed')) for (const bw of (COMPACT ? sizes.slice(1) : sizes)) {
       const c = []; walls.forEach(w => c.push(...along(w, bw, 6.5).map(q => [q, w])));
       bed = tryAdd(c, ([q, w]) => { if (Math.min(q.w, q.h) < 2.9) return null; const it = item(q, 'bed', w, 2); const hz = w === 'top' || w === 'bottom'; it.clr2 = hz ? [{ x: q.x - 2, y: q.y, w: 2, h: q.h }, { x: q.x + q.w, y: q.y, w: 2, h: q.h }] : [{ x: q.x, y: q.y - 2, w: q.w, h: 2 }, { x: q.x, y: q.y + q.h, w: q.w, h: 2 }]; if (!it.clr2.some(z => inRoom(z) && !blocks.some(b => !b.sq && ovl(z, b) > 0.04))) return null; it.clr = { x: Math.min(it.clr.x, ...it.clr2.filter(inRoom).slice(0, 1).map(z => z.x)), y: Math.min(it.clr.y, ...it.clr2.filter(inRoom).slice(0, 1).map(z => z.y)), w: 0, h: 0 }; const z = it.clr2.find(inRoom), f = front(q, w, 2); it.clr = z ? { x: Math.min(f.x, z.x), y: Math.min(f.y, z.y), w: Math.max(f.x + f.w, z.x + z.w) - Math.min(f.x, z.x), h: Math.max(f.y + f.h, z.y + z.h) - Math.min(f.y, z.y) } : f; it.side = z; delete it.clr2; return it; });
       if (bed) break;
@@ -1830,16 +1862,18 @@ function furnLayout(room, swings, entries) {
       bed.label = 'Bed ' + ftIn(len) + ' × ' + ftIn(horiz ? bed.h : bed.w);
       // bedside tables at the head, one each side, only where the path round the bed stays open
       const ns = 1.4;
-      [-1, 1].forEach(sd => { const q = horiz ? { x: sd < 0 ? bed.x - 0.15 - ns : bed.x + bed.w + 0.15, y: bed.wall === 'top' ? bed.y : bed.y + bed.h - ns, w: ns, h: ns } : { x: bed.wall === 'left' ? bed.x : bed.x + bed.w - ns, y: sd < 0 ? bed.y - 0.15 - ns : bed.y + bed.h + 0.15, w: ns, h: ns }; if (!fits(q, null, bed)) return; out.push(Object.assign(q, { role: 'nstand', solid: true, wall: bed.wall, host: bed, name: FURN_NAME.nstand })); if (!walk()) out.pop(); });
+      if (!has('nstand')) [-1, 1].forEach(sd => { const q = horiz ? { x: sd < 0 ? bed.x - 0.15 - ns : bed.x + bed.w + 0.15, y: bed.wall === 'top' ? bed.y : bed.y + bed.h - ns, w: ns, h: ns } : { x: bed.wall === 'left' ? bed.x : bed.x + bed.w - ns, y: sd < 0 ? bed.y - 0.15 - ns : bed.y + bed.h + 0.15, w: ns, h: ns }; if (!fits(q, null, bed)) return; out.push(Object.assign(q, { role: 'nstand', solid: true, wall: bed.wall, host: bed, name: FURN_NAME.nstand })); if (!walk()) out.pop(); });
     }
     // wardrobe 2 ft deep on a free wall, with 2 ft 6 in in front to open the shutters
-    { const c = []; for (const len of [6, 5, 4, 3]) walls.forEach(w => { ['start', 'end'].forEach(p => c.push([wallRect(M, w, len, 2, p), w])); c.push(...along(w, len, 2).map(q => [q, w])); });
+    if (!has('wardrobe')) { const c = []; for (const len of (COMPACT ? [4, 3] : [6, 5, 4, 3])) walls.forEach(w => { ['start', 'end'].forEach(p => c.push([wallRect(M, w, len, 2, p), w])); c.push(...along(w, len, 2).map(q => [q, w])); });
       const wd = tryAdd(c, ([q, w]) => item(q, 'wardrobe', w, 2.5)); if (wd) wd.label = 'Wardrobe ' + ftIn(Math.max(wd.w, wd.h)) + ' × 2′'; }
   } else if (t === 'study') {
-    const c = []; walls.forEach(w => c.push(...along(w, 4, 2).map(q => [q, w]))); const sd = tryAdd(c, ([q, w]) => item(q, 'study', w, 2.5)); if (sd) sd.label = 'Study table 4′ × 2′';
+    if (!has('study')) { const c = []; walls.forEach(w => c.push(...along(w, 4, 2).map(q => [q, w]))); const sd = tryAdd(c, ([q, w]) => item(q, 'study', w, 2.5)); if (sd) sd.label = 'Study table 4′ × 2′'; }
   } else if (t === 'living' || t === 'lounge') {
-    let sofa = null;
-    for (const L of [6, 5, 4]) {
+    let sofa = out.find(p => p.role === 'sofa') || null;
+    // a model from the library when one fits with all its clearances, else the parametric sofa
+    if (!sofa && !GONE.includes('sofa')) for (const A of PICK('sofa')) { const c = []; walls.forEach(w => c.push(...along(w, A.w, A.d).map(q => [q, w]))); sofa = tryAdd(c, ([q, w]) => item(q, 'sofa', w, 4, { asset: A.id, variant: A.variant, name: A.name })); if (sofa) { sofa.label = A.name + ' ' + ftIn(A.w) + ' × ' + ftIn(A.d); break; } }
+    if (!sofa && !GONE.includes('sofa')) for (const L of (COMPACT ? [5, 4] : [6, 5, 4])) {
       const c = []; walls.forEach(w => c.push(...along(w, L, 2.6).map(q => [q, w])));
       sofa = tryAdd(c, ([q, w]) => { const it = item(q, 'sofa', w, 4); const ct = front({ x: q.x + (w === 'top' || w === 'bottom' ? q.w / 2 - 1.6 : 0), y: q.y + (w === 'left' || w === 'right' ? q.h / 2 - 1.6 : 0), w: w === 'top' || w === 'bottom' ? 3.2 : q.w, h: w === 'left' || w === 'right' ? 3.2 : q.h }, w, 0); return it; });
       if (sofa) { sofa.label = 'Sofa ' + ftIn(L) + ' × 2′7″'; break; }
@@ -1847,23 +1881,29 @@ function furnLayout(room, swings, entries) {
     if (sofa) {
       const hz = sofa.wall === 'top' || sofa.wall === 'bottom', [dx, dy] = sofa.dir;
       const ct = hz ? { x: sofa.x + sofa.w / 2 - 1.25, y: dy > 0 ? sofa.y + sofa.h + 1.3 : sofa.y - 1.3 - 1.5, w: 2.5, h: 1.5 } : { x: dx > 0 ? sofa.x + sofa.w + 1.3 : sofa.x - 1.3 - 1.5, y: sofa.y + sofa.h / 2 - 1.25, w: 1.5, h: 2.5 };
-      if (inside(ct) && !blocks.some(b => bhit(ct, b)) && !out.some(p => p.solid && ovl(ct, p) > 0.02)) { const tb = Object.assign(ct, { role: 'table', solid: true, name: FURN_NAME.table, host: sofa, label: 'Teapoy 2′6″ × 1′6″' }); out.push(tb); if (!walk()) out.pop(); }
+      if (!has('table') && inside(ct) && !blocks.some(b => bhit(ct, b)) && !out.some(p => p.solid && ovl(ct, p) > 0.02)) { const tb = Object.assign(ct, { role: 'table', solid: true, name: FURN_NAME.table, host: sofa, label: 'Teapoy 2′6″ × 1′6″' }); out.push(tb); if (!walk()) out.pop(); }
       const opp = OPP_WALL[sofa.wall], far = hz ? M.h : M.w;
-      if (far >= 10) { const c = along(opp, Math.min(4, (hz ? M.w : M.h) - 2), 1.25).map(q => [q, opp]); const tv = tryAdd(c, ([q, w]) => item(q, 'tv', w, 0)); if (tv) tv.label = 'TV unit ' + ftIn(hz ? tv.w : tv.h) + ' × 1′3″'; }
+      if (far >= 10 && !has('tv')) { const c = along(opp, Math.min(4, (hz ? M.w : M.h) - 2), 1.25).map(q => [q, opp]); const tv = tryAdd(c, ([q, w]) => item(q, 'tv', w, 0)); if (tv) tv.label = 'TV unit ' + ftIn(hz ? tv.w : tv.h) + ' × 1′3″'; }
     }
+    // an accent chair beside the teapoy facing it, then a pouf on the other side — only where the paths stay open
+    const tb = out.find(p => p.role === 'table');
+    const besideTable = (A, sq) => { const hz = sofa.wall === 'top' || sofa.wall === 'bottom', c = []; [-1, 1].forEach(sd => { if (hz) c.push([{ x: sd < 0 ? tb.x - 1.3 - (sq ? A.w : A.d) : tb.x + tb.w + 1.3, y: tb.y + tb.h / 2 - A.w / 2, w: sq ? A.w : A.d, h: A.w }, sd < 0 ? 'left' : 'right']); else c.push([{ x: tb.x + tb.w / 2 - A.w / 2, y: sd < 0 ? tb.y - 1.3 - (sq ? A.w : A.d) : tb.y + tb.h + 1.3, w: A.w, h: sq ? A.w : A.d }, sd < 0 ? 'top' : 'bottom']); }); return c; };
+    if (sofa && tb && !SPARSE && !has('armchair')) for (const A of PICK('armchair')) { const ac = tryAdd(besideTable(A), ([q, w]) => item(q, 'armchair', w, 0, { asset: A.id, variant: A.variant, name: A.name, label: A.name })); if (ac) break; }
+    if (sofa && tb && !SPARSE && !has('ottoman')) for (const A of PICK('ottoman')) { const ot = tryAdd(besideTable(A, true), ([q, w]) => nearDoor(q) ? null : item(q, 'ottoman', w, 0, { asset: A.id, variant: A.variant, name: A.name })); if (ot) break; }
+    // a floor plant at the end of the sofa or the TV unit (pot footprint 1 ft 7 in), never by a doorway
+    if (ed.plants && !SPARSE && !has('plant')) { const P = PICK('plant')[0], s0 = 1.6, spots = []; out.filter(p => p.role === 'sofa' || p.role === 'tv').forEach(p => { const hz = p.wall === 'top' || p.wall === 'bottom'; [-1, 1].forEach(sd => spots.push(hz ? { x: sd < 0 ? p.x - 0.25 - s0 : p.x + p.w + 0.25, y: p.wall === 'top' ? p.y : p.y + p.h - s0, w: s0, h: s0, wall: p.wall } : { x: p.wall === 'left' ? p.x : p.x + p.w - s0, y: sd < 0 ? p.y - 0.25 - s0 : p.y + p.h + 0.25, w: s0, h: s0, wall: p.wall })); }); tryAdd(spots, q => nearDoor(q) ? null : item(q, 'plant', q.wall, 0, { asset: P ? P.id : null, name: 'Plant' })); }
   } else if (t === 'dining') {
     // 6, 4 or 2 seats, with 1 ft 6 in to pull out each chair and walk behind it
-    for (const [tw, th, n] of [[4, 2.5, 4], [2.5, 2.5, 2]]) {
+    if (!has('dtable')) for (const [tw, th, n] of [[4, 2.5, 4], [2.5, 2.5, 2]]) {
       const cx = M.x + M.w / 2, cy = M.y + M.h / 2, c = [];
       [[0, 0], [0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [1, 1], [1, -1], [-1, 1], [0, -2], [0, 2], [-2, 0], [2, 0]].forEach(([a, b]) => [[tw, th], [th, tw]].forEach(([w2, h2]) => c.push({ x: cx + a - w2 / 2, y: cy + b - h2 / 2, w: w2, h: h2 })));
       const tb = tryAdd(c, q => {
-        const vert = q.h > q.w, chairs = [], per = n / 2;
-        for (let i = 0; i < per; i++) { const f = (i + 0.5) / per; [-1, 1].forEach(sd => chairs.push(vert ? { x: q.x + q.w / 2 + sd * (q.w / 2 + 0.45) - 0.6, y: q.y + q.h * f - 0.6, w: 1.2, h: 1.2, role: 'chair', solid: true } : { x: q.x + q.w * f - 0.6, y: q.y + q.h / 2 + sd * (q.h / 2 + 0.45) - 0.6, w: 1.2, h: 1.2, role: 'chair', solid: true })); }
+        const vert = q.h > q.w, chairs = chairsFor(q, n);
         const all = { x: q.x - (vert ? 1.15 : 0.3), y: q.y - (vert ? 0.3 : 1.15), w: q.w + (vert ? 2.3 : 0.6), h: q.h + (vert ? 0.6 : 2.3) };
         if (!inside(all) || blocks.some(b => bhit(all, b)) || out.some(p => p.solid && ovl(all, p) > 0.02)) return null;
         const ring = { x: all.x - 1.5, y: all.y - 1.5, w: all.w + 3, h: all.h + 3 };
         if (!(ring.x >= R.x - 0.6 && ring.y >= R.y - 0.6 && ring.x + ring.w <= R.x + R.w + 0.6 && ring.y + ring.h <= R.y + R.h + 0.6)) return null;
-        return Object.assign({ x: q.x, y: q.y, w: q.w, h: q.h, role: 'dtable', solid: true, name: n + '-seat dining table', clr: null, parts: chairs, label: n + '-seat table ' + ftIn(Math.max(q.w, q.h)) + ' × ' + ftIn(Math.min(q.w, q.h)) });
+        return Object.assign({ x: q.x, y: q.y, w: q.w, h: q.h, role: 'dtable', solid: true, name: n + '-seat dining table', clr: null, parts: chairs, seats: n, label: n + '-seat table ' + ftIn(Math.max(q.w, q.h)) + ' × ' + ftIn(Math.min(q.w, q.h)) });
       });
       if (tb) break;
     }
@@ -1887,7 +1927,7 @@ function furnLayout(room, swings, entries) {
       if (leg) leg.label = 'Platform ' + ftIn(Math.max(leg.w, leg.h)) + ' × 2′';
       // fridge in a corner, clear of the platform aisle
       const fc = []; ['top', 'bottom', 'left', 'right'].forEach(w => ['start', 'end'].forEach(p => fc.push([wallRect(M, w, 2.4, 2.3, p), w])));
-      tryAdd(fc, ([q, w]) => q.w >= 2.2 && q.h >= 2.2 ? item(q, 'fridge', w, 3) : null);
+      if (!has('fridge')) tryAdd(fc, ([q, w]) => q.w >= 2.2 && q.h >= 2.2 ? item(q, 'fridge', w, 3) : null);
     }
   } else if (t === 'parking') {
     vehiclesIn(M, room.pk || '4w').forEach(v => out.push({ x: v.x, y: v.y, w: v.w, h: v.h, role: v.t, veh: v }));
@@ -1955,7 +1995,7 @@ const FURN_PRICE = {
   bed: [16000, 38000, 85000, 240000], nstand: [2500, 6500, 16000, 45000], wardrobe: [14000, 34000, 78000, 210000],
   sofa: [18000, 42000, 110000, 320000], table: [3000, 9000, 24000, 75000], tv: [6000, 16000, 42000, 125000],
   dtable: [8000, 20000, 48000, 150000], chair: [1500, 4500, 12000, 35000], study: [5000, 12000, 30000, 80000],
-  counter: [2200, 4800, 9000, 18000], fridge: [18000, 32000, 65000, 160000],
+  counter: [2200, 4800, 9000, 18000], fridge: [18000, 32000, 65000, 160000], armchair: [6000, 12000, 32000, 78000], ottoman: [2500, 5000, 14000, 32000], plant: [600, 1500, 3500, 8000],
   wc: [4000, 9000, 24000, 72000], basin: [2500, 7000, 18000, 52000], shower: [3000, 9000, 28000, 85000], altar: [5000, 15000, 42000, 150000]
 };
 function furnSkinIx() { const v = typeof ST !== 'undefined' ? ST.furnSkin : null; if (v != null && FURN_SKIN[v]) return +v; return typeof ST !== 'undefined' ? (TI[ST.tier] ?? 1) : 1; }
@@ -1965,8 +2005,17 @@ function furnCost(D, o, ix) {
   return t;
 }
 function furnSkinBar(D, o) {
-  const ix = furnSkinIx(); let cost = 0; try { cost = furnCost(D, o, ix); } catch (e) {}
-  return '<div class="fskin"><span class="fsk-l">Furniture</span><div class="seg2 sm">' + FURN_SKIN.map((s, i) => '<button class="' + (i === ix ? 'on' : '') + '" data-a="fskin" data-v="' + i + '" title="' + esc(s.what) + '">' + esc(s.n) + '</button>').join('') + '</div><button class="tog vtog' + (ST.furnSizes ? ' on' : '') + '" data-a="fsizes"><span class="dot"></span>Sizes</button><span class="fsk-p">' + esc(FURN_SKIN[ix].what) + (cost ? ' · whole house ≈ <b>' + rup(cost) + '</b> <small>(BhuChain estimate)</small>' : '') + '</span></div>';
+  const ix = furnSkinIx(), st = furnStyle(); let cost = 0, omit = []; try { cost = furnCost(D, o, ix); omit = furnOmitted(D, o); } catch (e) {}
+  const saved = furnSavedInfo(), edits = ST.furnEdits && ST.furnEdits[furnDesignKey(o)] && Object.keys(ST.furnEdits[furnDesignKey(o)]).length;
+  let h = '<div class="fskin"><span class="fsk-l">Furniture</span><div class="seg2 sm">' + FURN_SKIN.map((s, i) => '<button class="' + (i === ix ? 'on' : '') + '" data-a="fskin" data-v="' + i + '" title="' + esc(s.what) + '">' + esc(s.n) + '</button>').join('') + '</div>';
+  h += '<label class="fsk-st">Style <select data-fstyle aria-label="Interior style">' + FURN_STYLES.map(x => '<option value="' + x.id + '"' + (x.id === st.id ? ' selected' : '') + '>' + esc(x.n) + '</option>').join('') + '</select></label>';
+  h += '<button class="tog vtog' + (ST.furnSizes ? ' on' : '') + '" data-a="fsizes"><span class="dot"></span>Sizes</button></div>';
+  h += '<div class="fskin fsk-acts"><button class="btn mini ghost" data-a="flib">Furniture library</button><button class="btn mini ghost" data-a="ftop">Top view</button><button class="btn mini ghost" data-a="fvary">Try another arrangement</button>' + (edits ? '<button class="btn mini ghost" data-a="freset">Reset furniture</button>' : '') + '<button class="btn mini ghost" data-a="fsave">Save design</button>' + (saved ? '<button class="btn mini ghost" data-a="fopen" title="Saved ' + esc(new Date(saved.savedAt).toLocaleString()) + '">Open saved</button>' : '') + '<button class="btn mini ghost" data-a="fexport">Export file</button><label class="btn mini ghost fimp">Import file<input type="file" id="fimport" accept="application/json,.json" hidden></label></div>';
+  h += '<p class="fsk-p">' + esc(st.id === 'auto' ? FURN_SKIN[ix].what : st.d + ' · ' + FURN_SKIN[ix].n + ' budget') + (cost ? ' · whole house ≈ <b>' + rup(cost) + '</b> <small>(BhuChain estimate)</small>' : '') + '</p>';
+  if (omit.length) h += '<p class="fsk-p fsk-om">Left out so doors and the 2 ft walking path stay clear: ' + esc(omit.join('; ')) + '.</p>';
+  if (FS.loadNote) h += '<p class="fsk-p fsk-om">' + esc(FS.loadNote) + '</p>';
+  if (FS.saveNote) h += '<p class="fsk-p">' + esc(FS.saveNote) + '</p>';
+  return h;
 }
 // a box with rounded edges (cushions, mattresses, pillows) — a box whose corners are pushed onto spheres
 const FURN_GEO = new Map();
@@ -1997,10 +2046,11 @@ function furnRugTex(T, kind) {
 }
 // draws every piece of one room. y0 = floor top. cap = height the walls are cut at (dollhouse view) or null.
 function furn3D(T, grp, room, items, y0, ix, mat, cap, ctx) {
-  const S = FURN_SKIN[ix] || FURN_SKIN[1], hi = ix >= 2, top = cap == null ? 99 : cap;
-  const wood = mat(S.wood, { roughness: S.woodR }), dark = mat(S.dark, { roughness: 0.55 }), fab = mat(S.fab, { roughness: 0.96 }), cush = mat(S.cush, { roughness: 0.97 }),
-    headM = mat(S.head, { roughness: S.bed === 'plain' || S.bed === 'panel' ? S.woodR : 0.95 }), linen = mat(S.linen, { roughness: 0.95 }), duvet = mat(S.duvet, { roughness: 0.95 }), accent = mat(S.accent, { roughness: 0.95 }),
-    metal = mat(S.metal, { metalness: S.metalM, roughness: 0.3 }), stone = mat(S.top, { roughness: S.topR }), cab = mat(S.cab, { roughness: 0.45 }), ward = mat(S.ward, { roughness: 0.5 }),
+  const S = furnSkinFor(ix), hi = ix >= 2, top = cap == null ? 99 : cap, used = grp.userData.assets = grp.userData.assets || new Set();
+  const stoneKind = S.stoneTex || (new T.Color(S.top).getHSL({}).l < 0.4 ? 'granite' : 'marble');
+  const wood = furnMat(T, S.woodTex || 'wood', S.wood, { roughness: S.woodR }), dark = mat(S.dark, { roughness: 0.55 }), fab = furnMat(T, 'fabric', S.fab), cush = furnMat(T, 'fabric', S.cush),
+    headM = S.bed === 'plain' || S.bed === 'panel' ? furnMat(T, S.woodTex || 'wood', S.head, { roughness: S.woodR }) : furnMat(T, 'fabric', S.head), linen = mat(S.linen, { roughness: 0.95 }), duvet = mat(S.duvet, { roughness: 0.95 }), accent = mat(S.accent, { roughness: 0.95 }),
+    metal = mat(S.metal, { metalness: S.metalM, roughness: 0.3 }), stone = furnMat(T, stoneKind, S.top, { roughness: S.topR }), cab = mat(S.cab, { roughness: 0.45 }), ward = mat(S.ward, { roughness: 0.5 }),
     porc = mat('#F7F7F5', { roughness: 0.18 }), black = mat('#18191B', { roughness: 0.35 }), steel = mat('#C8CCD0', { metalness: 0.75, roughness: 0.28 }), screen = mat('#0E1620', { roughness: 0.12, metalness: 0.3 }),
     glass = mat('#BFD6DE', { transparent: true, opacity: 0.3, roughness: 0.05 }), mirror = mat('#DCE6EA', { metalness: 0.95, roughness: 0.04 }), gap = mat('#2A2826', { roughness: 0.8 }),
     shade = mat('#FFF1D6', { emissive: '#FFD9A0', emissiveIntensity: 0.35, roughness: 0.9 }), leaf = mat('#3F7A3A', { roughness: 0.9 }), pot = mat(hi ? '#2E2E2E' : '#B5643A', { roughness: 0.7 });
@@ -2035,9 +2085,16 @@ function furn3D(T, grp, room, items, y0, ix, mat, cap, ctx) {
   const subOf = q => room.subs.find(s => q.x + q.w / 2 > s.x && q.x + q.w / 2 < s.x + s.w && q.y + q.h / 2 > s.y && q.y + q.h / 2 < s.y + s.h);
   const backWall = (q, s, longAlongWall) => { if (!s) return q.w >= q.h ? 'top' : 'left'; const dT = q.y - s.y, dB = s.y + s.h - q.y - q.h, dL = q.x - s.x, dR = s.x + s.w - q.x - q.w; const hzWall = longAlongWall ? q.w >= q.h : q.h > q.w; return hzWall ? (dT <= dB ? 'top' : 'bottom') : (dL <= dR ? 'left' : 'right'); };
   const hostCounter = (px, py) => items.find(p => p.role === 'counter' && px >= p.x - 0.05 && px <= p.x + p.w + 0.05 && py >= p.y - 0.05 && py <= p.y + p.h + 0.05);
+  // a library model standing on its footprint, its front to the room
+  const putAsset = (q, id, variant, wall, yOff) => { const o = id && assetClone(T, id, variant); if (!o) return false; const g = piece(q.x + q.w / 2, q.y + q.h / 2, WALL_TURN[wall] || 0); o.position.y = yOff || 0; g.add(o); used.add(id); return true; };
+  const accessory = (cat, x, y, z) => { const A = furnPickAssets(cat, room.type)[0]; if (!A || !ASSET.loaded[A.id]) return false; const o = assetClone(T, A.id, A.variant), g = piece(x, z, 0); o.position.y = y; g.add(o); used.add(A.id); return true; };
   items.forEach(q => {
     const role = q.role;
     if (q.veh || role === 'head' || role === 'pillow') return;
+    if (q.asset && putAsset(q, q.asset, q.variant, q.wall)) return;
+    if (role === 'plant') { plant(q.x + q.w / 2, q.y + q.h / 2, true); return; }
+    if (role === 'ottoman') { const g = piece(q.x + q.w / 2, q.y + q.h / 2, 0); const r = Math.min(q.w, q.h) / 2; cyl(g, 0, 0, 0, r * 0.95, r, 0.2, dark, 24); cyl(g, 0, 0.2, 0, r, r * 0.95, 1.2, cush, 32); return; }
+    if (role === 'armchair') { const { g, L, Dp } = orient(q, q.wall); bx(g, 0, 0.35, 0, L, 1.0, Dp, fab, 0.12); bx(g, 0, 0.35, 0, L, 2.6, 0.5, fab, 0.15); [0, L - 0.4].forEach(x => bx(g, x, 0.35, 0, 0.4, 1.8, Dp, fab, 0.12)); bx(g, 0.42, 1.35, 0.5, L - 0.84, 0.35, Dp - 0.55, cush, 0.12); legs4(g, 0.05, 0.05, L - 0.1, Dp - 0.1, 0.35, 0.05); return; }
     if (role === 'bed') {
       const { g, L, Dp } = orient(q, q.wall), fh = 1.15, hb0 = 0.3;
       if (S.bed === 'plain') { bx(g, 0.05, 0.4, hb0, L - 0.1, fh - 0.4, Dp - hb0, wood, 0.03); legs4(g, 0.05, hb0, L - 0.1, Dp - hb0, 0.4, 0.1); }
@@ -2055,7 +2112,7 @@ function furn3D(T, grp, room, items, y0, ix, mat, cap, ctx) {
       if (S.rug && hi) rug(toWorld(q, q.wall, -1.8, Dp * 0.38, L + 3.6, Dp * 0.62 + 1.6));
       return;
     }
-    if (role === 'nstand') { const { g, L, Dp } = orient(q, q.wall); bx(g, 0.05, ix === 0 ? 0 : 0.35, 0.05, L - 0.1, ix === 0 ? 1.8 : 1.45, Dp - 0.1, hi ? dark : wood, 0.04); if (ix) legs4(g, 0.05, 0.05, L - 0.1, Dp - 0.1, 0.35, 0.08); bx(g, 0.15, 1.15, Dp - 0.06, L - 0.3, 0.025, 0.03, gap); bx(g, L / 2 - 0.2, 1.4, Dp - 0.05, 0.4, 0.05, 0.06, hi ? metal : steel); lamp(g, L / 2, 1.8, Dp * 0.45); return; }
+    if (role === 'nstand') { const { g, L, Dp } = orient(q, q.wall); bx(g, 0.05, ix === 0 ? 0 : 0.35, 0.05, L - 0.1, ix === 0 ? 1.8 : 1.45, Dp - 0.1, hi ? dark : wood, 0.04); if (ix) legs4(g, 0.05, 0.05, L - 0.1, Dp - 0.1, 0.35, 0.08); bx(g, 0.15, 1.15, Dp - 0.06, L - 0.3, 0.025, 0.03, gap); bx(g, L / 2 - 0.2, 1.4, Dp - 0.05, 0.4, 0.05, 0.06, hi ? metal : steel); { const W = toWorld(q, q.wall, L / 2 - 0.01, Dp * 0.45 - 0.01, 0.02, 0.02); if (!accessory('lamp', W.x, 1.8, W.y)) lamp(g, L / 2, 1.8, Dp * 0.45); } return; }
     if (role === 'wardrobe') {
       const { g, L, Dp } = orient(q, q.wall), H = Math.min(7, top), n = Math.max(2, Math.round(L / 1.6)), dw = L / n; if (H < 7) bx(g, -0.01, H, -0.01, L + 0.02, 0.08, Dp + 0.02, mat('#2B2D30', { roughness: 0.6 }));
       bx(g, 0, 0, 0, L, 0.3, Dp - 0.1, dark); bx(g, 0, 0.3, 0, L, H - 0.3, Dp, ward, 0.03);
@@ -2071,7 +2128,6 @@ function furn3D(T, grp, room, items, y0, ix, mat, cap, ctx) {
       for (let i = 0; i < n; i++) { bx(g, arm + i * cw + 0.02, 1.05, 0.6, cw - 0.04, 0.42, Dp - 0.65, cush, 0.15); if (ix >= 1) bx(g, arm + i * cw + 0.04, 1.4, 0.48, cw - 0.08, 1.2, 0.45, cush, 0.2); }
       if (ix >= 1) { [arm + 0.12, L - arm - 1.1].forEach((x, i) => bx(g, x, 1.5, 0.9, 0.98, 0.95, 0.32, i && hi ? mat(S.head, { roughness: 0.95 }) : accent, 0.16)); }
       if (legH) legs4(g, 0.08, 0.08, L - 0.16, Dp - 0.16, legH, 0.1);
-      if (S.plant) { const ends = [toWorld(q, q.wall, -1.4, 0.2, 1.2, 1.2), toWorld(q, q.wall, L + 0.2, 0.2, 1.2, 1.2)]; const sp = ends.find(free); if (sp) plant(sp.x + sp.w / 2, sp.y + sp.h / 2, true); }
       return;
     }
     if (role === 'table') {
@@ -2092,7 +2148,6 @@ function furn3D(T, grp, room, items, y0, ix, mat, cap, ctx) {
       const n = Math.max(2, Math.round(L / 1.6)); for (let i = 1; i < n; i++) bx(g, i * L / n - 0.015, uy + 0.1, Dp, 0.03, uh - 0.2, 0.02, gap);
       const ty = uy + uh + 0.3; if (ty + th <= top + 0.6 || cap == null) { bx(g, L / 2 - 0.35, uy + uh, Dp * 0.4, 0.7, 0.04, 0.5, black); bx(g, L / 2 - 0.05, uy + uh, Dp * 0.4 + 0.2, 0.1, 0.35, 0.08, black); bx(g, (L - tw) / 2, ty, Dp * 0.4 + 0.15, tw, th, 0.1, black, 0.02); bx(g, (L - tw) / 2 + 0.05, ty + 0.05, Dp * 0.4 + 0.255, tw - 0.1, th - 0.1, 0.01, screen); }
       if (hi) bx(g, L / 2 - 1.4, uy + uh, Dp * 0.65, 2.8, 0.22, 0.3, black, 0.08);
-      if (S.plant) { const sp = [toWorld(q, q.wall, -1.3, 0.1, 1.1, 1.1), toWorld(q, q.wall, L + 0.2, 0.1, 1.1, 1.1)].find(free); if (sp) plant(sp.x + sp.w / 2, sp.y + sp.h / 2, false); }
       return;
     }
     if (role === 'dtable') {
@@ -2102,7 +2157,7 @@ function furn3D(T, grp, room, items, y0, ix, mat, cap, ctx) {
       else if (ix === 2) { bx(g, 0, H - 0.14, 0, w, 0.14, d, wood, 0.02); [0.25, (vert ? d : w) - 0.37].forEach(a => { if (vert) { bx(g, 0.2, 0, a, w - 0.4, 0.1, 0.12, black); bx(g, w / 2 - 0.06, 0, a, 0.12, H - 0.14, 0.12, black); } else { bx(g, a, 0, 0.2, 0.12, 0.1, d - 0.4, black); bx(g, a, 0, d / 2 - 0.06, 0.12, H - 0.14, 0.12, black); } }); }
       else { bx(g, -0.05, H - 0.15, -0.05, w + 0.1, 0.15, d + 0.1, stone, 0.05); [0.3, 0.7].forEach(f => { const cx = vert ? w / 2 : w * f, cz = vert ? d * f : d / 2; cyl(g, cx, 0, cz, 0.55, 0.55, 0.1, metal, 28); cyl(g, cx, 0.1, cz, 0.15, 0.22, H - 0.25, metal, 16); }); }
       if (ix >= 1) bx(g, vert ? w / 2 - 0.4 : 0.2, H, vert ? 0.2 : d / 2 - 0.4, vert ? 0.8 : w - 0.4, 0.01, vert ? d - 0.4 : 0.8, accent);
-      cyl(g, w / 2, H, d / 2, 0.45, 0.3, 0.25, hi ? metal : porc, 24); [-0.15, 0.12].forEach((a, i) => sph(g, w / 2 + a, H + 0.3, d / 2 + (i ? -0.1 : 0.1), 0.17, mat(i ? '#D9832B' : '#C2412D', { roughness: 0.6 })));
+      if (!accessory('decor', q.x + w / 2, H, q.y + d / 2)) { cyl(g, w / 2, H, d / 2, 0.45, 0.3, 0.25, hi ? metal : porc, 24); [-0.15, 0.12].forEach((a, i) => sph(g, w / 2 + a, H + 0.3, d / 2 + (i ? -0.1 : 0.1), 0.17, mat(i ? '#D9832B' : '#C2412D', { roughness: 0.6 }))); }
       const cx = q.x + w / 2, cz = q.y + d / 2;
       (q.parts || items.filter(c => c.role === 'chair')).forEach(c => { const x = c.x + c.w / 2 - q.x, z = c.y + c.h / 2 - q.y; chair(g, x, z, Math.atan2(cx - (c.x + c.w / 2), cz - (c.y + c.h / 2))); });
       if (S.rug && hi) rug({ x: q.x - 2.2, y: q.y - 2.2, w: w + 4.4, h: d + 4.4 });
@@ -2358,6 +2413,179 @@ function doors3D(T, grp, D, o, F, base, ix, mat, cap) {
     if (H > 3.4) [-1, 1].forEach(sd => { bx(g, lw - 0.35, 3.25, sd > 0 ? t / 2 : -t / 2 - 0.12, 0.08, 0.08, 0.12, hm); bx(g, lw - 0.62, 3.25, sd > 0 ? t / 2 + 0.06 : -t / 2 - 0.12, 0.35, 0.07, 0.06, hm); });
     if (cap != null && H < DOOR_H - 0.06) bx(g, 0.04, H, -t / 2 - 0.01, lw + 0.02, 0.06, t + 0.02, capM);
   });
+}
+/* ======================================================================
+   Furniture asset library (assets/catalog.json) — real glTF models with licences, used where they fit the room.
+   Pieces without a model come from the parametric furniture above. Sizes in the catalog are metres; the plan is in feet.
+   ====================================================================== */
+const FT = 3.28084;
+const ASSET = { cat: null, ok: false, loaded: {}, loading: {}, failed: {}, gen: 0 };
+let FURN_GEN = 0;
+function assetCatalogLoad() {
+  if (ASSET.loadingCat) return ASSET.loadingCat;
+  ASSET.loadingCat = fetch('assets/catalog.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(j => { ASSET.cat = (j.assets || []).filter(a => a.status === 'active'); ASSET.ok = true; })
+    .catch(() => { ASSET.cat = []; ASSET.ok = false; })
+    .then(() => { FURN_GEN++; try { if (typeof cur === 'function' && cur() === 'layout') keepY(() => {}); } catch (e) {} });
+  return ASSET.loadingCat;
+}
+const assetById = id => (ASSET.cat || []).find(a => a.id === id) || null;
+// GLTFLoader comes from the same three.js module the app uses (see the import map in <head>)
+let GLTF_LOADER = null;
+async function assetLoader() { if (GLTF_LOADER) return GLTF_LOADER; await loadThree(); const m = await import('three/addons/loaders/GLTFLoader.js'); GLTF_LOADER = new m.GLTFLoader(); return GLTF_LOADER; }
+async function assetLoad(id) {
+  if (ASSET.loaded[id]) return ASSET.loaded[id];
+  if (ASSET.loading[id]) return ASSET.loading[id];
+  const a = assetById(id); if (!a) return null;
+  ASSET.loading[id] = (async () => {
+    try {
+      const L = await assetLoader(), g = await L.loadAsync('assets/models/' + a.file), meshes = [];
+      g.scene.traverse(o => { if (o.isLight) o.visible = false; if (o.isMesh) { meshes.push(o); o.castShadow = true; o.receiveShadow = true; const mm = Array.isArray(o.material) ? o.material : [o.material]; mm.forEach(m => { if (m.aoMap && !o.geometry.attributes.uv1) m.aoMap.channel = 0; }); } });
+      // KHR_materials_variants: material per mesh for each named finish
+      const vx = (g.userData.gltfExtensions || {}).KHR_materials_variants, variants = {};
+      if (vx) for (let vi = 0; vi < vx.variants.length; vi++) { const list = []; for (let k = 0; k < meshes.length; k++) { const mp = meshes[k].userData.gltfExtensions && meshes[k].userData.gltfExtensions.KHR_materials_variants; const hit = mp && mp.mappings.find(x => x.variants.includes(vi)); if (hit) list.push([k, await g.parser.getDependency('material', hit.material)]); } variants[vx.variants[vi].name] = list; }
+      return (ASSET.loaded[id] = { a, scene: g.scene, variants });
+    } catch (e) { ASSET.failed[id] = String(e && e.message || e); console.warn('asset ' + id + ' failed', e); FURN_GEN++; return null; }
+  })();
+  return ASSET.loading[id];
+}
+// clone of a loaded model, in feet, front (+Z) turned to face `dir` (the wall it backs onto), with the chosen finish
+function assetClone(T, id, variant) {
+  const L = ASSET.loaded[id]; if (!L) return null;
+  const o = L.scene.clone(true), ms = []; o.traverse(m => { if (m.isMesh) { ms.push(m); m.userData.fur = 1; } });
+  const v = variant && L.variants[variant]; if (v) v.forEach(([k, mt]) => { if (ms[k]) ms[k].material = mt; });
+  o.scale.setScalar(FT); return o;
+}
+const WALL_TURN = { top: 0, bottom: Math.PI, left: Math.PI / 2, right: -Math.PI / 2 };
+/* ---------- interior styles: each one changes the colours and materials, which models are used, their finishes and how full a room gets ---------- */
+const FURN_STYLES = [
+  { id: 'auto', n: 'By budget', d: 'Look set by the budget range', assets: { sofa: ['velvet-sofa', 'leather-sofa'] } },
+  { id: 'modern-indian', n: 'Modern Indian', d: 'Teak, beige linen, terracotta and brass, dhurrie rugs, practical storage', over: { wood: '#8A5A33', fab: '#C9A27E', cush: '#D8BC97', head: '#8A5A33', linen: '#F6F0E6', duvet: '#E7C9A0', accent: '#B5532F', metal: '#B8913F', metalM: 0.8, top: '#2E2C2B', topR: 0.3, rug: 'dhurrie', legs: 'wood', bed: 'panel', plant: true, woodTex: 'teak' }, assets: { armchair: ['damask-chair'], sofa: ['velvet-sofa'] }, variants: { 'velvet-sofa': 'Champagne' } },
+  { id: 'contemporary', n: 'Contemporary', d: 'Grey upholstery, walnut, black metal, quartz', over: { wood: '#6D5A48', fab: '#8E9398', cush: '#A3A8AD', head: '#B7AE9F', accent: '#C9A46B', metal: '#2A2A2A', metalM: 0.6, top: '#ECEAE5', topR: 0.2, rug: 'geo', legs: 'metal', bed: 'upholstered', plant: true, woodTex: 'walnut' }, assets: { sofa: ['velvet-sofa'], armchair: ['velvet-loveseat'] }, variants: { 'velvet-sofa': 'Gray', 'velvet-loveseat': 'Peacock Velvet' } },
+  { id: 'minimalist', n: 'Minimalist', d: 'Few pieces, pale oak, white and soft grey, no clutter', over: { wood: '#D8C7AE', fab: '#E3DFD8', cush: '#ECE8E1', head: '#E3DFD8', linen: '#FAF9F6', duvet: '#F0EEEA', accent: '#A9AEB3', metal: '#BFC3C7', metalM: 0.6, top: '#F4F3F1', topR: 0.25, cab: '#F4F3F1', ward: '#F4F3F1', rug: null, legs: 'metal', bed: 'upholstered', plant: false, woodTex: 'oak' }, assets: { sofa: 'none', armchair: 'none', ottoman: 'none' }, sparse: true },
+  { id: 'scandinavian', n: 'Scandinavian', d: 'Birch and ash, light grey wool, sage accents, striped rugs, plants', over: { wood: '#D9C3A0', fab: '#C9CED1', cush: '#D7DBDD', head: '#D9C3A0', linen: '#FAF8F4', duvet: '#DDE3E0', accent: '#7F9C8E', metal: '#2A2A2A', metalM: 0.5, top: '#EDEBE6', topR: 0.3, rug: 'stripe', legs: 'wood', bed: 'panel', plant: true, woodTex: 'oak' }, assets: { sofa: 'none', armchair: ['velvet-loveseat'] }, variants: { 'velvet-loveseat': 'Peacock Velvet' } },
+  { id: 'luxury-modern', n: 'Luxury modern', d: 'Navy velvet, dark walnut, brass, Italian marble, tufted bed', over: { wood: '#3E2A1E', fab: '#1F2A44', cush: '#2B3A5C', head: '#E8DCC8', linen: '#FFFDF8', duvet: '#E9DFCF', accent: '#C9A24B', metal: '#C9A24B', metalM: 0.9, top: '#F2EFEA', topR: 0.12, rug: 'geo', legs: 'brass', bed: 'tufted', plant: true, woodTex: 'walnut' }, assets: { sofa: ['velvet-sofa'], armchair: ['damask-chair'], ottoman: ['silk-pouf'] }, variants: { 'velvet-sofa': 'Navy' } },
+  { id: 'traditional-indian', n: 'Traditional Indian', d: 'Sheesham, maroon and gold, carved panels, Persian rugs, leather sofa', over: { wood: '#5B3A22', fab: '#8E2B2B', cush: '#B5532F', head: '#5B3A22', linen: '#F6EEDC', duvet: '#B5532F', accent: '#C9963C', metal: '#B8913F', metalM: 0.85, top: '#2E2C2B', topR: 0.25, rug: 'persian', legs: 'wood', bed: 'panel', plant: true, woodTex: 'teak' }, assets: { sofa: ['leather-sofa'], armchair: ['damask-chair'] } },
+  { id: 'warm-wood', n: 'Warm wooden', d: 'Honey teak everywhere, camel fabric, jute', over: { wood: '#9A6A42', fab: '#C8A27A', cush: '#D6B48C', head: '#9A6A42', linen: '#F6F0E6', duvet: '#D9C2A0', accent: '#7A4E2C', metal: '#8C6A3C', metalM: 0.7, top: '#3B3A3A', topR: 0.3, rug: 'jute', legs: 'wood', bed: 'panel', plant: true, woodTex: 'teak' }, assets: { sofa: ['leather-sofa'] } },
+  { id: 'industrial', n: 'Industrial', d: 'Charcoal fabric, reclaimed wood, black steel, concrete tops', over: { wood: '#6B5A48', fab: '#5B5F63', cush: '#6E7378', head: '#4A4F55', linen: '#EDEBE7', duvet: '#8A8F94', accent: '#B5643A', metal: '#1F1F1F', metalM: 0.5, top: '#8C8F91', topR: 0.7, cab: '#4A4F55', rug: 'geo', legs: 'metal', bed: 'plain', plant: true, woodTex: 'reclaimed', stoneTex: 'concrete' }, assets: { sofa: ['leather-sofa'], armchair: 'none' } },
+  { id: 'mid-century', n: 'Mid-century modern', d: 'Walnut, tapered legs, burnt orange and teal', over: { wood: '#7A4E2C', fab: '#C27C4E', cush: '#D08E62', head: '#7A4E2C', linen: '#F4EFE6', duvet: '#2F5D50', accent: '#2F5D50', metal: '#B8913F', metalM: 0.8, top: '#ECEAE5', topR: 0.25, rug: 'geo', legs: 'wood', bed: 'panel', plant: true, woodTex: 'walnut' }, assets: { sofa: ['velvet-sofa'], armchair: ['velvet-loveseat'] }, variants: { 'velvet-sofa': 'Champagne', 'velvet-loveseat': 'Mango Velvet' } },
+  { id: 'japandi', n: 'Japandi', d: 'Low pieces, light oak, oatmeal linen, black accents, calm', over: { wood: '#B79A78', fab: '#D6CEC2', cush: '#E0D9CE', head: '#B79A78', linen: '#F6F3EE', duvet: '#CFC6B8', accent: '#3A3F3A', metal: '#1F1F1F', metalM: 0.4, top: '#E9E5DE', topR: 0.4, rug: 'jute', legs: 'wood', bed: 'plain', plant: true, woodTex: 'oak' }, assets: { sofa: 'none', armchair: 'none', ottoman: 'none' }, sparse: true },
+  { id: 'rustic', n: 'Rustic', d: 'Distressed wood, leather, earthy weaves', over: { wood: '#7A5233', fab: '#A88B6A', cush: '#B99A78', head: '#7A5233', linen: '#F1EADF', duvet: '#A88B6A', accent: '#6E3B2E', metal: '#4A3A2A', metalM: 0.5, top: '#5A4A3A', topR: 0.6, rug: 'dhurrie', legs: 'wood', bed: 'panel', plant: true, woodTex: 'reclaimed' }, assets: { sofa: ['leather-sofa'] } },
+  { id: 'modern-apartment', n: 'Modern apartment', d: 'Grey-blue fabric, light wood, matte black, compact storage', over: { wood: '#A88B6A', fab: '#6E7F86', cush: '#80919A', head: '#C9C2B6', linen: '#F7F6F2', duvet: '#B8C4CA', accent: '#E0B862', metal: '#2A2A2A', metalM: 0.6, top: '#E8E6E1', topR: 0.25, rug: 'geo', legs: 'metal', bed: 'upholstered', plant: true, woodTex: 'oak' }, assets: { sofa: ['velvet-sofa'], armchair: ['velvet-loveseat'] }, variants: { 'velvet-sofa': 'Gray', 'velvet-loveseat': 'Peacock Velvet' } },
+  { id: 'compact-urban', n: 'Compact urban home', d: 'Smaller pieces first, more floor left free', over: { wood: '#B08A62', fab: '#7D8C8A', cush: '#8E9C9A', head: '#B08A62', accent: '#C27C4E', metal: '#9DA2A7', metalM: 0.6, rug: null, legs: 'metal', bed: 'plain', plant: false, woodTex: 'oak' }, assets: { sofa: 'none', armchair: 'none', ottoman: 'none' }, compact: true, sparse: true },
+  { id: 'premium-villa', n: 'Premium villa', d: 'Ivory velvet, dark teak, gold trims, marble, statement pieces', over: { wood: '#4A3022', fab: '#E8DCC8', cush: '#F0E6D6', head: '#E8DCC8', linen: '#FFFDF8', duvet: '#E9DFCF', accent: '#B08D57', metal: '#C9A24B', metalM: 0.9, top: '#F2EFEA', topR: 0.12, rug: 'persian', legs: 'brass', bed: 'tufted', plant: true, woodTex: 'teak' }, assets: { sofa: ['velvet-sofa', 'leather-sofa'], armchair: ['damask-chair'], ottoman: ['silk-pouf'] }, variants: { 'velvet-sofa': 'Champagne' } }
+];
+const furnStyle = () => FURN_STYLES.find(s => s.id === (typeof ST !== 'undefined' && ST.furnStyle)) || FURN_STYLES[0];
+function furnSkinFor(ix) { const base = FURN_SKIN[ix] || FURN_SKIN[1], st = furnStyle(); return st.over ? Object.assign({}, base, st.over) : base; }
+// models from the library that suit this room, budget range and style, best first: { id, name, w, d (ft), variant }
+function furnPickAssets(cat, roomType) {
+  const C = ASSET.cat || [], ix = furnSkinIx(), st = furnStyle(), want = st.assets && st.assets[cat], pref = (ST.furnPref || {})[cat];
+  if (want === 'none' && !pref) return [];
+  let L = C.filter(a => a.category === cat && (a.rooms.includes(roomType) || a.rooms.includes('any')) && (a.tiers || [0, 1, 2, 3]).includes(ix) && !ASSET.failed[a.id]);
+  if (Array.isArray(want) && !pref) L = L.filter(a => want.includes(a.id)).sort((a, b) => want.indexOf(a.id) - want.indexOf(b.id));
+  if (pref === 'parametric') return [];
+  if (pref) L.sort((a, b) => (b.id === pref) - (a.id === pref));
+  const vsel = (ST.furnVar || {}), autoVar = { 2: { 'velvet-sofa': 'Gray' }, 3: { 'velvet-sofa': 'Navy' } }[ix] || {};
+  return L.map(a => ({ id: a.id, name: a.name, w: a.size[0] * FT, d: a.size[2] * FT, h: a.size[1] * FT, variant: vsel[a.id] || (st.variants || {})[a.id] || autoVar[a.id] || a.variants[0] || null }));
+}
+// every model the current design needs, so they are loaded before the 3D view is built
+function assetsNeeded(D, o) {
+  const ids = new Set();
+  o.floors.forEach(F => F.rooms.forEach(r => { if (r.void) return; furnOf(D, o, F, r).forEach(p => { if (p.asset) ids.add(p.asset); if (p.role === 'nstand') furnPickAssets('lamp', r.type).slice(0, 1).forEach(a => ids.add(a.id)); if (p.role === 'dtable' || p.role === 'table') furnPickAssets('decor', r.type).slice(0, 1).forEach(a => ids.add(a.id)); }); }));
+  return [...ids];
+}
+async function assetsEnsure(ids) { await assetCatalogLoad(); await Promise.all(ids.map(assetLoad)); }
+function assetCredits(ids) {
+  return ids.map(assetById).filter(a => a && a.attribution).map(a => a.attribution);
+}
+/* ---------- material library: wood grain, woven fabric, stone — canvas textures so every finish works offline ---------- */
+const MAT_TEX = {};
+function furnTex(T, kind, col) {
+  const k = kind + col; if (MAT_TEX[k]) return MAT_TEX[k];
+  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'), rnd = (() => { let s = 7; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
+  const C = new T.Color(col), hex = (m, a) => { const q = C.clone().multiplyScalar(m); return 'rgba(' + Math.min(255, q.r * 255 | 0) + ',' + Math.min(255, q.g * 255 | 0) + ',' + Math.min(255, q.b * 255 | 0) + ',' + a + ')'; };
+  g.fillStyle = '#' + C.getHexString(); g.fillRect(0, 0, 256, 256);
+  if (kind === 'wood' || kind === 'teak' || kind === 'walnut' || kind === 'oak' || kind === 'reclaimed') {
+    const n = kind === 'oak' ? 26 : kind === 'reclaimed' ? 14 : 34;
+    for (let i = 0; i < n; i++) { const y = rnd() * 256, a = 0.08 + rnd() * (kind === 'walnut' ? 0.22 : 0.14); g.strokeStyle = hex(rnd() > 0.5 ? 0.72 : 1.18, a); g.lineWidth = 0.6 + rnd() * 2.2; g.beginPath(); for (let x = 0; x <= 256; x += 8) g.lineTo(x, y + Math.sin(x / 40 + i) * (2 + rnd() * 3)); g.stroke(); }
+    if (kind === 'reclaimed') for (let i = 0; i < 4; i++) { g.fillStyle = hex(0.6, 0.35); g.fillRect(0, (i + 1) * 64 - 1, 256, 2); }
+    if (kind === 'oak') for (let i = 0; i < 40; i++) { g.fillStyle = hex(0.85, 0.25); g.fillRect(rnd() * 256, rnd() * 256, 6 + rnd() * 10, 1); }
+  } else if (kind === 'fabric') {
+    for (let y = 0; y < 256; y += 2) { g.fillStyle = hex(y % 4 ? 0.93 : 1.06, 0.5); g.fillRect(0, y, 256, 1); }
+    for (let x = 0; x < 256; x += 2) { g.fillStyle = hex(x % 4 ? 0.95 : 1.04, 0.35); g.fillRect(x, 0, 1, 256); }
+    for (let i = 0; i < 900; i++) { g.fillStyle = hex(rnd() > 0.5 ? 0.85 : 1.12, 0.25); g.fillRect(rnd() * 256, rnd() * 256, 1, 1); }
+  } else if (kind === 'marble') {
+    for (let i = 0; i < 9; i++) { g.strokeStyle = 'rgba(120,118,112,' + (0.12 + rnd() * 0.22) + ')'; g.lineWidth = 0.5 + rnd() * 1.8; g.beginPath(); let x = rnd() * 256, y = 0; g.moveTo(x, y); while (y < 256) { x += (rnd() - 0.5) * 30; y += 10 + rnd() * 20; g.lineTo(x, y); } g.stroke(); }
+  } else if (kind === 'granite' || kind === 'concrete' || kind === 'terrazzo') {
+    const n = kind === 'granite' ? 2600 : kind === 'terrazzo' ? 260 : 1600;
+    for (let i = 0; i < n; i++) { const s = kind === 'terrazzo' ? 3 + rnd() * 7 : 1 + rnd() * 2; g.fillStyle = kind === 'terrazzo' ? ['#C9A27E', '#8E9398', '#F2EFEA', '#B5643A'][i % 4] : hex(rnd() > 0.5 ? 0.6 + rnd() * 0.3 : 1.2 + rnd() * 0.3, kind === 'concrete' ? 0.18 : 0.6); g.fillRect(rnd() * 256, rnd() * 256, s, s * (0.6 + rnd() * 0.6)); }
+  }
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.wrapS = t.wrapT = T.RepeatWrapping; t.anisotropy = 4; t.repeat.set(kind === 'fabric' ? 3 : 1, kind === 'fabric' ? 3 : 1);
+  MAT_TEX[k] = t; return t;
+}
+const MAT_LIB = {};
+function furnMat(T, kind, col, o2) {
+  const k = kind + col + JSON.stringify(o2 || {}); if (MAT_LIB[k]) return MAT_LIB[k];
+  const map = furnTex(T, kind, '#ffffff'), m = new T.MeshStandardMaterial(Object.assign({ color: col, map, roughness: kind === 'fabric' ? 0.96 : kind === 'marble' ? 0.15 : 0.55 }, o2 || {}));
+  return (MAT_LIB[k] = m);
+}
+/* ---------- the user's changes to a room: moved / turned / swapped / removed pieces, and "try another design" ---------- */
+function furnDesignKey(o) { return ((S.design && S.design.key) || '') + ':' + (o ? o.id : ''); }
+const furnRoomKey = (F, room) => 'f' + F.fi + ':' + F.rooms.indexOf(room) + ':' + room.type;
+function furnEditOf(D, o, F, room) { const E = ST.furnEdits && ST.furnEdits[furnDesignKey(o)]; return (E && E[furnRoomKey(F, room)]) || null; }
+function furnEditSet(o, F, room, fn) {
+  ST.furnEdits = ST.furnEdits || {}; const dk = furnDesignKey(o), rk = furnRoomKey(F, room);
+  const E = ST.furnEdits[dk] = ST.furnEdits[dk] || {}; const cur = E[rk] = E[rk] || { pins: [], removed: [], vari: 0 };
+  fn(cur); if (!cur.pins.length && !cur.removed.length && !cur.vari) delete E[rk];
+}
+function furnRefresh() { V3.keep = { th: V3.th, ph: V3.ph, dist: V3.dist, target: V3.target && V3.target.clone() }; keepY(() => {}); }
+const FS = {};
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.matches && t.matches('[data-fstyle]')) { ST.furnStyle = t.value; keepY(() => {}); }
+  if (t.matches && t.matches('[data-flib]')) furnLibDraw();
+  if (t.id === 'fimport' && t.files && t.files[0]) t.files[0].text().then(furnImport);
+});
+/* ---------- the furniture library: browse, filter, see licences, choose models and finishes for this house ---------- */
+function furnLibOpen() { let m = document.getElementById('flib'); if (!m) { m = document.createElement('div'); m.id = 'flib'; m.className = 'flib'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-label', 'Furniture library'); document.body.appendChild(m); m.addEventListener('click', e => { if (e.target === m || e.target.closest('[data-flx]')) m.remove(); const u = e.target.closest('[data-fuse]'); if (u) { const a = assetById(u.dataset.fuse), on = (ST.furnPref || {})[a.category] === a.id; ST.furnPref = Object.assign({}, ST.furnPref, { [a.category]: on ? undefined : a.id }); furnLibDraw(); keepY(() => {}); } const v = e.target.closest('[data-fvar]'); if (v) { ST.furnVar = Object.assign({}, ST.furnVar, { [v.dataset.fid]: v.dataset.fvar }); furnLibDraw(); keepY(() => {}); } }); m.addEventListener('input', e => { if (e.target.matches('[data-flib]')) furnLibDraw(true); }); } furnLibDraw(); }
+function furnLibDraw(keepFocus) {
+  const m = document.getElementById('flib'); if (!m) return;
+  const f = id => { const el = m.querySelector('[data-flib="' + id + '"]'); return el ? el.value : ''; }, q = f('q').toLowerCase(), room = f('room'), cat = f('cat'), sty = f('style'), lic = f('lic');
+  const all = ASSET.cat || [], list = all.filter(a => (!q || (a.name + ' ' + a.category + ' ' + (a.styles || []).join(' ') + ' ' + a.author).toLowerCase().includes(q)) && (!room || a.rooms.includes(room) || a.rooms.includes('any')) && (!cat || a.category === cat) && (!sty || (a.styles || []).includes(sty)) && (!lic || a.license === lic));
+  const opt = (id, label, vals) => '<label>' + label + ' <select data-flib="' + id + '"><option value="">All</option>' + vals.map(([v, n]) => '<option value="' + v + '"' + (f(id) === v ? ' selected' : '') + '>' + esc(n) + '</option>').join('') + '</select></label>';
+  const uniq = k => [...new Set(all.flatMap(a => [].concat(a[k] || [])))].sort();
+  let h = '<div class="flib-c"><div class="flib-h"><b>Furniture library</b><span>' + all.length + ' models with licences · the rest of each room is drawn by BhuChain’s parametric furniture</span><button class="fe-x" data-flx aria-label="Close">×</button></div>';
+  h += '<div class="flib-f"><input data-flib="q" placeholder="Search sofa, velvet, Wayfair…" value="' + esc(f('q')) + '">' + opt('room', 'Room', uniq('rooms').map(r => [r, r])) + opt('cat', 'Type', uniq('category').map(r => [r, r])) + opt('style', 'Style', FURN_STYLES.slice(1).map(s => [s.id, s.n])) + opt('lic', 'Licence', [['CC0-1.0', 'CC0'], ['CC-BY-4.0', 'CC BY 4.0']]) + '</div>';
+  if (!ASSET.ok) h += '<p class="fe-m bad">The library could not be loaded (opened from a file, or offline). Parametric furniture is used everywhere.</p>';
+  h += '<div class="flib-g">' + list.map(a => { const using = (ST.furnPref || {})[a.category] === a.id, cv = (ST.furnVar || {})[a.id] || a.variants[0];
+    return '<div class="flib-i">' + (a.thumb ? '<img src="assets/thumbs/' + a.thumb + '" alt="" loading="lazy" width="128" height="128">' : '') + '<div><b>' + esc(a.name) + '</b><small>' + esc(a.category) + ' · ' + a.size.map(v => v.toFixed(2)).join(' × ') + ' m (' + ftIn(a.size[0] * FT) + ' × ' + ftIn(a.size[2] * FT) + ' floor) · ' + a.triangles.toLocaleString('en-IN') + ' triangles, ' + Math.round(a.bytes / 1024) + ' KB</small><small>Rooms: ' + esc(a.rooms.join(', ')) + (a.styles && a.styles.length ? ' · Styles: ' + esc(a.styles.map(s => (FURN_STYLES.find(x => x.id === s) || { n: s }).n).join(', ')) : '') + ' · Budget: ' + a.tiers.map(t => FURN_SKIN[t].n).join(', ') + '</small>' +
+      (a.variants.length ? '<div class="flib-v">' + a.variants.map(v => '<button data-fvar="' + esc(v) + '" data-fid="' + a.id + '" class="' + (v === cv ? 'on' : '') + '">' + esc(v) + '</button>').join('') + '</div>' : '') +
+      '<small class="flib-lic">' + esc(a.author) + ' · ' + (a.license === 'CC0-1.0' ? 'CC0 (public domain)' : 'CC BY 4.0') + ' · <a href="' + esc(a.sourceUrl) + '" target="_blank" rel="noopener">source</a> · v' + a.version + '</small>' +
+      (['sofa', 'armchair', 'ottoman', 'plant'].includes(a.category) ? '<button class="btn sm' + (using ? '' : ' ghost') + '" data-fuse="' + a.id + '">' + (using ? '✓ Used first in this house' : 'Use in this house') + '</button>' : '') + '</div></div>'; }).join('') + (list.length ? '' : '<p>No model matches these filters.</p>') + '</div>';
+  h += '<p class="flib-n">Adding models: <code>tools/ingest.mjs</code> checks the licence, validates and normalises the file, then an admin approves it (see ASSETS.md in the repository). Prices in the 3D view are BhuChain estimates.</p></div>';
+  const foc = keepFocus && document.activeElement && document.activeElement.dataset.flib, pos = foc && document.activeElement.selectionStart;
+  m.innerHTML = h; if (foc) { const el = m.querySelector('[data-flib="' + foc + '"]'); if (el) { el.focus(); if (pos != null && el.setSelectionRange) el.setSelectionRange(pos, pos); } }
+}
+/* ---------- save, reopen, export and import a complete design (plot, plan choices, furniture, styles and hand edits) ---------- */
+const SAVE_KEY = 'bhubuild_saved_v1';
+function furnSnapshot() { return { app: 'bhuchain-build', v: 1, savedAt: new Date().toISOString(), library: (ASSET.cat || []).map(a => a.id + '@' + a.version), st: JSON.parse(JSON.stringify(ST)) }; }
+function furnSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(furnSnapshot())); return true; } catch (e) { return false; } }
+function furnImport(txt) {
+  let d; try { d = JSON.parse(txt); } catch (e) { alert('That file is not a BhuChain design.'); return; }
+  if (!d || d.app !== 'bhuchain-build' || !d.st || !d.st.plot || !d.st.home) { alert('That file is not a BhuChain design.'); return; }
+  Object.keys(ST).forEach(k => delete ST[k]); Object.assign(ST, d.st); S.design = null;
+  const gone = (d.library || []).map(x => x.split('@')).filter(([id, v]) => { const a = assetById(id); return !a || String(a.version) !== v; }).map(x => x[0]);
+  FS.loadNote = gone.length ? 'Some furniture models in this design changed or left the library since it was saved (' + gone.join(', ') + '). Those pieces are shown as standard furniture; nothing else was changed.' : null;
+  render();
+}
+function furnLoadSaved() { try { const t = localStorage.getItem(SAVE_KEY); if (t) furnImport(t); } catch (e) {} }
+function furnSavedInfo() { try { const t = localStorage.getItem(SAVE_KEY); return t ? JSON.parse(t) : null; } catch (e) { return null; } }
+function furnExport() { const b = new Blob([JSON.stringify(furnSnapshot(), null, 1)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'BhuChain-design-' + (ST.cust.name || 'home').replace(/[^A-Za-z0-9]+/g, '-') + '.json'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+// rooms where a main piece was left out because it would block a door or the walking path
+function furnOmitted(D, o) {
+  const need = { master: 'bed', bedroom: 'bed', living: 'sofa', dining: 'dtable', kitchen: 'counter', study: 'study' }, out = [];
+  o.floors.forEach(F => F.rooms.forEach(r => { if (r.void || !need[r.type]) return; const L = furnOf(D, o, F, r), ed = furnEditOf(D, o, F, r); if (!L.some(p => p.role === need[r.type]) && !(ed && ed.removed.includes(need[r.type]))) out.push(roomLabel(r, F, D) + ' (' + F.label + '): no ' + (FURN_NAME[need[r.type]] || need[r.type]).toLowerCase()); }));
+  return out;
 }
 function furnitureBoxes(room, FP, swings, D, o, F) {
   FP = FP || INT_PAL[0];
@@ -2897,7 +3125,9 @@ function railing(x, yb, w, st, style) {
 function balcony(x, yb, w, st, style) { return '<rect x="' + (x + 0.1) + '" y="' + (yb - 0.1) + '" width="' + (w - 0.2) + '" height="0.45" fill="#d8d6d0"/>' + railing(x, yb, w, st, style); }
 
 /* ---------- 3D view (Three.js, loaded on first use) ---------- */
-const THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js';
+const THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js';
+// three.js as an ES module (same instance the glTF loader imports through the import map in <head>)
+async function loadThree() { if (window.THREE) return window.THREE; const m = await import('three'); window.THREE = m; return m; }
 window.__THREE_URL = THREE_URL;
 const FH = 10, PLINTH = 1.5, SLAB = 0.5, DOOR_H = 7, SILL = 3, WIN_TOP = 7;
 /* ---------- roof, stair-to-roof and RCC frame (shared by the plan, elevation, 3D and the structure step) ---------- */
@@ -4723,7 +4953,7 @@ function buildHouse3D(T, D, o, opts) {
     if (opts.furn && cut && !opts.walk) try { doors3D(T, grp, D, o, F, base + 0.06, furnSkinIx(), mat, wallTop); } catch (e) { console.warn(e); }
     if (opts.furn) F.rooms.forEach(r => {
       if (r.void) return;
-      try { furn3D(T, grp, r, furnOf(D, o, F, r), base + 0.06, furnSkinIx(), mat, cut ? wallTop : null, { sw: swingsOf(D, o, F), ent: roomEntries(D, o, F, r) }); if (r.type === 'parking') vehiclesIn(mainRect(r), r.pk || '4w').forEach(v => furnVehicle(T, grp, v, base + 0.06, furnSkinIx(), mat)); }
+      try { furn3D(T, grp, r, furnOf(D, o, F, r), base + 0.06, furnSkinIx(), mat, cut ? wallTop : null, { sw: swingsOf(D, o, F), ent: roomEntries(D, o, F, r), fi: f, rk: furnRoomKey(F, r) }); if (r.type === 'parking') vehiclesIn(mainRect(r), r.pk || '4w').forEach(v => furnVehicle(T, grp, v, base + 0.06, furnSkinIx(), mat)); }
       catch (e) { console.warn(e); furnitureBoxes(r, LK.int, null, D, o, F).forEach(x => box(x.x, base + 0.06 + x.z, x.y, x.w, x.ht, x.h, mat(x.col))); }
     });
     // inside view of one floor: size of each piece, and the free walkway in front of it (green)
@@ -4843,7 +5073,7 @@ const V3 = { r: null, scene: null, cam: null, raf: 0, th: 0.8, ph: 1.05, dist: 9
 async function open3D() {
   const ds = designState(), host = $('#dz3d'); if (!host) return;
   host.innerHTML = '<p class="dz3-load">Loading 3D… (first time needs internet)</p>';
-  try { if (!window.THREE) await loadScript(THREE_URL); } catch (e) { host.innerHTML = '<p class="dz3-load">3D could not load — check your internet and try again.</p>'; return; }
+  try { if (!window.THREE) await loadThree(); } catch (e) { host.innerHTML = '<p class="dz3-load">3D could not load — check your internet and try again.</p>'; return; }
   ds.show3d = true; const y = window.scrollY; render(); try { window.scrollTo(0, y); } catch (e) {}
 }
 function dispose3D() { if (V3.cleanup) { try { V3.cleanup(); } catch (e) {} V3.cleanup = null; } if (V3.raf) cancelAnimationFrame(V3.raf); V3.raf = 0; if (V3.r) { try { V3.r.dispose(); V3.r.forceContextLoss && V3.r.forceContextLoss(); } catch (e) {} } V3.r = null; V3.scene = null; }
@@ -7536,6 +7766,7 @@ function mountScene(host, buildFn, V) {
   const setSun = hr => { const az = (90 + (hr - 6) * 15) * Math.PI / 180, el = Math.max(6, 72 * Math.sin(Math.PI * (hr - 6) / 12)) * Math.PI / 180, hx = Math.sin(az) * EV[0] + Math.cos(az) * NV[0], hz = Math.sin(az) * EV[1] + Math.cos(az) * NV[1], R = Math.max(150, (V.hgt || 0) + 120); sun.position.set(V.w / 2 + hx * R * Math.cos(el), R * Math.sin(el), V.d / 2 + hz * R * Math.cos(el)); sun.color.set(hr < 8 || hr > 16.5 ? '#FFD2A1' : '#FFF4E0'); };
   if (!V.night && ST.sunHr != null) setSun(ST.sunHr);
   const root = buildFn(T); sc.add(root); dress3D(T, root, model, photo);
+  { const ids = [...(root.userData.assets || [])], cr = ids.map(assetById).filter(Boolean); if (cr.length) { const d = document.createElement('div'); d.className = 'v3credit'; d.innerHTML = '<button type="button" class="v3cr-b" aria-expanded="false">Model credits (' + cr.length + ')</button><div class="v3cr-t">3D models: ' + cr.map(a => esc(a.name) + ' — ' + esc(a.author) + ' (' + (a.license === 'CC0-1.0' ? 'CC0' : '<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>') + ', <a href="' + esc(a.sourceUrl) + '" target="_blank" rel="noopener">source</a>)').join(' · ') + '</div>'; d.querySelector('button').addEventListener('click', e => { const on = d.classList.toggle('open'); e.currentTarget.setAttribute('aria-expanded', on); }); host.appendChild(d); } }
   if (photo) { photoDress(T, sc, r, root, V); sun.shadow.mapSize.set(4096, 4096); sun.intensity = 2.1; sun.shadow.radius = 3; }
   const cam = new T.PerspectiveCamera(40, W / H, 0.5, Math.max(900, V.dist * 4));
   if (!V.night) { const sw = document.createElement('div'); sw.className = 'look3d'; sw.innerHTML = '<button class="' + (look === 'real' ? 'on' : '') + '" data-l="real">3D</button><button class="' + (photo ? 'on' : '') + '" data-l="photo">Real photo</button><button class="' + (model ? 'on' : '') + '" data-l="model">Architect model</button>' + (photo ? '<button class="psave" data-l="save">Save photo</button>' : ''); host.appendChild(sw); sw.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.dataset.l === (ST.look3d || 'real')) return; if (b.dataset.l === 'save') { try { const a = document.createElement('a'); a.download = 'BhuChain-home-photo.png'; a.href = cv.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove(); } catch (e2) { } return; } ST.look3d = b.dataset.l; mountScene(host, buildFn, V); });
@@ -7544,6 +7775,7 @@ function mountScene(host, buildFn, V) {
     const inp = su.querySelector('input'); inp.addEventListener('input', () => { const h = +inp.value; ST.sunHr = h; setSun(h); su.querySelector('b').textContent = lab(h); V3.redraw && V3.redraw(); }); }
   V3.r = r; V3.scene = sc; V3.cam = cam; V3.target = new T.Vector3(V.tx, V.ty, V.tz);
   V3.dist = V.dist; V3.th = V.th; V3.ph = V.ph; V3.maxD = Math.max(400, V.dist * 2);
+  if (V3.keep) { V3.th = V3.keep.th; V3.ph = V3.keep.ph; V3.dist = V3.keep.dist; if (V3.keep.target) V3.target.copy(V3.keep.target); } V3.keep = null;
   if (photo && V.ph < 1.3) { V3.ph = 1.45; V3.dist = V.dist * 1.02; V3.target.y = Math.max(6, V.ty * 0.9); }
   const place = () => { const s = Math.sin(V3.ph); cam.position.set(V3.target.x + V3.dist * s * Math.sin(V3.th), V3.target.y + V3.dist * Math.cos(V3.ph), V3.target.z + V3.dist * s * Math.cos(V3.th)); cam.lookAt(V3.target); };
   let dirty = true; const draw = () => { if (dirty && V3.r) { place(); r.render(sc, cam); dirty = false; } V3.raf = requestAnimationFrame(draw); }; draw();
@@ -7582,6 +7814,10 @@ function mount3D() {
   if (ST.home.use === 'rent') { const host = $('#dz3d'), R = rentalLayout(), ds = S.design || {}; if (!host || !window.THREE || !R.total) return; const sp = Math.max(R.W, R.D), cut = ds.cut3d && ds.rlv != null && ds.rlv !== 'roof' && +ds.rlv < R.fl ? +ds.rlv : ds.cut3d && ds.rlv == null ? 0 : null; mountScene(host, T => buildRental3D(T, R, { night: cut == null && !!ds.night, cut }), { night: cut == null && !!ds.night, w: R.W, d: R.D, tx: R.W / 2, ty: cut == null ? 6 : PLINTH + cut * FH, tz: R.D / 2, dist: sp * (cut == null ? 1.25 : 1.1) + 20, th: cut == null ? 0.55 : 0.35, ph: cut == null ? 0.95 : 0.7 }); return; }
   const ds = S.design, host = $('#dz3d'); if (!host || !window.THREE || !ds || !ds.D || !ds.D.options.length) return;
   const D = ds.D, o = D.options[ds.opt], b = D.brief, mode = ds.v3 || 'ext', cut = mode === 'ext' ? null : +mode.slice(1);
+  // furniture models from the library are fetched once, before the scene is built; a model that fails falls back to the parametric piece
+  if (!ASSET.cat) { host.innerHTML = '<p class="load">Loading the furniture library…</p>'; assetCatalogLoad().then(() => mount3D()); return; }
+  const need = assetsNeeded(D, o).filter(id => !ASSET.loaded[id] && !ASSET.failed[id]);
+  if (need.length) { host.innerHTML = '<p class="load">Loading ' + need.length + ' furniture model' + (need.length > 1 ? 's' : '') + '…</p>'; assetsEnsure(need).then(() => { if (S.design === ds) mount3D(); }); return; }
   if (ds.walk) { mountWalk(host, D, o); return; }
   if (b.site && cut == null) { const sp = Math.max(b.site.W, b.site.D); mountScene(host, T => buildSite3D(T, D, o, { furn: true, cut: null, night: !!ds.night }), { facing: b.facing, night: !!ds.night, w: b.site.W, d: b.site.D, tx: b.site.W / 2, ty: 8, tz: b.site.D / 2, dist: sp * 1.2 + 20, th: 0.55, ph: 0.95 }); return; }
   mountScene(host, T => buildHouse3D(T, D, o, { furn: true, cut, night: !!ds.night }), { facing: b.facing, night: !!ds.night, w: b.w, d: b.d, tx: b.w / 2, ty: cut == null ? (o.floors.length * FH) / 2 : PLINTH + cut * FH, tz: b.d / 2, dist: Math.max(b.w, b.d) * (cut == null ? 1.55 : 1.45) + 12, th: cut == null ? 0.55 : 0.35, ph: cut == null ? 1.15 : 0.62 });
@@ -7720,7 +7956,7 @@ const ACT = {
   vgrid: () => keepY(() => { ST.vgrid = !ST.vgrid; }),
   gedit: () => keepY(() => { S.design.edit = !S.design.edit; if (S.design.edit) S.design.meas = false; }),
   meas: () => keepY(() => { S.design.meas = !S.design.meas; if (S.design.meas) S.design.edit = false; }),
-  walk: async () => { show3dView(); const ds = S.design; if (ds.walk) { ds.walk = false; keepY(() => {}); return; } const host = $('#dz3d'); if (host) host.innerHTML = '<p class="load">Loading the walk-through…</p>'; try { if (!window.THREE) await loadScript(THREE_URL); } catch (e) { if (host) host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } ds.walk = true; ds.show3d = true; ds.night = false; keepY(() => {}); setTimeout(() => { const el = document.getElementById('dz3d'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 200); },
+  walk: async () => { show3dView(); const ds = S.design; if (ds.walk) { ds.walk = false; keepY(() => {}); return; } const host = $('#dz3d'); if (host) host.innerHTML = '<p class="load">Loading the walk-through…</p>'; try { if (!window.THREE) await loadThree(); } catch (e) { if (host) host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } ds.walk = true; ds.show3d = true; ds.night = false; keepY(() => {}); setTimeout(() => { const el = document.getElementById('dz3d'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 200); },
   paint: el => keepY(() => { ST.paint = el.dataset.v; ST.paintX = null; }),
   fxtog: el => keepY(() => { const S2 = fxState(), k = el.dataset.v; if (S2[k]) delete S2[k]; else S2[k] = true; }),
   fxzone: el => keepY(() => { fxState()[el.dataset.i] = el.dataset.v; }),
@@ -7759,12 +7995,19 @@ const ACT = {
   gridreset: () => keepY(() => { ST.grid = null; S.design.opt = 0; }),
   svmode: el => keepY(() => { const sv = structState(); sv.mode = el.dataset.v; sv.show3d = false; }),
   svf: el => keepY(() => { const sv = structState(); sv.floors = Math.max(1, Math.min(4, sv.floors + (+el.dataset.v))); }),
-  st3d: async () => { ST.rows = ST.rows || {}; ST.rows.s3d = true; const host = $('#st3d'); host.innerHTML = '<p class="load">Loading 3D… (needs internet the first time)</p>'; try { if (!window.THREE) await loadScript(THREE_URL); } catch (e) { host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } structState().show3d = true; keepY(() => {}); },
+  st3d: async () => { ST.rows = ST.rows || {}; ST.rows.s3d = true; const host = $('#st3d'); host.innerHTML = '<p class="load">Loading 3D… (needs internet the first time)</p>'; try { if (!window.THREE) await loadThree(); } catch (e) { host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } structState().show3d = true; keepY(() => {}); },
   stprint: () => { const t = document.title; document.title = 'BhuChain-Structure-Plan'; const back = () => { document.title = t; window.removeEventListener('afterprint', back); }; window.addEventListener('afterprint', back); window.print(); },
-  make3d: async () => { show3dView(); const host = $('#dz3d'); if (!host) return; host.innerHTML = '<p class="load">Loading 3D… (needs internet the first time)</p>'; try { if (!window.THREE) await loadScript(THREE_URL); } catch (e) { host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } S.design.show3d = true; keepY(() => {}); },
+  make3d: async () => { show3dView(); const host = $('#dz3d'); if (!host) return; host.innerHTML = '<p class="load">Loading 3D… (needs internet the first time)</p>'; try { if (!window.THREE) await loadThree(); } catch (e) { host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } S.design.show3d = true; keepY(() => {}); },
   night: el => { show3dView(); S.design.night = el.dataset.v === '1'; if (!S.design.show3d || !window.THREE) { ACT.make3d(); } else keepY(() => {}); if (S.design.night) setTimeout(() => { const el2 = document.getElementById('dz3d'); if (el2) el2.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300); },
   fskin: el => { ST.furnSkin = +el.dataset.v; keepY(() => {}); },
   fsizes: () => { ST.furnSizes = !ST.furnSizes; keepY(() => {}); },
+  flib: () => furnLibOpen(),
+  ftop: () => { if (!V3.r) return; V3.ph = 0.15; V3.th = 0; V3.redraw && V3.redraw(); },
+  fvary: () => { const ds = S.design, o = ds.D.options[ds.opt]; o.floors.forEach(F => F.rooms.forEach(r => { if (!r.void) furnEditSet(o, F, r, E => { E.vari = (E.vari | 0) + 1; }); })); FS.saveNote = 'Every room rearranged.'; furnRefresh(); },
+  freset: () => { const ds = S.design, o = ds.D.options[ds.opt]; if (ST.furnEdits) delete ST.furnEdits[furnDesignKey(o)]; FS.saveNote = 'Furniture back to the automatic layout.'; furnRefresh(); },
+  fsave: () => { FS.saveNote = furnSave() ? 'Saved on this device ' + new Date().toLocaleTimeString() + '. Use Export file to move it to another device.' : 'Could not save on this device (private mode or storage full). Use Export file instead.'; keepY(() => {}); },
+  fopen: () => { if (confirm('Open your saved design? Unsaved changes here will be replaced.')) furnLoadSaved(); },
+  fexport: () => furnExport(),
   plan3d: el => { const ds = S.design; ds.v3 = 'f' + el.dataset.v; ds.night = false; ds.walk = false; ds.view = '3d'; if (!ds.show3d || !window.THREE) { keepY(() => {}); ACT.make3d(); } else keepY(() => {}); },
   v3: el => { S.design.v3 = el.dataset.v; document.querySelectorAll('[data-a="v3"]').forEach(b => b.classList.toggle('on', b === el)); mount3D(); },
   pick: el => keepY(() => { ST.pick[el.dataset.id] = +el.dataset.v; }),
@@ -7772,7 +8015,7 @@ const ACT = {
   interiors: () => keepY(() => { ST.interiors = !useInteriors(); }),
   pdf: async () => {
     const ds = S.design || (S.design = { v3: 'ext', show3d: false });
-    try { if (!window.THREE) await loadScript(THREE_URL); } catch (e) {}
+    try { if (!window.THREE) await loadThree(); } catch (e) {}
     if (window.THREE && !ds.D) { const tmp = document.createElement('div'); tmp.id = 'dz3d'; tmp.style.cssText = 'position:fixed;left:-9999px;top:0;width:900px'; document.body.appendChild(tmp); mount3D(); const u = snap3D(); ds.snaps = u ? [{ label: 'Outside', src: u }] : []; dispose3D(); tmp.remove(); render(); await new Promise(r => setTimeout(r, 250)); }
     else if (window.THREE && ds.D.options[ds.opt]) {
       const o = ds.D.options[ds.opt], keep = ds.v3; ds.snaps = [];
@@ -8200,6 +8443,7 @@ window.VOICE_ADAPTER = {
 vMount();
 window.BhuBuild = { ST, S, steelRate, STEEL_BRANDS, priceList, quantities, designNow, go, render, ITEMS, TIERS };
 render();
+assetCatalogLoad();
 
 document.getElementById('tlogo').src = BRAND_LOGO;
 </script>

@@ -1,0 +1,23 @@
+{
+  "name": "bhuchain-build",
+  "private": true,
+  "type": "module",
+  "description": "BhuChain Build — tooling for the furniture asset library and placement tests. The app itself is index.html (no build step).",
+  "scripts": {
+    "ingest": "node tools/ingest.mjs",
+    "validate:assets": "node tools/validate-catalog.mjs",
+    "thumbs": "node tools/thumbs.mjs",
+    "test:placement": "node tests/run-placement.mjs",
+    "test:placement:quick": "node tests/run-placement.mjs --quick",
+    "test": "node tools/validate-catalog.mjs && node tests/run-placement.mjs --quick"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.1.0",
+    "@gltf-transform/extensions": "^4.1.0",
+    "@gltf-transform/functions": "^4.1.0",
+    "meshoptimizer": "^0.21.0",
+    "playwright": "^1.48.0",
+    "sharp": "^0.33.5",
+    "three": "^0.159.0"
+  }
+}

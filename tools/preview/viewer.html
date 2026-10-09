@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Asset preview</title>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<style>body{margin:0;background:transparent}canvas{display:block}</style></head><body>
+<script type="module">
+// Renders one catalog model for thumbnails and review: /tools/preview/viewer.html?m=assets/models/x.glb&variant=Navy&size=512
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const q = new URLSearchParams(location.search), S = +(q.get('size') || 384);
+const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true }); r.setSize(S, S); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; document.body.appendChild(r.domElement);
+const sc = new THREE.Scene(); sc.add(new THREE.HemisphereLight('#ffffff', '#b8b4ac', 2)); const d = new THREE.DirectionalLight('#fff', 2.4); d.position.set(2, 4, 3); sc.add(d);
+const env = new THREE.Scene(); env.background = new THREE.Color('#e3e8ec'); sc.environment = new THREE.PMREMGenerator(r).fromScene(env).texture;
+try {
+  const g = await new GLTFLoader().loadAsync('/' + q.get('m')), o = g.scene; sc.add(o);
+  const vx = (g.userData.gltfExtensions || {}).KHR_materials_variants, want = q.get('variant');
+  if (vx && want) { const vi = vx.variants.findIndex(v => v.name === want); const jobs = []; o.traverse(m => { const mp = m.isMesh && m.userData.gltfExtensions && m.userData.gltfExtensions.KHR_materials_variants; if (!mp) return; const hit = mp.mappings.find(x => x.variants.includes(vi)); if (hit) jobs.push(g.parser.getDependency('material', hit.material).then(mt => { m.material = mt; })); }); await Promise.all(jobs); }
+  const b = new THREE.Box3().setFromObject(o), c = b.getCenter(new THREE.Vector3()), sz = b.getSize(new THREE.Vector3()), R = Math.max(sz.x, sz.y, sz.z);
+  const cam = new THREE.PerspectiveCamera(28, 1, 0.01, 100); cam.position.copy(c).add(new THREE.Vector3(0.75, 0.55, 1).normalize().multiplyScalar(R * 2.5)); cam.lookAt(c);
+  r.render(sc, cam); window.done = JSON.stringify({ size: sz.toArray().map(x => +x.toFixed(3)) });
+} catch (e) { window.done = JSON.stringify({ error: String(e) }); }
+</script></body></html>
