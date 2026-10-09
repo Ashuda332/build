@@ -1,0 +1,359 @@
+{
+  "schema": 1,
+  "units": "metres",
+  "about": "BhuChain Build furniture library. Every model here was imported with tools/ingest.mjs, has a licence on the allow-list and is checked by tools/validate-catalog.mjs. Pieces without a model in this list are drawn from the app's own parametric furniture.",
+  "updated": "2026-10-09",
+  "assets": [
+    {
+      "id": "damask-chair",
+      "version": 1,
+      "status": "active",
+      "name": "Damask accent chair",
+      "category": "armchair",
+      "rooms": [
+        "living",
+        "lounge",
+        "master"
+      ],
+      "styles": [
+        "traditional-indian",
+        "luxury-modern",
+        "premium-villa",
+        "modern-indian"
+      ],
+      "tiers": [
+        2,
+        3
+      ],
+      "file": "damask-chair.glb",
+      "thumb": "damask-chair.webp",
+      "size": [
+        0.829,
+        0.687,
+        0.572
+      ],
+      "front": "+z",
+      "pivot": "bottom-centre",
+      "units": "m",
+      "triangles": 9984,
+      "bytes": 629288,
+      "perf": "light",
+      "variants": [],
+      "license": "CC-BY-4.0",
+      "author": "Wayfair, LLC (model by Eric Chadwick)",
+      "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ChairDamaskPurplegold",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/ChairDamaskPurplegold/glTF-Binary/ChairDamaskPurplegold.glb",
+      "attribution": "\"Damask accent chair\" by Wayfair, LLC (model by Eric Chadwick), CC BY 4.0 — https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ChairDamaskPurplegold",
+      "sha256": "6a418d51a550fb36429080a544f2178c29a45860a264b7aaa713695f0ba36ecf",
+      "sourceSha256": "9862ff753f25ca6738bf5924afbfde01b794fae73db3f94bcd8cdc7cc570d9bb",
+      "imported": "2026-10-09"
+    },
+    {
+      "id": "drum-table-lamp",
+      "version": 1,
+      "status": "active",
+      "name": "Drum shade table lamp",
+      "category": "lamp",
+      "rooms": [
+        "master",
+        "bedroom",
+        "living",
+        "study"
+      ],
+      "styles": [],
+      "tiers": [
+        2,
+        3
+      ],
+      "file": "drum-table-lamp.glb",
+      "thumb": "drum-table-lamp.webp",
+      "size": [
+        0.297,
+        0.476,
+        0.302
+      ],
+      "front": "+z",
+      "pivot": "bottom-centre",
+      "units": "m",
+      "triangles": 18866,
+      "bytes": 485228,
+      "perf": "medium",
+      "variants": [],
+      "license": "CC-BY-4.0",
+      "author": "Wayfair, LLC (model by Eric Chadwick)",
+      "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/IridescenceLamp",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/IridescenceLamp/glTF-Binary/IridescenceLamp.glb",
+      "attribution": "\"Drum shade table lamp\" by Wayfair, LLC (model by Eric Chadwick), CC BY 4.0 — https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/IridescenceLamp",
+      "sha256": "8b1744b03641c50ef981c6189b209b9560c064d6c0b219467f0daeb706d6624f",
+      "sourceSha256": "17cfdc79ec9e38fadb28db159734c5f9592ca423977b546e5057e350ba29ff13",
+      "imported": "2026-10-09"
+    },
+    {
+      "id": "glass-vase-flowers",
+      "version": 1,
+      "status": "active",
+      "name": "Glass vase with flowers",
+      "category": "decor",
+      "rooms": [
+        "living",
+        "dining",
+        "lounge"
+      ],
+      "styles": [],
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "file": "glass-vase-flowers.glb",
+      "thumb": "glass-vase-flowers.webp",
+      "size": [
+        0.217,
+        0.203,
+        0.142
+      ],
+      "front": "+z",
+      "pivot": "bottom-centre",
+      "units": "m",
+      "triangles": 10218,
+      "bytes": 261032,
+      "perf": "light",
+      "variants": [],
+      "license": "CC0-1.0",
+      "author": "Eric Chadwick (vase), Rico Cilliers (flowers)",
+      "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/GlassVaseFlowers",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/GlassVaseFlowers/glTF-Binary/GlassVaseFlowers.glb",
+      "attribution": null,
+      "sha256": "af8bc22090a04eaa43bb1eed5c10b5a693eb6929e6fac905abbc6ccf6f5d8e4a",
+      "sourceSha256": "430c9937664cfc74299205dcc388e4269bb688817f3d3866ef35aab71e93b852",
+      "imported": "2026-10-09"
+    },
+    {
+      "id": "leather-sofa",
+      "version": 1,
+      "status": "active",
+      "name": "Chesterfield leather and wood sofa",
+      "category": "sofa",
+      "rooms": [
+        "living",
+        "lounge"
+      ],
+      "styles": [
+        "traditional-indian",
+        "rustic",
+        "warm-wood",
+        "industrial",
+        "premium-villa"
+      ],
+      "tiers": [
+        2,
+        3
+      ],
+      "file": "leather-sofa.glb",
+      "thumb": "leather-sofa.webp",
+      "size": [
+        2.726,
+        1.117,
+        0.923
+      ],
+      "front": "+z",
+      "pivot": "bottom-centre",
+      "units": "m",
+      "triangles": 20711,
+      "bytes": 1593312,
+      "perf": "heavy",
+      "variants": [],
+      "license": "CC-BY-4.0",
+      "author": "Darmstadt Graphics Group GmbH, after an original by Fran Calvente (CC0)",
+      "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/SheenWoodLeatherSofa",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/SheenWoodLeatherSofa/glTF-Binary/SheenWoodLeatherSofa.glb",
+      "attribution": "\"Chesterfield leather and wood sofa\" by Darmstadt Graphics Group GmbH, after an original by Fran Calvente (CC0), CC BY 4.0 — https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/SheenWoodLeatherSofa",
+      "sha256": "275da88ed18c0adbed5e7f5f9206800707129753ea4bf0e43045e6692f66e09b",
+      "sourceSha256": "5349e042ad41e695e89f1110230c4ee0c75b2bc62ef830c7016be6ecf665bfb6",
+      "imported": "2026-10-09"
+    },
+    {
+      "id": "potted-plant",
+      "version": 1,
+      "status": "active",
+      "name": "Potted caladium plant",
+      "category": "plant",
+      "rooms": [
+        "any"
+      ],
+      "styles": [],
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "file": "potted-plant.glb",
+      "thumb": "potted-plant.webp",
+      "size": [
+        0.7,
+        0.841,
+        0.657
+      ],
+      "front": "+z",
+      "pivot": "bottom-centre",
+      "units": "m",
+      "triangles": 59306,
+      "bytes": 2276424,
+      "perf": "heavy",
+      "variants": [],
+      "license": "CC-BY-4.0",
+      "author": "Darmstadt Graphics Group GmbH, after an original by Rico Cilliers (CC0)",
+      "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/DiffuseTransmissionPlant",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/DiffuseTransmissionPlant/glTF-Binary/DiffuseTransmissionPlant.glb",
+      "attribution": "\"Potted caladium plant\" by Darmstadt Graphics Group GmbH, after an original by Rico Cilliers (CC0), CC BY 4.0 — https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/DiffuseTransmissionPlant",
+      "sha256": "c1300df3c2b07b59c4b455ee1325ba6ff45d451ba859406cc05fe483640487ab",
+      "sourceSha256": "1748be8847e24bdd5cb6c5ac2bfd0afe8f11efc4f85091148550555e47c7ee83",
+      "imported": "2026-10-09"
+    },
+    {
+      "id": "silk-pouf",
+      "version": 1,
+      "status": "active",
+      "name": "Pleated silk pouf",
+      "category": "ottoman",
+      "rooms": [
+        "living",
+        "lounge",
+        "master",
+        "bedroom"
+      ],
+      "styles": [
+        "luxury-modern",
+        "contemporary",
+        "modern-indian",
+        "premium-villa"
+      ],
+      "tiers": [
+        2,
+        3
+      ],
+      "file": "silk-pouf.glb",
+      "thumb": "silk-pouf.webp",
+      "size": [
+        0.61,
+        0.198,
+        0.61
+      ],
+      "front": "+z",
+      "pivot": "bottom-centre",
+      "units": "m",
+      "triangles": 26015,
+      "bytes": 709200,
+      "perf": "medium",
+      "variants": [],
+      "license": "CC-BY-4.0",
+      "author": "Wayfair, LLC (model by Eric Chadwick)",
+      "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/SpecularSilkPouf",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/SpecularSilkPouf/glTF-Binary/SpecularSilkPouf.glb",
+      "attribution": "\"Pleated silk pouf\" by Wayfair, LLC (model by Eric Chadwick), CC BY 4.0 — https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/SpecularSilkPouf",
+      "sha256": "9683eb9098e7a88129a53dd19532bec1835ac8f4fa40d092beee08172e39bdd0",
+      "sourceSha256": "a028bc6a7ac8981044fba414c1de633ac775b53602ad386f8ece74aec81d1006",
+      "imported": "2026-10-09"
+    },
+    {
+      "id": "velvet-loveseat",
+      "version": 1,
+      "status": "active",
+      "name": "Tufted velvet accent chair",
+      "category": "armchair",
+      "rooms": [
+        "living",
+        "lounge",
+        "master",
+        "study"
+      ],
+      "styles": [
+        "mid-century",
+        "contemporary",
+        "scandinavian",
+        "modern-apartment",
+        "japandi"
+      ],
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "file": "velvet-loveseat.glb",
+      "thumb": "velvet-loveseat.webp",
+      "size": [
+        0.827,
+        0.686,
+        0.57
+      ],
+      "front": "+z",
+      "pivot": "bottom-centre",
+      "units": "m",
+      "triangles": 39936,
+      "bytes": 1568628,
+      "perf": "heavy",
+      "variants": [
+        "Mango Velvet",
+        "Peacock Velvet"
+      ],
+      "license": "CC0-1.0",
+      "author": "Wayfair, LLC (model by Eric Chadwick)",
+      "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/SheenChair",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/SheenChair/glTF-Binary/SheenChair.glb",
+      "attribution": null,
+      "sha256": "ae8681e119213e301283e683ea378e09a648baf9d219e7f72bb783ff018c1409",
+      "sourceSha256": "f0af2a2b102d28d540236306ae19f8fb36842df76bd38cf76f063f9bd2853399",
+      "imported": "2026-10-09"
+    },
+    {
+      "id": "velvet-sofa",
+      "version": 1,
+      "status": "active",
+      "name": "Glam velvet sofa",
+      "category": "sofa",
+      "rooms": [
+        "living",
+        "lounge"
+      ],
+      "styles": [
+        "luxury-modern",
+        "contemporary",
+        "mid-century",
+        "premium-villa",
+        "modern-apartment"
+      ],
+      "tiers": [
+        2,
+        3
+      ],
+      "file": "velvet-sofa.glb",
+      "thumb": "velvet-sofa.webp",
+      "size": [
+        2.188,
+        0.788,
+        1.023
+      ],
+      "front": "+z",
+      "pivot": "bottom-centre",
+      "units": "m",
+      "triangles": 4196,
+      "bytes": 514848,
+      "perf": "light",
+      "variants": [
+        "Champagne",
+        "Navy",
+        "Gray",
+        "Black",
+        "Pale Pink"
+      ],
+      "license": "CC-BY-4.0",
+      "author": "Wayfair, LLC (model by Eric Chadwick)",
+      "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/GlamVelvetSofa",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/GlamVelvetSofa/glTF-Binary/GlamVelvetSofa.glb",
+      "attribution": "\"Glam velvet sofa\" by Wayfair, LLC (model by Eric Chadwick), CC BY 4.0 — https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/GlamVelvetSofa",
+      "sha256": "e216b98c21754cb6f1163f75942a50eb5eccf2fe3e66f2a6ae99765b6a375c8c",
+      "sourceSha256": "67202c74a1a33377771f162dc7fad612a6c9bd51ee15124c488e9851d9ac5266",
+      "imported": "2026-10-09"
+    }
+  ]
+}

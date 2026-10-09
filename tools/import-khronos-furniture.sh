@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Rebuilds the starter furniture library from the Khronos glTF Sample Assets (real product scans by Wayfair and others).
+# Licence and author for each model are taken from that model's README "Legal" section at the source URL.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+K=https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models
+S=https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models
+ing() { node tools/ingest.mjs "$@"; }
+ing --src $K/GlamVelvetSofa/glTF-Binary/GlamVelvetSofa.glb --id velvet-sofa --name "Glam velvet sofa" --category sofa --rooms living,lounge --license CC-BY-4.0 --author "Wayfair, LLC (model by Eric Chadwick)" --source-url $S/GlamVelvetSofa --styles luxury-modern,contemporary,mid-century,premium-villa,modern-apartment --tiers 2,3
+ing --src $K/SheenWoodLeatherSofa/glTF-Binary/SheenWoodLeatherSofa.glb --id leather-sofa --name "Chesterfield leather and wood sofa" --category sofa --rooms living,lounge --license CC-BY-4.0 --author "Darmstadt Graphics Group GmbH, after an original by Fran Calvente (CC0)" --source-url $S/SheenWoodLeatherSofa --styles traditional-indian,rustic,warm-wood,industrial,premium-villa --tiers 2,3 --simplify 0.4
+ing --src $K/SheenChair/glTF-Binary/SheenChair.glb --id velvet-loveseat --name "Tufted velvet accent chair" --category armchair --rooms living,lounge,master,study --license CC0-1.0 --author "Wayfair, LLC (model by Eric Chadwick)" --source-url $S/SheenChair --styles mid-century,contemporary,scandinavian,modern-apartment,japandi --tiers 1,2,3
+# same frame as the velvet chair in a different fabric, so it passes the duplicate check on purpose
+ing --src $K/ChairDamaskPurplegold/glTF-Binary/ChairDamaskPurplegold.glb --id damask-chair --name "Damask accent chair" --category armchair --rooms living,lounge,master --license CC-BY-4.0 --author "Wayfair, LLC (model by Eric Chadwick)" --source-url $S/ChairDamaskPurplegold --styles traditional-indian,luxury-modern,premium-villa,modern-indian --tiers 2,3 --allow-duplicate
+ing --src $K/SpecularSilkPouf/glTF-Binary/SpecularSilkPouf.glb --id silk-pouf --name "Pleated silk pouf" --category ottoman --rooms living,lounge,master,bedroom --license CC-BY-4.0 --author "Wayfair, LLC (model by Eric Chadwick)" --source-url $S/SpecularSilkPouf --styles luxury-modern,contemporary,modern-indian,premium-villa --tiers 2,3 --max-texture 512 --simplify 0.15
+ing --src $K/DiffuseTransmissionPlant/glTF-Binary/DiffuseTransmissionPlant.glb --id potted-plant --name "Potted caladium plant" --category plant --rooms any --license CC-BY-4.0 --author "Darmstadt Graphics Group GmbH, after an original by Rico Cilliers (CC0)" --source-url $S/DiffuseTransmissionPlant --tiers 1,2,3 --max-texture 512 --simplify 0.3
+ing --src $K/IridescenceLamp/glTF-Binary/IridescenceLamp.glb --id drum-table-lamp --name "Drum shade table lamp" --category lamp --rooms master,bedroom,living,study --license CC-BY-4.0 --author "Wayfair, LLC (model by Eric Chadwick)" --source-url $S/IridescenceLamp --tiers 2,3 --max-texture 512
+ing --src $K/GlassVaseFlowers/glTF-Binary/GlassVaseFlowers.glb --id glass-vase-flowers --name "Glass vase with flowers" --category decor --rooms living,dining,lounge --license CC0-1.0 --author "Eric Chadwick (vase), Rico Cilliers (flowers)" --source-url $S/GlassVaseFlowers --tiers 1,2,3 --max-texture 512

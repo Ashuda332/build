@@ -10,7 +10,17 @@ The site then lives at `https://<owner>.github.io/<repo>/`.
 
 ## 3D floor plan with furniture
 
-- On the **Layout** step, open **Plan** and tap **3D with furniture** — that floor opens as a cut-away dollhouse you can drag to turn, pinch / scroll to zoom.
-- Every room is furnished from the plan: bed with headboard, pillows and duvet, bedside tables with lamps, wardrobe, sofa with cushions, teapoy, TV unit, dining table with chairs, kitchen platform with hob, sink, upper cabinets and fridge, study desk and chair, WC, basin with mirror, shower with glass screen, pooja mandir, and car / bike in the parking.
-- **Furniture skins** follow the four budget ranges — Low, Mid, High, Ultra luxury — and start on the range picked on the Budget step. Switch them above the 3D view; the bar shows the whole-house furniture cost for that range (BhuChain estimate).
-- **Sizes** shows each piece's size and the free walkway in front of it.
+- On the **Layout** step, open **Plan** and tap **3D with furniture**. That floor opens as a cut-away dollhouse: drag to turn it, pinch or scroll to zoom. **Top view** looks straight down, and **Walk inside** shows the same furniture at eye level.
+- Every room is furnished automatically by a placement engine. Each piece keeps doors able to open, stays off windows (tall pieces) and french doors, and leaves a 2 ft walking path from every door. A piece that would break these rules is left out, and the bar under the view lists what was left out.
+- Real 3D models come from the furniture library (`assets/`, see [ASSETS.md](ASSETS.md)): velvet and leather sofas, accent chairs, a pouf, a plant, a table lamp and a vase. All are licensed and credited. Everything else is BhuChain's own parametric furniture.
+- **Budget range** (Low / Mid / High / Ultra luxury) sets the quality and the price. **Style** sets the look: 14 interior styles that change the models, finishes, materials and how full the rooms are.
+- **Furniture library** lets you browse, filter, choose models and finishes for the house. **Try another arrangement** rearranges every room. **Save design** keeps the whole design on this device, and **Export file** / **Import file** move it to another device.
+
+## Running locally
+
+The furniture library is loaded over HTTP, so open the app through a server rather than as a file:
+
+```bash
+node tools/serve.mjs 8080   # then open http://127.0.0.1:8080
+npm ci && npm test          # catalog validation + placement tests (needs Playwright's Chromium)
+```

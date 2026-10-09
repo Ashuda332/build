@@ -26,6 +26,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html _site/
+          mkdir -p _site/assets && cp -r assets/models assets/thumbs assets/catalog.json _site/assets/
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
