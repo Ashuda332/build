@@ -18,12 +18,27 @@ const res = await p.evaluate(houses => {
     const D = S.design.D, o = D.options[0], plan0 = JSON.stringify(o.floors.map(F => F.rooms.map(r => [r.type, r.rect]))), bb = D.brief;
     for (const B of BUNGALOW) {
       const P = bungalowApply(D, o, B.id), prims = facadePrims(D, o).p3, bad = prims.filter(q => q.x < -0.6 || q.x + q.w > bb.w + 0.6 || q.h0 < -0.6);
-      rep.push({ house: w + 'x' + d + ' G+' + (floors - 1), style: B.id, placed: P.placed.length, left: P.left.length, outOfPlot: bad.length, planChanged: JSON.stringify(o.floors.map(F => F.rooms.map(r => [r.type, r.rect]))) !== plan0 });
+      rep.push({ house: w + 'x' + d + ' G+' + (floors - 1), style: B.id, kit: B.kit || null, placed: P.placed.length, left: P.left.length, outOfPlot: bad.length, planChanged: JSON.stringify(o.floors.map(F => F.rooms.map(r => [r.type, r.rect]))) !== plan0 });
     }
   }
   return rep;
 }, houses);
-for (const r of res) { assert.equal(r.outOfPlot, 0, JSON.stringify(r)); assert.equal(r.planChanged, false, JSON.stringify(r)); assert.ok(r.placed >= 3, 'style too empty: ' + JSON.stringify(r)); }
+for (const r of res) { assert.equal(r.outOfPlot, 0, JSON.stringify(r)); assert.equal(r.planChanged, false, JSON.stringify(r)); assert.ok(r.placed >= (r.kit ? 1 : 3), 'style too empty: ' + JSON.stringify(r)); }
+const kits = await p.evaluate(async houses => {
+  const T = await loadThree(), out = [];
+  for (const [w, d, floors, bhk] of houses) {
+    ST.plot = Object.assign({}, ST.plot, { w, d, mode: 'sides', sides: { f: w, b: w, l: d, r: d }, area: w * d }); Object.assign(ST.home, { floors, bhk }); S.design = null; render();
+    const D = S.design.D, o = D.options[0], bb = D.brief;
+    for (const B of BUNGALOW.filter(x => x.kit)) {
+      bungalowApply(D, o, B.id); const g = new T.Group(), mat = (c, o2) => new T.MeshStandardMaterial(Object.assign({ color: c }, o2 || {}));
+      const box = (x, y, z, w2, h, d2, m) => { if (w2 <= 0.01 || h <= 0.01 || d2 <= 0.01) return; const me = new T.Mesh(new T.BoxGeometry(w2, h, d2), m); me.position.set(x + w2 / 2, y + h / 2, z + d2 / 2); g.add(me); };
+      arch3D(T, D, o, g, box, mat, false); const bx = new T.Box3().setFromObject(g);
+      out.push({ house: w + 'x' + d + ' G+' + (floors - 1), style: B.id, parts: g.children.length, inPlot: bx.min.x > -1.5 && bx.max.x < bb.w + 1.5 && bx.max.z < bb.d + 1.5 && bx.min.y > -0.1 });
+    }
+  }
+  return out;
+}, houses);
+for (const k of kits) { assert.ok(k.parts >= 20, 'architecture kit built too little: ' + JSON.stringify(k)); assert.ok(k.inPlot, 'architecture kit outside the plot: ' + JSON.stringify(k)); }
 console.log(res.map(r => r.house + ' ' + r.style + ': ' + r.placed + ' elements' + (r.left ? ', ' + r.left + ' left out' : '')).join('\n'));
 // render every style on one house
 await p.evaluate(() => { ST.plot = Object.assign({}, ST.plot, { w: 30, d: 50, mode: 'sides', sides: { f: 30, b: 30, l: 50, r: 50 }, area: 1500 }); Object.assign(ST.home, { floors: 2, bhk: 3 }); S.design = null; render(); S.design.view = '3d'; S.design.v3 = 'ext'; render(); return ACT.make3d(); });

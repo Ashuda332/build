@@ -88,7 +88,10 @@ The budget range (Low, Mid, High, Ultra luxury) still decides which models are a
 
 ## Bungalow exterior styles
 
-Under the 3D view, **Exterior** offers seven styles and a Custom option:
+Under the 3D view, **Exterior** offers ten styles and a Custom option:
+- Neo-classical palace villa
+- Colonial verandah villa
+- Modern cantilever villa
 - Modern Indian luxury
 - Contemporary stone and timber
 - Modern tropical villa
@@ -98,7 +101,14 @@ Under the 3D view, **Exterior** offers seven styles and a Custom option:
 - Modern Indian fusion
 - Custom (your own picks from Front elevation)
 
-The same seven styles appear as chips at the top of **Front elevation**.
+The same ten styles appear as chips at the top of **Front elevation**.
+
+**Architecture, not only finishes.** The first three styles change the building's massing, built from the house's own outline: the outside edge of each storey, the main door, the parking and the gates.
+- **Neo-classical palace villa.** A double-height portico centred on the main door, kept clear of the parking and the car gate. It has square columns with gold bands, an entablature, a pediment with a medallion and steps when the setback allows. It also has cornices with dentils at every floor, a blue-tiled hipped roof, white balustrades on the terraces, and a compound wall of pillars with gold jaali panels and wrought-iron gates.
+- **Colonial verandah villa.** A front verandah of round columns and arches with a pediment and balustrade, beside the parking. It also has floor bands and a slate hipped roof with deep eaves on wooden brackets.
+- **Modern cantilever villa.** A thick white roof slab that floats 4 ft past the front and 2 ft past the sides, and a cantilevered sunshade over the ground floor. A deep white frame surrounds the feature bay. It also has a ledge-stone pier, wood cladding, glass railings, and a stone compound wall with planters and a slatted gate.
+
+Under a hipped roof the roof parapets and the stair cabin are not drawn; the roof is reached through the attic. Porticos, verandahs and cantilevers need a structural engineer's check.
 
 **What a style controls.** Each style is a set of real facade elements from the elevation studio, with fallbacks: portal frames, cladding, ledge stone, wood-look panels, louvers, fins, jaali screens, sunshades, canopies, columns, cornice, pediment, tiled roof, pergola, planters, uplights, LED lines, gate, boundary-wall cladding and hedge. A style also sets:
 - the palette
