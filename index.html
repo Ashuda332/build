@@ -6515,6 +6515,20 @@ function fitVerdict(prog, o) {
   return { st, ratio, need: N.need, avail, why, prog };
 }
 const fitOpts = h => ({ floors: h.floors, space: h.space || 'balanced', park: h.park.kind, pooja: !!h.pooja });
+// a flat on every floor: each floor holds a whole home (living, kitchen, toilets, bedrooms) and the stair; the ground floor also the parking
+const pfOn = h => h.split === 'floors' && h.floors > 1 && !isVilla();
+const pfList = h => { const L = (h.perFloor || []).slice(0, h.floors); while (L.length < h.floors) L.push(Math.max(1, Math.min(4, h.bhk))); return L.map(v => Math.max(1, Math.min(4, v))); };
+function fitFloors(list, o) {
+  const A = areaFacts(), S = FIT_SPACE[o.space] || FIT_SPACE.balanced, rank = { ok: 0, tight: 1, no: 2 };
+  let st = 'ok', why = '', need = 0, worst = -1;
+  list.forEach((k, f) => { const P = FIT_PROG[k], rooms = P.rooms.reduce((a, r) => a + r[1] * r[2], 0) * S.k + (o.pooja && f === 0 ? 20 : 0);
+    const n = Math.round(rooms * (1 + S.circ) / (1 - FIT_WALL) + FIT_STAIR + (f === 0 ? FIT_PARK[o.park] || 0 : 0) + (A.foot > 800 ? 0.03 * A.foot : 0)); need += n;
+    const r = A.foot ? n / A.foot : 9; let s1 = r <= 0.85 ? 'ok' : r <= 1 ? 'tight' : 'no', w1 = '';
+    if (A.W < P.minW) { s1 = 'no'; w1 = 'the house area is only ' + ftx(A.W) + ' ft wide; a ' + P.n + ' needs ' + P.minW + ' ft'; }
+    else if (s1 === 'no') w1 = 'the ' + FLOOR_NAME[f].toLowerCase() + ' ' + P.n + ' needs about ' + n.toLocaleString('en-IN') + ' sq ft' + (f === 0 && o.park !== 'none' ? ' with the parking' : '') + '; a floor gives ' + A.foot.toLocaleString('en-IN');
+    if (rank[s1] > rank[st] || (s1 === st && worst < 0)) { st = s1; why = w1; worst = f; } });
+  const avail = A.foot * list.length; return { st, ratio: avail ? need / avail : 9, need, avail, why, worst };
+}
 const FIT_LAB = { ok: 'Comfortable', tight: 'Tight — rooms at minimum size', no: 'Too small' };
 // rooms in the drawn plan that are under the practical minimum
 function planShort(D, o) {
@@ -6532,21 +6546,23 @@ function planShort(D, o) {
 }
 // the whole check for the current requirements: estimate, the drawn plan, and what to change
 function homeCheck(D, o) {
-  const h = ST.home, P = FIT_PROG[Math.min(5, Math.max(1, h.bhk))], V = fitVerdict(P, fitOpts(h)), short = o ? planShort(D, o) : ['No layout could be drawn.'];
+  const h = ST.home, pf = pfOn(h), P = FIT_PROG[Math.min(5, Math.max(1, h.bhk))], V = pf ? fitFloors(pfList(h), fitOpts(h)) : fitVerdict(P, fitOpts(h)), short = o ? planShort(D, o) : ['No layout could be drawn.'];
   const notes = (D ? D.warn : []).concat(o && o.walkNote ? [o.walkNote] : []);
   let st = V.st; if (short.length && st === 'ok') st = 'tight'; if (!o) st = 'no';
   // the smallest changes that make it fit: one change first, then two together
   const fixes = [];
   if (st !== 'ok') {
     const cur = { bhk: h.bhk, floors: h.floors, space: h.space || 'balanced', park: h.park.kind }, ch = [];
-    if (h.bhk > 1) ch.push({ bhk: h.bhk - 1 }); if (h.bhk > 2) ch.push({ bhk: h.bhk - 2 });
-    if (h.floors < 3) ch.push({ floors: h.floors + 1 }); if (h.floors < 2) ch.push({ floors: 3 });
+    if (pf) { const L = pfList(h), w = V.worst >= 0 ? V.worst : 0; if (L[w] > 1) { const a = L.slice(); a[w]--; ch.push({ perFloor: a }); } if (L.some(v => v > 1)) ch.push({ perFloor: L.map(v => Math.max(1, v - 1)) }); }
+    else { if (h.bhk > 1) ch.push({ bhk: h.bhk - 1 }); if (h.bhk > 2) ch.push({ bhk: h.bhk - 2 });
+      if (h.floors < 3) ch.push({ floors: h.floors + 1 }); if (h.floors < 2) ch.push({ floors: 3 }); }
     if (cur.space !== 'compact') ch.push({ space: 'compact' });
     if (cur.park === '4w' || cur.park === 'both') ch.push({ park: '2w' }); if (cur.park !== 'none') ch.push({ park: 'none' });
-    const lab = c => Object.keys(c).map(k => k === 'bhk' ? c.bhk + ' BHK instead' : k === 'floors' ? 'build ' + ['', 'ground only', 'G + 1', 'G + 2'][c.floors] : k === 'space' ? 'compact rooms' : c.park === 'none' ? 'no parking' : 'bike parking only').join(' and ');
+    const lab = c => Object.keys(c).map(k => k === 'perFloor' ? c.perFloor.map((v, f) => FLOOR_NAME[f].replace(' floor', '') + ' ' + v).join(', ') + ' BHK' : k === 'bhk' ? c.bhk + ' BHK instead' : k === 'floors' ? 'build ' + ['', 'ground only', 'G + 1', 'G + 2'][c.floors] : k === 'space' ? 'compact rooms' : c.park === 'none' ? 'no parking' : 'bike parking only').join(' and ');
     // a bigger change than one already offered (fewer bedrooms, more floors) is not worth showing
-    const worse = c => fixes.some(f => { const a = f.c; if (Object.keys(a).sort().join() !== Object.keys(c).sort().join()) return false; return Object.keys(c).every(k => k === 'bhk' ? a.bhk >= c.bhk : k === 'floors' ? a.floors <= c.floors : a[k] === c[k]); });
-    const test = c => { const o2 = Object.assign({}, cur, c); return fitVerdict(FIT_PROG[Math.min(5, Math.max(1, o2.bhk))], { floors: o2.floors, space: o2.space, park: o2.park, pooja: !!h.pooja }).st; };
+    const same = (x, y) => JSON.stringify(x) === JSON.stringify(y);
+    const worse = c => fixes.some(f => f.st === 'ok' && Object.keys(f.c).length < Object.keys(c).length && Object.keys(f.c).every(k => same(f.c[k], c[k]))) || fixes.some(f => { const a = f.c; if (Object.keys(a).sort().join() !== Object.keys(c).sort().join()) return false; return Object.keys(c).every(k => k === 'perFloor' ? a.perFloor.every((v, i) => v >= c.perFloor[i]) : k === 'bhk' ? a.bhk >= c.bhk : k === 'floors' ? a.floors <= c.floors : a[k] === c[k]); });
+    const test = c => { const o2 = Object.assign({}, cur, c), oo = { floors: o2.floors, space: o2.space, park: o2.park, pooja: !!h.pooja }; return pf ? fitFloors((c.perFloor || pfList(h)).slice(0, o2.floors), oo).st : fitVerdict(FIT_PROG[Math.min(5, Math.max(1, o2.bhk))], oo).st; };
     const seen = new Set(), add = c => { const key = JSON.stringify(c); if (seen.has(key) || worse(c)) return; seen.add(key); const t = test(c); if (t === 'ok' || (t === 'tight' && st === 'no')) fixes.push({ lab: lab(c).replace(/^./, x => x.toUpperCase()), c, st: t }); };
     ch.forEach(add);
     if (fixes.filter(f => f.st === 'ok').length < 2) ch.forEach((a, x) => ch.forEach((b2, y) => { if (y <= x || Object.keys(a).some(k => k in b2)) return; add(Object.assign({}, a, b2)); }));
@@ -6555,9 +6571,9 @@ function homeCheck(D, o) {
   return { st, V, short, notes, fixes };
 }
 function fitCards() {
-  const h = ST.home, o = fitOpts(h);
-  return '<div class="fit-g">' + FIT_PROG.slice(0, 5).map(P => { const V = fitVerdict(P, o), on = P.bhk && h.bhk === P.bhk;
-    return '<button class="fit-c ' + V.st + (on ? ' on' : '') + '"' + (P.bhk ? ' data-a="hbhk" data-v="' + P.bhk + '"' : ' disabled') + ' title="' + esc(V.why || '') + '"><b>' + P.n + '</b><em>' + FIT_LAB[V.st].replace(' — rooms at minimum size', '') + '</em><span>' + V.need.toLocaleString('en-IN') + ' of ' + V.avail.toLocaleString('en-IN') + ' sq ft</span>' + (P.bhk ? '' : '<small>For reference: plans start at 1 BHK</small>') + '</button>'; }).join('') + '</div>';
+  const h = ST.home, o = fitOpts(h), pf = pfOn(h), L = pf ? pfList(h) : null;
+  return '<div class="fit-g">' + FIT_PROG.slice(0, 5).map(P => { const V = pf && P.bhk ? fitFloors(L.map(() => P.bhk), o) : fitVerdict(P, o), on = P.bhk && (pf ? L.every(v => v === P.bhk) : h.bhk === P.bhk);
+    return '<button class="fit-c ' + V.st + (on ? ' on' : '') + '"' + (P.bhk ? ' data-a="' + (pf ? 'hpfall' : 'hbhk') + '" data-v="' + P.bhk + '"' : ' disabled') + ' title="' + esc(V.why || '') + '"><b>' + P.n + (pf && P.bhk ? ' <small>each floor</small>' : '') + '</b><em>' + FIT_LAB[V.st].replace(' — rooms at minimum size', '') + '</em><span>' + V.need.toLocaleString('en-IN') + ' of ' + V.avail.toLocaleString('en-IN') + ' sq ft</span>' + (P.bhk ? '' : '<small>For reference: plans start at 1 BHK</small>') + '</button>'; }).join('') + '</div>';
 }
 function areaSumHtml() {
   const A = areaFacts(), n = v => v.toLocaleString('en-IN');
@@ -6567,7 +6583,7 @@ SCR.home = () => {
   const h = ST.home, use = h.use || 'family';
   if (use === 'apartment' || use === 'commercial') return '<h2 class="q">' + (use === 'apartment' ? 'Your apartment building.' : 'Your commercial building.') + '</h2>' + projSetupUI();
   if (use === 'rent') return '<h2 class="q">Your rental units.</h2>' + rentSetupUI();
-  h.split = 'house'; if (h.bhk > 5) h.bhk = 5;
+  if (!h.split || isVilla()) h.split = 'house'; if (h.bhk > 5 && !pfOn(h)) h.bhk = 5;
   const ds = designNow(), D = ds.D, o = D.options[ds.opt] || null, nF = o ? o.floors.length : 1, isRoof = o && ds.floor >= nF, F = o ? o.floors[Math.min(ds.floor, nF - 1)] : null;
   const C = homeCheck(D, o), A = areaFacts(), chip = (a, v, cur, lab, extra) => '<button class="rq-c' + (cur ? ' on' : '') + '" data-a="' + a + '" data-v="' + v + '"' + (extra || '') + '>' + lab + '</button>';
   const vt = ESTATE[ST.vtype] ? ST.vtype : 'villa';
@@ -6580,11 +6596,13 @@ SCR.home = () => {
   else plan += '<p class="warn">No layout fits these requirements on this plot. Try one of the changes on the right.</p>';
   plan += '<p class="hint hm-3d">This plan is the one you get: the 3D in the last step is built from it, with your changes.</p></div>';
   // 1 · what fits
-  const fit = '<section class="rq-sec"><h4>1 · What fits on your plot</h4>' + areaSumHtml() + '<p class="hint">For ' + ['', 'one floor', 'G + 1', 'G + 2'][h.floors] + (h.park.kind !== 'none' ? ' with ' + { '2w': 'bike', '4w': 'car', both: 'car and bike' }[h.park.kind] + ' parking' : '') + '. Needs count real minimum room sizes, walls, passages, the stair' + (h.floors > 1 ? 's' : '') + ' and light shafts. Tap one to plan it.</p>' + fitCards() + '</section>';
+  const fit = '<section class="rq-sec"><h4>1 · What fits on your plot</h4>' + areaSumHtml() + '<p class="hint">' + (pfOn(h) ? 'Each card is one flat on every floor. ' : '') + 'For ' + ['', 'one floor', 'G + 1', 'G + 2'][h.floors] + (h.park.kind !== 'none' ? ' with ' + { '2w': 'bike', '4w': 'car', both: 'car and bike' }[h.park.kind] + ' parking' : '') + '. Needs count real minimum room sizes, walls, passages, the stair' + (h.floors > 1 ? 's' : '') + ' and light shafts. Tap one to plan it.</p>' + fitCards() + '</section>';
   // 2 · your requirements
   const req = '<section class="rq-sec"><h4>2 · Your requirements</h4>' +
     '<div class="bm"><b>Floors</b><div class="rq-cats">' + ['Ground', 'G + 1', 'G + 2'].map((n, i) => chip('hfl', i + 1, h.floors === i + 1, n)).join('') + '</div></div>' +
-    '<div class="bm"><b>Bedrooms</b><div class="rq-cats">' + [1, 2, 3, 4, 5].map(k => chip('hbhk', k, h.bhk === k, k + ' BHK')).join('') + '</div></div>' +
+    (h.floors > 1 && use !== 'villa' ? '<div class="bm"><b>How is the building used?</b><div class="rq-cats">' + chip('hsplit', 'house', !pfOn(h), 'One home<i>bedrooms counted for the whole building</i>') + chip('hsplit', 'floors', pfOn(h), 'A flat on every floor<i>each floor its own BHK, kitchen and living</i>') + '</div></div>' : '') +
+    (pfOn(h) ? pfList(h).map((v, f) => '<div class="bm"><b>' + FLOOR_NAME[f] + '</b><div class="rq-cats">' + [1, 2, 3, 4].map(k => '<button class="rq-c' + (v === k ? ' on' : '') + '" data-a="hpfl" data-i="' + f + '" data-v="' + k + '">' + k + ' BHK</button>').join('') + '</div></div>').join('')
+      : '<div class="bm"><b>Bedrooms' + (h.floors > 1 ? ' in the whole building' : '') + '</b><div class="rq-cats">' + [1, 2, 3, 4, 5].map(k => chip('hbhk', k, h.bhk === k, k + ' BHK')).join('') + '</div></div>') +
     '<div class="bm"><b>Room sizes</b><div class="rq-cats">' + Object.keys(FIT_SPACE).map(k => { const S = FIT_SPACE[k], bd = Math.round(10 * Math.sqrt(S.k) * 2) / 2; return chip('hspace', k, (h.space || 'balanced') === k, S.n + '<i>bedroom ≈ ' + bd + ' × ' + bd + ' ft</i>'); }).join('') + '</div></div>' +
     '<div class="bm"><b>Parking</b><div class="rq-cats">' + [['none', 'None'], ['2w', 'Bike'], ['4w', 'Car'], ['both', 'Car + bike']].map(x => chip('pk', x[0], h.park.kind === x[0], x[1])).join('') + '</div></div>' +
     '<div class="bm"><b>More</b><div class="rq-cats">' + chip('tog', 'pooja', h.pooja, 'Puja room') + chip('tog', 'vastu', h.vastu, 'Follow Vastu') + '</div></div>' +
@@ -6592,7 +6610,8 @@ SCR.home = () => {
       '<div class="bm"><b>Roof</b><div class="rq-cats">' + chip('roof', 'single', (h.roof || 'single') === 'single', 'One roof') + chip('roof', 'multi', h.roof === 'multi', 'Stepped terraces') + '</div></div>' : '') +
     (use === 'villa' ? '<div class="bm"><b>Estate</b><div class="rq-cats">' + Object.keys(ESTATE).map(k => chip('vtype', k, vt === k, esc(ESTATE[k].n))).join('') + '</div></div>' : '') + '</section>';
   // 3 · space check
-  const msg = C.st === 'ok' ? 'Your ' + h.bhk + ' BHK needs about ' + C.V.need.toLocaleString('en-IN') + ' sq ft built up of the ' + C.V.avail.toLocaleString('en-IN') + ' sq ft you can build, so rooms keep a little extra room.'
+  const what = pfOn(h) ? pfList(h).join(' + ') + ' BHK (a flat on each floor)' : h.bhk + ' BHK';
+  const msg = C.st === 'ok' ? 'Your ' + what + ' needs about ' + C.V.need.toLocaleString('en-IN') + ' sq ft built up of the ' + C.V.avail.toLocaleString('en-IN') + ' sq ft you can build, so rooms keep a little extra room.'
     : C.st === 'tight' ? 'It fits, but rooms are at their minimum size' + (C.short.length ? '' : ' (' + C.V.need.toLocaleString('en-IN') + ' of ' + C.V.avail.toLocaleString('en-IN') + ' sq ft)') + '. It will not feel spacious.'
     : (C.V.st === 'no' ? 'This does not fit: ' + C.V.why + '.' : 'The drawn plan squeezes rooms below a livable size.') + ' Change something below.';
   const chk = '<section class="rq-sec"><h4>Space check</h4><div class="hm-chk ' + C.st + '" role="status"><b>' + esc(FIT_LAB[C.st]) + '</b><p>' + esc(msg) + '</p>' +
@@ -9090,7 +9109,7 @@ const ACT = {
   pfn: el => keepY(() => { const x = projState().plan[+el.dataset.i]; x.n = Math.max(0, Math.min(20, (x.n || 0) + +el.dataset.d)); }),
   pfadd: () => keepY(() => { const P = projState(); if (P.plan.length < 15) P.plan.push(Object.assign({}, P.plan[P.plan.length - 1])); }),
   pfdel: el => keepY(() => { const P = projState(); if (P.plan.length > 1) P.plan.splice(+el.dataset.i, 1); }),
-  hsplit: el => keepY(() => { const h = ST.home; h.split = el.dataset.v; if (h.split === 'floors' && (!h.perFloor || !h.perFloor.length)) h.perFloor = Array.from({ length: 3 }, () => Math.max(1, Math.min(4, h.bhk))); S.design = null; ST.grid = null; }),
+  hsplit: el => keepY(() => { const h = ST.home; h.split = el.dataset.v; if (h.split === 'floors' && (!h.perFloor || !h.perFloor.length)) h.perFloor = Array.from({ length: 3 }, () => Math.max(1, Math.min(4, Math.round(h.bhk / Math.max(1, h.floors)) || 1))); S.design = null; ST.grid = null; }),
   pfb: el => keepY(() => { const h = ST.home, i = +el.dataset.i; h.perFloor = h.perFloor || []; while (h.perFloor.length < 3) h.perFloor.push(h.bhk); h.perFloor[i] = Math.max(1, Math.min(4, h.perFloor[i] + +el.dataset.d)); S.design = null; ST.grid = null; }),
   inc: el => keepY(() => { const k = el.dataset.v; ST.home[k] = Math.min(+el.dataset.max, ST.home[k] + 1); }),
   dec: el => keepY(() => { const k = el.dataset.v; ST.home[k] = Math.max(1, ST.home[k] - 1); }),
@@ -9106,8 +9125,10 @@ const ACT = {
   hfloors: el => keepY(() => { ST.home.floors = +el.dataset.v; const R = reqState(); if (ST.home.floors > 1 && !R.balcony.n && R._bal == null) { R.balcony.n = 1; R._bal = 1; } reqSync(); if (ST.home.view !== 'roof' && ST.home.view >= ST.home.floors) ST.home.view = 0; }),
   hfl: el => keepY(() => { ST.home.floors = +el.dataset.v; if (S.design) S.design.floor = 0; if (ST.home.floors > 1 && (!ST.balc || ST.balc === 'none') && ST.home._balAuto == null) { ST.balc = 'cantilever'; ST.home._balAuto = 1; } }),
   hbhk: el => keepY(() => { ST.home.bhk = +el.dataset.v; }),
+  hpfl: el => keepY(() => { const h = ST.home; h.perFloor = pfList(Object.assign({}, h, { floors: 3 })); h.perFloor[+el.dataset.i] = +el.dataset.v; }),
+  hpfall: el => keepY(() => { const h = ST.home; h.perFloor = [1, 2, 3].map(() => +el.dataset.v); }),
   hspace: el => keepY(() => { ST.home.space = el.dataset.v; }),
-  hfix: el => keepY(() => { const h = ST.home, c = JSON.parse(el.dataset.v); if (c.bhk) h.bhk = c.bhk; if (c.floors) { h.floors = c.floors; if (S.design) S.design.floor = 0; } if (c.space) h.space = c.space; if (c.park) h.park.kind = c.park; }),
+  hfix: el => keepY(() => { const h = ST.home, c = JSON.parse(el.dataset.v); if (c.perFloor) h.perFloor = c.perFloor.concat((h.perFloor || []).slice(c.perFloor.length)); if (c.bhk) h.bhk = c.bhk; if (c.floors) { h.floors = c.floors; if (S.design) S.design.floor = 0; } if (c.space) h.space = c.space; if (c.park) h.park.kind = c.park; }),
   hview: el => keepY(() => { ST.home.view = el.dataset.v === 'roof' ? 'roof' : +el.dataset.v; }),
   balc: el => keepY(() => { ST.balc = el.dataset.v; }),
   pk: el => keepY(() => { const p = ST.home.park; p.kind = el.dataset.v; if (p.loc === 'rear') p.gali = Math.max(p.gali, p.kind === '2w' ? 4 : 10); }),
