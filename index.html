@@ -112,7 +112,7 @@ main.wide{max-width:1000px}
 .warn{background:var(--amber-soft);color:var(--amber);border-radius:14px;padding:12px 16px;font-size:15px;margin-top:18px}
 .panel{background:#fff;border:1px solid var(--line2);border-radius:22px;padding:16px;margin-top:18px}
 .ph{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.fskin{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;width:100%}.fsk-st{font-size:13px;display:flex;gap:6px;align-items:center}.fsk-st select,.flib select,.flib input{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}.fsk-acts{gap:6px}.fsk-om{color:var(--amber)}.fimp{cursor:pointer}
+.sb-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:6px 0}.sb-row>span{min-width:130px;font-size:14px}.sb .pchips button[disabled]{opacity:.35;cursor:not-allowed}.fskin{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;width:100%}.fsk-st{font-size:13px;display:flex;gap:6px;align-items:center}.fsk-st select,.flib select,.flib input{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}.fsk-acts{gap:6px}.fsk-om{color:var(--amber)}.fimp{cursor:pointer}
 .fe-x{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:inherit}.fe-m{margin:8px 0 0;padding:7px 9px;border-radius:10px;font-size:12.5px}.fe-m.bad{background:var(--red-soft);color:var(--red)}
 .flib{position:fixed;inset:0;background:rgba(10,14,20,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}.flib-c{background:var(--bg);color:var(--ink);border-radius:20px;max-width:980px;width:100%;max-height:92vh;overflow:auto;padding:18px}.flib-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}.flib-h b{font-size:18px}.flib-h span{color:var(--mute);font-size:13px;flex:1}.flib-f{display:flex;flex-wrap:wrap;gap:8px 12px;margin:12px 0;font-size:13px}.flib-f input{flex:1;min-width:180px}.flib-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}.flib-i{display:flex;gap:10px;background:var(--soft);border-radius:14px;padding:10px}.flib-i img{width:96px;height:96px;object-fit:contain;flex:none;background:#fff;border-radius:10px}.bcmp-g{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}.bcmp-i{flex-direction:column}.flib-i.bcmp-i img{width:100%;height:auto;aspect-ratio:13/9;object-fit:cover}.flib-i div{display:flex;flex-direction:column;gap:4px;min-width:0}.flib-i small{color:var(--mute);font-size:11.5px}.flib-lic a{color:inherit}.flib-i .flib-v{display:flex;flex-direction:row;flex-wrap:wrap;gap:4px}.flib-i .btn{align-self:flex-start}.flib-v button{font:inherit;font-size:11px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;background:var(--bg);color:inherit;cursor:pointer}.flib-v button.on{border-color:var(--ink);font-weight:600}.flib-n{color:var(--mute);font-size:12px;margin-top:12px}html[data-theme="dark"] .flib-i img{background:#e9ecef}.v3credit{position:absolute;right:62px;bottom:14px;max-width:min(520px,calc(100% - 300px));font-size:11px;line-height:1.35;color:#3a3f45;text-align:right}.v3cr-b{font:inherit;font-size:11px;border:0;border-radius:999px;padding:5px 10px;background:rgba(255,255,255,.85);color:inherit;cursor:pointer}.v3cr-t{display:none;margin-top:6px;text-align:left;background:rgba(255,255,255,.92);border-radius:10px;padding:8px 10px;max-height:120px;overflow:auto}.v3credit.open .v3cr-t{display:block}@media(max-width:640px){.v3credit{left:8px;right:8px;bottom:64px;max-width:none}}.v3credit a{color:inherit}html[data-theme="dark"] .v3cr-b,html[data-theme="dark"] .v3cr-t{background:rgba(20,24,30,.85);color:#cfd5dc}.fsk-l{font-weight:600;font-size:13px}.fsk-p{font-size:12.5px;color:var(--mute)}.fsk-p small{font-size:11px}.ph b{font-size:17px}
 .opts-ab{margin-top:22px}
@@ -1429,7 +1429,7 @@ const INT_PAL = [
   { sw: ['#F3EEE8', '#D8C9B8', '#6E3B2E', '#B5532F', '#2F5D50'], sofa: '#2F5D50', bed: '#E8D9C3', head: '#6E3B2E', wood: '#7A4E2C', floor: '#E4D6C3' }
 ];
 // one look per design option: wall colours, facade features and interior palette
-function lookOf(b, o) { const L = lookOf0(b, o); if (typeof ST !== 'undefined' && ST.extRail) { L.rail = ST.extRail; L.st.rail = ST.extRail; } if (typeof archKit === 'function' && archKit()) Object.assign(L, { canopy: false, pergola: false, fins: false, clad: false, frame: false, green: false, roofGarden: false, water: false }); if (b.villaV && VILLA_V[b.villaV]) Object.assign(L.st, VILLA_V[b.villaV].pal); if (b.paint && PAINT[b.paint] && PAINT[b.paint][1]) Object.assign(L.st, PAINT[b.paint][1]); if (typeof ST !== 'undefined' && ST.paintX) Object.assign(L.st, ST.paintX); if (typeof ST !== 'undefined' && ST.istyle && typeof istyleOf === 'function') { const IS = istyleOf(); if (IS) L.int = Object.assign({}, L.int, { sofa: IS[3].sofa, bed: IS[3].bed, head: IS[3].head, wood: IS[3].wood, floor: IS[3].floor, sw: [IS[3].wall].concat((L.int.sw || []).slice(1)) }); } return L; }
+function lookOf(b, o) { const L = lookOf0(b, o); if (typeof ST !== 'undefined' && ST.extRail) { L.rail = ST.extRail; L.st.rail = ST.extRail; } if (typeof bungalowOf === 'function' && bungalowOf()) Object.assign(L, { canopy: false, pergola: false, fins: false, clad: false, frame: false, planters: false, green: false, roofGarden: false, brass: false, water: false }); if (b.villaV && VILLA_V[b.villaV]) Object.assign(L.st, VILLA_V[b.villaV].pal); if (b.paint && PAINT[b.paint] && PAINT[b.paint][1]) Object.assign(L.st, PAINT[b.paint][1]); if (typeof ST !== 'undefined' && ST.paintX) Object.assign(L.st, ST.paintX); if (typeof trendExt === 'function' && trendExt()) { const P = trendExt()[3]; Object.assign(L.st, { wall: P.wall, accent: P.accent, trim: P.trim, wood: P.wood, stone: P.stone }); } if (typeof ST !== 'undefined' && ST.istyle && typeof istyleOf === 'function') { const IS = istyleOf(); if (IS) L.int = Object.assign({}, L.int, { sofa: IS[3].sofa, bed: IS[3].bed, head: IS[3].head, wood: IS[3].wood, floor: IS[3].floor, sw: [IS[3].wall].concat((L.int.sw || []).slice(1)) }); } return L; }
 function lookOf0(b, o) {
   const v = (b.seed || 1) + (o && o.id ? 'ABC'.indexOf(o.id) * 7 : 0), pals = PALETTES[b.style] || PALETTES.modern;
   const pick = (k, n) => Math.floor((seedJit(v, k) + 0.5) * n) % n;
@@ -2046,6 +2046,9 @@ function furnSkinBar(D, o) {
   h += '<label class="fsk-st">Style <select data-fstyle aria-label="Interior style">' + FURN_STYLES.map(x => '<option value="' + x.id + '"' + (x.id === st.id ? ' selected' : '') + '>' + esc(x.n) + '</option>').join('') + '</select></label>';
   const BS = bungalowOf();
   h += '<label class="fsk-st">Exterior <select data-fbung aria-label="Bungalow exterior style">' + BUNGALOW.map(x => '<option value="' + x.id + '"' + (BS && BS.id === x.id ? ' selected' : '') + ' title="' + esc(x.d) + '">' + esc(x.n) + '</option>').join('') + '<option value="custom"' + (!BS ? ' selected' : '') + '>Custom (my own elements)</option></select></label>';
+  const grp = [...new Set(TREND_EXT.map(x => x[1]))];
+  h += '<label class="fsk-st">Paint <select data-fpaint aria-label="Outside paint trend"><option value="">As the style</option>' + grp.map(g => '<optgroup label="' + esc(g) + '">' + TREND_EXT.filter(x => x[1] === g).map(x => '<option value="' + x[0] + '"' + (ST.extPaint === x[0] ? ' selected' : '') + '>' + esc(x[2]) + '</option>').join('') + '</optgroup>').join('') + '</select></label>';
+  h += '<label class="fsk-st">Inside paint <select data-fipaint aria-label="Inside paint trend"><option value="">As the style</option>' + TREND_INT.map((x, i) => '<option value="' + i + '"' + (ST.intPaint === i ? ' selected' : '') + '>' + esc(x[0]) + '</option>').join('') + '</select></label>';
   if (!BS) h += '<label class="fsk-st">Walls <select data-fext aria-label="Wall finish">' + EXT_FINISH.map(x => '<option value="' + x.id + '"' + (x.id === extFinish().id ? ' selected' : '') + ' title="' + esc(x.d) + '">' + esc(x.n) + '</option>').join('') + '</select></label>';
   h += '<button class="tog vtog' + (ST.furnSizes ? ' on' : '') + '" data-a="fsizes"><span class="dot"></span>Sizes</button></div>';
   h += '<div class="fskin fsk-acts"><button class="btn mini ghost" data-a="flib">Furniture library</button><button class="btn mini ghost" data-a="ftop">Top view</button><button class="btn mini ghost" data-a="bcmp">Compare exterior styles</button><span class="seg2 sm"><button class="' + (!S.design.night && (ST.sunHr == null || ST.sunHr < 16.5) ? 'on' : '') + '" data-a="flight" data-v="day">Day</button><button class="' + (!S.design.night && ST.sunHr >= 16.5 ? 'on' : '') + '" data-a="flight" data-v="golden">Golden hour</button><button class="' + (S.design.night ? 'on' : '') + '" data-a="flight" data-v="night">Evening</button></span><button class="btn mini ghost" data-a="fvary">Try another arrangement</button>' + (edits ? '<button class="btn mini ghost" data-a="freset">Reset furniture</button>' : '') + '<button class="btn mini ghost" data-a="fsave">Save design</button>' + (saved ? '<button class="btn mini ghost" data-a="fopen" title="Saved ' + esc(new Date(saved.savedAt).toLocaleString()) + '">Open saved</button>' : '') + '<button class="btn mini ghost" data-a="fexport">Export file</button><label class="btn mini ghost fimp">Import file<input type="file" id="fimport" accept="application/json,.json" hidden></label></div>';
@@ -2587,6 +2590,8 @@ document.addEventListener('change', e => {
   const t = e.target;
   if (t.matches && t.matches('[data-fstyle]')) { ST.furnStyle = t.value; keepY(() => {}); }
   if (t.matches && t.matches('[data-fext]')) { ST.extFinish = t.value; keepY(() => {}); }
+  if (t.matches && t.matches('[data-fpaint]')) { ST.extPaint = t.value || null; const ds = S.design; if (ds && ds.v3 && ds.v3 !== 'ext') ds.v3 = 'ext'; keepY(() => {}); }
+  if (t.matches && t.matches('[data-fipaint]')) { trendIntApply(t.value === '' ? -1 : +t.value); const ds = S.design; if (ds && (!ds.v3 || ds.v3 === 'ext')) ds.v3 = 'f0'; keepY(() => {}); }
   if (t.matches && t.matches('[data-fbung]')) { const ds = S.design; bungalowChoose(t.value); if (ds) { ds.v3 = 'ext'; keepY(() => {}); } }
   if (t.matches && t.matches('[data-flib]')) furnLibDraw();
   if (t.id === 'fimport' && t.files && t.files[0]) t.files[0].text().then(furnImport);
@@ -2639,7 +2644,7 @@ function furnOmitted(D, o) {
 const PBR = {};
 function pbrSet(T, kind, base) {
   const key = kind + base; if (PBR[key]) return PBR[key];
-  const N = kind === 'planks' || kind === 'stone' || kind === 'brick' ? 1024 : 512, size = PBR_SIZE[kind] || 4;
+  const N = kind === 'planks' || kind === 'stone' || kind === 'brick' || kind === 'travertine' ? 1024 : 512, size = PBR_SIZE[kind] || 4;
   const col = document.createElement('canvas'), hei = document.createElement('canvas'), rgh = document.createElement('canvas'); [col, hei, rgh].forEach(c => { c.width = c.height = N; });
   const g = col.getContext('2d'), h = hei.getContext('2d'), r = rgh.getContext('2d'), B = new T.Color(base), px = N / size;
   let seed = 1234567; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -2670,25 +2675,44 @@ function pbrSet(T, kind, base) {
   } else if (kind === 'rooftile') {   // glazed clay / concrete roof tiles, 10 in courses, 8 in wide, each tile shading the one below
     const th = 0.833 * px, tw = 0.667 * px; for (let row = 0, y = 0; y < N; row++, y += th) for (let x = row % 2 ? -tw / 2 : 0; x < N; x += tw) { const m = 0.85 + rnd() * 0.25; fill(g, tone(m), x, y, tw, th); const gr = g.createLinearGradient(0, y, 0, y + th); gr.addColorStop(0, 'rgba(255,255,255,0.12)'); gr.addColorStop(0.75, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,0.45)'); g.fillStyle = gr; g.fillRect(x, y, tw, th); fill(g, tone(0.45), x, y, 2, th);
       const hg = h.createLinearGradient(0, y, 0, y + th); hg.addColorStop(0, grey(0.35)); hg.addColorStop(1, grey(0.95)); h.fillStyle = hg; h.fillRect(x + 2, y, tw - 4, th); fill(h, grey(0.1), x, y, 2, th); fill(r, grey(0.32 + rnd() * 0.1), x, y, tw, th); }
+  } else if (kind === 'limewash') {   // limewash: soft cloudy mottling and wide brush arcs
+    for (let i = 0; i < 260; i++) { const x = rnd() * N, y = rnd() * N, r0 = 20 + rnd() * 120, gr = g.createRadialGradient(x, y, 0, x, y, r0), lt = rnd() < 0.5; gr.addColorStop(0, lt ? 'rgba(255,255,255,' + (0.05 + rnd() * 0.08) + ')' : 'rgba(0,0,0,' + (0.03 + rnd() * 0.06) + ')'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x - r0, y - r0, 2 * r0, 2 * r0); }
+    for (let i = 0; i < 90; i++) { g.strokeStyle = rnd() < 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.035)'; g.lineWidth = 8 + rnd() * 24; g.beginPath(); const x = rnd() * N, y = rnd() * N; g.arc(x, y, 30 + rnd() * 90, rnd() * 6, rnd() * 6 + 1.2); g.stroke(); }
+    noise(h, 9000, 0.12, 1, 3, true); fill(r, grey(0.93), 0, 0, N, N);
+  } else if (kind === 'microcement') {   // microcement: fine grain, trowel clouds, a soft sheen
+    for (let i = 0; i < 160; i++) { const x = rnd() * N, y = rnd() * N; g.save(); g.translate(x, y); g.rotate(rnd() * 3); g.fillStyle = rnd() < 0.5 ? 'rgba(255,255,255,' + 0.05 * rnd() + ')' : 'rgba(0,0,0,' + 0.06 * rnd() + ')'; g.beginPath(); g.ellipse(0, 0, 30 + rnd() * 90, 8 + rnd() * 20, 0, 0, 7); g.fill(); g.restore(); }
+    noise(g, 16000, 0.06, 1, 2, true); noise(g, 8000, 0.05, 1, 2, false); noise(h, 6000, 0.08, 1, 2, true);
+    for (let i = 0; i < 120; i++) { r.fillStyle = grey(0.55 + rnd() * 0.2); r.globalAlpha = 0.3; r.beginPath(); r.ellipse(rnd() * N, rnd() * N, 40 + rnd() * 80, 10 + rnd() * 20, rnd() * 3, 0, 7); r.fill(); } r.globalAlpha = 1;
+  } else if (kind === 'venetian') {   // Venetian polished plaster: deep cloudy marbling, glossy
+    fill(r, grey(0.22), 0, 0, N, N);
+    for (let i = 0; i < 220; i++) { const x = rnd() * N, y = rnd() * N; g.save(); g.translate(x, y); g.rotate(rnd() * 3); g.fillStyle = rnd() < 0.5 ? 'rgba(255,255,255,' + 0.1 * rnd() + ')' : 'rgba(0,0,0,' + 0.1 * rnd() + ')'; g.beginPath(); g.ellipse(0, 0, 25 + rnd() * 110, 6 + rnd() * 30, 0, 0, 7); g.fill(); g.restore(); r.fillStyle = grey(0.12 + rnd() * 0.25); r.globalAlpha = 0.4; r.beginPath(); r.ellipse(x, y, 40, 14, rnd() * 3, 0, 7); r.fill(); r.globalAlpha = 1; }
+    for (let k = 0; k < 14; k++) { g.strokeStyle = 'rgba(255,255,255,0.08)'; g.lineWidth = 1 + rnd() * 2; g.beginPath(); let x = rnd() * N, y = rnd() * N; g.moveTo(x, y); for (let s = 0; s < 12; s++) { x += (rnd() - 0.3) * 50; y += (rnd() - 0.5) * 30; g.lineTo(x, y); } g.stroke(); }
+  } else if (kind === 'travertine') {   // travertine cladding: 2 × 1 ft slabs, horizontal veining and small pores
+    const sh = 1 * px, sl = 2 * px; for (let row = 0, y = 0; y < N; row++, y += sh) for (let x = row % 2 ? -sl / 2 : 0; x < N; x += sl) { const m = 0.92 + rnd() * 0.12; fill(g, tone(m), x, y, sl, sh);
+      for (let k = 0; k < 7; k++) { g.strokeStyle = tone(m * (0.85 + rnd() * 0.2)); g.globalAlpha = 0.35; g.lineWidth = 1 + rnd() * 3; g.beginPath(); const yy = y + rnd() * sh; g.moveTo(x, yy); for (let s = 0; s <= sl; s += 20) g.lineTo(x + s, yy + Math.sin(s / 40 + k) * 1.5); g.stroke(); } g.globalAlpha = 1;
+      for (let k = 0; k < 40; k++) { const px2 = x + rnd() * sl, py2 = y + rnd() * sh; g.fillStyle = tone(0.7); g.globalAlpha = 0.5; g.beginPath(); g.ellipse(px2, py2, 1.5 + rnd() * 3, 0.8 + rnd(), 0, 0, 7); g.fill(); g.globalAlpha = 1; h.fillStyle = grey(0.3); h.fillRect(px2, py2, 2, 1); }
+      fill(r, grey(0.55 + rnd() * 0.1), x, y, sl, sh); fill(h, grey(0.85), x + 2, y + 2, sl - 4, sh - 4); fill(h, grey(0.2), x, y, sl, 2); fill(h, grey(0.2), x, y, 2, sh); fill(g, tone(0.75), x, y, sl, 1.5); fill(g, tone(0.75), x, y, 1.5, sh); }
+  } else if (kind === 'fluted') {   // fluted panel: 3 in half-round flutes
+    const fw = px / 4; for (let x = 0; x < N; x += fw) for (let i = 0; i < fw; i++) { const t2 = Math.sin(Math.PI * i / fw); fill(h, grey(0.2 + 0.75 * t2), x + i, 0, 1, N); fill(g, tone(0.82 + 0.2 * t2), x + i, 0, 1, N); } fill(r, grey(0.6), 0, 0, N, N);
   } else if (kind === 'grass') {
     for (let i = 0; i < 26000; i++) { g.fillStyle = tone(0.7 + rnd() * 0.6, (rnd() - 0.5) * 0.04); const x = rnd() * N, y = rnd() * N; g.fillRect(x, y, 1.5, 3 + rnd() * 5); h.fillStyle = grey(0.5 + rnd() * 0.5); h.fillRect(x, y, 1.5, 3); } fill(r, grey(0.95), 0, 0, N, N);
   } else if (kind === 'pavers') {   // 8 × 4 in pavers in a herringbone-free running bond
     const ph = 0.333 * px, pl = 0.667 * px; for (let row = 0, y = 0; y < N; row++, y += ph) for (let x = row % 2 ? -pl / 2 : 0; x < N; x += pl) { fill(g, tone(0.85 + rnd() * 0.25), x, y, pl, ph); noise(g, 10, 0.1, 1, 3, true); fill(h, grey(0.8), x + 3, y + 3, pl - 6, ph - 6); fill(r, grey(0.85), x, y, pl, ph); fill(h, grey(0.1), x, y, pl, 3); fill(h, grey(0.1), x, y, 3, ph); fill(g, tone(0.55), x, y, pl, 2); fill(g, tone(0.55), x, y, 2, ph); }
   }
   // normal map from the height map (Sobel)
-  const hd = h.getImageData(0, 0, N, N).data, nc = document.createElement('canvas'); nc.width = nc.height = N; const nx = nc.getContext('2d'), out = nx.createImageData(N, N), st = kind === 'plaster' || kind === 'grass' ? 2.5 : 4;
+  const hd = h.getImageData(0, 0, N, N).data, nc = document.createElement('canvas'); nc.width = nc.height = N; const nx = nc.getContext('2d'), out = nx.createImageData(N, N), st = ['plaster', 'grass', 'limewash', 'microcement', 'venetian'].includes(kind) ? 2.5 : 4;
   const H = (x, y) => hd[(((y + N) % N) * N + ((x + N) % N)) * 4] / 255;
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const dx = (H(x + 1, y - 1) + 2 * H(x + 1, y) + H(x + 1, y + 1) - H(x - 1, y - 1) - 2 * H(x - 1, y) - H(x - 1, y + 1)) * st, dy = (H(x - 1, y + 1) + 2 * H(x, y + 1) + H(x + 1, y + 1) - H(x - 1, y - 1) - 2 * H(x, y - 1) - H(x + 1, y - 1)) * st, l = Math.hypot(dx, dy, 1), i = (y * N + x) * 4; out.data[i] = (-dx / l * 0.5 + 0.5) * 255; out.data[i + 1] = (dy / l * 0.5 + 0.5) * 255; out.data[i + 2] = (1 / l * 0.5 + 0.5) * 255; out.data[i + 3] = 255; }
   nx.putImageData(out, 0, 0);
   const tex = (c, srgb) => { const t = new T.CanvasTexture(c); if (srgb) t.colorSpace = T.SRGBColorSpace; t.wrapS = t.wrapT = T.RepeatWrapping; t.anisotropy = 8; return t; };
   return (PBR[key] = { map: tex(col, true), normalMap: tex(nc), roughnessMap: tex(rgh), size });
 }
-const PBR_SIZE = { rooftile: 4, planks: 4, tile: 4, mosaic: 4, marble: 8, plaster: 4, stone: 4, brick: 4, woodclad: 4, grass: 4, pavers: 4 };
+const PBR_SIZE = { limewash: 8, microcement: 8, venetian: 8, travertine: 4, fluted: 4, rooftile: 4, planks: 4, tile: 4, mosaic: 4, marble: 8, plaster: 4, stone: 4, brick: 4, woodclad: 4, grass: 4, pavers: 4 };
 const PBR_MAT = {};
 // a material whose textures repeat at real size; box() lays its UVs out in feet for any material carrying userData.wuv
 function pbrMat(T, kind, base, o2) {
   const k = kind + base + JSON.stringify(o2 || {}); if (PBR_MAT[k]) return PBR_MAT[k];
-  const P = pbrSet(T, kind, base), m = new T.MeshStandardMaterial(Object.assign({ color: '#ffffff', map: P.map, normalMap: P.normalMap, roughnessMap: P.roughnessMap, roughness: 1, metalness: 0, normalScale: new T.Vector2(kind === 'plaster' ? 0.35 : 0.8, kind === 'plaster' ? 0.35 : 0.8) }, o2 || {}));
+  const P = pbrSet(T, kind, base), m = new T.MeshStandardMaterial(Object.assign({ color: '#ffffff', map: P.map, normalMap: P.normalMap, roughnessMap: P.roughnessMap, roughness: 1, metalness: 0, normalScale: new T.Vector2(...[0, 0].map(() => kind === 'plaster' || kind === 'limewash' ? 0.35 : kind === 'microcement' || kind === 'venetian' ? 0.15 : 0.8)) }, o2 || {}));
   m.userData.wuv = P.size; return (PBR_MAT[k] = m);
 }
 // box UVs in real units: each face repeats the texture once per `size` ft
@@ -2715,7 +2739,90 @@ const EXT_FINISH = [
   { id: 'premium-villa', n: 'Premium villa', d: 'Grey stone base, warm plaster, walnut cladding on the front', ground: ['stone', '#9C978E'], upper: ['plaster', '#DDD5C9'], front: ['woodclad', '#6B4A33'], paving: '#9E9890' },
   { id: 'warm-natural', n: 'Warm natural', d: 'Exposed brick base, sand plaster, teak cladding', ground: ['brick', '#A65A3A'], upper: ['plaster', '#E8DCC6'], front: ['woodclad', '#A0703F'], paving: '#B8A48C' }
 ];
-const extFinish = () => { const id = typeof ST !== 'undefined' && ST.extFinish, B = typeof BUNGALOW !== 'undefined' && BUNGALOW.find(x => x.id === id); return B ? { id: B.id, n: B.n, ground: B.walls.ground, upper: B.walls.upper, front: B.walls.front, paving: B.walls.paving } : EXT_FINISH.find(x => x.id === id) || EXT_FINISH[0]; };
+const extFinish0 = () => { const id = typeof ST !== 'undefined' && ST.extFinish, B = typeof BUNGALOW !== 'undefined' && BUNGALOW.find(x => x.id === id); return B ? { id: B.id, n: B.n, ground: B.walls.ground, upper: B.walls.upper, front: B.walls.front, paving: B.walls.paving } : EXT_FINISH.find(x => x.id === id) || EXT_FINISH[0]; };
+// a paint trend repaints the chosen finish: the style keeps its wood and stone pieces, the walls take the trend's colours and textures
+const extFinish = () => {
+  const F = extFinish0(), t = typeof trendExt === 'function' ? trendExt() : null; if (!t) return F;
+  const P = t[3], fk = F.front ? F.front[0] : 'plaster', gk = F.ground ? F.ground[0] : 'plaster';
+  return { id: 'trend-' + t[0], n: t[2], upper: [t[4], P.wall], ground: [t[5] === 'stone' && gk === 'brick' ? 'brick' : t[5], P.base], front: fk === 'woodclad' ? ['woodclad', P.wood] : fk === 'plaster' ? [t[4], P.wall] : [fk, P.stone], paving: F.paving || '#B5AFA5' };
+};
+/* ---------- 2026 paint trends: exterior and interior colour schemes with wall textures ----------
+   Colours are screen approximations "inspired by" the named shades and trends: Pantone Cloud Dancer, Asian Paints Moonlit Silk,
+   Sherwin-Williams Universal Khaki and Benjamin Moore Silhouette (the 2026 colours of the year), plus the year's broader moves —
+   warm neutrals over cool greys, nature greens, two-tone contrast, colour drenching, moody darks, and limewash, microcement,
+   Venetian plaster, travertine and fluted textures. Match the final shade on a paint company's shade card before buying. */
+// [id, group, name, { wall, base, accent, trim, wood, stone }, upper-wall texture, ground texture]
+const TREND_EXT = [
+  ['cloud-dancer', 'Colours of the year 2026', 'Cloud Dancer white + walnut', { wall: '#F0EEE9', base: '#7F7A72', accent: '#2B2B2B', trim: '#2B2B2B', wood: '#6B4A33', stone: '#7F7A72' }, 'plaster', 'stone'],
+  ['moonlit-silk', 'Colours of the year 2026', 'Moonlit Silk green + cream', { wall: '#D3D6BE', base: '#8D9177', accent: '#4A5240', trim: '#F3EFE4', wood: '#9A6A3E', stone: '#8D9177' }, 'limewash', 'stone'],
+  ['universal-khaki', 'Colours of the year 2026', 'Universal Khaki + soft white', { wall: '#C4B69C', base: '#8A7C66', accent: '#F4F1EA', trim: '#F4F1EA', wood: '#6B4A33', stone: '#8A7C66' }, 'plaster', 'stone'],
+  ['silhouette', 'Colours of the year 2026', 'Silhouette umber + brass', { wall: '#EDE6DC', base: '#5A4A42', accent: '#5A4A42', trim: '#B08D57', wood: '#4A3428', stone: '#5A4A42' }, 'plaster', 'microcement'],
+  ['warm-greige', 'Warm neutrals', 'Warm greige + charcoal', { wall: '#DCD3C7', base: '#8F877C', accent: '#3A3633', trim: '#3A3633', wood: '#7A4E2C', stone: '#8F877C' }, 'plaster', 'stone'],
+  ['alabaster-iron', 'Warm neutrals', 'Alabaster + iron ore', { wall: '#EFEAE0', base: '#4A4B4C', accent: '#3A3B3C', trim: '#3A3B3C', wood: '#8A5A33', stone: '#6E6C68' }, 'plaster', 'plaster'],
+  ['linen-cedar', 'Warm neutrals', 'Linen + cedar wood', { wall: '#E6DCCB', base: '#A8957A', accent: '#6E4B30', trim: '#F5F0E6', wood: '#A0683C', stone: '#A8957A' }, 'limewash', 'stone'],
+  ['taupe-stone', 'Warm neutrals', 'Taupe + dark stone', { wall: '#CFC3B4', base: '#7E7468', accent: '#2F2B28', trim: '#2F2B28', wood: '#5C3A22', stone: '#7E7468' }, 'plaster', 'stone'],
+  ['ivory-travertine', 'Warm neutrals', 'Ivory + travertine (luxury)', { wall: '#F3EEE3', base: '#D9CDB6', accent: '#2E2A26', trim: '#B08D57', wood: '#7A4E2C', stone: '#D9CDB6' }, 'plaster', 'travertine'],
+  ['sage-linen', 'Nature greens', 'Sage + linen', { wall: '#CDD5C0', base: '#EDE6D6', accent: '#4F5D49', trim: '#F4F0E6', wood: '#9A6A3E', stone: '#9AA08C' }, 'limewash', 'plaster'],
+  ['olive-oak', 'Nature greens', 'Olive + oak', { wall: '#E9E5D6', base: '#6B6E4E', accent: '#4C5036', trim: '#4C5036', wood: '#B0814F', stone: '#6B6E4E' }, 'plaster', 'plaster'],
+  ['forest-cream', 'Nature greens', 'Forest green + cream', { wall: '#F2EDE1', base: '#2F4A3A', accent: '#2F4A3A', trim: '#2F4A3A', wood: '#8A5A33', stone: '#5E6B5E' }, 'plaster', 'plaster'],
+  ['eucalyptus', 'Nature greens', 'Eucalyptus limewash + white', { wall: '#DDE3DA', base: '#8C978A', accent: '#3D4A42', trim: '#FFFFFF', wood: '#A0703F', stone: '#8C978A' }, 'limewash', 'stone'],
+  ['white-black', 'Two-tone contrast', 'Crisp white + black', { wall: '#F7F7F5', base: '#262829', accent: '#1C1D1F', trim: '#1C1D1F', wood: '#8A5A33', stone: '#4A4C4E' }, 'plaster', 'plaster'],
+  ['white-navy', 'Two-tone contrast', 'White + deep navy', { wall: '#F5F4F0', base: '#1F3550', accent: '#1F3550', trim: '#F5F4F0', wood: '#9A6A3E', stone: '#5D6B7A' }, 'plaster', 'plaster'],
+  ['snow-storm', 'Two-tone contrast', 'Snow white + storm grey stone', { wall: '#F2F2EF', base: '#6E7378', accent: '#4A4F54', trim: '#4A4F54', wood: '#7A4E2C', stone: '#6E7378' }, 'plaster', 'stone'],
+  ['cream-charcoal', 'Two-tone contrast', 'Cream + charcoal + teak', { wall: '#EFE9DD', base: '#3F4246', accent: '#3F4246', trim: '#3F4246', wood: '#A0683C', stone: '#5A5D61' }, 'plaster', 'microcement'],
+  ['terracotta-cream', 'Earthy and Indian', 'Terracotta brick + cream', { wall: '#F3E9DA', base: '#B5653F', accent: '#7A3420', trim: '#F3E9DA', wood: '#8A5A33', stone: '#B5653F' }, 'plaster', 'brick'],
+  ['desert-sand', 'Earthy and Indian', 'Desert sand limewash', { wall: '#E6D3B3', base: '#C49A6C', accent: '#6E4B30', trim: '#6E4B30', wood: '#8A5A33', stone: '#C49A6C' }, 'limewash', 'stone'],
+  ['laterite-white', 'Earthy and Indian', 'Odisha laterite + white', { wall: '#F4F1EA', base: '#9C4A2B', accent: '#5C2A1A', trim: '#5C2A1A', wood: '#6E4524', stone: '#9C4A2B' }, 'plaster', 'stone'],
+  ['kalinga-sandstone', 'Earthy and Indian', 'Kalinga sandstone', { wall: '#E9D3AE', base: '#C9A774', accent: '#7A3E1D', trim: '#A2552F', wood: '#6E4524', stone: '#C9A774' }, 'limewash', 'stone'],
+  ['haveli-ochre', 'Earthy and Indian', 'Haveli ochre + white trims', { wall: '#E8B964', base: '#A65A3A', accent: '#FFFFFF', trim: '#FFFFFF', wood: '#5B3A22', stone: '#A65A3A' }, 'limewash', 'brick'],
+  ['clay-rose', 'Earthy and Indian', 'Clay rose limewash', { wall: '#E6CFC4', base: '#A87766', accent: '#6B3F35', trim: '#F3ECE6', wood: '#8A5A33', stone: '#A87766' }, 'limewash', 'plaster'],
+  ['charcoal-walnut', 'Moody darks', 'Charcoal microcement + walnut', { wall: '#4A4D50', base: '#2E3033', accent: '#B08D57', trim: '#1E1F21', wood: '#6B4329', stone: '#2E3033' }, 'microcement', 'microcement'],
+  ['navy-brass', 'Moody darks', 'Deep navy + brass', { wall: '#2C3E55', base: '#1E2A3A', accent: '#C9A24B', trim: '#F2EFE8', wood: '#7A4E2C', stone: '#1E2A3A' }, 'plaster', 'plaster'],
+  ['espresso-sand', 'Moody darks', 'Sand + espresso', { wall: '#E3D6C2', base: '#4A3A30', accent: '#4A3A30', trim: '#4A3A30', wood: '#6B4A33', stone: '#4A3A30' }, 'plaster', 'plaster'],
+  ['microcement-grey', 'Concrete and stone', 'Microcement grey', { wall: '#CFCCC6', base: '#8E8B85', accent: '#2B2D2F', trim: '#2B2D2F', wood: '#8A5A33', stone: '#8E8B85' }, 'microcement', 'microcement'],
+  ['travertine-villa', 'Concrete and stone', 'Travertine villa', { wall: '#EADFCC', base: '#D2C3A8', accent: '#3A3633', trim: '#3A3633', wood: '#6B4A33', stone: '#D2C3A8' }, 'travertine', 'travertine'],
+  ['drench-sage', 'Colour drench', 'All sage (colour drench)', { wall: '#A7B49A', base: '#97A48A', accent: '#7F8C72', trim: '#A7B49A', wood: '#8A5A33', stone: '#97A48A' }, 'limewash', 'limewash'],
+  ['drench-terracotta', 'Colour drench', 'All terracotta (colour drench)', { wall: '#C9785A', base: '#B5653F', accent: '#A3583E', trim: '#C9785A', wood: '#6E4524', stone: '#B5653F' }, 'limewash', 'limewash'],
+  ['drench-khaki', 'Colour drench', 'All khaki (colour drench)', { wall: '#B8A992', base: '#A89A82', accent: '#9C8E76', trim: '#B8A992', wood: '#5C3A22', stone: '#A89A82' }, 'plaster', 'plaster'],
+  ['daydream-blue', 'Colour drench', 'Daydream powder blue + white', { wall: '#DCE6EE', base: '#8EA3B4', accent: '#3E5568', trim: '#FFFFFF', wood: '#A0703F', stone: '#8EA3B4' }, 'plaster', 'plaster']
+];
+const trendExt = () => typeof ST !== 'undefined' && ST.extPaint ? TREND_EXT.find(x => x[0] === ST.extPaint) || null : null;
+// interior: [name, walls, feature wall, ceiling, wall texture, feature texture]
+const TREND_INT = [
+  ['Cloud Dancer + fluted oak', '#F0EEE9', '#B08D6A', '#FFFFFF', null, 'fluted'],
+  ['Moonlit Silk calm', '#E3E5D3', '#B9BFA0', '#FBFBF6', null, 'limewash'],
+  ['Universal Khaki', '#EDE6DA', '#B8A992', '#FFFDF8', null, 'limewash'],
+  ['Silhouette umber Venetian', '#EFE8DE', '#5B4B44', '#FFFFFF', null, 'venetian'],
+  ['Mocha mousse', '#EFE7DE', '#A47864', '#FFFFFF', null, null],
+  ['Greige microcement', '#E6E0D7', '#A69C90', '#FFFFFF', null, 'microcement'],
+  ['Japandi oak slats', '#F1ECE3', '#C8A57E', '#FFFFFF', null, 'fluted'],
+  ['Sage limewash', '#E8ECE3', '#A7B49A', '#FBFBF7', null, 'limewash'],
+  ['Olive library', '#EEEADD', '#6B6E4E', '#FFFFFF', null, null],
+  ['Forest green Venetian', '#F2EEE6', '#2F4A3A', '#FFFFFF', null, 'venetian'],
+  ['Terracotta limewash', '#F3E9DA', '#C9785A', '#FFFDF8', null, 'limewash'],
+  ['Clay rose', '#F4ECE7', '#D3A99A', '#FFFFFF', null, 'limewash'],
+  ['Butter yellow', '#F7F0D8', '#E9D9A0', '#FFFFFF', null, null],
+  ['Pista green', '#F4F6EA', '#C5D19B', '#FFFFFF', null, null],
+  ['Mint fresh', '#F2F7F3', '#BFD8C8', '#FFFFFF', null, null],
+  ['Powder blue', '#EEF3F6', '#A9C0D1', '#FFFFFF', null, null],
+  ['Lavender haze', '#F3F1F6', '#C9C0D8', '#FFFFFF', null, null],
+  ['Teal accent', '#EEF1F0', '#2F6B6A', '#FFFFFF', null, null],
+  ['Navy + brass Venetian', '#F2F1EC', '#22344F', '#FFFFFF', null, 'venetian'],
+  ['Burgundy luxe', '#F3EDE8', '#6B2E35', '#FFFFFF', null, 'venetian'],
+  ['Plum dusk', '#F1ECEE', '#6D5462', '#FFFFFF', null, null],
+  ['Chocolate brown', '#EFE6DA', '#5A3E30', '#FFFFFF', null, null],
+  ['Charcoal microcement', '#E9E7E3', '#4A4D50', '#FFFFFF', null, 'microcement'],
+  ['Black fluted accent', '#F3F2EF', '#232527', '#FFFFFF', null, 'fluted'],
+  ['Warm white + walnut slats', '#F6F3EC', '#6B4A33', '#FFFFFF', null, 'fluted'],
+  ['Travertine luxe', '#F3EEE3', '#D9CDB6', '#FFFFFF', null, 'travertine'],
+  ['Venetian ivory (whole room)', '#F6F2EA', '#E9E1D2', '#FFFFFF', 'venetian', 'venetian'],
+  ['Concrete loft', '#DAD7D1', '#8E8B85', '#F2F1EE', 'microcement', 'microcement'],
+  ['Desert sand limewash (whole room)', '#F1E6D4', '#C49A6C', '#FFFDF8', 'limewash', 'limewash'],
+  ['Kalinga ochre', '#F5ECD9', '#C98B3C', '#FFFDF8', null, 'limewash']
+];
+// apply an interior trend to every room
+function trendIntApply(i) { const t = TREND_INT[i]; if (!t) { ST.intPaint = null; if (ST.paintI) delete ST.paintI.all; return; } ST.intPaint = i; ST.paintI = Object.assign({}, ST.paintI || {}, { all: { wall: t[1], feature: t[2], ceiling: t[3], wtex: t[4], ftex: t[5] } }); }
+
 /* ---------- Poly Haven HDRIs (CC0, via @pmndrs/assets): soft daylight and reflections for every material ---------- */
 const ENV = { tex: {}, loading: null };
 function envEnsure() {
@@ -2735,31 +2842,31 @@ const BUNGALOW = [
     pal: { wall: '#FAF8F3', accent: '#C9A24B', trim: '#FFFFFF', stone: '#D8CFBF', wood: '#5B3A22', glass: '#9FB4C2', roof: null }, walls: { ground: ['plaster', '#FAF8F3'], upper: ['plaster', '#FAF8F3'], front: ['plaster', '#FAF8F3'], paving: '#D6CEC0' }, rail: 'baluster', land: { trees: 'palm', lanterns: true }, light: 17.5 },
   { id: 'colonial-villa', kit: 'colonial', n: 'Colonial verandah villa', d: 'Front verandah of round columns and arches under a pediment, balustrade, floor bands, slate hipped roof with deep eaves on wooden brackets, pillared wall with lamps',
     fx: [['shutters', 'chajja'], ['uplights']],
-    pal: { wall: '#F6EEDD', accent: '#5B3A22', trim: '#FFFFFF', stone: '#D8CFBF', wood: '#5B3A22', glass: '#A7BAC4', roof: null }, walls: { ground: ['plaster', '#F6EEDD'], upper: ['plaster', '#F6EEDD'], front: ['plaster', '#F6EEDD'], paving: '#C9BFAE' }, rail: 'baluster', land: { trees: 'round', lanterns: true }, light: 10 },
+    pal: { wall: '#F2DFA7', accent: '#2F4A3A', trim: '#FFFFFF', stone: '#D8CFBF', wood: '#5B3A22', glass: '#A7BAC4', roof: null }, walls: { ground: ['plaster', '#F2DFA7'], upper: ['plaster', '#F2DFA7'], front: ['plaster', '#F2DFA7'], paving: '#C9BFAE' }, rail: 'baluster', land: { trees: 'round', lanterns: true }, light: 10 },
   { id: 'modern-cantilever', kit: 'modern', n: 'Modern cantilever villa', d: 'Thick white roof slab floating past the walls, cantilevered sunshade, deep frame round the feature bay, wood and ledge-stone, glass railings, stone wall with planters and a slatted gate',
     fx: [['hpl', 'stone'], ['hlouver', 'alufin'], ['ledline'], ['uplights']],
     pal: { wall: '#F7F7F5', accent: '#1E2124', trim: '#1E2124', stone: '#8E8A82', wood: '#7A4E2C', glass: '#9FB8C4', roof: null }, walls: { ground: ['stone', '#8E8A82'], upper: ['plaster', '#F7F7F5'], front: ['woodclad', '#7A4E2C'], paving: '#A9A49C' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 17.5 },
   { id: 'modern-luxury', n: 'Modern Indian luxury', d: 'White geometric frame, dark-blue accents, wood-look cladding, glass balconies, stone piers, warm facade lights',
     fx: [['portal'], ['hpl', 'stone'], ['slate', 'stone'], ['bands'], ['boxframe', 'chajja'], ['canopy', 'glcanopy'], ['parapetgl'], ['planters'], ['uplights'], ['ledline'], ['gateslide'], ['cwstone'], ['hedge']],
-    pal: { wall: '#F5F4F0', accent: '#1F3550', trim: '#1F3550', stone: '#B7AA95', wood: '#8A5A33', glass: '#A9C3CF' , roof: null}, walls: { ground: ['plaster', '#F2F1ED'], upper: ['plaster', '#F6F5F2'], front: ['plaster', '#F6F5F2'], paving: '#B5B0A8' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 17.5 },
+    pal: { wall: '#F7F6F2', accent: '#1F3550', trim: '#1F3550', stone: '#8F8A80', wood: '#7A4E2C', glass: '#A9C3CF' , roof: null}, walls: { ground: ['stone', '#8F8A80'], upper: ['plaster', '#F7F6F2'], front: ['woodclad', '#7A4E2C'], paving: '#B5B0A8' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 17.5 },
   { id: 'stone-timber', n: 'Contemporary stone and timber', d: 'Natural stone feature wall, warm wooden panels, dark frames, clean roof line, horizontal louvers',
     fx: [['stone', 'slate'], ['hpl'], ['hlouver', 'alufin'], ['boxframe'], ['canopy'], ['bands'], ['gateslide'], ['cwstone'], ['hedge'], ['uplights']],
-    pal: { wall: '#EFECE6', accent: '#2A2F33', trim: '#2A2F33', stone: '#A79C8C', wood: '#7A4E2C', glass: '#9FB8C4' , roof: null}, walls: { ground: ['stone', '#A49A8B'], upper: ['plaster', '#EFECE6'], front: ['woodclad', '#7A4E2C'], paving: '#9E9890' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 10 },
+    pal: { wall: '#E8E3DA', accent: '#1E2022', trim: '#1E2022', stone: '#6F6B64', wood: '#5C3A22', glass: '#9FB8C4' , roof: null}, walls: { ground: ['stone', '#6F6B64'], upper: ['plaster', '#E8E3DA'], front: ['woodclad', '#5C3A22'], paving: '#9E9890' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 10 },
   { id: 'tropical', n: 'Modern tropical villa', d: 'Deep sunshades, timber fins, green wall, roof pergola, planters and palms',
     fx: [['vfins', 'bamboo'], ['greenwall'], ['pergola'], ['chajja'], ['planters'], ['hpl'], ['canopy'], ['gateslide'], ['hedge']],
-    pal: { wall: '#ECE7DC', accent: '#3A3F3A', trim: '#3A3F3A', stone: '#B9AC97', wood: '#8A5A33', glass: '#A9C3CF' , roof: '#6B4A33'}, walls: { ground: ['stone', '#B9AC97'], upper: ['plaster', '#ECE7DC'], front: ['woodclad', '#8A5A33'], paving: '#B8A48C' }, rail: 'bars', land: { trees: 'palm', lanterns: true }, light: 10 },
+    pal: { wall: '#DDE3D3', accent: '#2F3A2F', trim: '#2F3A2F', stone: '#7D7F78', wood: '#9A6A3E', glass: '#A9C3CF' , roof: '#5E4630'}, walls: { ground: ['stone', '#7D7F78'], upper: ['plaster', '#DDE3D3'], front: ['woodclad', '#9A6A3E'], paving: '#A8A294' }, rail: 'bars', land: { trees: 'palm', lanterns: true }, light: 10 },
   { id: 'minimal', n: 'Minimalist contemporary', d: 'Clean white volumes, one dark frame, floor bands, glass parapet, laser-cut gate',
     fx: [['portal'], ['bands'], ['boxframe'], ['canopy'], ['parapetgl'], ['gatelaser'], ['cwgrill']],
-    pal: { wall: '#F6F6F4', accent: '#2E3236', trim: '#2E3236', stone: '#C9C6C0', wood: '#9A6A42', glass: '#B7CCD6' , roof: null}, walls: { ground: ['plaster', '#8E9398'], upper: ['plaster', '#F6F6F4'], front: ['plaster', '#F6F6F4'], paving: '#A9ADB0' }, rail: 'glass', land: { trees: 'round' }, light: 10 },
+    pal: { wall: '#FBFBFA', accent: '#202326', trim: '#202326', stone: '#C9C6C0', wood: '#9A6A42', glass: '#B7CCD6' , roof: null}, walls: { ground: ['plaster', '#45494D'], upper: ['plaster', '#FBFBFA'], front: ['plaster', '#FBFBFA'], paving: '#A9ADB0' }, rail: 'glass', land: { trees: 'round' }, light: 10 },
   { id: 'urban-premium', n: 'Premium urban bungalow', d: 'Ledge-stone pier, CNC jaali, glass canopy, aluminium fins, pivot door, name plate',
     fx: [['slate', 'stone'], ['cnc', 'perf'], ['glcanopy', 'canopy'], ['alufin', 'boxframe'], ['ledline'], ['pivot'], ['nameplate'], ['gatelaser'], ['cwstone']],
-    pal: { wall: '#EDEBE6', accent: '#24221F', trim: '#24221F', stone: '#8E8A82', wood: '#6B4329', glass: '#9DB8C6' , roof: null}, walls: { ground: ['plaster', '#5E6266'], upper: ['plaster', '#EDEBE6'], front: ['plaster', '#EDEBE6'], paving: '#9E9890' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 17.5 },
+    pal: { wall: '#E4DFD7', accent: '#1C1B19', trim: '#1C1B19', stone: '#4F4C48', wood: '#6B4329', glass: '#9DB8C6' , roof: null}, walls: { ground: ['plaster', '#3E4247'], upper: ['plaster', '#E4DFD7'], front: ['woodclad', '#6B4329'], paving: '#9E9890' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 17.5 },
   { id: 'traditional-luxury', n: 'Traditional luxury bungalow', d: 'Columns at the door, cornice, pediment, floor bands, shutters, tiled roof — scaled to this house',
     fx: [['columns'], ['cornice'], ['pediment'], ['bands'], ['shutters', 'chajja'], ['gable'], ['arches'], ['uplights'], ['cwgrill'], ['hedge']],
     pal: { wall: '#F7F4EC', accent: '#C9A24B', trim: '#FFFFFF', stone: '#E6DCC8', wood: '#5B3A22', glass: '#B9CCD4', roof: '#22345A' }, walls: { ground: ['plaster', '#F4F0E6'], upper: ['plaster', '#F7F4EC'], front: ['plaster', '#F7F4EC'], paving: '#C9C1B2' }, rail: 'bars', land: { trees: 'palm', lanterns: true }, light: 17.5 },
   { id: 'indian-fusion', n: 'Modern Indian fusion', d: 'Stone with a terracotta jaali, metal jaali on the feature bay, chajjas, planters, shaded entrance',
     fx: [['stone', 'laterite'], ['tjaali'], ['cnc'], ['chajja'], ['canopy'], ['planters'], ['gateslide'], ['cwstone'], ['uplights']],
-    pal: { wall: '#F1E9DB', accent: '#6E3B2E', trim: '#6E3B2E', stone: '#C9A77D', wood: '#8A5A33', glass: '#B3C8CF' , roof: null}, walls: { ground: ['stone', '#C9A77D'], upper: ['plaster', '#F1E9DB'], front: ['woodclad', '#9A6A42'], paving: '#B9B2A6' }, rail: 'bars', land: { trees: 'round', lanterns: true }, light: 17.5 }
+    pal: { wall: '#F4EBDD', accent: '#7A2E22', trim: '#7A2E22', stone: '#A9583A', wood: '#8A5A33', glass: '#B3C8CF' , roof: null}, walls: { ground: ['brick', '#A9583A'], upper: ['plaster', '#F4EBDD'], front: ['woodclad', '#8A5A33'], paving: '#B9B2A6' }, rail: 'bars', land: { trees: 'round', lanterns: true }, light: 17.5 }
 ];
 const bungalowOf = () => BUNGALOW.find(x => x.id === ST.extStyle) || null;
 // does this element show anywhere on this house (in the given zone)?
@@ -2836,7 +2943,7 @@ function hipGeom(T, x0, z0, w, d, h) {
 function arch3D(T, D, o, grp, box, mat, night) {
   const kit = archKit(); if (!kit) return;
   const b = D.brief, FM = frameOf(D, o), nF = o.floors.length, R0 = PLINTH + nF * FH, F0 = o.floors[0], st = lookOf(b, o).st;
-  const white = pbrMat(T, 'plaster', kit === 'colonial' ? '#F6EEDD' : '#FAF8F3'), trimW = mat('#FFFFFF', { roughness: 0.6 }), gold = mat('#C9A24B', { metalness: 0.85, roughness: 0.3 });
+  const white = pbrMat(T, 'plaster', kit === 'colonial' ? (st.wall || '#F2DFA7') : '#FAF8F3'), trimW = mat('#FFFFFF', { roughness: 0.6 }), gold = mat('#C9A24B', { metalness: 0.85, roughness: 0.3 });
   const dark = mat('#1B1D20', { metalness: 0.5, roughness: 0.4 }), stoneB = pbrMat(T, 'stone', '#D8CFBF');
   const add = (geo, m, x, y, z) => { const me = new T.Mesh(geo, m); me.position.set(x, y, z); me.castShadow = true; me.receiveShadow = true; grp.add(me); return me; };
   const cells = f => { const L = []; for (let r = 0; r < FM.nr; r++) for (let c = 0; c < FM.nc; c++) if (FM.built[f][r][c]) L.push(cellRect(o.G, b, r, c)); return L; };
@@ -2916,8 +3023,8 @@ function arch3D(T, D, o, grp, box, mat, night) {
     // ledge-stone pier at the corner away from the gate
     const left = car ? car.x0 > b.w / 2 : true, px = left ? b.sL : b.w - b.sR - 3; box(px, 0, frontY - 0.1, 3, R0 + 0.6, 0.45, pbrMat(T, 'stone', '#8E8A82'));
   }
-  /* ---------- compound wall and gate for each kit ---------- */
-  if (!b.shape) {
+  /* ---------- compound wall and gate for each kit (a villa estate has its own boundary) ---------- */
+  if (!b.shape && !(b.site && b.site.villa)) {
     const gaps = G.map(g => [g.kind === 'walk' && g.mx != null ? g.mx - 1.75 : g.x0, g.kind === 'walk' && g.mx != null ? g.mx + 1.75 : g.x1]).sort((a, c) => a[0] - c[0]);
     const segs = []; let x = 0; gaps.forEach(([a, c]) => { if (a - x > 1) segs.push([x, a - 0.5]); x = c + 0.5; }); if (b.w - x > 1) segs.push([x, b.w]);
     const zw = b.d - 0.4;
@@ -4222,6 +4329,21 @@ function villaLook3D(T, D, o, grp, box, mat, night) {
   const b = D.brief, s = b.site, V = VILLA_V[b.villaV]; if (!V || !s) return;
   const nF = o.floors.length, top = PLINTH + nF * FH, x0 = s.ox + b.sL, x1 = s.ox + b.w - b.sR, z1 = s.oy + b.d - b.setF, z0 = z1 - o.G.rows.reduce((a, v) => a + v, 0), w = x1 - x0, d = z1 - z0;
   const pal = V.pal, roofM = mat(pal.roof || '#F2EFE8', { roughness: 0.8 }), wood = mat(pal.wood, { roughness: 0.7 }), stone = mat(pal.stone, { roughness: 0.95 });
+  // a chosen exterior style replaces the villa look's roof and porch, so the two never overlap
+  const BS = typeof bungalowOf === 'function' ? bungalowOf() : null;
+  if (BS) {
+    const pz = villaZones(D, o).find(z => z.kind === 'portico'); if (!pz) return;
+    const H = PLINTH + 11, P = BS.pal, kit = BS.kit, round = kit === 'classical' || kit === 'colonial' || BS.id === 'traditional-luxury';
+    const colM = round ? mat('#FFFFFF', { roughness: 0.6 }) : kit === 'modern' || BS.rail === 'glass' ? mat(P.accent, { metalness: 0.5, roughness: 0.35 }) : mat(P.stone, { roughness: 0.9 });
+    [[1, pz.h - 2], [pz.w - 2, pz.h - 2]].forEach(([dx, dz]) => { const c = new T.Mesh(round ? new T.CylinderGeometry(0.75, 0.85, H, 24) : new T.BoxGeometry(1.0, H, 1.0), colM); c.position.set(pz.x + dx, H / 2, pz.y + dz); c.castShadow = true; grp.add(c); if (kit === 'classical') { box(pz.x + dx - 1, H - 0.9, pz.y + dz - 1, 2, 0.9, 2, mat('#C9A24B', { metalness: 0.85, roughness: 0.3 })); box(pz.x + dx - 1.1, 0, pz.y + dz - 1.1, 2.2, 0.8, 2.2, mat('#D8CFBF')); } });
+    const sh = kit === 'modern' ? 1.4 : 1.1, fas = mat(round ? '#FFFFFF' : P.trim || P.accent);
+    box(pz.x - 0.6, H, pz.y - 0.3, pz.w + 1.2, sh, pz.h + 0.6, mat(P.wall || '#F2EFE8'));
+    box(pz.x - 0.8, H + sh - 0.45, pz.y - 0.5, pz.w + 1.6, 0.45, 0.25, fas); box(pz.x - 0.8, H + sh - 0.45, pz.y + pz.h + 0.25, pz.w + 1.6, 0.45, 0.25, fas);
+    box(pz.x - 0.8, H + sh - 0.45, pz.y - 0.5, 0.25, 0.45, pz.h + 1.0, fas); box(pz.x + pz.w + 0.55, H + sh - 0.45, pz.y - 0.5, 0.25, 0.45, pz.h + 1.0, fas);
+    box(pz.x + 0.4, H - 0.12, pz.y + 0.4, pz.w - 0.8, 0.12, pz.h - 0.8, mat(P.wood, { roughness: 0.7 }), false);
+    if (night) { const p = new T.PointLight('#FFD39A', 20, 18, 1.8); p.position.set(pz.x + pz.w / 2, H - 1, pz.y + pz.h / 2); grp.add(p); }
+    return;
+  }
   if (V.roof === 'float') { box(x0 - 3, top + 3.4, z0 - 3, w + 6, 0.9, d + 6, mat('#F4F1EA')); [[x0 - 2.5, z0 - 2.5], [x1 + 2, z0 - 2.5], [x0 - 2.5, z1 + 2], [x1 + 2, z1 + 2]].forEach(([x, z]) => box(x, top, z, 0.5, 3.4, 0.5, mat(pal.accent))); box(x0 - 3, top + 3.3, z1 + 2.9, w + 6, 0.12, 0.12, mat('#FFE2A8', { emissive: night ? '#FFD27A' : '#000000', emissiveIntensity: 1 })); }
   if (V.roof === 'hip') { const g = new T.ConeGeometry(Math.SQRT1_2, 1, 4, 1); g.rotateY(Math.PI / 4); const me = new T.Mesh(g, roofM); me.scale.set(w + 5, 9, d + 5); me.position.set(x0 + w / 2, top + 4.5, z0 + d / 2); me.castShadow = true; grp.add(me); box(x0 - 2.5, top - 0.3, z0 - 2.5, w + 5, 0.6, d + 5, mat('#EFE6D4')); }
   if (V.roof === 'pergola') { for (let x = x0; x <= x1; x += 2) box(x, top + 3.6, z0 - 2, 0.35, 0.5, d + 4, wood); box(x0 - 2, top + 3.4, z0 - 2, w + 4, 0.3, 0.4, wood); box(x0 - 2, top + 3.4, z1 + 1.6, w + 4, 0.3, 0.4, wood); }
@@ -5288,7 +5410,7 @@ function buildHouse3D(T, D, o, opts) {
       const opsOf = sd => ops.filter(op => onLine(sd, op)).map(op => { const [x1, y1, x2, y2] = op.seg; return { a: sd[0] ? Math.min(x1, x2) : Math.min(y1, y2), z: sd[0] ? Math.max(x1, x2) : Math.max(y1, y2), kind: op.kind }; }).sort((p2, q) => p2.a - q.a);
       const fi = sides.map((sd, i) => [i, opsOf(sd).length, sd[3] - sd[2]]).sort((p2, q) => p2[1] - q[1] || q[2] - p2[2])[0][0];
       sides.forEach((sd, i) => {
-        const outer = sd[0] ? onEdge(sd[2], sd[1], sd[3], sd[1]) : onEdge(sd[1], sd[2], sd[1], sd[3]), off = (outer ? 0.375 : 0.1875) + 0.015, m = mat(i === fi && P.feature ? P.feature : (P.wall || intCol), { roughness: 0.92 }), at = sd[1] + sd[4] * off;
+        const outer = sd[0] ? onEdge(sd[2], sd[1], sd[3], sd[1]) : onEdge(sd[1], sd[2], sd[1], sd[3]), off = (outer ? 0.375 : 0.1875) + 0.015, isF = i === fi && P.feature, tx = isF ? P.ftex : P.wtex, m = tx ? pbrMat(T, tx, isF ? P.feature : (P.wall || intCol)) : mat(isF ? P.feature : (P.wall || intCol), { roughness: 0.92 }), at = sd[1] + sd[4] * off;
         const pc = (a, z, y0, y1) => { if (z - a < 0.05 || y1 - y0 < 0.05) return; if (sd[0]) box(a, base + y0, at - 0.01, z - a, y1 - y0, 0.02, m, false); else box(at - 0.01, base + y0, a, 0.02, y1 - y0, z - a, m, false); };
         let c0 = sd[2] + off; opsOf(sd).forEach(op => { if (op.a < c0 - 0.01) return; pc(c0, op.a, 0.06, wallTop); const top = op.kind === 'open' ? wallTop : op.kind === 'vent' ? 6.5 : op.kind === 'window' ? WIN_TOP : DOOR_H, bot = op.kind === 'window' ? SILL : op.kind === 'vent' ? 5 : 0; if (top < wallTop) pc(op.a, op.z, top, wallTop); if (bot > 0) pc(op.a, op.z, 0.06, bot); c0 = op.z; }); pc(c0, sd[3] - off, 0.06, wallTop);
       });
@@ -5374,7 +5496,7 @@ function buildHouse3D(T, D, o, opts) {
       box(M.x - 1, R0 + hM, M.y - 1, M.w + 2, 0.5, M.h + 2, slabCol);
     }
   }
-  if (cutAt == null) { const TS = tankSpot(D, o); if (TS) { const R0 = PLINTH + nF * FH, y0 = TS.onCabin ? R0 + 8.5 : R0 + 3; if (!TS.onCabin) { [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([dx, dz]) => box(TS.x + dx * 1.4 - 0.15, R0, TS.y + dz * 1.4 - 0.15, 0.3, 3, 0.3, mat('#8C9399'))); box(TS.x - 1.9, R0 + 2.8, TS.y - 1.9, 3.8, 0.2, 3.8, mat('#8C9399')); } const tk = new T.Mesh(new T.CylinderGeometry(1.7, 1.7, 3.6, 20), mat('#2F3437', { roughness: 0.6 })); tk.position.set(TS.x, y0 + 1.8, TS.y); tk.castShadow = true; grp.add(tk); } }
+  if (cutAt == null && !pitched) { const TS = tankSpot(D, o); if (TS) { const R0 = PLINTH + nF * FH, y0 = TS.onCabin ? R0 + 8.5 : R0 + 3; if (!TS.onCabin) { [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([dx, dz]) => box(TS.x + dx * 1.4 - 0.15, R0, TS.y + dz * 1.4 - 0.15, 0.3, 3, 0.3, mat('#8C9399'))); box(TS.x - 1.9, R0 + 2.8, TS.y - 1.9, 3.8, 0.2, 3.8, mat('#8C9399')); } const tk = new T.Mesh(new T.CylinderGeometry(1.7, 1.7, 3.6, 20), mat('#2F3437', { roughness: 0.6 })); tk.position.set(TS.x, y0 + 1.8, TS.y); tk.castShadow = true; grp.add(tk); } }
   // outside stair (ground-floor homes without a spare room)
   if (o.ext && cutAt == null) {
     const E = o.ext, m = mat('#BDB6AA'), R0 = PLINTH + FH;
@@ -5625,7 +5747,8 @@ function seedStyle(seed, ti) { if (!seed) return ti >= 2 ? 'contemporary' : 'mod
 function tierBrief(noGrid) {
   const ti = TI[ST.tier], h = ST.home;
   const baths = h.bhk + 1; // every bedroom attached + one common bath
-  const B = { w: ST.plot.w, d: ST.plot.d, facing: ST.plot.facing, floors: h.floors, bhk: h.bhk, baths, parking: h.park.kind !== 'none', park: Object.assign({}, h.park), seed: ST.seed, tier: ti, pooja: h.pooja, vastu: h.vastu, roof: h.roof || 'single', paint: ST.paint && ST.paint !== 'auto' ? ST.paint : undefined, space: h.space || 'balanced', balc: ST.balc && BALC[ST.balc] ? (BALC[ST.balc].t <= ti ? ST.balc : 'cantilever') : 'none', style: ST.style || seedStyle(ST.seed, ti), finish: 'standard', setF: 5, setR: 3, setS: 3 };;
+  const B = { w: ST.plot.w, d: ST.plot.d, facing: ST.plot.facing, floors: h.floors, bhk: h.bhk, baths, parking: h.park.kind !== 'none', park: Object.assign({}, h.park), seed: ST.seed, tier: ti, pooja: h.pooja, vastu: h.vastu, roof: h.roof || 'single', paint: ST.paint && ST.paint !== 'auto' ? ST.paint : undefined, space: h.space || 'balanced', balc: ST.balc && BALC[ST.balc] ? (BALC[ST.balc].t <= ti ? ST.balc : 'cantilever') : 'none', style: ST.style || seedStyle(ST.seed, ti), finish: 'standard', setF: 5, setR: 3, setS: 3 };
+  if (!isVilla()) { const sb = setbackOf(); B.setF = sb.f; B.setR = sb.r; B.setS = sb.s; }
   if (isVilla()) { B.villa = true; B.villaV = villaLook(B.seed); if (!h.space || h.space === 'balanced') B.space = 'spacious'; if (!ST.style) B.style = ['mediterranean', 'heritage'].includes(B.villaV) ? 'odia' : 'contemporary'; if (!ST.balc) B.balc = B.villaV === 'resort' ? 'glass' : B.villaV === 'tropical' ? 'planter' : 'loggia'; }
   if (h.split === 'floors' && h.floors > 1 && !isVilla()) { B.perFloor = (h.perFloor || []).slice(0, h.floors); while (B.perFloor.length < h.floors) B.perFloor.push(h.bhk); B.bhk = B.perFloor.reduce((a, v) => a + v, 0); B.baths = B.bhk + h.floors; }
   if (isVilla()) B.vt = ESTATE[ST.vtype] ? ST.vtype : 'villa';
@@ -5814,10 +5937,13 @@ function plotSketch(S) {
   const poly = P.shape.map(p => p.join(',')).join(' '), mid = (i, j) => [(P.shape[i][0] + P.shape[j][0]) / 2, (P.shape[i][1] + P.shape[j][1]) / 2];
   const fs = Math.max(2, W / 26), lab = (i, j, t, dx, dy) => { const [x, y] = mid(i, j); return '<text x="' + (x + dx) + '" y="' + (y + dy) + '" style="font-size:' + fs + 'px" text-anchor="middle">' + t + '</text>'; };
   return '<svg class="plotsk" viewBox="' + x0 + ' ' + y0 + ' ' + W + ' ' + H + '" role="img" aria-label="Your plot and the house area on it"><polygon points="' + poly + '" fill="#EAF3EA" stroke="#24323D" stroke-width="' + fs / 6 + '"/><rect x="0" y="0" width="' + P.w + '" height="' + P.d + '" fill="#fff" stroke="#C9963C" stroke-width="' + fs / 7 + '" stroke-dasharray="' + fs / 2 + ' ' + fs / 3 + '"/>' +
-    '<text x="' + P.w / 2 + '" y="' + (P.d / 2) + '" style="font-size:' + fs * 1.05 + 'px;font-weight:600" text-anchor="middle">House area</text><text x="' + P.w / 2 + '" y="' + (P.d / 2 + fs * 1.4) + '" style="font-size:' + fs + 'px" text-anchor="middle">' + P.w + ' × ' + P.d + ' ft</text>' +
+    (() => { const sb = setbackOf(), hw = Math.max(0, P.w - 2 * sb.s), hd = Math.max(0, P.d - sb.f - sb.r), cx = sb.s + hw / 2, cy = sb.r + hd / 2, t = (x, y, v, a) => '<text x="' + x + '" y="' + y + '" style="font-size:' + fs * 0.8 + 'px" fill="#8A6A2E" text-anchor="' + (a || 'middle') + '">' + v + '</text>';
+      return '<rect x="' + sb.s + '" y="' + sb.r + '" width="' + hw + '" height="' + hd + '" fill="#FFF6E6" stroke="#24323D" stroke-width="' + fs / 8 + '"/>' +
+        '<text x="' + cx + '" y="' + cy + '" style="font-size:' + fs * 1.05 + 'px;font-weight:600" text-anchor="middle">House area</text><text x="' + cx + '" y="' + (cy + fs * 1.4) + '" style="font-size:' + fs + 'px" text-anchor="middle">' + hw + ' × ' + hd + ' ft</text>' +
+        (sb.f ? t(cx, P.d - sb.f / 2 + fs * 0.3, sb.f + ' ft') : '') + (sb.r > 1.5 ? t(cx, sb.r / 2 + fs * 0.3, sb.r + ' ft') : '') + (sb.s > 1.5 ? t(sb.s / 2, cy, sb.s + "'") + t(P.w - sb.s / 2, cy, sb.s + "'") : ''); })() +
     lab(0, 1, 'Front ' + S.f + ' ft', 0, fs * 1.6) + lab(2, 3, 'Back ' + S.b + ' ft', 0, -fs * 0.6) + lab(3, 0, 'Left ' + S.l, -fs * 2.2, 0) + lab(1, 2, 'Right ' + S.r, fs * 2.4, 0) +
     '<rect x="' + x0 + '" y="' + (Math.max(...ys) + fs * 2.6) + '" width="' + W + '" height="' + fs * 1.6 + '" fill="#E5E7EA"/><text x="' + (x0 + W / 2) + '" y="' + (Math.max(...ys) + fs * 3.75) + '" style="font-size:' + fs * 0.9 + 'px" text-anchor="middle" fill="#5B6670">ROAD</text></svg>' +
-    '<p class="fit-line">Land ' + P.area.toLocaleString('en-IN') + ' sq ft. The house stays a straight rectangle — up to <b>' + P.w + ' × ' + P.d + ' ft</b>; the slanting edges become garden.' + (P.how === 'approx' ? ' The four sides do not close into one shape exactly — we used sides square to the road (the back would be ' + P.backS + ' ft). Check the lengths.' : '') + '</p>';
+    '<p class="fit-line">Land ' + P.area.toLocaleString('en-IN') + ' sq ft. The straight part of the land is ' + P.w + ' × ' + P.d + ' ft; after the open space you leave, the house can be up to <b>' + Math.max(0, P.w - 2 * setbackOf().s) + ' × ' + Math.max(0, P.d - setbackOf().f - setbackOf().r) + ' ft</b>. The slanting edges become garden.' + (P.how === 'approx' ? ' The four sides do not close into one shape exactly — we used sides square to the road (the back would be ' + P.backS + ' ft). Check the lengths.' : '') + '</p>';
 }
 function applySides() { const P = plotShape(ST.plot.sides || {}); if (!P) return false; ST.plot.w = Math.max(15, P.w); ST.plot.d = Math.max(20, P.d); ST.plot.area = P.area; ST.plot.shape = P.how === 'rect' ? null : P.shape; return true; }
 SCR.plot = () => {
@@ -5826,6 +5952,7 @@ SCR.plot = () => {
     '<div class="seg2"><button class="' + (p.mode === 'sides' ? 'on' : '') + '" data-a="pmode" data-v="sides">4 sides</button><button class="' + (p.mode === 'wd' ? 'on' : '') + '" data-a="pmode" data-v="wd">Width × depth</button><button class="' + (p.mode === 'area' ? 'on' : '') + '" data-a="pmode" data-v="area">Area in sq ft</button></div>' +
     (p.mode === 'sides' ? (() => { const S = p.sides || (p.sides = { f: p.w, b: p.w, l: p.d, r: p.d }), fld = (k, lab) => '<label><span>' + lab + '</span><div class="inp"><input type="number" inputmode="decimal" min="10" max="400" data-f="sides.' + k + '" value="' + S[k] + '"><i>ft</i></div></label>'; return '<div class="fields four">' + fld('f', 'Front (road side)') + fld('b', 'Back') + fld('l', 'Left side') + fld('r', 'Right side') + '</div><div id="plotsk">' + plotSketch(S) + '</div>'; })() : p.mode === 'wd' ? '<div class="fields"><label><span>Front width</span><div class="inp"><input type="number" inputmode="decimal" min="15" max="200" data-f="plot.w" value="' + p.w + '"><i>ft</i></div></label><label><span>Depth</span><div class="inp"><input type="number" inputmode="decimal" min="20" max="300" data-f="plot.d" value="' + p.d + '"><i>ft</i></div></label></div>' :
       '<div class="fields one"><label><span>Plot area</span><div class="inp"><input type="number" inputmode="decimal" min="300" max="50000" data-f="plot.area" value="' + p.area + '"><i>sq ft</i></div></label><p class="hint">1 decimal = 435.6 sq ft. We assume a 3 : 4 shape — enter width × depth for an exact plan.</p></div>') +
+    ((ST.home.use || 'family') !== 'villa' ? setbackUI() : '') +
     '<h3 class="q2">Road side</h3><div class="compass">' + [['N', 'North'], ['E', 'East'], ['S', 'South'], ['W', 'West']].map(d => '<button class="' + (p.facing === d[0] ? 'on' : '') + '" data-a="facing" data-v="' + d[0] + '"><b>' + d[0] + '</b><span>' + d[1] + '</span></button>').join('') + '</div>';
 };
 function parkingUI(p) {
@@ -5840,13 +5967,22 @@ const SPACE_OPT = [['balanced', 'Balanced', 'Standard room sizes.'], ['spacious'
 const SPACE_TIPS = { balanced: ['Rooms sized for daily life, with open terraces upstairs', 'Switch to Spacious for an airy home, or Use every foot for more rooms'], spacious: ['Living and dining in one open hall', 'Rooms at least 13 ft across', 'Open spaces upstairs stay as terraces and sit-outs', 'Big windows, light colours and low furniture make rooms feel larger'], compact: ['Every spare corner becomes a study, guest room or store', 'Rooms about 9–10 ft wide fit more rooms on the same land', 'Beds with storage, wall shelves and fold-down tables', 'Lofts over baths and passages for storage'] };
 // how many bedrooms fit with every bedroom 10 × 10 ft or more (same plot, floors, parking, range)
 function bedFit() {
-  const h = ST.home, key = [ST.plot.w, ST.plot.d, h.floors, JSON.stringify(h.park), ST.tier, h.space, ST.seed].join('|');
+  const h = ST.home, key = [ST.plot.w, ST.plot.d, h.floors, JSON.stringify(h.park), ST.tier, h.space, ST.seed, JSON.stringify(setbackOf())].join('|');
   bedFit.c = bedFit.c || {}; if (bedFit.c[key] != null) return bedFit.c[key];
   const keep = h.bhk; let max = 0;
   for (let k = 1; k <= 5; k++) { h.bhk = k; let ok = false; try { const D = makeDesign(tierBrief()), o = D.options[0]; if (o) { const B = []; o.floors.forEach(F => F.rooms.forEach(R => { if (!R.void && (R.type === 'master' || R.type === 'bedroom')) B.push(R); })); ok = B.length === k && B.every(R => Math.min(R.rect.w, R.rect.h) >= 9.85); } } catch (e) {} if (ok) max = k; }
   h.bhk = keep; return (bedFit.c[key] = max);
 }
 function smallBeds(D, o) { const out = []; o.floors.forEach(F => F.rooms.forEach(R => { if (!R.void && (R.type === 'master' || R.type === 'bedroom') && Math.min(R.rect.w, R.rect.h) < 9.85) out.push(F.label + ' ' + (R.type === 'master' ? 'master bedroom' : 'bedroom') + ' (' + ftIn(R.rect.w) + ' × ' + ftIn(R.rect.h) + ')'); })); return out; }
+// open space left around the house (setbacks), in feet: front (road side), back, and each side
+const SETBACK_OPT = { f: [3, 5, 6, 8, 10, 12, 15], r: [0, 3, 5, 6, 8, 10], s: [0, 3, 4, 5, 6] };
+const setbackOf = () => Object.assign({ f: 5, r: 3, s: 3 }, (typeof ST !== 'undefined' && ST.home && ST.home.setback) || {});
+function setbackUI() {
+  const sb = setbackOf(), W = ST.plot.w, D = ST.plot.d, fits = (k, v) => { const t = Object.assign({}, sb, { [k]: v }); return W - 2 * t.s >= 15 && D - t.f - t.r >= 22; };
+  const row = (k, lab) => '<div class="sb-row"><span>' + lab + '</span><div class="pchips">' + SETBACK_OPT[k].map(v => { const ok = fits(k, v); return '<button class="' + (sb[k] === v ? 'on' : '') + '"' + (ok ? '' : ' disabled title="Leaves too little room for the house"') + ' data-a="setb" data-k="' + k + '" data-v="' + v + '">' + v + ' ft</button>'; }).join('') + '</div></div>';
+  return '<div id="sbui"><h3 class="q2">Open space around the house (setback)</h3><div class="card sb">' + row('f', 'Front (road side)') + row('r', 'Back') + row('s', 'Each side') +
+    '<p class="hint">House area after the open space: <b>' + (W - 2 * sb.s) + ' × ' + (D - sb.f - sb.r) + ' ft</b> on ' + W + ' × ' + D + ' ft. Check the rule of your development authority or municipality (BDA, CDA, ULB): it depends on the plot size and the road width.</p></div></div>';
+}
 function spaceUI(h) { const v = h.space || 'balanced'; return '<h3 class="q2">How should it feel?</h3><div class="opts three space">' + SPACE_OPT.map(o => '<button class="opt' + (v === o[0] ? ' on' : '') + '" data-a="space" data-v="' + o[0] + '"><b>' + o[1] + '</b><span>' + o[2] + '</span></button>').join('') + '</div><ul class="sp-tips">' + SPACE_TIPS[v].map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>'; }
 SCR.home = () => {
   const h = ST.home, step = (k, lab, min, max, fmt) => '<div class="stepper"><span>' + lab + '</span><div><button data-a="dec" data-v="' + k + '" aria-label="Fewer">−</button><b>' + (fmt ? fmt(h[k]) : h[k]) + '</b><button data-a="inc" data-v="' + k + '" data-max="' + max + '" aria-label="More">+</button></div></div>';
@@ -6741,6 +6877,7 @@ const EXT_ZONES = [['wall', 'Main walls'], ['accent', 'Frames and bands'], ['tri
 const INT_SURF = [['wall', 'Walls'], ['feature', 'Feature wall'], ['ceiling', 'Ceiling']];
 const INT_ROOMS = [['all', 'Every room'], ['living', 'Living room'], ['dining', 'Dining'], ['kitchen', 'Kitchen'], ['master', 'Master bedroom'], ['bedroom', 'Bedrooms'], ['lounge', 'Family lounge'], ['study', 'Study'], ['stair', 'Staircase'], ['passage', 'Passage']];
 const INT_COMBOS = [['Soft white + oak', { wall: '#F4F1EA', feature: '#B08D6A', ceiling: '#FFFFFF' }], ['Sage calm', { wall: '#E8ECE3', feature: '#8FA58A', ceiling: '#FBFBF7' }], ['Warm sand', { wall: '#EFE4D2', feature: '#C49A6C', ceiling: '#FFFDF8' }], ['Coastal blue', { wall: '#EEF3F6', feature: '#5E8BA8', ceiling: '#FFFFFF' }], ['Dusty rose', { wall: '#F5E9E6', feature: '#C98F8A', ceiling: '#FFFFFF' }], ['Charcoal luxe', { wall: '#E7E5E1', feature: '#3B3F45', ceiling: '#F6F5F2' }], ['Terracotta earth', { wall: '#F1E3D6', feature: '#B5643A', ceiling: '#FFF9F2' }], ['Royal teal', { wall: '#EDF2F1', feature: '#1F5E63', ceiling: '#FFFFFF' }]];
+TREND_INT.forEach(t => INT_COMBOS.push([t[0], { wall: t[1], feature: t[2], ceiling: t[3], wtex: t[4], ftex: t[5] }]));
 function paintState() { return ST.pz || (ST.pz = { side: 'out', zone: 'wall', room: 'all', surf: 'wall' }); }
 /* ======================================================================
    Room studio: pick a room, see it, change its walls, ceiling, floor and wall tiles — the picture changes live.
@@ -8319,6 +8456,7 @@ const ACT = {
   view: el => { const ds = S.design, v = el.dataset.v; if (ds.walk && v !== '3d') ds.walk = false; ds.view = v; keepY(() => {}); if (v === '3d' && !ds.show3d) ACT.make3d(); },
   style: el => keepY(() => { ST.style = el.dataset.v; }),
   roof: el => keepY(() => { ST.home.roof = el.dataset.v; }),
+  setb: el => keepY(() => { ST.home.setback = Object.assign(setbackOf(), { [el.dataset.k]: +el.dataset.v }); S.design = null; }),
   balc: el => keepY(() => { ST.balc = el.dataset.v; }),
   pk: el => keepY(() => { const p = ST.home.park; p.kind = el.dataset.v; if (p.loc === 'rear') p.gali = Math.max(p.gali, p.kind === '2w' ? 4 : 10); }),
   pkloc: el => keepY(() => { const p = ST.home.park; p.loc = el.dataset.v; if (p.loc === 'rear') p.gali = p.kind === '2w' ? 4 : 10; }),
@@ -8433,6 +8571,7 @@ document.addEventListener('input', e => {
   if (a === 'sides') { if (v > 0) { ST.plot.sides = ST.plot.sides || {}; ST.plot.sides[k] = v; applySides(); S.design = null; ST.grid = null; const sk = document.getElementById('plotsk'); if (sk) sk.innerHTML = plotSketch(ST.plot.sides); } }
   else if (k === 'area') { if (v > 0) { ST.plot.area = v; const w = Math.max(15, Math.round(Math.sqrt(v * 0.75))); ST.plot.w = w; ST.plot.d = Math.max(20, Math.round(v / w)); } }
   else if (v > 0 && a === 'plot') { ST.plot[k] = v; ST.plot.shape = null; }
+  { const sbu = document.getElementById('sbui'); if (sbu && (a === 'sides' || a === 'plot')) sbu.outerHTML = setbackUI(); }
   const nb = document.querySelector('[data-a="next"]'); if (nb) nb.disabled = !canNext();
 });
 

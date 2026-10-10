@@ -32,6 +32,19 @@ await p.evaluate(() => { S.design.view = '3d'; S.design.v3 = 'f0'; render(); ret
 await p.click('[data-a="flib"]'); await p.waitForSelector('#flib .flib-i'); const n = await p.$$eval('#flib .flib-i', x => x.length);
 await p.selectOption('#flib [data-flib="cat"]', 'sofa'); const ns = await p.$$eval('#flib .flib-i', x => x.length); assert.ok(ns > 0 && ns < n);
 if (out) await p.screenshot({ path: path.join(out, 'library.png') });
+// setbacks chosen on the plot step: the brief takes them and every room stays inside the open space
+const sb = await p.evaluate(() => {
+  const keep = JSON.stringify(ST.home.setback || null), out = [];
+  for (const [w, d] of [[30, 40], [30, 50], [40, 60]]) for (const t of [{ f: 3, r: 0, s: 0 }, { f: 10, r: 5, s: 5 }, { f: 15, r: 6, s: 6 }]) {
+    ST.plot = Object.assign({}, ST.plot, { w, d, mode: 'sides', sides: { f: w, b: w, l: d, r: d }, area: w * d, shape: null }); ST.home.setback = t; S.design = null; ST.step = flow().indexOf('layout'); render();
+    const D = S.design.D, B = D.brief, o = D.options[0]; let bad = B.setF !== t.f || B.setR !== t.r || B.sL !== t.s ? 1 : 0;
+    o.floors.forEach(F => F.rooms.forEach(R => { if (R.void) return; const q = R.rect; if (q.x < B.sL - 0.05 || q.x + q.w > B.w - B.sR + 0.05 || q.y < B.setR - 0.05 || q.y + q.h > B.d - B.setF + 0.05) bad++; }));
+    out.push(bad);
+  }
+  ST.home.setback = JSON.parse(keep); ST.step = flow().indexOf('plot'); render(); const ui = !!document.querySelector('#sbui [data-a="setb"]');
+  return { out, ui };
+});
+assert.ok(sb.ui, 'setback chips on the plot step'); assert.deepEqual(sb.out, sb.out.map(() => 0), 'setbacks respected');
 assert.deepEqual(errs, []);
-console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models)');
+console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks');
 await b.close(); server.close();

@@ -129,6 +129,38 @@ Under a hipped roof the roof parapets and the stair cabin are not drawn; the roo
 - Palms, trees, hedges and every facade element are drawn in code.
 - None of ArchDaily, Dezeen, Houzz, Behance, Pinterest, Sketchfab or BlenderKit could be reached from the build environment, and none of them is used.
 
+## Paint trends (2026)
+
+Under the 3D view, **Paint** repaints the outside and **Inside paint** paints every room. Both lists start with "As the style".
+
+**Outside: 32 schemes in 7 groups.**
+- **Colours of the year 2026:**
+  - Cloud Dancer white (Pantone)
+  - Moonlit Silk green (Asian Paints)
+  - Universal Khaki (Sherwin-Williams)
+  - Silhouette umber (Benjamin Moore)
+- **Warm neutrals:** greige, alabaster with iron ore, linen with cedar, taupe, ivory with travertine.
+- **Nature greens:** sage, olive, forest, eucalyptus.
+- **Two-tone contrast:** white with black, white with navy, snow white with storm grey, cream with charcoal.
+- **Earthy and Indian:** terracotta brick, desert sand, Odisha laterite, Kalinga sandstone, haveli ochre, clay rose.
+- **Moody darks:** charcoal with walnut, navy with brass, sand with espresso.
+- **Concrete and stone:** microcement, travertine.
+- **Colour drench:** one colour across walls, trims and accents, in sage, terracotta, khaki or powder blue.
+
+**How an outside scheme applies.** A scheme sets the main wall, base, accent, trim, wood and stone colours, and a texture for the upper walls and the ground floor. It repaints the chosen exterior style and keeps the style's architecture and its wood and stone pieces.
+
+**Inside: 30 schemes.** Each sets the walls, a feature wall and the ceiling, often with a textured feature wall. They include Moonlit Silk, Mocha mousse, Venetian forest green, Japandi oak slats, travertine, concrete loft, butter yellow, pista green and burgundy. The same schemes appear under Ready combinations in the paint studio.
+
+**New textures.** All are generated in code, at real size:
+- limewash
+- microcement
+- Venetian polished plaster
+- travertine slabs (2 × 1 ft)
+- fluted panels (3 in flutes)
+- roof tiles
+
+**About the colours.** The trends come from the paint companies' 2026 announcements and 2026 exterior trend reports. The colours are screen approximations "inspired by" the named shades, so match the final shade on a shade card before buying.
+
 ## How rooms are arranged
 
 Living rooms and bedrooms are planned, not filled first-fit.
