@@ -704,6 +704,47 @@ body.cad-on{overflow:hidden}
 .pk-rows{margin-top:18px}.pk-rows .pk-sec{margin-top:0}.pk-rows .pk-lead{color:var(--mute);font-size:14.5px;margin:0 0 12px}
 @media print{details.row>summary::after{display:none}details.row>summary em{display:none}.pk-rows{border:0!important;border-radius:0}.pk-rows details.row>summary{padding:14px 0 6px;font-size:20px;font-weight:600}.pk-rows .rowb{padding:0}details.row+details.row{border-top:0}}
 .plotsk{display:block;width:100%;max-width:420px;height:auto;margin:18px auto 0}.plotsk text{fill:#24323D;font-family:var(--font)}
+.plotin{padding:14px 18px 6px}.plotin .fields{margin-top:0}.parea{margin-top:4px;border-top:1px solid var(--line2);padding-top:10px}.parea .hint{margin:4px 0 8px}
+/* Home: live plan (left, fixed) + room list (right, scrolls) */
+main.homew{max-width:1180px}
+.opts.three.pkgs{grid-template-columns:repeat(3,minmax(0,1fr))}.tiers.t3{grid-template-columns:repeat(3,minmax(0,1fr))}.tiers.t3:has(.tier:only-child){grid-template-columns:minmax(0,340px);justify-content:center}
+.bmat{display:flex;flex-direction:column;gap:14px}.bm-g{display:flex;flex-direction:column;gap:6px}
+.bm{background:var(--soft);border:1px solid var(--line2);border-radius:16px;padding:10px 12px}.bm b{font-size:14px;font-weight:600}.bm .rq-cats{margin-top:6px}
+.fine.c{text-align:center;margin:-6px 0 12px}
+.lab{padding:14px 16px}.lab-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.lab-top b{display:block;font-size:15px}.lab-top span{font-size:13px;color:var(--mute)}.lab-top em{font-style:normal;font-weight:700;font-size:18px;white-space:nowrap}
+.wages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:8px 0 6px}.wages span{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--bg);border:1px solid var(--line2);border-radius:12px;padding:7px 10px}.wages b{font-weight:600;font-variant-numeric:tabular-nums}
+@media (max-width:760px){.opts.three.pkgs,.tiers.t3{grid-template-columns:1fr}.wages{grid-template-columns:1fr}}
+.hm{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;margin-top:26px;align-items:start}
+.hm-plan{position:sticky;top:72px}
+.hm-card{background:var(--soft);border:1px solid var(--line2);border-radius:22px;padding:14px}
+.hm-tabs{margin:0 auto 10px}
+.rqplan{display:block;width:100%;height:auto;max-height:calc(100vh - 290px);background:#fff;border-radius:16px}.rqplan text{font-family:var(--font)}
+.rqr rect{transition:fill .2s}
+.rq-bar{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;font-size:12.5px;color:var(--mute);margin-top:8px}
+.rq-bar div{height:6px;border-radius:99px;background:var(--line2);overflow:hidden}.rq-bar i{display:block;height:100%;border-radius:99px;background:var(--gold);transition:width .3s}
+.rq-bar.bad i{background:var(--red)}.rq-bar.bad em{color:var(--red)}.rq-bar em{font-style:normal;font-variant-numeric:tabular-nums}
+.rq-ok{font-size:13px;color:var(--green);margin:10px 2px 0}
+.rq-err{font-size:13.5px;line-height:1.45;color:var(--red);background:var(--red-soft);border-radius:14px;padding:10px 12px;margin:10px 0 0}
+.hm-req{display:flex;flex-direction:column;gap:14px}
+.rq-sec h4{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:0 4px 8px}
+.rq{background:var(--soft);border:1px solid var(--line2);border-radius:16px;padding:10px 12px;margin-bottom:6px;transition:border-color .15s,background .15s}
+.rq.on{border-color:var(--line)}.rq.off{opacity:.55}
+.rq-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rq-h b{display:block;font-size:14.5px;font-weight:600}.rq-h small{display:block;font-size:12px;color:var(--mute);margin-top:1px}
+.rq-ct{display:flex;align-items:center;gap:2px;background:var(--bg);border:1px solid var(--line2);border-radius:999px;padding:2px}
+.rq-ct button{width:30px;height:30px;border:0;border-radius:999px;background:none;font-size:18px;line-height:1;cursor:pointer;color:var(--ink)}
+.rq-ct button:hover:not(:disabled){background:var(--line2)}.rq-ct button:disabled{opacity:.3;cursor:default}
+.rq-ct b{min-width:20px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums}
+.rq-sw{width:44px;height:26px;border-radius:13px;border:0;background:var(--line);position:relative;cursor:pointer;flex:none;transition:background .2s}
+.rq-sw span{position:absolute;left:2px;top:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s}
+.rq-sw.on{background:var(--green)}.rq-sw.on span{left:20px}
+.rq-fix{font-size:12px;color:var(--mute);background:var(--bg);border:1px solid var(--line2);border-radius:999px;padding:4px 10px}
+.rq-cats{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.rq-c{border:1px solid var(--line2);background:var(--bg);color:var(--ink2);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;transition:border-color .15s,background .15s,color .15s}
+.rq-c i{font-style:normal;font-size:11px;color:var(--faint)}
+.rq-c:hover{border-color:var(--line)}.rq-c.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}.rq-c.on i{color:inherit;opacity:.7}
+.rq-sub{display:block;font-size:11.5px;color:var(--mute);margin:8px 2px -2px}
+@media (max-width:860px){.hm{grid-template-columns:1fr}.hm-plan{top:56px;z-index:5}.rqplan{max-height:38vh}.hm-card{padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.08)}.rq-bar{grid-template-columns:84px 1fr auto;font-size:11.5px}}
 #plotsk .fit-line{max-width:520px;margin:10px auto 0}
 .split{margin:14px auto 0}
 .byf{display:grid;gap:10px}.byf-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line2);border-radius:14px;background:#fff}
@@ -5668,8 +5709,8 @@ const ITEMS = [
   // Kitchen
   { g: 'Kitchen', id: 'ktop', n: 'Kitchen counter top', u: 'rft', q: Q => Q.kitchenRft, how: 'From the kitchen layout', opts: [O('Cuddapah black stone', 450, 'EST'), O('Polished granite', 900, 'EST'), O('Premium granite', 1400, 'EST'), O('Quartz', 3200, 'EST')], def: [0, 1, 2, 3] },
   { g: 'Kitchen', id: 'sink', n: 'Kitchen sink + tap', u: 'nos', q: () => 1, how: 'One', opts: [O('SS single bowl', 2410, 'IL'), O('SS 304 single bowl', 3787, 'IL'), O('SS 304 double bowl', 5164, 'IL'), O('Quartz sink + pull-out tap', 18000, 'EST')], def: [0, 1, 2, 3] },
-  { g: 'Kitchen', id: 'modular', n: 'Modular kitchen cabinets', u: 'rft', q: Q => Q.kitchenRft, how: 'Base + wall units along the counter', opts: [O('Greenply BWR ply + laminate', 12000, 'EST'), O('Century Prowud BWR ply + laminate, soft-close', 14000, 'EST'), O('Kitply marine ply + acrylic / PU', 28000, 'EST')], def: [-1, -1, 1, 2] },
-  { g: 'Kitchen', id: 'chimney', n: 'Chimney + hob', u: 'set', q: () => 1, how: 'One', opts: [O('Auto-clean chimney + 3-burner hob', 18000, 'EST'), O('Premium chimney + built-in hob', 45000, 'EST')], def: [-1, -1, 0, 1] },
+  { g: 'Kitchen', id: 'modular', pkg: 'semi', n: 'Modular kitchen cabinets', u: 'rft', q: Q => Q.kitchenRft, how: 'Base + wall units along the counter', opts: [O('Greenply BWR ply + laminate', 12000, 'EST'), O('Century Prowud BWR ply + laminate, soft-close', 14000, 'EST'), O('Kitply marine ply + acrylic / PU', 28000, 'EST')], def: [-1, -1, 1, 2] },
+  { g: 'Kitchen', id: 'chimney', pkg: 'semi', n: 'Chimney + hob', u: 'set', q: () => 1, how: 'One', opts: [O('Auto-clean chimney + 3-burner hob', 18000, 'EST'), O('Premium chimney + built-in hob', 45000, 'EST')], def: [-1, -1, 0, 1] },
   // Electrical
   { g: 'Electrical', id: 'wiring', n: 'Wiring, switches, MCB', u: 'point', q: Q => Q.points, how: 'Points per room type', opts: [O('KEI wires + Anchor Roma switches', 950, 'EST'), O('Finolex wires + Anchor Roma switches', 1050, 'EST'), O('Havells wires + Legrand Myrius', 1600, 'EST'), O('Polycab wires + Legrand, RCCB', 1900, 'EST'), O('Polycab HFFR + premium / smart switches', 3000, 'EST')], def: [0, 1, 3, 4] },
   { g: 'Electrical', id: 'fans', n: 'Ceiling fans', u: 'nos', q: Q => Q.habRooms, how: 'One per room', opts: [O('48" ceiling fan (local)', 2000, 'EST'), O('Havells 48"', 5695, 'IL'), O('BLDC energy-saving fan', 5000, 'EST'), O('Designer BLDC fan', 9000, 'EST')], def: [0, 1, 2, 3] },
@@ -5706,9 +5747,10 @@ const ITEMS = [
   { g: 'Outside & site', id: 'premium', n: 'Premium facade extras', u: 'set', q: () => 1, how: 'Canopy and planters (Mid); plus stone pier, wooden louvers and roof pergola (High); plus roof garden, green wall, brass trims and a water feature (Ultra)', opts: [O('Entrance canopy + planters', 35000, 'EST'), O('Canopy + stone pier + wood louvers + roof pergola + planters', 120000, 'EST'), O('… + roof garden, green wall, brass trims, water feature', 350000, 'EST')], def: [-1, 0, 1, 2] },
   { g: 'Outside & site', id: 'paving', n: 'Driveway & garden', u: 'sq ft', q: Q => Q.siteOpen, how: 'Open area inside the plot', opts: [O('Paver blocks', 45, 'EST'), O('Pavers + lawn', 70, 'EST'), O('Landscape + garden lights', 140, 'EST')], def: [-1, 0, 1, 2] },
   // Interiors
-  { g: 'Interiors', id: 'wardrobe', n: 'Wardrobes', u: 'sq ft', q: Q => Q.bedrooms * 42, how: '6 × 7 ft per bedroom', opts: [O('Greenply commercial ply + laminate', 1200, 'EST'), O('Century Prowud BWR ply + Greenlam laminate', 1600, 'EST'), O('Kitply marine ply + veneer / lacquer', 3200, 'EST')], def: [-1, 0, 1, 2], optional: true },
-  { g: 'Interiors', id: 'ceiling', n: 'False ceiling', u: 'sq ft', q: Q => Q.ceilingArea, how: 'Living, dining and master bedroom', opts: [O('Gypsum ceiling (plain)', 85, 'EST'), O('Saint-Gobain gypsum with cove lights', 95, 'EST'), O('Gypsum + wood / veneer features', 180, 'EST')], def: [-1, 0, 1, 2], optional: true },
-  { g: 'Interiors', id: 'units', n: 'TV unit & pooja unit', u: 'set', q: () => 1, how: 'One set', opts: [O('Laminate TV + pooja unit', 20000, 'EST'), O('Designer TV + pooja unit', 35000, 'EST'), O('Premium veneer / stone units', 90000, 'EST')], def: [-1, 0, 1, 2], optional: true },
+  { g: 'Interiors', id: 'wardrobe', pkg: 'semi', n: 'Wardrobes', u: 'sq ft', q: Q => Q.bedrooms * 42, how: '6 × 7 ft per bedroom', opts: [O('Greenply commercial ply + laminate', 1200, 'EST'), O('Century Prowud BWR ply + Greenlam laminate', 1600, 'EST'), O('Kitply marine ply + veneer / lacquer', 3200, 'EST')], def: [-1, 0, 1, 2], optional: true },
+  { g: 'Interiors', id: 'ceiling', pkg: 'semi', n: 'False ceiling', u: 'sq ft', q: Q => Q.ceilingArea, how: 'Living, dining and master bedroom', opts: [O('Gypsum ceiling (plain)', 85, 'EST'), O('Saint-Gobain gypsum with cove lights', 95, 'EST'), O('Gypsum + wood / veneer features', 180, 'EST')], def: [-1, 0, 1, 2], optional: true },
+  { g: 'Interiors', id: 'units', pkg: 'full', n: 'TV unit & pooja unit', u: 'set', q: () => 1, how: 'One set', opts: [O('Laminate TV + pooja unit', 20000, 'EST'), O('Designer TV + pooja unit', 35000, 'EST'), O('Premium veneer / stone units', 90000, 'EST')], def: [-1, 0, 1, 2], optional: true },
+  { g: 'Interiors', id: 'furnish', pkg: 'full', n: 'Furniture & furnishings', u: 'sq ft built-up', q: Q => Q.covered, how: 'Beds, sofa, dining set, study table, curtains and mattresses for the whole home', opts: [O('Ready-made furniture + basic curtains', 350, 'EST'), O('Branded furniture (Godrej Interio / Nilkamal) + curtains', 600, 'EST'), O('Premium furniture (Durian / Urban Ladder) + soft furnishings', 1000, 'EST'), O('Designer / imported furniture + decor', 1800, 'EST')], def: [0, 1, 2, 3] },
   // Labour
   { g: 'Labour & services', id: 'labour', n: 'Labour (civil + finishing)', u: 'sq ft built-up', q: Q => Q.covered, how: 'Contract rate per sq ft', opts: [O('Contract labour', 420, 'EST'), O('Contract labour (Cuttack average)', 481, 'ILC'), O('Skilled contract labour', 560, 'EST'), O('Specialist teams (marble, carpentry)', 680, 'EST')], def: [0, 1, 2, 3] },
   { g: 'Labour & services', id: 'design', n: 'Architect & structural design', u: 'sq ft built-up', q: Q => Q.covered, how: 'Drawings + structural design', opts: [O('Standard plan + structure', 20, 'EST'), O('Architect plan + structural design', 35, 'EST'), O('Architect + structural + elevation 3D', 60, 'EST'), O('Full architecture + interiors design', 120, 'EST')], def: [0, 1, 2, 3] },
@@ -5731,14 +5773,14 @@ const ST = {
   plot: { w: 30, d: 40, facing: 'E', mode: 'sides', area: 1200, sides: { f: 30, b: 30, l: 40, r: 40 } },
   home: { floors: 2, bhk: 3, parking: true, pooja: true, vastu: true, roof: 'single', park: { kind: '4w', loc: 'front', gali: 10, side: 'left' } },
   seed: (Math.random() * 1e9) >>> 0, vgrid: false,
-  tier: 'mid', style: null, interiors: null, pick: {}, steel: {}, cust: { name: '', phone: '' }, open: {}
+  tier: 'mid', pkg: 'core', style: null, interiors: null, pick: {}, steel: {}, cust: { name: '', phone: '' }, open: {}
 };
 const S = { design: null };
 const FLOWS = {
-  build: ['purpose', 'use', 'city', 'plot', 'home', 'budget', 'layout', 'structure', 'materials', 'quote'],
-  cost: ['purpose', 'use', 'city', 'plot', 'home', 'budget', 'quote'],
-  quote: ['purpose', 'use', 'city', 'plot', 'home', 'budget', 'materials', 'quote'],
-  structure: ['purpose', 'use', 'city', 'plot', 'home', 'structure']
+  build: ['purpose', 'use', 'plot', 'home', 'budget', 'layout', 'structure', 'materials', 'quote'],
+  cost: ['purpose', 'use', 'plot', 'home', 'budget', 'quote'],
+  quote: ['purpose', 'use', 'plot', 'home', 'budget', 'materials', 'quote'],
+  structure: ['purpose', 'use', 'plot', 'home', 'structure']
 };
 const flow = () => { const f = FLOWS[ST.purpose || 'build']; return ST.home && (ST.home.use === 'rent' || isProj()) ? f.filter(x => x !== 'materials') : f; };
 const cur = () => flow()[ST.step];
@@ -5817,7 +5859,10 @@ function quantities(D, o) {
   Q.siteOpen = Math.max(0, b.w * b.d - Q.footprint);
   return Q;
 }
-function useInteriors(tierId) { if (tierId) return TI[tierId] >= 2; return ST.interiors == null ? TI[ST.tier] >= 2 : ST.interiors; }
+// what the package covers: core = the house ready to live in; semi adds kitchen, wardrobes and ceiling; full adds furniture and interiors
+const PKGS = [{ id: 'core', n: 'Core house', d: 'Structure, walls, flooring, doors and windows, bathrooms, wiring, plumbing and paint. Ready to move in.' }, { id: 'semi', n: 'Semi-furnished', d: 'Core house + modular kitchen with chimney, wardrobes in every bedroom and false ceiling.' }, { id: 'full', n: 'Fully furnished', d: 'Semi-furnished + furniture, TV and pooja units, curtains and full interiors.' }];
+const PKG_R = { core: 0, semi: 1, full: 2 }, pkgHas = p => PKG_R[ST.pkg || 'core'] >= PKG_R[p];
+function useInteriors() { return pkgHas('semi'); }
 function itemChoice(it, tierId) {
   const ti = TI[tierId || ST.tier];
   if (it.steel) {
@@ -5831,6 +5876,7 @@ function itemChoice(it, tierId) {
   let ix = !tierId && ST.pick[it.id] != null ? ST.pick[it.id] : it.def[ti];
   if (it.vlook) { if (!isVilla()) return null; const vi = VILLA_KEYS.indexOf(villaLook(ST.seed)); return Object.assign({ ix: vi }, it.opts[vi]); }
   if (it.balc) { const k = (ST.balc || (isVilla() ? 'loggia' : null)) && BALC[ST.balc || 'loggia'] ? (BALC[ST.balc || 'loggia'].t <= ti ? (ST.balc || 'loggia') : 'cantilever') : 'none', bi = ['juliet', 'cantilever', 'stacked', 'recessed', 'glass', 'planter', 'loggia', 'wrap', 'sky'].indexOf(k); return bi < 0 ? null : Object.assign({ ix: bi }, it.opts[bi]); }
+  if (it.pkg && pkgHas(it.pkg) && (ix == null || ix < 0)) ix = 0;
   if (ix == null || ix < 0 || !it.opts[ix]) return null;
   return Object.assign({ ix }, it.opts[ix]);
 }
@@ -5844,7 +5890,7 @@ function lineFor(it, c, Q, ti, cf) {
 function priceList(D, o, tierId) {
   const Q = quantities(D, o), cf = CITIES.find(c => c.id === ST.city).f, lines = [], ti = TI[tierId || ST.tier];
   ITEMS.forEach(it => {
-    if (it.optional && !useInteriors(tierId)) return;
+    if ((it.optional || it.pkg) && !pkgHas(it.pkg || 'semi')) return;
     const L = lineFor(it, itemChoice(it, tierId), Q, ti, cf); if (L) lines.push(L);
   });
   try { facadeLines(D, o).forEach(L => { L.rate = Math.round(L.rate * cf); L.amount = L.units * L.rate; lines.push(L); }); } catch (e) { }
@@ -5900,7 +5946,7 @@ SCR.purpose = () => '<section class="bx-hero"><div><span class="bx-lab"><img src
   '<h2 class="q">What would you like to do?</h2><div class="opts two">' +
   [['build', 'Build a new home', 'Plan, 3D design, every material and a full quotation.'], ['cost', 'Know my building cost', 'A quick, honest cost per sq ft for your plot.'], ['quote', 'Get a material quotation', 'Every material — grade, brand, quantity and price.'], ['structure', 'Get a structure plan', 'Columns, beams, footings and steel — for your home or any size.']].map(o => '<button class="opt' + (ST.purpose === o[0] ? ' on' : '') + '" data-a="purpose" data-v="' + o[0] + '"><span class="ic">' + ICON[o[0]] + '</span><b>' + o[1] + '</b><span>' + o[2] + '</span></button>').join('') + '</div>';
 function useCards() { const use = ST.home.use || 'family'; return '<div class="opts two use">' + [['family', 'Home for my family', 'One house for you to live in. Big land gets a lawn, garden and more.'], ['villa', 'Ultra luxury estate', 'A signature villa, a garden bungalow or a farmhouse estate — designed together with its grounds.'], ['rent', 'Rental units', 'Many self-contained units — each with its own kitchen and attached bath.'], ['apartment', 'Apartment building', 'Flats of 1, 2, 3 or 4 BHK on many floors, with lifts, parking and amenities.'], ['commercial', 'Commercial building', 'Shops and offices, with lifts and open, ground-floor or basement parking.']].map(u => '<button class="opt' + (use === u[0] ? ' on' : '') + '" data-a="use" data-v="' + u[0] + '"><b>' + u[1] + '</b><span>' + u[2] + '</span></button>').join('') + '</div>'; }
-SCR.use = () => '<h2 class="q">What will you build?</h2><p class="sub">Pick one. Next, tell us where and how big the land is.</p>' + useCards();
+SCR.use = () => '<h2 class="q">What will you build?</h2><p class="sub">Pick one. Next, tell us how big the land is.</p>' + useCards();
 SCR.city = () => '<h2 class="q">Where will you build?</h2><p class="sub">Prices follow the local market.</p><div class="opts two">' + CITIES.map(c => '<button class="opt row' + (ST.city === c.id ? ' on' : '') + '" data-a="city" data-v="' + c.id + '"><b>' + c.name + '</b><span>' + c.note + '</span></button>').join('') + '</div>';
 /* ---------- plots that are not a rectangle: four side lengths → the land's shape → the biggest straight (rectangular) house area on it ---------- */
 // F = front (road side), B = back, L = left side, R = right side (as seen standing on the road). Coordinates: road along y = 0, x to the right, y into the plot.
@@ -5942,19 +5988,37 @@ function plotSketch(S) {
         '<text x="' + cx + '" y="' + cy + '" style="font-size:' + fs * 1.05 + 'px;font-weight:600" text-anchor="middle">House area</text><text x="' + cx + '" y="' + (cy + fs * 1.4) + '" style="font-size:' + fs + 'px" text-anchor="middle">' + hw + ' × ' + hd + ' ft</text>' +
         (sb.f ? t(cx, P.d - sb.f / 2 + fs * 0.3, sb.f + ' ft') : '') + (sb.r > 1.5 ? t(cx, sb.r / 2 + fs * 0.3, sb.r + ' ft') : '') + (sb.s > 1.5 ? t(sb.s / 2, cy, sb.s + "'") + t(P.w - sb.s / 2, cy, sb.s + "'") : ''); })() +
     lab(0, 1, 'Front ' + S.f + ' ft', 0, fs * 1.6) + lab(2, 3, 'Back ' + S.b + ' ft', 0, -fs * 0.6) + lab(3, 0, 'Left ' + S.l, -fs * 2.2, 0) + lab(1, 2, 'Right ' + S.r, fs * 2.4, 0) +
-    '<rect x="' + x0 + '" y="' + (Math.max(...ys) + fs * 2.6) + '" width="' + W + '" height="' + fs * 1.6 + '" fill="#E5E7EA"/><text x="' + (x0 + W / 2) + '" y="' + (Math.max(...ys) + fs * 3.75) + '" style="font-size:' + fs * 0.9 + 'px" text-anchor="middle" fill="#5B6670">ROAD</text></svg>' +
+    '<rect x="' + x0 + '" y="' + (Math.max(...ys) + fs * 2.6) + '" width="' + W + '" height="' + fs * 1.6 + '" fill="#E5E7EA"/><text x="' + (x0 + W / 2) + '" y="' + (Math.max(...ys) + fs * 3.75) + '" style="font-size:' + fs * 0.9 + 'px" text-anchor="middle" fill="#5B6670">ROAD · ' + (DIR_NAME[ST.plot.facing] || '').toUpperCase() + '</text>' +
+    (() => { const C = plotCorners(ST.plot.facing), r = fs * 1.05; return P.shape.map((q, i) => { const bx = q[0] + (i === 0 || i === 3 ? -r * 1.3 : r * 1.3), by = q[1] + (i < 2 ? r * 1.2 : -r * 1.2); return '<g class="pcorner"><circle cx="' + bx + '" cy="' + by + '" r="' + r + '" fill="' + (i < 2 ? '#C9963C' : '#fff') + '" stroke="#C9963C" stroke-width="' + fs / 10 + '"/><text x="' + bx + '" y="' + (by + fs * 0.32) + '" style="font-size:' + fs * 0.8 + 'px;font-weight:700;fill:' + (i < 2 ? '#fff' : '#8A6A2E') + '" text-anchor="middle">' + C[i] + '</text></g>'; }).join(''); })() + '</svg>' +
     '<p class="fit-line">Land ' + P.area.toLocaleString('en-IN') + ' sq ft. The straight part of the land is ' + P.w + ' × ' + P.d + ' ft; after the open space you leave, the house can be up to <b>' + Math.max(0, P.w - 2 * setbackOf().s) + ' × ' + Math.max(0, P.d - setbackOf().f - setbackOf().r) + ' ft</b>. The slanting edges become garden.' + (P.how === 'approx' ? ' The four sides do not close into one shape exactly — we used sides square to the road (the back would be ' + P.backS + ' ft). Check the lengths.' : '') + '</p>';
 }
+// a rectangular plot from width × depth (voice): the four sides follow
+function rectPlot() { const p = ST.plot; p.mode = 'sides'; p.sides = { f: p.w, b: p.w, l: p.d, r: p.d }; p.shape = null; p.area = p.w * p.d; }
 function applySides() { const P = plotShape(ST.plot.sides || {}); if (!P) return false; ST.plot.w = Math.max(15, P.w); ST.plot.d = Math.max(20, P.d); ST.plot.area = P.area; ST.plot.shape = P.how === 'rect' ? null : P.shape; return true; }
 SCR.plot = () => {
-  const p = ST.plot;
-  return '<h2 class="q">How big is your land?</h2><p class="sub">Measure all four sides — plots are rarely a perfect rectangle. The road side is the front.</p>' +
-    '<div class="seg2"><button class="' + (p.mode === 'sides' ? 'on' : '') + '" data-a="pmode" data-v="sides">4 sides</button><button class="' + (p.mode === 'wd' ? 'on' : '') + '" data-a="pmode" data-v="wd">Width × depth</button><button class="' + (p.mode === 'area' ? 'on' : '') + '" data-a="pmode" data-v="area">Area in sq ft</button></div>' +
-    (p.mode === 'sides' ? (() => { const S = p.sides || (p.sides = { f: p.w, b: p.w, l: p.d, r: p.d }), fld = (k, lab) => '<label><span>' + lab + '</span><div class="inp"><input type="number" inputmode="decimal" min="10" max="400" data-f="sides.' + k + '" value="' + S[k] + '"><i>ft</i></div></label>'; return '<div class="fields four">' + fld('f', 'Front (road side)') + fld('b', 'Back') + fld('l', 'Left side') + fld('r', 'Right side') + '</div><div id="plotsk">' + plotSketch(S) + '</div>'; })() : p.mode === 'wd' ? '<div class="fields"><label><span>Front width</span><div class="inp"><input type="number" inputmode="decimal" min="15" max="200" data-f="plot.w" value="' + p.w + '"><i>ft</i></div></label><label><span>Depth</span><div class="inp"><input type="number" inputmode="decimal" min="20" max="300" data-f="plot.d" value="' + p.d + '"><i>ft</i></div></label></div>' :
-      '<div class="fields one"><label><span>Plot area</span><div class="inp"><input type="number" inputmode="decimal" min="300" max="50000" data-f="plot.area" value="' + p.area + '"><i>sq ft</i></div></label><p class="hint">1 decimal = 435.6 sq ft. We assume a 3 : 4 shape — enter width × depth for an exact plan.</p></div>') +
+  const p = ST.plot; p.mode = 'sides';
+  if (!p.sides) { p.sides = { f: p.w, b: p.w, l: p.d, r: p.d }; applySides(); }
+  const S = p.sides, fld = (k, lab) => '<label><span>' + lab + '</span><div class="inp"><input type="number" inputmode="decimal" min="10" max="400" data-f="sides.' + k + '" value="' + S[k] + '"><i>ft</i></div></label>';
+  return '<h2 class="q">How big is your land?</h2><p class="sub">Measure all four sides — plots are rarely a perfect rectangle. The road side is the front. Or type the area and the sides follow.</p>' +
+    '<div class="card plotin"><div class="fields four">' + fld('f', 'Front (road side)') + fld('b', 'Back') + fld('l', 'Left side') + fld('r', 'Right side') + '</div>' +
+    '<div class="fields one parea"><label><span>Area</span><div class="inp"><input type="number" inputmode="decimal" min="300" max="50000" id="parea" data-f="plot.area" value="' + p.area + '"><i>sq ft</i></div></label><p class="hint">1 decimal = 435.6 sq ft. Typing the area scales all four sides and keeps the shape.</p></div></div>' +
+    '<div id="plotsk">' + plotSketch(S) + '</div>' +
     ((ST.home.use || 'family') !== 'villa' ? setbackUI() : '') +
     '<h3 class="q2">Road side</h3><div class="compass">' + [['N', 'North'], ['E', 'East'], ['S', 'South'], ['W', 'West']].map(d => '<button class="' + (p.facing === d[0] ? 'on' : '') + '" data-a="facing" data-v="' + d[0] + '"><b>' + d[0] + '</b><span>' + d[1] + '</span></button>').join('') + '</div>';
 };
+// type the plot area: scale the four sides by the same factor so the shape stays and the area matches
+function areaType(v) {
+  const P = plotShape(ST.plot.sides || {}); if (!P || !(v >= 300)) return;
+  const k = Math.sqrt(v / P.area), sd = ST.plot.sides;
+  ['f', 'b', 'l', 'r'].forEach(x => { sd[x] = Math.round(sd[x] * k * 10) / 10; const el = document.querySelector('[data-f="sides.' + x + '"]'); if (el) el.value = sd[x]; });
+  applySides(); S.design = null; ST.grid = null;
+}
+// corner directions of the plot as drawn (road at the bottom): [bottom-left, bottom-right, top-right, top-left]
+function plotCorners(facing) {
+  const D = ['N', 'E', 'S', 'W'], i = D.indexOf(facing || 'E'), bot = D[i], top = D[(i + 2) % 4], right = D[(i + 3) % 4], left = D[(i + 1) % 4];
+  const nm = (a, b) => { const v = [a, b].sort((x, y) => 'NSEW'.indexOf(x) - 'NSEW'.indexOf(y)).join(''); return v; };
+  return [nm(bot, left), nm(bot, right), nm(top, right), nm(top, left)];
+}
 function parkingUI(p) {
   const b2 = (a, v, cur, lab) => '<button class="' + (cur === v ? 'on' : '') + '" data-a="' + a + '" data-v="' + v + '">' + lab + '</button>';
   let h = '<h3 class="q2">Parking</h3><div class="pkopt">' + [['none', 'No parking'], ['2w', 'Bike'], ['4w', 'Car'], ['both', 'Car + bike']].map(x => b2('pk', x[0], p.kind, x[1])).join('') + '</div>';
@@ -6004,32 +6068,249 @@ function setbackType(t) {
   else if (!(v >= 0)) err = 'Open space cannot be less than 0 ft.';
   else if (!setbackFits(Object.assign({}, cur, { [k]: v }))) err = SB_LAB[k] + ' can be at most ' + ftx(setbackMax(cur)[k]) + ' ft here, or the house gets smaller than ' + SB_MIN_W + ' × ' + SB_MIN_D + ' ft.';
   box && box.classList.toggle('bad', !!err); t.setAttribute('aria-invalid', err ? 'true' : 'false');
-  if (!err && v !== cur[k]) { ST.home.setback = Object.assign({}, cur, { [k]: v }); S.design = null; }
+  if (!err && v !== cur[k]) { ST.home.setback = Object.assign({}, cur, { [k]: v }); S.design = null; const sk = document.getElementById('plotsk'); if (sk && ST.plot.sides) sk.innerHTML = plotSketch(ST.plot.sides); }
   const sb = setbackOf(), mx = setbackMax(sb);
   document.querySelectorAll('#sbui [data-sb]').forEach(x => x.max = mx[x.dataset.sb]);
   if (msg) msg.innerHTML = setbackHint(sb, err);
   const nb = document.querySelector('[data-a="next"]'); if (nb) nb.disabled = !canNext();
 }
 function spaceUI(h) { const v = h.space || 'balanced'; return '<h3 class="q2">How should it feel?</h3><div class="opts three space">' + SPACE_OPT.map(o => '<button class="opt' + (v === o[0] ? ' on' : '') + '" data-a="space" data-v="' + o[0] + '"><b>' + o[1] + '</b><span>' + o[2] + '</span></button>').join('') + '</div><ul class="sp-tips">' + SPACE_TIPS[v].map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>'; }
+/* ---------- Home: the owner's room list → a live top-view plan of every floor ---------- */
+// sizes in ft: [width along the road, depth]. min = the smallest size we allow; a type (category) can only be bigger.
+// fl: where it goes — g ground floor, up upper floors first, gp ground first, any, all every floor, bed with a bedroom, roof
+// z: band in the plan — 0 road side, 1 middle, 2 back
+const RQ = [
+  { k: 'living', n: 'Drawing / Living room', s: 'Living', min: [12, 10], max: 2, fl: 'g', z: 0, sec: 'Living & dining', cats: [['std', 'Standard', 14, 12], ['compact', 'Compact', 12, 10], ['formal', 'Formal drawing', 16, 12], ['open', 'Open hall', 20, 14], ['double', 'Double height', 16, 14]] },
+  { k: 'dining', n: 'Dining room', s: 'Dining', min: [10, 10], max: 1, fl: 'g', z: 2, sec: 'Living & dining' },
+  { k: 'sitout', n: 'Sit-out / Verandah', s: 'Sit-out', min: [10, 6], max: 1, fl: 'g', z: 0, sec: 'Living & dining' },
+  { k: 'lounge', n: 'Family lounge', s: 'Lounge', min: [12, 10], max: 2, fl: 'up', z: 1, sec: 'Living & dining' },
+  { k: 'master', n: 'Master bedroom', s: 'Master bed', min: [12, 12], max: 3, fl: 'up', z: 1, sec: 'Bedrooms' },
+  { k: 'bed', n: 'Bedroom', s: 'Bedroom', min: [10, 10], max: 5, fl: 'any', z: 1, sec: 'Bedrooms', cats: [['std', 'Standard', 10, 10], ['large', 'Large', 12, 10], ['kids', 'Kids + study nook', 12, 10], ['twin', 'Twin beds', 12, 11]] },
+  { k: 'guest', n: 'Guest bedroom', s: 'Guest bed', min: [10, 10], max: 2, fl: 'gp', z: 1, sec: 'Bedrooms' },
+  { k: 'dress', n: 'Dressing area', s: 'Dress', min: [7, 5], max: 5, fl: 'bed', z: 1, sec: 'Bedrooms', note: 'Next to a bedroom' },
+  { k: 'kitchen', n: 'Kitchen', s: 'Kitchen', min: [10, 8], max: 2, fl: 'g', z: 2, sec: 'Kitchen & utility', cats: [['l', 'L-shaped', 10, 8], ['straight', 'Straight', 10, 8], ['parallel', 'Parallel', 11, 8], ['u', 'U-shaped', 11, 9], ['island', 'Island', 12, 11], ['open', 'Open to dining', 10, 8]] },
+  { k: 'utility', n: 'Utility / Washing area', s: 'Utility', min: [5, 5], max: 1, fl: 'g', z: 2, sec: 'Kitchen & utility' },
+  { k: 'store', n: 'Store room', s: 'Store', min: [6, 5], max: 2, fl: 'any', z: 2, sec: 'Kitchen & utility' },
+  { k: 'ctoilet', n: 'Common toilet & bathroom', s: 'Toilet', min: [7, 7], max: 3, fl: 'any', z: 2, sec: 'Toilets', cats: [['western', 'Western WC', 7, 7], ['indian', 'Indian WC', 7, 7], ['shower', 'With shower area', 8, 7], ['split', 'Toilet + bath separate', 9, 7]] },
+  { k: 'atoilet', n: 'Attached toilet & bathroom', s: 'Att. toilet', min: [7, 7], max: 5, fl: 'bed', z: 1, sec: 'Toilets', note: 'One per bedroom', cats: [['std', 'Standard', 7, 7], ['shower', 'Glass shower', 8, 7], ['wetdry', 'Wet + dry zones', 9, 7], ['tub', 'Bathtub', 10, 8]] },
+  { k: 'puja', n: 'Puja room', s: 'Puja', min: [7, 5], ms: '7 × 5', max: 1, fl: 'g', z: 1, sec: 'More rooms' },
+  { k: 'study', n: 'Study room / Office', s: 'Study', min: [10, 8], max: 2, fl: 'any', z: 1, sec: 'More rooms' },
+  { k: 'helper', n: 'Helper / driver room', s: 'Helper', min: [10, 8], max: 1, fl: 'g', z: 2, sec: 'More rooms' },
+  { k: 'stair', n: 'Staircase', s: 'Stair', min: [12, 8], fixed: 1, fl: 'all', z: 1, sec: 'Stair, lift & balcony', note: 'Every home has one, up to the roof', cats: [['dog', 'Dog-legged', 12, 8], ['l', 'L-shaped', 13, 8], ['u', 'U-shaped (open well)', 12, 10], ['spiral', 'Spiral', 12, 8]], cats2: [['rcc', 'RCC + granite'], ['marble', 'RCC + marble'], ['float', 'Floating steel + wood'], ['glass', 'Glass railing']] },
+  { k: 'lift', n: 'Lift', s: 'Lift', min: [5, 4], max: 1, fl: 'all', z: 1, sec: 'Stair, lift & balcony', needs: 2, note: 'Shaft size on every floor', cats: [['p3', '3 person · home lift', 5, 4], ['p4', '4 person', 5, 5], ['p6', '6 person', 6, 6], ['p8', '8 person', 7, 6]] },
+  { k: 'balcony', n: 'Balcony', s: 'Balcony', min: [10, 4], max: 4, fl: 'up', z: 0, sec: 'Stair, lift & balcony', cats: [['cantilever', 'Cantilever', 10, 4], ['recessed', 'Recessed', 10, 5], ['glass', 'Glass railing', 10, 4], ['planter', 'Planter / garden', 10, 5], ['juliet', 'Juliet (French window)', 8, 2]] },
+  { k: 'parking', n: 'Parking', s: 'Parking', max: 1, fl: 'g', z: 0, sec: 'Outside & roof', fix: true, cats: [['4w', 'Car', 10, 18], ['2w', 'Bike', 7, 5], ['both', 'Car + bike', 14, 18]] },
+  { k: 'terrace', n: 'Terrace plan', max: 1, fl: 'roof', sec: 'Outside & roof', note: 'On the roof', cats: [['open', 'Open terrace'], ['garden', 'Terrace garden'], ['pergola', 'Sit-out with pergola'], ['solar', 'Solar + water tanks'], ['party', 'Party terrace'], ['stepped', 'Stepped terraces']] }
+];
+const RQ_BY = Object.fromEntries(RQ.map(q => [q.k, q]));
+const RQ_FILL = { living: '#FCEBD3', dining: '#FFF1D6', sitout: '#E9F5E4', lounge: '#FBE9E3', master: '#D6E5F6', bed: '#E3EEF9', guest: '#EAF1FA', dress: '#F2E8F3', kitchen: '#FDE0D2', utility: '#E3F1F6', store: '#ECECEC', ctoilet: '#D9F0EC', atoilet: '#D9F0EC', puja: '#FFF2BF', study: '#ECE6F7', helper: '#F1EBE2', stair: '#E4E1DA', lift: '#D9D9E4', balcony: '#E0F2DE', parking: '#EBEDF0' };
+const RQ_MAXBED = 5, FLOOR_NAME = ['Ground floor', 'First floor', 'Second floor'];
+const ft2 = v => (Math.round(v * 2) / 2).toString();
+function rqSize(k, c) { const q = RQ_BY[k], cat = q.cats && q.cats.find(x => x[0] === c); return cat && cat[2] ? [cat[2], cat[3]] : q.min.slice(); }
+function reqState() {
+  const h = ST.home;
+  if (!h.req) { const b = Math.max(1, Math.min(RQ_MAXBED, h.bhk)); h.req = { living: { n: 1 }, dining: { n: 0 }, master: { n: 1 }, bed: { n: b - 1 }, kitchen: { n: 1 }, utility: { n: 0 }, ctoilet: { n: 1 }, atoilet: { n: Math.min(2, b) }, stair: { n: 1 }, balcony: { n: h.floors > 1 ? 1 : 0 }, terrace: { n: 1, c: h.roof === 'multi' ? 'stepped' : 'open' }, _bhk: h.bhk }; }
+  const R = h.req;
+  RQ.forEach(q => { const r = R[q.k] || (R[q.k] = { n: 0 }); if (q.cats && !r.c) r.c = q.cats[0][0]; if (q.cats2 && !r.c2) r.c2 = q.cats2[0][0]; });
+  R.stair.n = 1; R.puja.n = h.pooja ? 1 : 0;
+  R.parking.n = h.park.kind === 'none' ? 0 : 1; if (h.park.kind !== 'none' && RQ_BY.parking.cats.some(c => c[0] === h.park.kind)) R.parking.c = h.park.kind;
+  // bedrooms changed somewhere else (voice): add or take away plain bedrooms
+  if (R._bhk !== h.bhk) { const d = h.bhk - (R.master.n + R.bed.n + R.guest.n); R.bed.n = Math.max(0, R.bed.n + d); if (R.master.n + R.bed.n + R.guest.n === 0) R.master.n = 1; R._bhk = h.bhk; }
+  if (h.floors < 2) R.lift.n = 0;
+  return R;
+}
+const rqBeds = R => R.master.n + R.bed.n + R.guest.n;
+// the room list feeds the design engine too: bedrooms, floors, pooja, parking, balcony and roof
+function reqSync() {
+  const h = ST.home, R = h.req, beds = rqBeds(R);
+  R.atoilet.n = Math.min(R.atoilet.n, beds); R.dress.n = Math.min(R.dress.n, beds);
+  if (h.floors < 2) R.lift.n = 0;
+  h.bhk = Math.max(1, Math.min(RQ_MAXBED, beds)); R._bhk = h.bhk;
+  h.pooja = R.puja.n > 0; h.park.kind = R.parking.n ? R.parking.c : 'none';
+  h.roof = R.terrace.n && R.terrace.c === 'stepped' && h.floors > 1 ? 'multi' : 'single';
+  h.split = 'house'; h.space = R.living.n && R.living.c === 'open' ? 'spacious' : 'balanced';
+  ST.balc = R.balcony.n && R.balcony.c !== 'juliet' ? R.balcony.c : R.balcony.n ? 'juliet' : 'none';
+  S.design = null; ST.grid = null;
+}
+// the house area on one floor: plot minus the open space (setbacks)
+function houseBox() { const sb = setbackOf(); return { sb, w: Math.max(0, ST.plot.w - 2 * sb.s), d: Math.max(0, ST.plot.d - sb.f - sb.r) }; }
+// every room asked for, placed on a floor
+function reqRooms() {
+  const h = ST.home, R = reqState(), nF = h.floors, A = houseBox(), cap = Math.max(1, A.w * A.d);
+  const fl = Array.from({ length: nF }, () => []), used = Array(nF).fill(0);
+  const cnt = {}, mk = k => { cnt[k] = (cnt[k] || 0) + 1; const [w, d] = rqSize(k, R[k].c), q = RQ_BY[k]; return { k, w, d, z: q.z, fix: q.fix, s: q.s + (R[k].n > 1 && q.fl !== 'all' ? ' ' + cnt[k] : '') }; };
+  const put = (f, r) => { fl[f].push(r); used[f] += r.w * r.d; };
+  const best = pref => { let bf = 0, bv = Infinity; for (let f = 0; f < nF; f++) { const v = used[f] / cap + (pref(f) ? 0 : 0.3); if (v < bv - 1e-9) { bv = v; bf = f; } } return bf; };
+  for (let f = 0; f < nF; f++) { const st = mk('stair'); st.s = 'Stair'; put(f, st); if (R.lift.n && nF > 1) { const l = mk('lift'); l.s = 'Lift'; put(f, l); } }
+  ['parking', 'sitout', 'living', 'kitchen', 'dining', 'puja', 'utility', 'helper'].forEach(k => { for (let i = 0; i < R[k].n; i++) put(0, mk(k)); });
+  // bedrooms, each with its attached bath and dressing while those last
+  let at = R.atoilet.n, dr = R.dress.n;
+  [['master', f => f > 0 || nF === 1], ['bed', () => true], ['guest', f => f === 0]].forEach(([k, pref]) => {
+    for (let i = 0; i < R[k].n; i++) { const f = best(pref); put(f, mk(k)); if (at > 0) { put(f, mk('atoilet')); at--; } if (dr > 0) { put(f, mk('dress')); dr--; } }
+  });
+  for (let i = 0; i < R.ctoilet.n; i++) put(i === 0 ? 0 : best(() => true), mk('ctoilet'));
+  for (let i = 0; i < R.balcony.n; i++) put(nF > 1 ? 1 + i % (nF - 1) : 0, mk('balcony'));
+  for (let i = 0; i < R.lounge.n; i++) put(best(f => f > 0), mk('lounge'));
+  ['study', 'store'].forEach(k => { for (let i = 0; i < R[k].n; i++) put(best(() => true), mk(k)); });
+  return { floors: fl.map((rooms, f) => Object.assign(packFloor(rooms, A.w, A.d), { f })), A };
+}
+// fit the rooms into the house rectangle (max-rects packing). Road-side rooms (z 0) go to the front, service rooms (z 2) to the back.
+// The stair goes in first, so it sits in the same place on every floor. 10% is kept for walls and the passage.
+const WALLS = 0.1;
+function packFloor(rooms, W, D) {
+  let free = W > 0 && D > 0 ? [{ x: 0, y: 0, w: W, h: D }] : [];
+  const out = [], miss = [], first = r => r.k === 'stair' ? 0 : r.k === 'lift' ? 1 : 2;
+  const items = rooms.slice().sort((a, b) => first(a) - first(b) || b.w * b.d - a.w * a.d);
+  items.forEach(it => {
+    let best = null;
+    (it.fix ? [[it.w, it.d]] : [[it.w, it.d], [it.d, it.w]]).forEach(([w, h]) => free.forEach(fr => {
+      if (w > fr.w + 1e-6 || h > fr.h + 1e-6) return;
+      [[fr.x, fr.y], [fr.x, fr.y + fr.h - h], [fr.x + fr.w - w, fr.y], [fr.x + fr.w - w, fr.y + fr.h - h]].forEach(([x, y]) => {
+        const band = it.z === 0 ? D - (y + h) : it.z === 2 ? y : 0, fit = Math.min(fr.w - w, fr.h - h);
+        const sc = band * 4 + fit + (it.k === 'stair' ? x : 0) * 0.01;
+        if (!best || sc < best.sc - 1e-9) best = { sc, x, y, w, h };
+      });
+    }));
+    if (!best) { miss.push(it); return; }
+    const P = { x: best.x, y: best.y, w: best.w, h: best.h };
+    out.push(Object.assign({}, it, { x: P.x, y: P.y, w: P.w, d: P.h }));
+    // split every free rectangle the room overlaps, then drop the ones inside another
+    const nf = [];
+    free.forEach(fr => {
+      if (P.x >= fr.x + fr.w - 1e-6 || P.x + P.w <= fr.x + 1e-6 || P.y >= fr.y + fr.h - 1e-6 || P.y + P.h <= fr.y + 1e-6) { nf.push(fr); return; }
+      if (P.x > fr.x + 1e-6) nf.push({ x: fr.x, y: fr.y, w: P.x - fr.x, h: fr.h });
+      if (P.x + P.w < fr.x + fr.w - 1e-6) nf.push({ x: P.x + P.w, y: fr.y, w: fr.x + fr.w - P.x - P.w, h: fr.h });
+      if (P.y > fr.y + 1e-6) nf.push({ x: fr.x, y: fr.y, w: fr.w, h: P.y - fr.y });
+      if (P.y + P.h < fr.y + fr.h - 1e-6) nf.push({ x: fr.x, y: P.y + P.h, w: fr.w, h: fr.y + fr.h - P.y - P.h });
+    });
+    free = nf.filter((a, i) => !nf.some((b, j) => j !== i && a.x >= b.x - 1e-6 && a.y >= b.y - 1e-6 && a.x + a.w <= b.x + b.w + 1e-6 && a.y + a.h <= b.y + b.h + 1e-6 && (j < i || a.w * a.h < b.w * b.h - 1e-6)));
+  });
+  // rooms that did not fit: shown in red behind the house
+  let mx = 0; miss.forEach(it => { out.push(Object.assign({}, it, { x: mx, y: -it.d - 1.5, over: true })); mx += it.w + 0.5; });
+  const area = rooms.reduce((a, r) => a + r.w * r.d, 0), cap = W * D;
+  return { rooms: out, miss, area, need: area * (1 + WALLS), ok: !miss.length && area * (1 + WALLS) <= cap + 1e-6, W, D };
+}
+function reqCheck() {
+  const P = reqRooms(), bad = P.floors.filter(F => !F.ok);
+  if (!bad.length) return { ok: true, P };
+  const F = bad[0], cap = Math.round(P.A.w * P.A.d), m = F.miss[0];
+  const why = m && Math.min(m.w, m.d) > Math.min(P.A.w, P.A.d) ? m.s + ' needs ' + ft2(Math.min(m.w, m.d)) + ' ft but the house is only ' + ft2(Math.min(P.A.w, P.A.d)) + ' ft across'
+    : FLOOR_NAME[F.f] + ' needs about ' + Math.round(F.need).toLocaleString('en-IN') + ' sq ft (rooms + 10% for walls and passage); the house area there is ' + cap.toLocaleString('en-IN') + ' sq ft (' + ft2(P.A.w) + ' × ' + ft2(P.A.d) + ' ft after the open space)' + (m ? '. ' + m.s + ' does not fit' : '');
+  return { ok: false, P, bad, msg: 'According to your plot size this is not valid. ' + why + '. Remove a room, pick a smaller type' + (ST.home.floors < 3 ? ' or add a floor' : '') + '.' };
+}
+// the live top-view plan of one floor (or the roof)
+function reqPlanSvg(C, view) {
+  const A = C.P.A, sb = A.sb, PW = ST.plot.w, PD = ST.plot.d, fs = Math.max(1.05, PW / 34), roof = view === 'roof';
+  const F = roof ? null : C.P.floors[Math.min(view, C.P.floors.length - 1)];
+  const top = F ? Math.min(0, sb.r + (F.rooms.length ? Math.min(...F.rooms.map(r => r.y)) : 0) - 1) : 0, right = F ? Math.max(PW, sb.s + Math.max(0, ...F.rooms.map(r => r.x + r.w))) : PW;
+  const x0 = -fs * 2.6, y0 = top - fs * 2.6, W = right + fs * 5.2, H = PD - y0 + fs * 4.6;
+  const t = (x, y, v, st) => '<text x="' + x + '" y="' + y + '" text-anchor="middle" style="' + (st || '') + '">' + v + '</text>';
+  let g = '<rect x="0" y="0" width="' + PW + '" height="' + PD + '" fill="#EEF4EC" stroke="#24323D" stroke-width="' + fs / 7 + '"/>' +
+    '<rect x="' + sb.s + '" y="' + sb.r + '" width="' + A.w + '" height="' + A.d + '" fill="#fff" stroke="#24323D" stroke-width="' + fs / 5 + '"/>';
+  if (F) {
+    F.rooms.forEach(r => {
+      const X = sb.s + r.x, Y = sb.r + r.y, over = r.over, small = Math.min(r.w, r.d) < 6.5, f1 = Math.min(fs, r.w / 5.2, r.d / 2.4);
+      g += '<g class="rqr"><rect x="' + X + '" y="' + Y + '" width="' + r.w + '" height="' + r.d + '" fill="' + (over ? '#FBE1DE' : RQ_FILL[r.k] || '#eee') + '" stroke="' + (over ? '#C0392B' : '#24323D') + '" stroke-width="' + fs / 10 + '"' + (over ? ' stroke-dasharray="' + fs / 2 + ' ' + fs / 3 + '"' : '') + '/>' +
+        t(X + r.w / 2, Y + r.d / 2 - (small ? 0 : f1 * 0.1), esc(r.s), 'font-size:' + f1 + 'px;font-weight:600;fill:' + (over ? '#C0392B' : '#24323D')) +
+        (small ? '' : t(X + r.w / 2, Y + r.d / 2 + f1 * 1.05, ft2(r.w) + ' × ' + ft2(r.d), 'font-size:' + f1 * 0.82 + 'px;fill:#5B6670')) + '</g>';
+    });
+  } else {
+    const R = ST.home.req, c = R.terrace.c, rx = sb.s, ry = sb.r, w = A.w, d = A.d;
+    g += '<rect x="' + rx + '" y="' + ry + '" width="' + w + '" height="' + d + '" fill="#F4F1E8"/>';
+    if (c === 'garden') g += '<rect x="' + rx + '" y="' + ry + '" width="' + w + '" height="3" fill="#BFE0B5"/><rect x="' + rx + '" y="' + ry + '" width="3" height="' + d + '" fill="#BFE0B5"/><rect x="' + (rx + w - 3) + '" y="' + ry + '" width="3" height="' + d + '" fill="#BFE0B5"/><rect x="' + (rx + w * 0.3) + '" y="' + (ry + d * 0.45) + '" width="' + w * 0.4 + '" height="' + d * 0.3 + '" rx="2" fill="#CFE8C6"/>';
+    if (c === 'pergola') { g += '<rect x="' + (rx + w * 0.15) + '" y="' + (ry + d * 0.45) + '" width="' + w * 0.7 + '" height="' + d * 0.35 + '" fill="#F1E3C8" stroke="#A7834A" stroke-width="' + fs / 10 + '"/>'; for (let i = 1; i < 8; i++) g += '<line x1="' + (rx + w * 0.15 + i * w * 0.7 / 8) + '" y1="' + (ry + d * 0.45) + '" x2="' + (rx + w * 0.15 + i * w * 0.7 / 8) + '" y2="' + (ry + d * 0.8) + '" stroke="#A7834A" stroke-width="' + fs / 12 + '"/>'; }
+    if (c === 'solar') for (let i = 0; i < 4; i++) for (let j = 0; j < 2; j++) g += '<rect x="' + (rx + 2 + i * (w - 4) / 4) + '" y="' + (ry + d * 0.45 + j * 5.5) + '" width="' + ((w - 4) / 4 - 1) + '" height="5" fill="#3B5B86" stroke="#fff" stroke-width="' + fs / 12 + '"/>';
+    if (c === 'party') g += '<rect x="' + rx + '" y="' + ry + '" width="' + Math.min(w, 14) + '" height="12" fill="#FBE9E3" stroke="#24323D" stroke-width="' + fs / 10 + '"/>' + t(rx + Math.min(w, 14) / 2, ry + 6.3, 'Party room', 'font-size:' + fs * 0.8 + 'px') + '<rect x="' + (rx + Math.min(w, 14)) + '" y="' + ry + '" width="7" height="7" fill="#D9F0EC" stroke="#24323D" stroke-width="' + fs / 10 + '"/>';
+    if (c === 'stepped') g += '<rect x="' + rx + '" y="' + ry + '" width="' + w + '" height="' + d * 0.4 + '" fill="#E7E0D0"/>' + t(rx + w / 2, ry + d * 0.2, 'Lower terrace', 'font-size:' + fs * 0.8 + 'px');
+    const st = rqSize('stair', R.stair.c); g += '<rect x="' + (rx + w - st[0]) + '" y="' + (ry + d - st[1] - 6) + '" width="' + st[0] + '" height="' + st[1] + '" fill="#E4E1DA" stroke="#24323D" stroke-width="' + fs / 8 + '"/>' + t(rx + w - st[0] / 2, ry + d - st[1] / 2 - 5.7, 'Stair cabin', 'font-size:' + fs * 0.75 + 'px');
+    g += t(rx + w / 2, ry + d * 0.3 + fs, esc((RQ_BY.terrace.cats.find(x => x[0] === c) || [])[1] || ''), 'font-size:' + fs + 'px;font-weight:600');
+  }
+  const C4 = plotCorners(ST.plot.facing), cr = fs * 0.95;
+  [[0, PD], [PW, PD], [PW, 0], [0, 0]].forEach((q, i) => { const bx = q[0] + (i === 0 || i === 3 ? -cr * 1.4 : cr * 1.4), by = q[1] + (i < 2 ? cr * 1.3 : -cr * 1.3); g += '<circle cx="' + bx + '" cy="' + by + '" r="' + cr + '" fill="' + (i < 2 ? '#C9963C' : '#fff') + '" stroke="#C9963C" stroke-width="' + fs / 10 + '"/>' + t(bx, by + fs * 0.3, C4[i], 'font-size:' + fs * 0.72 + 'px;font-weight:700;fill:' + (i < 2 ? '#fff' : '#8A6A2E')); });
+  g += '<rect x="' + x0 + '" y="' + (PD + fs * 2.7) + '" width="' + W + '" height="' + fs * 1.6 + '" fill="#E5E7EA"/>' + t(PW / 2, PD + fs * 3.8, 'ROAD · ' + (DIR_NAME[ST.plot.facing] || '').toUpperCase(), 'font-size:' + fs * 0.85 + 'px;fill:#5B6670');
+  return '<svg class="rqplan" viewBox="' + x0 + ' ' + y0 + ' ' + W + ' ' + H + '" role="img" aria-label="Top view of the ' + (roof ? 'roof' : FLOOR_NAME[view].toLowerCase()) + '">' + g + '</svg>';
+}
+function reqPanel(R) {
+  const h = ST.home, beds = rqBeds(R), secs = [];
+  const ct = (q, n, max) => q.fixed ? '<span class="rq-fix">Always 1</span>' : max === 1 ? '<button class="rq-sw' + (n ? ' on' : '') + '" data-a="rq" data-k="' + q.k + '" data-d="' + (n ? -1 : 1) + '" aria-pressed="' + !!n + '" aria-label="' + esc(q.n) + '"><span></span></button>'
+    : '<div class="rq-ct"><button data-a="rq" data-k="' + q.k + '" data-d="-1"' + (n ? '' : ' disabled') + ' aria-label="Fewer">−</button><b>' + n + '</b><button data-a="rq" data-k="' + q.k + '" data-d="1"' + (n >= max ? ' disabled' : '') + ' aria-label="More">+</button></div>';
+  RQ.forEach(q => {
+    const r = R[q.k], n = r.n, max = q.k === 'atoilet' || q.k === 'dress' ? Math.min(q.max, beds) : ['master', 'bed', 'guest'].includes(q.k) ? Math.min(q.max, n + RQ_MAXBED - beds) : q.max;
+    const off = q.needs && h.floors < q.needs, mn = q.min ? 'min ' + (q.ms || q.min.slice().sort((x, y) => x - y).join(' × ')) + ' ft' : '';
+    const meta = off ? 'Needs G + 1 or more' : [q.note, mn].filter(Boolean).join(' · ');
+    const chips = (list, key, cur) => '<div class="rq-cats">' + list.map(c => '<button class="rq-c' + (cur === c[0] ? ' on' : '') + '" data-a="rqc" data-k="' + q.k + '" data-g="' + key + '" data-v="' + c[0] + '">' + esc(c[1]) + (c[2] ? '<i>' + Math.min(c[2], c[3]) + '×' + Math.max(c[2], c[3]) + '</i>' : '') + '</button>').join('') + '</div>';
+    const html = '<div class="rq' + (n ? ' on' : '') + (off ? ' off' : '') + '" data-rq="' + q.k + '"><div class="rq-h"><div><b>' + esc(q.n) + '</b><small>' + esc(meta) + '</small></div>' + (off ? '' : ct(q, n, max)) + '</div>' +
+      (n && q.cats ? chips(q.cats, 'c', r.c) : '') + (n && q.cats2 ? '<small class="rq-sub">Design</small>' + chips(q.cats2, 'c2', r.c2) : '') + '</div>';
+    let S2 = secs.find(x => x.t === q.sec); if (!S2) secs.push(S2 = { t: q.sec, h: '' }); S2.h += html;
+  });
+  return secs.map(x => '<section class="rq-sec"><h4>' + esc(x.t) + '</h4>' + x.h + '</section>').join('');
+}
 SCR.home = () => {
-  const h = ST.home, step = (k, lab, min, max, fmt) => '<div class="stepper"><span>' + lab + '</span><div><button data-a="dec" data-v="' + k + '" aria-label="Fewer">−</button><b>' + (fmt ? fmt(h[k]) : h[k]) + '</b><button data-a="inc" data-v="' + k + '" data-max="' + max + '" aria-label="More">+</button></div></div>';
-  const tog = (k, lab) => '<button class="tog' + (h[k] ? ' on' : '') + '" data-a="tog" data-v="' + k + '"><span class="dot"></span>' + lab + '</button>';
-  const roofs = [['single', 'One roof', 'One flat roof over the whole house. Open spaces upstairs become covered sit-outs.'], ['multi', 'Stepped roofs', 'Open terraces at different levels — only if you want them.']];
-  const use = h.use || 'family', useUI = '';
+  const h = ST.home, use = h.use || 'family';
   if (use === 'apartment' || use === 'commercial') return '<h2 class="q">' + (use === 'apartment' ? 'Your apartment building.' : 'Your commercial building.') + '</h2>' + projSetupUI();
   if (use === 'rent') return '<h2 class="q">Your rental units.</h2>' + rentSetupUI();
-  const vt = ESTATE[ST.vtype] ? ST.vtype : 'villa', vf = use === 'villa' ? villaFit(ST.plot.w, ST.plot.d, h.bhk, vt) : null;
-  const villaNote = use === 'villa' ? '<h3 class="q2">The Ultra luxury collection</h3><div class="opts three estate">' + Object.keys(ESTATE).map(k => { const ok = !!villaFit(ST.plot.w, ST.plot.d, h.bhk, k); return '<button class="opt' + (vt === k ? ' on' : '') + '" data-a="vtype" data-v="' + k + '"><b>' + ESTATE[k].n + '</b><span>' + ESTATE[k].d + '</span><em class="' + (ok ? 'fits' : 'nofit') + '">' + (ok ? 'Fits your ' + ST.plot.w + ' × ' + ST.plot.d + ' ft land' : ESTATE[k].need) + '</em></button>'; }).join('') + '</div>' +
-    (vf ? '<p class="fit-line"><b>' + ESTATE[vt].n + '</b>: the house sits behind a ' + vf.court + ' ft front court' + (vt === 'bungalow' ? ' with a car porch and lawns, and a garden sit-out and kitchen garden behind.' : vt === 'farm' ? ' with an avenue drive through the orchard, and the pool, gazebo, farm pond and staff quarters around it.' : ' with a porte-cochère and fountain, and the pool and cabana behind.') + '</p>' : '<p class="warn">' + ESTATE[vt].n + ' needs ' + ESTATE[vt].need.toLowerCase() + '. On ' + ST.plot.w + ' × ' + ST.plot.d + ' ft you get an Ultra luxury house without the estate grounds.</p>') : '';
-  return '<h2 class="q">' + (use === 'villa' ? 'Your Ultra luxury estate.' : 'Your home.') + '</h2>' + villaNote + '<h3 class="q2">What kind of home?</h3><div class="card">' + step('floors', 'Floors', 1, 3, v => ['Ground', 'G + 1', 'G + 2'][v - 1]) + (h.floors > 1 && use !== 'villa' && h.split === 'floors' ? Array.from({ length: h.floors }, (_, f) => { const v = (h.perFloor || [])[f] || h.bhk; return '<div class="stepper"><span>' + ['Ground floor', 'First floor', 'Second floor'][f] + '</span><div><button data-a="pfb" data-i="' + f + '" data-d="-1" aria-label="Fewer">−</button><b>' + v + ' BHK</b><button data-a="pfb" data-i="' + f + '" data-d="1" aria-label="More">+</button></div></div>'; }).join('') : (() => { const mx = bedFit(); if (mx >= 1 && h.bhk > mx) h.bhk = mx; return step('bhk', 'Bedrooms', 1, Math.max(1, mx)); })()) + '</div>' + (h.floors > 1 && use !== 'villa' ? '<div class="seg2 split"><button class="' + (h.split === 'floors' ? '' : 'on') + '" data-a="hsplit" data-v="house">One home — ' + h.bhk + ' BHK in all</button><button class="' + (h.split === 'floors' ? 'on' : '') + '" data-a="hsplit" data-v="floors">A flat on every floor</button></div>' : '') + (() => { const mx = bedFit(), fl = ['Ground', 'G + 1', 'G + 2'][h.floors - 1]; return mx >= 1 ? '<p class="fit-line">On ' + ST.plot.w + ' × ' + ST.plot.d + ' ft (' + fl + ') up to <b>' + mx + ' bedroom' + (mx > 1 ? 's' : '') + '</b> fit, each at least 10 × 10 ft.' + (mx < 5 && h.floors < 3 ? ' Add a floor for more.' : '') + '</p>' : '<p class="warn">On ' + ST.plot.w + ' × ' + ST.plot.d + ' ft bedrooms come out under 10 × 10 ft — the land is narrow. Try without car parking, add a floor, or use a wider plot.</p>'; })() + spaceUI(h) + '<div class="togs">' + tog('pooja', 'Pooja room') + tog('vastu', 'Follow Vastu') + '</div>' + parkingUI(h.park) +
-    (h.floors > 1 ? '<h3 class="q2">Roof</h3><div class="opts two roofs">' + roofs.map(r => '<button class="opt' + ((h.roof || 'single') === r[0] ? ' on' : '') + '" data-a="roof" data-v="' + r[0] + '"><b>' + r[1] + '</b><span>' + r[2] + '</span></button>').join('') + '</div>' : '') +
-    '<p class="hint">Every home gets a stair up to the roof.</p>';
+  if (!h.req) { // first visit: start from a list that fits this plot
+    const R0 = reqState();
+    for (const k of ['balcony', 'puja', 'atoilet', 'parking', 'atoilet', 'bed', 'bed']) { if (reqCheck().ok) break; if (k === 'puja') h.pooja = false; else if (k === 'parking') h.park.kind = R0.parking.c === 'both' ? '4w' : R0.parking.c === '4w' ? '2w' : h.park.kind; else if (R0[k].n) R0[k].n--; reqSync(); reqState(); }
+    reqSync();
+  }
+  const R = reqState(), C = reqCheck(), A = C.P.A, nF = h.floors;
+  let view = h.view == null ? 0 : h.view; if (view !== 'roof' && view >= nF) view = 0; if (view === 'roof' && !R.terrace.n) view = 0;
+  const vt = ESTATE[ST.vtype] ? ST.vtype : 'villa';
+  const villa = use === 'villa' ? '<div class="rq-sec"><h4>Ultra luxury collection</h4><div class="rq-cats">' + Object.keys(ESTATE).map(k => '<button class="rq-c' + (vt === k ? ' on' : '') + '" data-a="vtype" data-v="' + k + '">' + esc(ESTATE[k].n) + '</button>').join('') + '</div></div>' : '';
+  const tabs = FLOOR_NAME.slice(0, nF).map((n, f) => '<button class="' + (view === f ? 'on' : '') + '" data-a="hview" data-v="' + f + '">' + n.replace(' floor', '') + '</button>').join('') + (R.terrace.n ? '<button class="' + (view === 'roof' ? 'on' : '') + '" data-a="hview" data-v="roof">Roof</button>' : '');
+  const cap = Math.round(A.w * A.d), bars = C.P.floors.map(F => { const u = Math.round(F.area), pc = Math.min(100, u / Math.max(1, cap) * 100); return '<div class="rq-bar' + (F.ok ? '' : ' bad') + '"><span>' + FLOOR_NAME[F.f] + '</span><div><i style="width:' + pc + '%"></i></div><em>' + u.toLocaleString('en-IN') + ' / ' + cap.toLocaleString('en-IN') + ' sq ft</em></div>'; }).join('');
+  return '<h2 class="q">Your home.</h2><p class="sub">Add the rooms you want. The plan on the left draws them as you go, on your ' + ft2(A.w) + ' × ' + ft2(A.d) + ' ft house area (' + cap.toLocaleString('en-IN') + ' sq ft a floor).</p>' +
+    '<div class="hm"><div class="hm-plan"><div class="hm-card"><div class="seg2 sm hm-tabs">' + tabs + '</div><div id="rqplan">' + reqPlanSvg(C, view) + '</div>' + bars +
+    (C.ok ? '<p class="rq-ok">Everything fits. Free space stays open as passage and light.</p>' : '<p class="rq-err" role="alert">' + esc(C.msg) + '</p>') + '</div></div>' +
+    '<div class="hm-req"><div class="rq-sec"><h4>Floors</h4><div class="rq-cats">' + ['Ground', 'G + 1', 'G + 2'].map((n, i) => '<button class="rq-c' + (nF === i + 1 ? ' on' : '') + '" data-a="hfloors" data-v="' + (i + 1) + '">' + n + '</button>').join('') +
+    '<button class="rq-c' + (h.vastu ? ' on' : '') + '" data-a="tog" data-v="vastu">Follow Vastu</button></div></div>' + villa + reqPanel(R) + '</div></div>';
 };
+// brands that belong to one range: options between the neighbouring ranges' defaults
+function tierBand(it, ti) {
+  const n = it.opts.length, d = it.def, at = i => d[i] < 0 ? null : d[i];
+  if (at(ti) == null) return [];
+  const lo = ti === 0 || at(ti - 1) == null ? 0 : Math.ceil((at(ti - 1) + at(ti)) / 2 + 0.01), hi = ti >= 2 ? n - 1 : at(ti + 1) == null ? n - 1 : Math.floor((at(ti) + at(ti + 1)) / 2);
+  const out = []; for (let i = Math.min(lo, at(ti)); i <= Math.max(hi, at(ti)); i++) out.push(i); return out;
+}
+const MAT_GROUPS = ['Structure', 'Flooring & tiles', 'Paint & putty', 'Doors & windows', 'Bathroom fittings', 'Kitchen', 'Electrical', 'Plumbing & water'];
+// daily wages, Cuttack–Bhubaneswar (approx., 2026)
+const WAGES = [['Mason (raj mistri)', '₹850–1,000'], ['Helper / coolie', '₹500–600'], ['Bar bender', '₹800–950'], ['Shuttering carpenter', '₹800–950'], ['Tile & marble mason', '₹900–1,100'], ['Plumber', '₹800–1,000'], ['Electrician', '₹800–1,000'], ['Painter', '₹700–900']];
+function budgetMaterials() {
+  const ti = TI[ST.tier], rows = {};
+  ITEMS.forEach(it => {
+    if (!MAT_GROUPS.includes(it.g) || it.pkg || it.optional || it.vlook || it.balc) return;
+    let chips = '';
+    if (it.steel) { const c = itemChoice(it), L = STEEL_BRANDS.slice().sort((a, b) => a.base - b.base), di = L.findIndex(B => B.b === STEEL_DEF.brand[ti]), band = L.filter((B, i) => ti === 0 ? i <= Math.max(2, di) : ti === 1 ? Math.abs(i - di) <= 2 : i >= Math.min(di, L.length - 3)); chips = band.filter(B => B.grades.includes(c.grade)).map(B => '<button class="rq-c' + (c.brand === B.b ? ' on' : '') + '" data-a="steelbrand" data-v="' + esc(B.b) + '">' + esc(B.p) + '<i>₹' + steelRate(B.b, c.grade) + '/kg</i></button>').join(''); }
+    else { const band = tierBand(it, ti); if (!band.length) return; const c = itemChoice(it); chips = band.map(i => { const o = it.opts[i]; return '<button class="rq-c' + (c && c.ix === i ? ' on' : '') + '" data-a="pick" data-id="' + it.id + '" data-v="' + i + '">' + esc(o.l) + '<i>' + rup(o.r) + '/' + esc((o.u || it.u).replace(/ \(.*\)/, '')) + '</i></button>'; }).join(''); }
+    (rows[it.g] = rows[it.g] || []).push('<div class="bm"><b>' + esc(it.n) + '</b><div class="rq-cats">' + chips + '</div></div>');
+  });
+  return MAT_GROUPS.filter(g => rows[g]).map(g => '<section class="rq-sec"><h4>' + esc(g) + '</h4><div class="bm-g">' + rows[g].join('') + '</div></section>').join('');
+}
+function budgetExtras() {
+  const ti = TI[ST.tier], L = ITEMS.filter(it => it.pkg && pkgHas(it.pkg));
+  return '<div class="bm-g">' + L.map(it => { const c = itemChoice(it); return '<div class="bm"><b>' + esc(it.n) + '</b><div class="rq-cats">' + it.opts.map((o, i) => '<button class="rq-c' + (c && c.ix === i ? ' on' : '') + '" data-a="pick" data-id="' + it.id + '" data-v="' + i + '">' + esc(o.l) + '<i>' + rup(o.r) + '/' + esc(o.u || it.u) + '</i></button>').join('') + '</div></div>'; }).join('') + '</div>';
+}
+function homeBudget(ds, o) {
+  if (!isVilla() && ST.tier === 'ultra') ST.tier = 'high';
+  const tiers = isVilla() ? TIERS.filter(T => T.id === 'ultra') : TIERS.filter(T => T.id !== 'ultra'), Q = quantities(ds.D, o), area = Math.round(Q.covered);
+  const lab = ITEMS.find(it => it.id === 'labour'), lc = itemChoice(lab), pk = PKGS.find(x => x.id === (ST.pkg || 'core'));
+  return '<h2 class="q">Choose your package and budget.</h2><p class="sub">For your ' + area.toLocaleString('en-IN') + ' sq ft home in ' + CITIES.find(c => c.id === ST.city).name + '. First the package, then the budget range — materials and labour follow.</p>' +
+    '<h3 class="q2">1 · Package</h3><div class="opts three pkgs">' + PKGS.map(P => '<button class="opt' + (pk.id === P.id ? ' on' : '') + '" data-a="pkg" data-v="' + P.id + '"><b>' + P.n + '</b><span>' + P.d + '</span></button>').join('') + '</div>' +
+    '<h3 class="q2">2 · Budget</h3><div class="tiers t3">' + tiers.map(T => { const P = tierEstimate(T.id); return '<button class="tier' + (ST.tier === T.id ? ' on' : '') + '" data-a="tier" data-v="' + T.id + '"><div class="t-top"><b>' + T.short + ' budget</b>' + (T.id === 'mid' ? '<em>Most chosen</em>' : '') + '</div><div class="t-rate">' + rup(P.perSqft) + '<small>/sq ft</small></div><div class="t-tot">≈ ' + inr(P.total) + ' · ' + pk.n.toLowerCase() + '</div><p>' + T.pitch + '</p><div class="t-mkt">Market (core): ' + T.market + ' /sq ft</div></button>'; }).join('') + '</div>' +
+    '<h3 class="q2">3 · ' + (pk.id === 'core' ? 'Materials and brands' : 'Core materials and brands') + ' — ' + TIERS[TI[ST.tier]].short + ' budget</h3><p class="fine c">Every brand sold in this range. Tap one to use it; the price updates in the quotation.</p><div class="bmat">' + budgetMaterials() + '</div>' +
+    (pk.id !== 'core' ? '<h3 class="q2">Added for ' + pk.n.toLowerCase() + '</h3><div class="bmat">' + budgetExtras() + '</div>' : '') +
+    '<h3 class="q2">4 · Labour charge</h3><div class="card lab"><div class="lab-top"><div><b>' + esc(lc.l) + '</b><span>' + rup(lc.r) + ' / sq ft × ' + area.toLocaleString('en-IN') + ' sq ft built-up</span></div><em>' + inr(lc.r * area) + '</em></div>' +
+    '<div class="rq-cats">' + lab.opts.map((x, i) => '<button class="rq-c' + (lc.ix === i ? ' on' : '') + '" data-a="pick" data-id="labour" data-v="' + i + '">' + esc(x.l) + '<i>' + rup(x.r) + '/sq ft</i></button>').join('') + '</div>' +
+    '<p class="hint">Contract rate for civil and finishing work: masonry, concrete, plaster, tiling, plumbing, wiring and painting. Daily wages in Cuttack–Bhubaneswar, 2026 (approx.):</p><div class="wages">' + WAGES.map(w => '<span>' + w[0] + '<b>' + w[1] + '</b></span>').join('') + '</div></div>' +
+    '<p class="fine">Our rate comes from the material list for your design. “Market” is the published range for Bhubaneswar–Cuttack (' + srcA('BB') + ', ' + srcA('ILC') + '). Wages are estimates; confirm with your contractor. Land and approval fees are not included.</p>';
+}
 SCR.budget = () => {
   if (isProj()) { const PL = projectLayout(); if (!PL.ok) return '<h2 class="q">Choose your budget range.</h2><p class="warn">' + esc(PL.why || 'The land is too small.') + ' Go back and change the details.</p>'; }
   if (ST.home.use === 'rent') { const R = rentalLayout(); if (!R.total) return '<h2 class="q">Choose your budget range.</h2><p class="warn">This land is too small for the unit size. Go back and choose a smaller unit.</p>'; }
   const ds = isProj() ? { D: { options: [1] } } : designNow(), o = ds.D.options[0];
   if (!o) return '<h2 class="q">Choose your budget range.</h2><p class="warn">This plot is too small for the rooms you asked for. Go back and reduce bedrooms or add a floor.</p>';
+  if (!isProj() && ST.home.use !== 'rent') return homeBudget(ds, o);
   return '<h2 class="q">Choose your budget range.</h2><p class="sub">Cost per sq ft for your ' + Math.round(isProj() ? projectLayout().built : ST.home.use === 'rent' ? rentalLayout().built : quantities(ds.D, o).covered).toLocaleString('en-IN') + ' sq ft ' + (isProj() ? (ST.home.use === 'apartment' ? 'apartment building' : 'commercial building') : ST.home.use === 'rent' ? 'of rental units' : 'home') + ' in ' + CITIES.find(c => c.id === ST.city).name + '. Layout and materials follow your choice.</p><div class="tiers">' +
     TIERS.map((T, i) => { const P = tierEstimate(T.id); const hi = { low: ['Fly-ash bricks, Fe500 steel, PPC cement', 'Vitrified 2×2 ft tiles', 'Parryware / Cera fittings', 'Aluminium windows'], mid: ['Red bricks, Fe500D steel, branded cement', 'GVT 2×4 ft tiles', 'Hindware / Jaquar mid-range', 'uPVC windows'], high: ['AAC blocks, primary Fe500D steel, OPC 53', 'Granite / Indian marble', 'Wall-hung WC, Jaquar premium', 'Modular kitchen, false ceiling'], ultra: ['Fe550D steel, M25–M30 concrete', 'Italian marble', 'Kohler / Grohe, rain showers', 'Smart home, designer interiors'] }[T.id];
       if (isVilla() && T.id !== 'ultra') return '<button class="tier off" disabled><div class="t-top"><b>' + T.name + '</b></div><p>A villa is designed in Ultra luxury only.</p></button>';
@@ -6253,6 +6534,7 @@ function canNext() {
   const c = cur();
   if (c === 'purpose') return !!ST.purpose;
   if (c === 'plot') return ST.plot.w >= 15 && ST.plot.d >= 20;
+  if (c === 'home' && !isProj() && ST.home.use !== 'rent') return reqCheck().ok;
   if (c === 'budget' && isProj()) return projectLayout().ok;
   if (c === 'budget') { const ds = designNow(); return ds.D.options.length > 0; }
   return true;
@@ -8422,10 +8704,10 @@ function zoomFull(svg) {
 }
 function render() {
   if (typeof dispose3D === 'function') dispose3D();
-  const c = cur(), F = flow(), wide = ['purpose', 'layout', 'structure', 'materials', 'quote', 'budget'].includes(c);
+  const c = cur(), F = flow(), wide = ['purpose', 'layout', 'structure', 'materials', 'quote', 'budget'].includes(c), homeW = c === 'home' && !isProj() && ST.home.use !== 'rent';
   $('#prog').style.width = (ST.step / (F.length - 1) * 100) + '%';
   $('#stepl').textContent = ST.step ? 'Step ' + ST.step + ' of ' + (F.length - 1) + ' · ' + STEP_TITLE[c] : '';
-  $('#main').className = (wide ? 'wide' : '') + (c === 'layout' && !isProj() && ST.home.use !== 'rent' ? ' studiom' : '');
+  $('#main').className = (wide ? 'wide' : '') + (homeW ? ' homew' : '') + (c === 'layout' && !isProj() && ST.home.use !== 'rent' ? ' studiom' : '');
   $('#main').innerHTML = SCR[c]();
   { const m = $('#main'); if (render._last !== c) { m.classList.remove('enter'); void m.offsetWidth; m.classList.add('enter'); render._last = c; } }
   const last = ST.step === F.length - 1;
@@ -8483,6 +8765,10 @@ const ACT = {
   view: el => { const ds = S.design, v = el.dataset.v; if (ds.walk && v !== '3d') ds.walk = false; ds.view = v; keepY(() => {}); if (v === '3d' && !ds.show3d) ACT.make3d(); },
   style: el => keepY(() => { ST.style = el.dataset.v; }),
   roof: el => keepY(() => { ST.home.roof = el.dataset.v; }),
+  rq: el => keepY(() => { const R = reqState(), q = RQ_BY[el.dataset.k], r = R[q.k]; r.n = Math.max(0, Math.min(q.max, r.n + +el.dataset.d)); if (['master', 'bed', 'guest'].includes(q.k) && rqBeds(R) > RQ_MAXBED) r.n -= rqBeds(R) - RQ_MAXBED; if (q.k === 'parking' && !r.c) r.c = '4w'; reqSync(); }),
+  rqc: el => keepY(() => { const R = reqState(); R[el.dataset.k][el.dataset.g] = el.dataset.v; reqSync(); }),
+  hfloors: el => keepY(() => { ST.home.floors = +el.dataset.v; const R = reqState(); if (ST.home.floors > 1 && !R.balcony.n && R._bal == null) { R.balcony.n = 1; R._bal = 1; } reqSync(); if (ST.home.view !== 'roof' && ST.home.view >= ST.home.floors) ST.home.view = 0; }),
+  hview: el => keepY(() => { ST.home.view = el.dataset.v === 'roof' ? 'roof' : +el.dataset.v; }),
   balc: el => keepY(() => { ST.balc = el.dataset.v; }),
   pk: el => keepY(() => { const p = ST.home.park; p.kind = el.dataset.v; if (p.loc === 'rear') p.gali = Math.max(p.gali, p.kind === '2w' ? 4 : 10); }),
   pkloc: el => keepY(() => { const p = ST.home.park; p.loc = el.dataset.v; if (p.loc === 'rear') p.gali = p.kind === '2w' ? 4 : 10; }),
@@ -8551,7 +8837,8 @@ const ACT = {
   v3: el => { S.design.v3 = el.dataset.v; document.querySelectorAll('[data-a="v3"]').forEach(b => b.classList.toggle('on', b === el)); mount3D(); },
   pick: el => keepY(() => { ST.pick[el.dataset.id] = +el.dataset.v; }),
   steelbrand: el => keepY(() => { const cur = itemChoice(ITEMS.find(i => i.steel)); ST.steel = { grade: cur.grade, brand: el.dataset.v }; }),
-  interiors: () => keepY(() => { ST.interiors = !useInteriors(); }),
+  interiors: () => keepY(() => { ST.pkg = useInteriors() ? 'core' : 'semi'; }),
+  pkg: el => keepY(() => { ST.pkg = el.dataset.v; }),
   pdf: async () => {
     const ds = S.design || (S.design = { v3: 'ext', show3d: false });
     try { if (!window.THREE) await loadThree(); } catch (e) {}
@@ -8597,8 +8884,8 @@ document.addEventListener('input', e => {
   const [a, k] = f.split('.');
   if (a === 'cust') { ST.cust[k] = t.value; const m = document.querySelector('.qmeta dd'); if (m) m.textContent = (ST.cust.name || '—') + (ST.cust.phone ? ' · ' + ST.cust.phone : ''); return; }
   const v = parseFloat(t.value);
-  if (a === 'sides') { if (v > 0) { ST.plot.sides = ST.plot.sides || {}; ST.plot.sides[k] = v; applySides(); S.design = null; ST.grid = null; const sk = document.getElementById('plotsk'); if (sk) sk.innerHTML = plotSketch(ST.plot.sides); } }
-  else if (k === 'area') { if (v > 0) { ST.plot.area = v; const w = Math.max(15, Math.round(Math.sqrt(v * 0.75))); ST.plot.w = w; ST.plot.d = Math.max(20, Math.round(v / w)); } }
+  if (a === 'sides') { if (v > 0) { ST.plot.sides = ST.plot.sides || {}; ST.plot.sides[k] = v; applySides(); S.design = null; ST.grid = null; const sk = document.getElementById('plotsk'); if (sk) sk.innerHTML = plotSketch(ST.plot.sides); const pa = document.getElementById('parea'); if (pa) pa.value = ST.plot.area; } }
+  else if (k === 'area') { if (v >= 300) { areaType(v); ST.plot.area = v; const sk = document.getElementById('plotsk'); if (sk) sk.innerHTML = plotSketch(ST.plot.sides); } }
   else if (v > 0 && a === 'plot') { ST.plot[k] = v; ST.plot.shape = null; }
   { const sbu = document.getElementById('sbui'); if (sbu && (a === 'sides' || a === 'plot')) sbu.outerHTML = setbackUI(); }
   const nb = document.querySelector('[data-a="next"]'); if (nb) nb.disabled = !canNext();
@@ -8961,8 +9248,8 @@ window.VOICE_ADAPTER = {
       return { say: vRuralReply(L, R, budget, o.bhk || 1), chips };
     }
     if (!ch.length) return { say: V_SAY[L].what };
-    if (o.w) { ST.plot.mode = 'wd'; ST.plot.w = Math.max(15, Math.min(200, o.w)); ST.plot.d = Math.max(20, Math.min(300, o.d)); VOICE.gotPlot = true; }
-    if (o.area) { ST.plot.mode = 'area'; ST.plot.area = Math.max(300, Math.min(50000, o.area)); const w = Math.max(15, Math.round(Math.sqrt(ST.plot.area * 0.75))); ST.plot.w = w; ST.plot.d = Math.max(20, Math.round(ST.plot.area / w)); VOICE.gotPlot = true; }
+    if (o.w) { ST.plot.w = Math.max(15, Math.min(200, o.w)); ST.plot.d = Math.max(20, Math.min(300, o.d)); rectPlot(); VOICE.gotPlot = true; }
+    if (o.area) { const a = Math.max(300, Math.min(50000, o.area)), w = Math.max(15, Math.round(Math.sqrt(a * 0.75))); ST.plot.w = w; ST.plot.d = Math.max(20, Math.round(a / w)); rectPlot(); VOICE.gotPlot = true; }
     if (o.facing) ST.plot.facing = o.facing;
     if (o.bhk) ST.home.bhk = o.bhk; if (o.floors) ST.home.floors = o.floors; if (o.bhk && isProj()) ST.home.use = 'family';
     if (o.park) Object.assign(ST.home.park, { loc: 'front' }, o.park);
