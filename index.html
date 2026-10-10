@@ -914,6 +914,7 @@ details.row>summary:hover{background:var(--soft)}
 .rowb .roofsw{margin:0 0 14px}
 html[data-theme="dark"] .facts>div,html[data-theme="dark"] .rows{background:#161E25;border-color:#26313B}
 @media (max-width:600px){.facts b{font-size:18px}.lh{margin-top:32px}details.row>summary{padding:15px 14px}.rowb{padding:2px 14px 18px}}
+.plan text.opl{font-size:.5px;fill:#5B6670;text-anchor:middle;font-weight:600}.plan text.win-l{fill:#2C6E91}
 </style>
 </head>
 <body>
@@ -4796,7 +4797,7 @@ function flatRooms(n, w, d, liv) {
   const c = Math.ceil(n / 2), bw2 = w / c, rh = Math.min(14, (d - 11) / 2), scB = n > 1 ? Math.min(bw2 - 5.5, rh) : 0;
   if (scA >= scB) {
     top(d - bdA - BA); const hd = d - bdA - BA;
-    for (let i = 0; i < n; i++) { const x = i * bw, nm = n > 1 ? ' ' + (i + 1) : '', bwid = Math.min(bw, 8); out.push(['Bedroom' + nm, x, hd, bw, bdA], ['Bath' + nm, x, hd + bdA, bw - bwid >= 2.5 ? bwid : bw, BA]); if (bw - bwid >= 2.5) out.push(['Wardrobe' + nm, x + bwid, hd + bdA, bw - bwid, BA]); }
+    for (let i = 0; i < n; i++) { const x = i * bw, nm = n > 1 ? ' ' + (i + 1) : '', bwid = Math.min(bw, 8); out.push(['Bedroom' + nm, x, hd, bw, bdA], ['Bath' + nm, x, hd + bdA, bw - bwid >= 2.5 ? bwid : bw, BA]); if (bw - bwid >= 2.5) out.push([(bw - bwid >= 4 ? 'Balcony' : 'Wardrobe') + nm, x + bwid, hd + bdA, bw - bwid, BA]); }
   } else {
     const hd = d - 2 * rh; top(hd);
     for (let i = 0; i < 2 * c; i++) { const x = (i % c) * bw2, y = hd + Math.floor(i / c) * rh, nm = ' ' + (i + 1); if (i >= n) { out.push(['Store', x, y, bw2, rh]); continue; } const bh = Math.min(8, rh); out.push(['Bedroom' + nm, x, y, bw2 - 5.5, rh], ['Bath' + nm, x + bw2 - 5.5, y, 5.5, bh]); if (rh - bh >= 2.5) out.push(['Wardrobe' + nm, x + bw2 - 5.5, y + bh, 5.5, rh - bh]); }
@@ -4816,12 +4817,57 @@ function rentRoomsAbs(u) {
 }
 function rentState() { const s = ST.rent || (ST.rent = { types: ['b1'], rent: '', rents: {}, park: 'auto', garden: 'none' }); if (!s.types) { s.types = ['b1']; s.rents = {}; s.park = 'auto'; s.garden = 'none'; } return s; }
 const RENT_PARK = { auto: ['Cars + bikes', 'A car space for every 2 or 3 BHK, a bike space for every unit'], bikes: ['Bikes only', 'A bike space for every unit'], none: ['No parking', 'All land for units'] };
+/* ---------- parking in front of a rental / apartment building ----------
+   Car bays 9 × 18 ft nose-in toward the building, a drive aisle in front of them to back out, bike stalls 2′6″ × 6′,
+   and a 4 ft entry path from a walk-in gate to the building door that nothing is ever parked on. */
+const GATE_T = { sliding: ['Sliding MS gate', 'Slides along the wall — needs a clear run beside it', 70000], swing: ['Swing gate, two leaves', 'Opens inward — keep the swing clear of the bays', 45000], tele: ['Telescopic sliding gate', 'Two leaves slide behind each other: half the side run', 95000], auto: ['Automatic sliding gate', 'Motorised, with remote and safety sensors', 150000], fold: ['Folding (accordion) gate', 'Folds to one side; good for narrow fronts', 60000] };
+const PK = { carW: 9, carD: 18, aisle: 12, bikeW: 2.6, bikeD: 6, bAisle: 6, walk: 4 };
+// direct: no aisle inside — vehicles back out through wide gates onto the road (the road is the free space)
+function parkLot(W, D, PD, walkX, carsNeed, bikesNeed, cars, direct) {
+  const y0 = D - PD, x0 = 2, x1 = W - 2, bayD = cars ? PK.carD : PK.bikeD, aisle = direct ? 0 : cars ? PK.aisle : PK.bAisle;
+  const wx0 = Math.max(x0, Math.min(x1 - PK.walk, walkX - PK.walk / 2)), wx1 = wx0 + PK.walk;
+  const segs = [[x0, wx0 - 0.5], [wx1 + 0.5, x1]].filter(([a, b]) => b - a >= PK.bikeW);
+  const carBays = [], bikeBays = []; let cn = 0, bn = 0;
+  segs.forEach(([a, b]) => { let x = a; if (cars) while (x + PK.carW <= b + 0.01 && cn < carsNeed) { carBays.push({ x, y: y0 + 0.3, w: PK.carW, h: PK.carD }); x += PK.carW; cn++; }
+    while (x + PK.bikeW <= b + 0.01 && bn < bikesNeed) { bikeBays.push({ x, y: y0 + 0.3, w: PK.bikeW, h: PK.bikeD }); x += PK.bikeW; bn++; } });
+  const big = segs.slice().sort((p, q) => (q[1] - q[0]) - (p[1] - p[0]))[0] || [x0, x1], gw = Math.min(cars ? 14 : 8, big[1] - big[0]), gx = Math.max(big[0], Math.min(big[1] - gw, (big[0] + big[1]) / 2 - gw / 2));
+  // backing out to the road: a wide gate in front of every run of bays
+  const gates = direct ? segs.map(([a, b]) => ({ kind: 'car', x0: a, x1: b })).filter(g => g.x1 - g.x0 >= 4) : [{ kind: 'car', x0: gx, x1: gx + gw }];
+  return { x: x0, y: y0, w: x1 - x0, h: PD - 0.5, cars: carBays.length, bikes: bikeBays.length, carBays, bikeBays, direct: !!direct, aisle: direct ? null : { x: x0, y: y0 + 0.3 + bayD, w: x1 - x0, h: aisle - 0.8, d: aisle },
+    walk: { x: wx0, y: y0, w: PK.walk, h: PD }, gates: gates.concat([{ kind: 'walk', x0: wx0, x1: wx1 }]) };
+}
+function parkLotSvg(P, LB, mini, gate) {
+  let h = '<rect x="' + P.x + '" y="' + P.y + '" width="' + P.w + '" height="' + P.h + '" fill="#E1DDD4" stroke="#8A949C" stroke-width="0.2"/>';
+  // the aisle: the free space to drive or wheel out
+  if (P.aisle) h += '<rect x="' + P.aisle.x + '" y="' + P.aisle.y + '" width="' + P.aisle.w + '" height="' + P.aisle.h + '" fill="#ECEAE4"/>';
+  P.carBays.forEach(c => { h += '<rect x="' + c.x + '" y="' + c.y + '" width="' + c.w + '" height="' + c.h + '" fill="none" stroke="#8A949C" stroke-width="0.2"/><rect x="' + (c.x + 1.5) + '" y="' + (c.y + 1.6) + '" width="6" height="14" rx="1" fill="#CFD6DC"/>'; });
+  P.bikeBays.forEach(c => { h += '<rect x="' + c.x + '" y="' + c.y + '" width="' + c.w + '" height="' + c.h + '" fill="none" stroke="#A9B0B6" stroke-width="0.12"/><rect x="' + (c.x + 0.7) + '" y="' + (c.y + 0.7) + '" width="1.2" height="4.6" rx="0.5" fill="#9AA3AA"/>'; });
+  // entry path, kept clear
+  h += '<rect x="' + P.walk.x + '" y="' + P.walk.y + '" width="' + P.walk.w + '" height="' + P.walk.h + '" fill="#F4EBD8" stroke="#C9963C" stroke-width="0.2" stroke-dasharray="0.8 0.5"/>';
+  // gates on the road line
+  P.gates.forEach(g => { h += '<rect x="' + g.x0 + '" y="' + (P.y + P.h - 0.1) + '" width="' + (g.x1 - g.x0) + '" height="1.1" fill="' + (g.kind === 'car' ? '#24323D' : '#C9963C') + '"/>'; });
+  if (!mini && LB) {
+    const g0 = P.gates[0], gw = P.gates[P.gates.length - 1];
+    if (P.carBays[0]) { const c = P.carBays[0]; LB.push({ x: c.x + c.w / 2, y: c.y + c.h / 2, lines: [['Car', 'rl', 1], [ftIn(c.w) + ' × ' + ftIn(c.h), 'rd', 0.8]], fs: 1.5, minFs: 0.8, pri: 7, area: c }); }
+    if (P.bikeBays[0]) { const c = P.bikeBays[0]; LB.push({ x: c.x + c.w / 2, y: c.y + c.h + 1, lines: [['Bike ' + ftIn(c.w) + ' × ' + ftIn(c.h), 'rd', 1]], fs: 1.1, minFs: 0.7, pri: 6, drop: true, area: { x: c.x - 2, y: c.y + c.h, w: 8, h: 2 } }); }
+    if (!P.aisle) LB.push({ x: P.x + P.w * 0.62, y: P.y + P.h + 5.6, lines: [['Vehicles back out through the gates onto the road — keep the road edge clear', 'rd', 1]], fs: 1.1, minFs: 0.7, pri: 6, drop: true });
+    else LB.push({ x: P.aisle.x + P.aisle.w * 0.62, y: P.aisle.y + P.aisle.h / 2, lines: [['Drive aisle ' + ftIn(P.aisle.d) + ' — kept free to take the car / bike out', 'rd', 1]], fs: 1.4, minFs: 0.8, pri: 7, area: P.aisle });
+    LB.push({ x: P.walk.x + P.walk.w / 2, y: P.walk.y + P.walk.h / 2, lines: [['Entry ' + ftIn(P.walk.w), 'rd', 1], ['keep clear', 'rd', 0.9]], fs: 1.1, minFs: 0.6, pri: 8, area: P.walk });
+    LB.push({ x: (g0.x0 + g0.x1) / 2, y: P.y + P.h + 2.4, lines: [[(GATE_T[gate] || GATE_T.sliding)[0] + ' ' + ftIn(g0.x1 - g0.x0), 'gt', 1]], fs: 1.5, minFs: 0.9, pri: 9, drop: true });
+    LB.push({ x: (gw.x0 + gw.x1) / 2, y: P.y + P.h + 4, lines: [['Walk-in gate ' + ftIn(gw.x1 - gw.x0), 'gt', 1]], fs: 1.3, minFs: 0.8, pri: 9, drop: true });
+  }
+  return h;
+}
 function rentalLayout(opt) {
   opt = opt || {};
   const rs = rentState(), W = ST.plot.w, Dp = ST.plot.d, fl = opt.fl || ST.home.floors, types = (opt.types || rs.types).filter(k => RENT_T[k]).sort((a, z) => RENT_ORDER.indexOf(a) - RENT_ORDER.indexOf(z));
   const park = opt.park || rs.park || 'auto', gKey = opt.garden || rs.garden || 'none';
   const wantCars = park === 'auto' && types.some(k => k === 'b2' || k === 'b3') && Dp >= 70;
-  const PD = park === 'none' ? 0 : (wantCars ? 18 : 0) + 6;
+  const drive = opt.drive || rs.drive || 'auto';
+  // "choose for my plot": the aisle inside unless it costs units — then vehicles back out to the road
+  if (drive === 'auto' && park !== 'none') { const a = rentalLayout(Object.assign({}, opt, { drive: 'inside' })), r = rentalLayout(Object.assign({}, opt, { drive: 'road' })); return a.total >= r.total ? a : r; }
+  const direct = drive === 'road';
+  const PD = park === 'none' ? 0 : (wantCars ? PK.carD : PK.bikeD) + (direct ? 0 : wantCars ? PK.aisle : PK.bAisle) + 0.5;
   let gd = GARDEN[gKey] ? Math.floor(GARDEN[gKey][0] * W * Dp / Math.max(1, W - 4)) : 0;
   const empty = { W, D: Dp, fl, units: [], rows: [], lanes: [], stairs: [], perFloor: 0, total: 0, built: 0, count: {}, types, PD, layout: 'none', n: 0, spine: null, passage: null, lastY: 0 };
   if (!types.length) return empty;
@@ -4840,7 +4886,10 @@ function rentalLayout(opt) {
     const deep = rows.length > 1, x0 = 3 + (deep ? SP : 0), xEnd = W - 3, units = [];
     const wStd = (k, d) => types.length === 1 || typed ? RENT_T[k].w : Math.max(RENT_T[k].minW, Math.round(RENT_T[k].w * RENT_T[k].d / d));
     const wMin = (k, d) => Math.max(RENT_T[k].minW, Math.ceil(RENT_T[k].minArea / d));
-    rows.forEach(r => { const ks = r.k ? [r.k] : types; let x = x0 + STW, i = 0, guard = 0; while (guard++ < 400) { let pick = null; for (let j = 0; j < ks.length && !pick; j++) { const kk = ks[(i + j) % ks.length]; if (r.d < RENT_T[kk].minD) continue; const ws = wStd(kk, r.d), wm = wMin(kk, r.d), room = xEnd - x; if (ws <= room + 0.01) pick = [kk, ws, j]; else if (wm <= room + 0.01 && units.filter(u => u.y === r.y0).length === 0) pick = [kk, wm, j]; } if (!pick) break; i = (i + pick[2] + 1) % ks.length; units.push({ k: pick[0], x, y: r.y0, w: pick[1], d: r.d, door: r.face === 'front' ? 'bottom' : 'top' }); x += pick[1]; } r.x1 = x; });
+    rows.forEach(r => { const ks = r.k ? [r.k] : types; let x = x0 + STW, i = 0, guard = 0; while (guard++ < 400) { let pick = null; for (let j = 0; j < ks.length && !pick; j++) { const kk = ks[(i + j) % ks.length]; if (r.d < RENT_T[kk].minD) continue; const ws = wStd(kk, r.d), wm = wMin(kk, r.d), room = xEnd - x; if (ws <= room + 0.01) pick = [kk, ws, j]; else if (wm <= room + 0.01 && units.filter(u => u.y === r.y0).length === 0) pick = [kk, wm, j]; } if (!pick) break; i = (i + pick[2] + 1) % ks.length; units.push({ k: pick[0], x, y: r.y0, w: pick[1], d: r.d, door: r.face === 'front' ? 'bottom' : 'top' }); x += pick[1]; }
+      // the row's units widen (up to 1.5 × their usual size) so the row runs to the side wall
+      const mine = units.filter(u => u.y === r.y0 && u.x >= x0 + STW - 0.01), spare = xEnd - x; if (mine.length && spare > 0.5) { let xx = x0 + STW; mine.forEach(u => { const cap = RENT_T[u.k].w * RENT_T[u.k].d * 1.5 / u.d - u.w; u.w = Math.round((u.w + Math.max(0, Math.min(cap, spare / mine.length))) * 10) / 10; u.x = xx; xx += u.w; }); x = xx; }
+      r.x1 = x; });
     const used = rows.filter(r => r.x1 > x0 + STW);
     const stairs = fl > 1 ? used.map(r => ({ x: x0, y: r.y0, w: STW, h: r.d })) : [];
     return { layout: 'rows', rows: used, lanes: lanes.filter(l => l.y >= 0 && (l.front || used.some(r => Math.abs(r.y0 - l.y - l.h) < 0.5 || Math.abs(r.y0 + r.d - l.y) < 0.5))), units, stairs, spine: deep && used.length > 1 ? { x: 3, w: SP, y0: Math.min(...used.map(r => r.y0)), y1: Dp - PD } : null, passage: null, lastY: used.length ? Math.min(...used.map(r => r.y0)) : Dp - PD, frame: { L: Math.min(60, (used[0] ? used[0].x1 : x0) - x0), W: used[0] ? used[0].d : 20 } };
@@ -4852,7 +4901,10 @@ function rentalLayout(opt) {
     if (Wu < 12) return null;
     const depthOf = (k, room) => { const T = RENT_T[k]; if (Wu < T.minD) return null; const std = Math.max(T.minW, T.w * T.d / Wu), mn = Math.max(T.minW, T.minArea / Wu); return std <= room + 0.01 ? std : mn <= room + 0.01 ? mn : null; };
     const units = []; let minY = front;
-    cols.forEach((c, ci) => { let y = front - (ci === 0 || !two ? stairD : 0), i = ci, guard = 0; while (guard++ < 60) { let pick = null; for (let j = 0; j < types.length && !pick; j++) { const kk = types[(i + j) % types.length], dd = depthOf(kk, y - back); if (dd) pick = [kk, Math.round(dd * 10) / 10, j]; } if (!pick) break; i = (i + pick[2] + 1) % types.length; units.push({ k: pick[0], x: c.x, y: y - pick[1], w: Wu, d: pick[1], door: c.door === 'right' ? 'right' : 'left' }); y -= pick[1]; } minY = Math.min(minY, y); });
+    cols.forEach((c, ci) => { let y = front - (ci === 0 || !two ? stairD : 0), i = ci, guard = 0; while (guard++ < 60) { let pick = null; for (let j = 0; j < types.length && !pick; j++) { const kk = types[(i + j) % types.length], dd = depthOf(kk, y - back); if (dd) pick = [kk, Math.round(dd * 10) / 10, j]; } if (!pick) break; i = (i + pick[2] + 1) % types.length; units.push({ k: pick[0], x: c.x, y: y - pick[1], w: Wu, d: pick[1], door: c.door === 'right' ? 'right' : 'left', col: ci }); y -= pick[1]; }
+      // no land wasted at the back: the units of this column grow (up to 1.5 × their usual size) to fill what is left
+      const mine = units.filter(u => u.col === ci); if (mine.length && y - back > 0.5) { let left = y - back, yy = front - (ci === 0 || !two ? stairD : 0); mine.forEach(u => { const cap = RENT_T[u.k].w * RENT_T[u.k].d * 1.5 / Wu - u.d, add = Math.max(0, Math.min(cap, left / mine.length * 1.0001)); u.d = Math.round((u.d + add) * 10) / 10; u.y = yy - u.d; yy -= u.d; }); y = yy; }
+      minY = Math.min(minY, y); });
     const px = two ? 2 + Wu : 2;
     const stairs = stairD ? [{ x: two ? 2 : 2 + P, y: front - stairD, w: Math.min(10, Wu), h: stairD }] : [];
     return { layout: 'side', rows: [], lanes: [], units, stairs, spine: null, passage: { x: px, y: minY, w: P, h: front - minY }, lastY: minY, frame: { L: Wu, W: Math.max(6, front - stairD - minY) } };
@@ -4865,8 +4917,10 @@ function rentalLayout(opt) {
   const galleryLen = L.layout === 'rows' ? L.rows.reduce((a, r) => a + (r.x1 - (L.stairs[0] ? L.stairs[0].x + L.stairs[0].w : r.x1)), 0) : (L.passage ? L.passage.h : 0);
   const built = (area(L) + L.stairs.reduce((a, s) => a + s.w * s.h, 0)) * fl + (fl > 1 ? galleryLen * 4 * (fl - 1) : 0);
   // parking strip by the road
-  const pk = PD ? { x: 2, y: Dp - PD, w: W - 4, h: PD - 0.5, cars: wantCars ? Math.max(0, Math.floor((W - 16) / 9)) : 0, bikes: Math.max(0, Math.floor((W - 6) / 2.6)) } : null;
   const carsNeed = park === 'auto' ? ((count.b2 || 0) + (count.b3 || 0)) * fl : 0, bikesNeed = park === 'none' ? 0 : total;
+  // the entry path lines up with the passage / spine / front lane the people walk in by
+  const walkX = L.passage ? L.passage.x + L.passage.w / 2 : L.spine ? L.spine.x + L.spine.w / 2 : W / 2;
+  const pk = PD ? parkLot(W, Dp, PD, walkX, carsNeed, bikesNeed, wantCars, direct) : null;
   const garden = gd >= 5 ? { x: 2, y: 2, w: W - 4, h: Math.min(gd, Math.max(0, L.lastY - 4)) } : null;
   const warn = [];
   if (park === 'auto' && types.some(k => k === 'b2' || k === 'b3') && Dp < 70) warn.push('Land under 70 ft deep has no room for car parking in front — bikes only.');
@@ -4889,7 +4943,7 @@ function rentalCost(tid) {
   // the typical home's material list scaled to the rental built-up; its garden items are left out
   const lines = r.P.lines.filter(x => x.it.g !== 'Outside & site' || ['cwall', 'gate', 'sump', 'septic'].includes(x.it.id)).map(x => Object.assign({}, x, { units: /nos|set/.test(x.buyUnit) ? Math.ceil(x.units * f) : x.units * f, amount: x.amount * f }));
   const extra = (n, spec, units, buyUnit, rate) => lines.push({ it: { n, g: 'Outside & site' }, spec, src: 'EST', units, buyUnit, rate, amount: units * rate });
-  if (R.park) extra('Parking paving and markings', 'Paver blocks on a compacted base', R.park.w * R.park.h, 'sq ft', 140);
+  if (R.park) { extra('Parking paving and markings', 'Paver blocks on a compacted base, bay and aisle markings', R.park.w * R.park.h, 'sq ft', 140); const G = GATE_T[rentState().gate] || GATE_T.sliding; extra('Vehicle gate', G[0], 1, 'nos', G[2]); extra('Walk-in gate', 'MS wicket gate, 4 ft', 1, 'nos', 15000); }
   if (R.garden) extra('Garden', 'Lawn, trees, path and drip lines', R.garden.w * R.garden.h, 'sq ft', [160, 220, 320, 500][TI[tid || ST.tier] ?? 1]);
   const sub = lines.reduce((a, x) => a + x.amount, 0), total = sub * 1.05;
   return { R, lines, sub, total, perUnit: R.total ? total / R.total : 0, rate: R.built ? total / R.built : 0, ref: r };
@@ -4909,32 +4963,79 @@ function rentalPlanSvg(R, f, mini) {
   if (R.spine) { h += '<rect x="' + R.spine.x + '" y="' + R.spine.y0 + '" width="' + R.spine.w + '" height="' + (R.spine.y1 - R.spine.y0) + '" fill="#D9D5CC"/>'; if (!mini) LB.push({ x: R.spine.x + R.spine.w / 2, y: (R.spine.y0 + R.spine.y1) / 2, lines: [['Drive 10 ft', 'rd', 1]], fs: 1.3, minFs: 0.9, pri: 4, drop: true, area: { x: R.spine.x, y: R.spine.y0, w: R.spine.w, h: R.spine.y1 - R.spine.y0 } }); }
   if (R.passage) { const p = R.passage; h += '<rect x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + (R.D - R.PD - p.y) + '" fill="' + (f > 0 ? '#DCD6CB' : '#E4E1DA') + '"/>'; if (!mini) LB.push({ x: p.x + p.w / 2, y: p.y + (R.D - R.PD - p.y) / 2, lines: [[f > 0 ? 'Gallery 4 ft' : 'Passage ' + ftIn(p.w), 'rd', 1]], fs: 1.1, minFs: 0.7, pri: 4, drop: true, area: { x: p.x, y: p.y, w: p.w, h: R.D - R.PD - p.y } }); }
   // parking on the ground floor; open to sky above
-  if (R.park) { const P = R.park; if (f === 0) { h += '<rect x="' + P.x + '" y="' + P.y + '" width="' + P.w + '" height="' + P.h + '" fill="#E1DDD4" stroke="#8A949C" stroke-width="0.2"/>'; let x = P.x + 12; for (let i = 0; i < P.cars; i++, x += 9) h += '<rect x="' + x + '" y="' + (P.y + 0.6) + '" width="9" height="17" fill="none" stroke="#8A949C" stroke-width="0.2"/><rect x="' + (x + 1.5) + '" y="' + (P.y + 2) + '" width="6" height="14" rx="1" fill="#CFD6DC"/>'; const by = P.y + (P.cars ? 18 : 0) + 0.5; for (let i = 0, bx = P.x + 2; i < P.bikes; i++, bx += 2.6) h += '<rect x="' + bx + '" y="' + by + '" width="1.2" height="4.6" rx="0.5" fill="#9AA3AA"/>'; if (!mini) LB.push({ x: P.x + 6, y: P.y + (P.cars ? 9 : P.h / 2), lines: [['Parking', 'rl', 1], [(P.cars ? P.cars + ' cars · ' : '') + P.bikes + ' bikes', 'rd', 0.8]], fs: 1.4, minFs: 0.8, pri: 8, drop: true, area: { x: P.x, y: P.y, w: Math.min(14, P.w), h: P.h } }); }
+  if (R.park) { const P = R.park; if (f === 0) h += parkLotSvg(P, mini ? null : LB, mini, rentState().gate);
     else if (!mini) LB.push({ x: R.W / 2, y: P.y + P.h / 2, lines: [['Open to sky (parking below)', 'rd', 1]], fs: 1.3, minFs: 0.8, pri: 3, drop: true }); }
   R.stairs.forEach(s => { h += '<rect x="' + s.x + '" y="' + s.y + '" width="' + s.w + '" height="' + s.h + '" fill="#E6E2DA" stroke="#24323D" stroke-width="0.3"/>'; for (let y = s.y + 1; y < s.y + s.h - 0.5; y += 1) h += '<line x1="' + s.x + '" y1="' + y + '" x2="' + (s.x + s.w) + '" y2="' + y + '" stroke="#8A949C" stroke-width="0.1"/>'; if (!mini) LB.push({ x: s.x + s.w / 2, y: s.y + s.h / 2, lines: [['Stair', 'rd', 1]], fs: 1, minFs: 0.6, pri: 5, drop: true, area: { x: s.x, y: s.y, w: s.w, h: s.h } }); });
   // galleries on upper floors (rows layout)
   if (f > 0 && R.layout === 'rows') R.rows.forEach(r => { const x0 = R.stairs[0] ? R.stairs[0].x + R.stairs[0].w : R.units[0].x, gy = r.face === 'front' ? r.y0 + r.d : r.y0 - 4; h += '<rect x="' + x0 + '" y="' + gy + '" width="' + (r.x1 - x0) + '" height="4" fill="#DCD6CB" stroke="#8A949C" stroke-width="0.15"/>'; });
   R.units.forEach(u => {
     h += '<rect x="' + u.x + '" y="' + u.y + '" width="' + u.w + '" height="' + u.d + '" fill="' + RENT_FILL[u.k] + '" stroke="#24323D" stroke-width="' + (mini ? 0.25 : 0.35) + '"/>';
-    rentRoomsAbs(u).forEach(([n, x, y, w, hh]) => { h += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="' + (/Bath/.test(n) ? '#E3ECEF' : /Kitchen/.test(n) ? '#F6EBDD' : 'none') + '" stroke="#5B6670" stroke-width="0.12"/>'; });
+    rentRoomsAbs(u).forEach(([n, x, y, w, hh]) => { h += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="' + (/Balcony/.test(n) ? '#E3F0DF' : /Bath/.test(n) ? '#E3ECEF' : /Kitchen/.test(n) ? '#F6EBDD' : 'none') + '" stroke="#5B6670" stroke-width="0.12"/>'; });
     const dx = u.door === 'right' ? u.x + u.w : u.x, dd = u.door === 'left' || u.door === 'right' ? '<line x1="' + dx + '" y1="' + (u.y + 1.5) + '" x2="' + dx + '" y2="' + (u.y + 4.5) + '" stroke="#fff" stroke-width="0.7"/>' : '<line x1="' + (u.x + 1.5) + '" y1="' + (u.door === 'bottom' ? u.y + u.d : u.y) + '" x2="' + (u.x + 4.5) + '" y2="' + (u.door === 'bottom' ? u.y + u.d : u.y) + '" stroke="#fff" stroke-width="0.7"/>';
     h += dd;
+    if (!mini) h += unitOpeningsSvg(unitOpenings(rentRoomsAbs(u), { x: u.x, y: u.y, w: u.w, d: u.d }, u.door), false);
     if (!mini) LB.push({ x: u.x + u.w / 2, y: u.y + u.d / 2, lines: [[rentNo(f, u.id), 'rl', 1], [RENT_T[u.k].name + ' · ' + u.area + ' sq ft', 'rd', 0.8]], fs: Math.min(1.8, u.w / 7), minFs: 0.7, pri: 7, drop: true, area: { x: u.x + 0.5, y: u.y + 0.5, w: u.w - 1, h: u.d - 1 } });
   });
-  if (!mini) { h += '<rect x="' + (R.W / 2 - 5) + '" y="' + (R.D - 0.6) + '" width="10" height="1.2" fill="#24323D"/>'; LB.push({ x: R.W / 2, y: R.D + 1.4, lines: [['Main gate', 'gt', 1]], fs: 1.3, minFs: 1, pri: 9 }); }
+  if (!mini && !R.park) { h += '<rect x="' + (R.W / 2 - 5) + '" y="' + (R.D - 0.6) + '" width="10" height="1.2" fill="#24323D"/>'; LB.push({ x: R.W / 2, y: R.D + 1.4, lines: [['Main gate', 'gt', 1]], fs: 1.3, minFs: 1, pri: 9 }); }
   if (!mini) h += placeLabels(LB, OB, { x: -m + 0.5, y: -m, w: W - 1, h: H });
   if (!mini) h += '<g class="dim"><line x1="0" y1="-3" x2="' + R.W + '" y2="-3"/><text x="' + (R.W / 2) + '" y="-3.8" style="font-size:2.2px">' + ftIn(R.W) + ' land</text><line x1="-3" y1="0" x2="-3" y2="' + R.D + '"/><text x="-3.8" y="' + (R.D / 2) + '" style="font-size:2.2px" transform="rotate(-90 -3.8 ' + (R.D / 2) + ')">' + ftIn(R.D) + '</text></g>';
   return h + '</svg>';
+}
+// doors and windows inside a flat. rooms: [name, x, y, w, h] in plan coordinates; U: the flat's outline; entry: the wall the main door is on.
+// Bedrooms open off the hall; a bath opens off its own bedroom (never the hall); kitchen, dining and store off the hall.
+function unitOpenings(rooms, U, entry) {
+  const R = rooms.map(([n, x, y, w, h]) => ({ n, x, y, w, h })), e = 0.06, doors = [], wins = [];
+  const shared = (a, b) => { // the wall two rooms share: {seg, sideOf(b)}
+    const ox0 = Math.max(a.x, b.x), ox1 = Math.min(a.x + a.w, b.x + b.w), oy0 = Math.max(a.y, b.y), oy1 = Math.min(a.y + a.h, b.y + b.h);
+    if (Math.abs(a.y + a.h - b.y) < e && ox1 - ox0 > 0) return { len: ox1 - ox0, horiz: true, at: b.y, a0: ox0, a1: ox1, side: 'top' };
+    if (Math.abs(b.y + b.h - a.y) < e && ox1 - ox0 > 0) return { len: ox1 - ox0, horiz: true, at: a.y, a0: ox0, a1: ox1, side: 'bottom' };
+    if (Math.abs(a.x + a.w - b.x) < e && oy1 - oy0 > 0) return { len: oy1 - oy0, horiz: false, at: b.x, a0: oy0, a1: oy1, side: 'left' };
+    if (Math.abs(b.x + b.w - a.x) < e && oy1 - oy0 > 0) return { len: oy1 - oy0, horiz: false, at: a.x, a0: oy0, a1: oy1, side: 'right' };
+    return null; };
+  const onEntry = r => entry === 'bottom' ? Math.abs(r.y + r.h - U.y - U.d) < e : entry === 'top' ? Math.abs(r.y - U.y) < e : entry === 'left' ? Math.abs(r.x - U.x) < e : Math.abs(r.x + r.w - U.x - U.w) < e;
+  const hall = R.find(r => /Hall|Living|^Room/.test(r.n) && onEntry(r)) || R.find(r => onEntry(r)) || R[0];
+  const sfx = n => (n.match(/ (\d+)$/) || [])[1] || '';
+  const link = (r, hosts, wd, code) => { for (const H of hosts) { if (!H || H === r) continue; const sh = shared(H, r); if (!sh || sh.len < wd + 0.4) continue; const c = sh.a0 + Math.min(sh.len - wd - 0.3, 0.4) , seg = sh.horiz ? [c, sh.at, c + wd, sh.at] : [sh.at, c, sh.at, c + wd]; doors.push({ seg, side: sh.side, code, w: wd, room: r.n, from: H.n }); return H; } return null; };
+  R.forEach(r => {
+    if (r === hall || /Wardrobe/.test(r.n)) return;
+    const others = R.filter(x => x !== r && !/Bath|Wardrobe|Balcony/.test(x.n));
+    if (/Balcony/.test(r.n)) { const bed = R.find(x => /Bedroom/.test(x.n) && sfx(x.n) === sfx(r.n)); link(r, [bed].concat(R.filter(x => /Bedroom|Hall|Living/.test(x.n))), Math.min(3, Math.max(2.4, r.w - 1, r.h - 1)), 'FD'); return; }
+    if (/Bath/.test(r.n)) { const bed = R.find(x => /Bedroom|^Room/.test(x.n) && sfx(x.n) === sfx(r.n)); link(r, [bed].concat(R.filter(x => /Bedroom|^Room/.test(x.n)), [hall]), 2.5, 'BD'); return; }
+    if (/Bedroom/.test(r.n)) { link(r, [hall].concat(others.filter(x => /Dining|Utility|Passage|Lobby/.test(x.n)), others.filter(x => /Bedroom/.test(x.n))), 3, 'D'); return; }
+    link(r, [hall].concat(others.filter(x => /Dining|Utility|Kitchen/.test(x.n)), others), /Kitchen/.test(r.n) ? 3 : 2.6, /Kitchen|Dining/.test(r.n) && /Hall|Living/.test(hall.n) ? 'Arch' : 'D');
+  });
+  // main door on the entry wall of the hall
+  { const r = hall, horiz = entry === 'bottom' || entry === 'top', L = horiz ? r.w : r.h, wd = 3.5, a = Math.min(1, Math.max(0.3, L - wd - 0.3)), at = entry === 'bottom' ? r.y + r.h : entry === 'top' ? r.y : entry === 'left' ? r.x : r.x + r.w;
+    doors.push({ seg: horiz ? [r.x + a, at, r.x + a + wd, at] : [at, r.y + a, at, r.y + a + wd], side: entry, code: 'MD', w: wd, room: r.n, from: 'outside' }); }
+  // windows on the wall opposite the entry (open to light: the back gap, side margin or boundary), ventilators for baths
+  const back = { bottom: 'top', top: 'bottom', left: 'right', right: 'left' }[entry];
+  // a window by the main door for the hall and the kitchen when they are on the entry wall
+  R.forEach(r => { if (!/Hall|Living|^Room|Kitchen/.test(r.n) || !onEntry(r)) return; const horiz = entry === 'bottom' || entry === 'top', L = horiz ? r.w : r.h, ww = 4, a = r === hall ? Math.max(5, L - ww - 1) : (L - ww) / 2; if (a + ww > L - 0.5 || L < 7) return;
+    const at = entry === 'bottom' ? r.y + r.h : entry === 'top' ? r.y : entry === 'left' ? r.x : r.x + r.w; wins.push({ seg: horiz ? [r.x + a, at, r.x + a + ww, at] : [at, r.y + a, at, r.y + a + ww], side: entry, code: 'W', w: ww, h: WIN_TOP - SILL }); });
+  R.forEach(r => { if (/Wardrobe|Store|Balcony/.test(r.n)) return;
+    const onB = back === 'top' ? Math.abs(r.y - U.y) < e : back === 'bottom' ? Math.abs(r.y + r.h - U.y - U.d) < e : back === 'left' ? Math.abs(r.x - U.x) < e : Math.abs(r.x + r.w - U.x - U.w) < e;
+    if (!onB) return; const horiz = back === 'top' || back === 'bottom', L = horiz ? r.w : r.h, bath = /Bath/.test(r.n), ww = bath ? Math.min(2, L - 1) : Math.min(r.n.match(/Hall|Living/) ? 5 : 4, L - 2); if (ww < 1.5) return;
+    const a = (L - ww) / 2, at = back === 'top' ? r.y : back === 'bottom' ? r.y + r.h : back === 'left' ? r.x : r.x + r.w;
+    wins.push({ seg: horiz ? [r.x + a, at, r.x + a + ww, at] : [at, r.y + a, at, r.y + a + ww], side: back, code: bath ? 'V' : 'W', w: ww, h: bath ? 1.5 : WIN_TOP - SILL }); });
+  return { doors, wins };
+}
+function unitOpeningsSvg(O, labels) {
+  let h = '';
+  O.doors.forEach(d => { h += d.code === 'Arch' ? '<line x1="' + d.seg[0] + '" y1="' + d.seg[1] + '" x2="' + d.seg[2] + '" y2="' + d.seg[3] + '" class="gap"/>' : svgDoor(d.seg, d.side, true); });
+  O.wins.forEach(w => { const [x1, y1, x2, y2] = w.seg; h += '<g class="win"><line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" class="gapw"/><line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/></g>'; });
+  if (labels) O.doors.concat(O.wins).forEach(o => { const [x1, y1, x2, y2] = o.seg, vert = Math.abs(x1 - x2) < 0.01, sv = SWING_DIR[o.side] || [0, 0], isW = o.code === 'W' || o.code === 'V', k = isW ? -0.75 : -0.8, tx = (x1 + x2) / 2 + sv[0] * k, ty = (y1 + y2) / 2 + sv[1] * k + (vert ? 0 : 0.18);
+    h += '<text x="' + tx + '" y="' + ty + '" class="opl' + (isW ? ' win-l' : '') + '"' + (vert ? ' transform="rotate(-90 ' + tx + ' ' + ty + ')"' : '') + '>' + o.code + ' ' + ftIn(o.w) + (o.code === 'Arch' ? '' : '×' + ftIn(o.h || DOOR_H)) + '</text>'; });
+  return h;
 }
 function unitPlanSvg(U) {
   const m = 3, LB = [];
   let h = '<svg class="plan" viewBox="' + (-m) + ' ' + (-m) + ' ' + (U.w + 2 * m) + ' ' + (U.d + 2 * m + 3) + '" role="img" aria-label="Typical unit plan">';
   h += '<rect x="0" y="0" width="' + U.w + '" height="' + (U.d + 3) + '" fill="#E4E1DA"/>';
-  U.rooms(U.w).forEach(([n, rx, ry, rw, rh]) => { const y = U.d - ry - rh; h += '<rect x="' + rx + '" y="' + y + '" width="' + rw + '" height="' + rh + '" class="r" style="fill:' + (/Bath/.test(n) ? '#E3ECEF' : /Kitchen/.test(n) ? '#F6EBDD' : /Hall|Room|Living/.test(n) ? '#F4EFE6' : '#ECF0F4') + '"/>'; LB.push({ x: rx + rw / 2, y: y + rh / 2, lines: [[n, 'rl', 1], [ftIn(rw) + ' × ' + ftIn(rh), 'rd', 0.8]], fs: Math.min(1.1, rw / 7), minFs: 0.5, pri: 8, area: { x: rx + 0.3, y: y + 0.3, w: rw - 0.6, h: rh - 0.6 } });
+  U.rooms(U.w).forEach(([n, rx, ry, rw, rh]) => { const y = U.d - ry - rh; h += '<rect x="' + rx + '" y="' + y + '" width="' + rw + '" height="' + rh + '" class="r" style="fill:' + (/Balcony/.test(n) ? '#E3F0DF' : /Bath/.test(n) ? '#E3ECEF' : /Kitchen/.test(n) ? '#F6EBDD' : /Hall|Room|Living/.test(n) ? '#F4EFE6' : '#ECF0F4') + '"/>'; LB.push({ x: rx + rw / 2, y: y + rh / 2, lines: [[n, 'rl', 1], [ftIn(rw) + ' × ' + ftIn(rh), 'rd', 0.8]], fs: Math.min(1.1, rw / 7), minFs: 0.5, pri: 8, area: { x: rx + 0.3, y: y + 0.3, w: rw - 0.6, h: rh - 0.6 } });
     if (/Bath/.test(n)) h += '<g class="furn"><rect x="' + (rx + 0.4) + '" y="' + (y + 0.4) + '" width="1.5" height="2.2" rx="0.6"/><rect x="' + (rx + rw - 2) + '" y="' + (y + 0.4) + '" width="1.6" height="1.2" rx="0.5"/></g>';
     if (/Kitchen/.test(n)) h += '<g class="furn"><rect x="' + (rx + 0.2) + '" y="' + (y + 0.2) + '" width="' + (rw - 0.4) + '" height="2" rx="0.2"/></g>'; });
   h += '<rect x="0" y="0" width="' + U.w + '" height="' + U.d + '" class="outer"/>';
-  h += '<line x1="2" y1="' + U.d + '" x2="5.5" y2="' + U.d + '" class="gap"/>';
+  h += unitOpeningsSvg(unitOpenings(U.rooms(U.w).map(([n, rx, ry, rw, rh]) => [n, rx, U.d - ry - rh, rw, rh]), { x: 0, y: 0, w: U.w, d: U.d }, 'bottom'), true);
   LB.push({ x: U.w / 2, y: U.d + 1.6, lines: [[U.entry || 'Lane / gallery side — entrance', 'rd', 1]], fs: 0.8, minFs: 0.5, pri: 5 });
   h += placeLabels(LB, []);
   h += '<g class="dim"><line x1="0" y1="-1.5" x2="' + U.w + '" y2="-1.5"/><text x="' + (U.w / 2) + '" y="-2">' + ftIn(U.w) + '</text><line x1="-1.5" y1="0" x2="-1.5" y2="' + U.d + '"/><text x="-2" y="' + (U.d / 2) + '" transform="rotate(-90 -2 ' + (U.d / 2) + ')">' + ftIn(U.d) + '</text></g>';
@@ -4953,7 +5054,7 @@ function buildRental3D(T, R, opts) {
   if (R.spine) box(R.spine.x, 0.04, R.spine.y0, R.spine.w, 0.08, R.spine.y1 - R.spine.y0, mat('#A8A399'), false);
   if (R.passage) box(R.passage.x, 0.04, R.passage.y, R.passage.w, 0.08, R.D - R.PD - R.passage.y, mat('#B9B4AA'), false);
   if (R.garden) { const G = R.garden; box(G.x, 0.04, G.y, G.w, 0.14, G.h, mat('#8DBB6E', { roughness: 1 }), false); for (let x = G.x + 4; x < G.x + G.w - 3; x += 9) { const t = new T.Mesh(new T.SphereGeometry(Math.min(2.2, G.h / 2.5), 10, 8), mat('#5E8A4E')); t.position.set(x, 4.5, G.y + Math.min(2.5, G.h / 2)); grp.add(t); box(x - 0.2, 0, G.y + Math.min(2.5, G.h / 2) - 0.2, 0.4, 3, 0.4, mat('#6B4A2E')); } }
-  if (R.park) { const P = R.park; box(P.x, 0.05, P.y, P.w, 0.08, P.h, mat('#A8A399'), false); let x = P.x + 12; for (let i = 0; i < P.cars; i++, x += 9) box(x + 1.5, 0.5, P.y + 2, 6, 1.8, 14, mat(['#9B2D2D', '#3C4650', '#D9D9D9', '#2F4B7C'][i % 4])); const by = P.y + (P.cars ? 18 : 0) + 0.5; for (let i = 0, bx = P.x + 2; i < Math.min(P.bikes, 40); i++, bx += 2.6) if (i % 2 === 0) box(bx, 0.3, by, 0.8, 2.6, 4.6, mat('#3C4650')); }
+  if (R.park) { const P = R.park; box(P.x, 0.05, P.y, P.w, 0.08, P.h, mat('#A8A399'), false); box(P.walk.x, 0.09, P.walk.y, P.walk.w, 0.04, P.walk.h, mat('#D9C9A8'), false); P.carBays.forEach((c, i) => box(c.x + 1.5, 0.5, c.y + 2, 6, 1.8, 14, mat(['#9B2D2D', '#3C4650', '#D9D9D9', '#2F4B7C'][i % 4]))); P.bikeBays.forEach((c, i) => { if (i < 40) box(c.x + 0.9, 0.3, c.y + 0.7, 0.8, 2.6, 4.6, mat('#3C4650')); }); }
   const cw = mat('#E5E1D8'); box(0, 0, 0, R.W, 4, 0.4, cw); box(0, 0, 0, 0.4, 4, R.D, cw); box(R.W - 0.4, 0, 0, 0.4, 4, R.D, cw); const gx = R.W / 2 - 5; box(0, 0, R.D - 0.4, gx, 4, 0.4, cw); box(gx + 10, 0, R.D - 0.4, R.W - gx - 10, 4, 0.4, cw);
   const wall = mat('#EDE7DC'), slab = mat('#DEDAD2'), glass = mat('#9FB8C8', night ? { emissive: '#FFB95C', emissiveIntensity: 0.6 } : { roughness: 0.2 }), door = mat('#7A4E2C'), rail = mat('#3A3F44'), low = mat('#F4F1EA');
   const fl = cut != null ? cut + 1 : R.fl, sz = Math.max(2.6, Math.min(5, Math.max(R.W, R.D) / 22));
@@ -4996,6 +5097,8 @@ function rentSetupUI() {
   }).join('') + '</div>';
   h += '<div class="card">' + '<div class="stepper"><span>Floors</span><div><button data-a="dec" data-v="floors" aria-label="Fewer">−</button><b>' + ['Ground', 'G + 1', 'G + 2'][fl - 1] + '</b><button data-a="inc" data-v="floors" data-max="3" aria-label="More">+</button></div></div></div>';
   h += '<h3 class="q2">Parking</h3><div class="seg2 big">' + Object.keys(RENT_PARK).map(k => '<button class="' + (rs.park === k ? 'on' : '') + '" data-a="rpark" data-v="' + k + '"><b>' + RENT_PARK[k][0] + '</b><small>' + RENT_PARK[k][1] + '</small></button>').join('') + '</div>';
+  if (R.park) h += '<h3 class="q2">Entry gate</h3><div class="seg2 big">' + Object.keys(GATE_T).map(k => '<button class="' + ((rs.gate || 'sliding') === k ? 'on' : '') + '" data-a="rgate" data-v="' + k + '"><b>' + GATE_T[k][0] + '</b><small>' + GATE_T[k][1] + '</small></button>').join('') + '</div><h3 class="q2">How vehicles get out</h3><div class="seg2 big">' + [['auto', 'Choose for my plot', 'Aisle inside unless it costs a unit'], ['inside', 'Drive aisle inside', 'Safest — a 12 ft aisle behind the gate, fewer units'], ['road', 'Back out to the road', 'Wide gates in front of the bays, more units']].map(([k, a, b2]) => '<button class="' + ((rs.drive || 'auto') === k ? 'on' : '') + '" data-a="rdrive" data-v="' + k + '"><b>' + a + '</b><small>' + b2 + '</small></button>').join('') + '</div>' +
+    '<p class="hint">A 4 ft walk-in gate opens onto the entry path. No car or bike is parked in front of it. ' + (R.park.aisle ? 'A ' + ftIn(R.park.aisle.d) + ' drive aisle stays free to take vehicles out.' : 'Vehicles back out through the gates — the road edge must stay clear.') + '</p>';
   const A = ST.plot.w * ST.plot.d;
   h += '<h3 class="q2">Garden</h3><div class="seg2 big">' + Object.keys(GARDEN).map(k => '<button class="' + ((rs.garden || 'none') === k ? 'on' : '') + '" data-a="rgarden" data-v="' + k + '"><b>' + GARDEN[k][1] + '</b><small>' + (GARDEN[k][0] ? '≈ ' + Math.round(A * GARDEN[k][0] / 100) * 100 + ' sq ft' : 'all land for units') + '</small></button>').join('') + '</div>';
   h += R.total ? '<div class="proj-live"><div><small>Units</small><b>' + R.total + '</b></div><div><small>Each floor</small><b>' + R.perFloor + '</b></div><div><small>Mix per floor</small><b class="sm">' + rentMix(R) + '</b></div><div><small>Parking</small><b class="sm">' + (R.park ? (R.park.cars ? R.park.cars + ' cars · ' : '') + R.park.bikes + ' bikes' : 'None') + '</b></div></div>' + (R.warn.length ? '<p class="hint">' + R.warn.map(esc).join(' ') + '</p>' : '') : '<p class="warn">None of the chosen units fit this land. Pick a smaller unit above, choose no parking or no garden.</p>';
@@ -5077,7 +5180,19 @@ const AMEN_DEF = { apartment: [['security', 'play', 'backup'], ['security', 'pla
   commercial: [['security', 'backup'], ['security', 'backup', 'ev', 'food'], ['security', 'backup', 'ev', 'food', 'biz', 'gym', 'cafe'], ['security', 'backup', 'ev', 'food', 'biz', 'gym', 'cafe', 'garden', 'heli']] };
 const PARK_OPT = { auto: ['Let BhuChain choose', 'Open space if it fits, else under the building'], surface: ['Open parking', 'In the open space in front or at the back'], stilt: ['Ground floor (stilt)', 'Cars under the building, flats start from the first floor'], basement: ['Underground (1 basement)', 'One floor below the ground, ramp from the gate'] };
 const tiOf = () => TI[ST.tier] ?? 1;
-function bayCount(R) { let k = 0; for (let y = R.y; y + 18 <= R.y + R.h; y += 38) for (let row = 0; row < 2; row++) { const yy = y + row * 20; if (yy + 18 > R.y + R.h) break; k += Math.max(0, Math.floor((R.w + 0.001) / 9)); } return k; }
+// car bays 9 × 18 ft in pairs of rows around a 20 ft drive aisle (row · aisle · row), skipping a kept-clear entry path [sx0, sx1]
+const APT_AISLE = 20;
+function bayRows(R, n, skip) {
+  const cars = [], aisles = []; n = n == null ? 1e9 : n;
+  for (let y = R.y; y + 18 + APT_AISLE <= R.y + R.h + 0.01 && cars.length < n; y += 36 + APT_AISLE) {
+    aisles.push({ x: R.x, y: y + 18, w: R.w, h: APT_AISLE });
+    [y, y + 18 + APT_AISLE].forEach((yy, row) => { if (row && yy + 18 > R.y + R.h + 0.01) return; for (let x = R.x; x + 9 <= R.x + R.w + 0.01 && cars.length < n; x += 9) { if (skip && x < skip[1] && x + 9 > skip[0]) { x = skip[1] - 9; continue; } cars.push({ x, y: yy, w: 9, h: 18 }); } });
+  }
+  return { cars, aisles };
+}
+const FAR_MAX = 3;
+function aptEntryX(PL) { return PL.core ? PL.core.x + PL.core.w / 2 : PL.fp.x + PL.fp.w / 2; }
+function bayCount(R, skip) { return bayRows(R, null, skip).cars.length; }
 function projState() {
   return ST.proj || (ST.proj = { mix: { b1: 8, b2: 12, b3: 6, b4: 0 }, offices: 4, shops: true, park: 'auto', parkAt: 'front', amen: {}, rent: {}, occ: 90, maint: 10, sale: '', mode: 'rent', size: 'standard', garden: null, byFloor: false, plan: [{ k: 'b1', n: 0 }, { k: 'b2', n: 0 }, { k: 'b3', n: 0 }] });
 }
@@ -5111,7 +5226,7 @@ function projectLayout(force) {
   const plan = mode => {
     const SSL = mode === 'surface' && atBack ? 12 : 8, SSR = 8, Wb = W - SSL - SSR; if (Wb < 30) return null;
     const free = Dp - SF - SR, carsW = Math.max(1, Math.floor(Wb / 9));
-    const surfDepth = c => { const rows = Math.ceil(c / carsW); return rows ? Math.ceil(rows / 2) * 38 + 4 : 0; };
+    const surfDepth = c => { const rows = Math.ceil(c / carsW); return rows ? Math.ceil(rows / 2) * (36 + APT_AISLE) + 4 : 0; }; // two rows of bays share one drive aisle
     const solve = Db => {
       const double = Db >= 50, narrow = !double && Wb - CORE < 30 && Db - COR - 16 >= 22, ud = double ? Math.min(36, (Db - COR) / 2) : narrow ? Db - COR - 16 : Db - COR, sides = double ? [Wb, Wb - CORE] : narrow ? [Wb] : [Wb - CORE];
       const packs = per => { const q = []; per.forEach(p => { for (let i = 0; i < p.c; i++) q.push(p.w); }); q.sort((x, y) => y - x); const left = sides.slice(); for (const w of q) { const i = left.findIndex(L => w <= L + 0.5); if (i < 0) return false; left[i] -= w; } return true; };
@@ -5123,9 +5238,11 @@ function projectLayout(force) {
           const fills = P.plan.map(fl => { const t = types.find(x => x.k === fl.k), w = wOf(t), max = fit.includes(t) ? sides.reduce((a, L) => a + Math.floor((L + 0.5) / w), 0) : 0, want = Math.max(0, +fl.n || 0); return { t, w, c: want ? Math.min(want, max) : max, max, want }; });
           return { double, narrow, ud, F: fills.length, per: [fills[0]], fills, cars: Math.ceil(fills.reduce((a, x) => a + x.c * carOf(x.t.k), 0)), drop };
         }
+        // floors are capped by a floor-area ratio of about 3 (Odisha development rules allow 2.5–3 on most roads)
+        const Fcap = Math.max(2, Math.min(15, Math.floor(FAR_MAX * W * Dp / Math.max(1, Wb * Db)) - 1));
         let best = null;
-        for (let f = 1; f <= 15; f++) { const per = fit.map(t => ({ t, c: Math.ceil(t.n / f), w: wOf(t) })); if (!packs(per)) continue; const over = per.reduce((a, x) => a + x.c, 0) * f - fit.reduce((a, t) => a + t.n, 0), sc = over + f * 0.7; if (!best || sc < best.sc) best = { f, per, sc }; if (best && f > best.f + 4) break; }
-        if (!best) { const per = fit.map(t => ({ t, c: Math.ceil(t.n / 15), w: wOf(t) })); while (!packs(per) && per.some(x => x.c > 0)) per.filter(x => x.c > 0).sort((x, y) => (y.c / y.t.n - x.c / x.t.n) || (y.w - x.w))[0].c--; best = { f: 15, per }; }
+        for (let f = 1; f <= Fcap; f++) { const per = fit.map(t => ({ t, c: Math.ceil(t.n / f), w: wOf(t) })); if (!packs(per)) continue; const over = per.reduce((a, x) => a + x.c, 0) * f - fit.reduce((a, t) => a + t.n, 0), sc = over + f * 0.7; if (!best || sc < best.sc) best = { f, per, sc }; if (best && f > best.f + 4) break; }
+        if (!best) { const per = fit.map(t => ({ t, c: Math.ceil(t.n / Fcap), w: wOf(t) })); while (!packs(per) && per.some(x => x.c > 0)) per.filter(x => x.c > 0).sort((x, y) => (y.c / y.t.n - x.c / x.t.n) || (y.w - x.w))[0].c--; best = { f: Fcap, per }; }
         return { double, narrow, ud, F: best.f, per: best.per, cars: Math.ceil(best.per.reduce((a, x) => a + x.c * carOf(x.t.k), 0) * best.f), drop };
       }
       const F = Math.max(1, Math.min(15, +P.offices || 1)), w = types[0].area / ud, c = sides.reduce((a, L) => a + Math.floor((L + 0.5) / w), 0);
@@ -5145,7 +5262,7 @@ function projectLayout(force) {
   };
   if (want === 'auto') {
     let best = null;
-    ['surface', 'stilt', 'basement'].forEach(m => { const R = projectLayout(m); if (!R.ok || R.park !== m) return; const sc = R.totalFloors + (m === 'basement' ? 2.5 : m === 'stilt' ? 1 : 0) + Math.max(0, R.carsNeed - R.carsHave) * 0.6 + (kind === 'apartment' ? (R.L && R.L.fills ? R.L.fills.reduce((x, f) => x + (f.want ? Math.abs(f.want - f.c) * 0.8 : -f.c * 0.4) + (f.max ? 0 : 6), 0) : types.reduce((x, t) => x + Math.abs((R.count[t.k] || 0) - t.n), 0) * 0.8) : -R.totalUnits * 0.3); if (!best || sc < best.sc) best = { sc, R }; });
+    ['surface', 'stilt', 'basement'].forEach(m => { const R = projectLayout(m); if (!R.ok || R.park !== m) return; const sc = R.totalFloors + (m === 'basement' ? 2.5 : m === 'stilt' ? 1 : 0) + Math.max(0, R.carsNeed - R.carsHave) * 0.6 + (kind === 'apartment' ? (R.L && R.L.fills ? R.L.fills.reduce((x, f) => x + (f.want ? Math.abs(f.want - f.c) * 0.8 : -f.c * 0.4) + (f.max ? 0 : 6), 0) : types.reduce((x, t) => x + Math.abs((R.count[t.k] || 0) - t.n), 0) * 0.8) : -R.totalUnits * 0.3) + Math.max(0, 2.5 - R.totalUnits / Math.max(1, R.totalFloors - 1)) * 4 + Math.max(0, R.built / (W * Dp) - 3) * 4; if (!best || sc < best.sc) best = { sc, R }; }); // a thin tower of one flat a floor, or far above a normal FAR, ranks last
     if (best) return Object.assign(best.R, { auto: true });
   }
   let park = want;
@@ -5187,7 +5304,7 @@ function projectLayout(force) {
   const shops = []; if (ground === 'shops') { const sh = Math.min(30, fp.h * 0.5); const avail = faceW, n = Math.max(1, Math.floor(avail / 12)), sw = avail / n; for (let i = 0; i < n; i++) shops.push({ x: fp.x + i * sw, y: fp.y + fp.h - sh, w: sw, h: sh }); }
   const carsNeed = kind === 'apartment' ? Math.ceil(Object.keys(count).reduce((a, k) => a + count[k] * carOf(k), 0)) : Math.ceil(fp.w * fp.h * totalFloors / 1000);
   const baseCap = Math.max(0, Math.floor((W - 10) * (Dp - 10) * 0.8 / 330) - 3), stiltCap = Math.max(0, Math.floor(body.w * body.h * 0.8 / 300));
-  const surfCap = lot ? bayCount({ x: lot.x, y: lot.y + 1, w: lot.w, h: lot.h - 2 }) : 0;
+  const surfCap = lot ? bayCount({ x: lot.x, y: lot.y + 1, w: lot.w, h: lot.h - 2 }, atBack ? null : [fp.x + fp.w - CORE / 2 - 2.5, fp.x + fp.w - CORE / 2 + 2.5]) : 0;
   const carsHave = park === 'surface' ? surfCap : park === 'stilt' ? stiltCap : baseCap;
   if (carsHave < carsNeed) out.warn.push('Parking holds ' + carsHave + ' cars; about ' + carsNeed + ' are needed. ' + (park === 'basement' ? 'A second basement or open parking can make up the rest.' : 'Choose the basement, or fewer flats.'));
   (L.drop || []).forEach(t => out.warn.push(t.name + ' flats are left out: with every bedroom at least 10 × 10 ft they need about ' + Math.ceil(Math.max(MINW[t.k], t.area / L.ud)) + ' ft of frontage, more than this land has.'));
@@ -5212,6 +5329,7 @@ function projectCost(tid) {
   if (PL.totalFloors >= 5) extra.push(['Fire safety — sprinklers, hydrant, fire tank and pumps', PL.fp.w * PL.fp.h * PL.totalFloors * 90]);
   if (PL.totalFloors >= 6) extra.push(['Deeper foundation (raft or piles) and a stronger frame for ' + PL.totalFloors + ' floors', PL.fp.w * PL.fp.h * PL.totalFloors * 120]);
   if (PL.garden) extra.push(['Garden — ' + Math.round(PL.garden.w * PL.garden.h).toLocaleString('en-IN') + ' sq ft lawn, trees, path, drip', PL.garden.w * PL.garden.h * [180, 250, 380, 600][tiOf()]]);
+  { const G = GATE_T[projState().gate] || GATE_T.sliding; extra.push(['Entry gates — ' + G[0].toLowerCase() + ' for vehicles and a 4 ft walk-in gate', G[2] + 15000]); }
   PL.amen.forEach(a => extra.push([AMEN[a].n, AMEN[a].cost]));
   const total = shell + extra.reduce((a, x) => a + x[1], 0);
   return { PL, base: shell, extra, total, rate: total / Math.max(1, PL.built) };
@@ -5247,7 +5365,7 @@ function projPlanSvg(PL, level) {
   h += '<rect x="0" y="0" width="' + PL.W + '" height="' + PL.D + '" fill="' + (level === 'basement' ? '#E7E6E2' : '#EEF4EA') + '" stroke="#5B6670" stroke-width="0.8"/>';
   const lab = (x, y, t, sub, fs, area, pri) => LB.push({ x, y, lines: [[t, 'rl', 1]].concat(sub ? [[sub, 'rd', 0.8]] : []), fs, minFs: Math.min(fs, 0.8), pri: pri || 6, drop: true, area });
   const car = (x, y, w, hh) => { h += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="none" stroke="#8A949C" stroke-width="0.2"/><rect x="' + (x + 1.6) + '" y="' + (y + 2) + '" width="' + (w - 3.2) + '" height="' + (hh - 4) + '" rx="1" fill="#CFD6DC"/>'; };
-  const bays = (R, n) => { let k = 0; for (let y = R.y; y + 18 <= R.y + R.h && k < n; y += 38) for (let row = 0; row < 2 && k < n; row++) { const yy = y + row * 20; if (yy + 18 > R.y + R.h) break; for (let x = R.x; x + 9 <= R.x + R.w && k < n; x += 9) { car(x, yy, 9, 18); k++; } } return k; };
+  const bays = (R, n, skip) => { const B = bayRows(R, n, skip); B.aisles.forEach(a => { h += '<rect x="' + a.x + '" y="' + a.y + '" width="' + a.w + '" height="' + a.h + '" fill="#ECEAE4"/>'; lab(a.x + a.w * 0.62, a.y + a.h / 2, 'Drive aisle ' + ftIn(a.h), 'kept free to take the cars out', 1.1, { x: a.x + 10, y: a.y + 1, w: a.w - 12, h: a.h - 2 }, 5); }); B.cars.forEach(c => car(c.x, c.y, c.w, c.h)); if (B.cars[0]) lab(B.cars[0].x + 4.5, B.cars[0].y + 9, 'Car', '9′ × 18′', 0.9, null, 4); return B.cars.length; };
   const rooms = (R, list) => clubRects(R, list).forEach(q => { h += '<rect x="' + q.x + '" y="' + q.y + '" width="' + q.w + '" height="' + q.h + '" fill="' + (AMEN_FILL[q.a] || '#EEE') + '" stroke="#24323D" stroke-width="0.35"/>'; lab(q.x + q.w / 2, q.y + q.h / 2, q.a === 'lobby' ? 'Entrance lobby' : AMEN[q.a].n, ftIn(q.w) + ' × ' + ftIn(q.h), Math.min(1.8, q.w / 7), { x: q.x + 0.5, y: q.y + 0.5, w: q.w - 1, h: q.h - 1 }, 8); });
   if (level === 'basement') {
     const R = { x: 5, y: 5, w: PL.W - 10, h: PL.D - 10 }; h += '<rect x="' + R.x + '" y="' + R.y + '" width="' + R.w + '" height="' + R.h + '" fill="#DDDCD7" stroke="#24323D" stroke-width="0.5"/>';
@@ -5255,7 +5373,7 @@ function projPlanSvg(PL, level) {
     h += '<rect x="' + (R.x + R.w - 13) + '" y="' + (R.y + R.h - Math.min(60, R.h - 4) - 2) + '" width="12" height="' + Math.min(60, R.h - 4) + '" fill="#BFC4C9"/>'; lab(R.x + R.w - 7, R.y + R.h - 20, 'Ramp', '1 : 8 up to the gate', 1.3, null, 8);
     lab(PL.W / 2, PL.D / 2, 'Basement parking', n + ' cars', 2.2, { x: R.x, y: R.y, w: R.w - 14, h: R.h }, 9);
   } else {
-    if (PL.lot && level === 'ground') { const R = PL.lot; h += '<rect x="' + R.x + '" y="' + R.y + '" width="' + R.w + '" height="' + R.h + '" fill="#E4E1DA"/>'; const n = bays({ x: R.x, y: R.y + 1, w: R.w, h: R.h - 2 }, PL.carsHave); OB.push(R); lab(R.x + R.w / 2, R.y + R.h / 2, 'Open parking', n + ' cars', 1.8, null, 7); if (PL.atBack) { h += '<rect x="2" y="' + PL.SR + '" width="' + (PL.SS - 3) + '" height="' + (PL.D - PL.SR) + '" fill="#E4E1DA"/>'; lab(PL.SS / 2, (PL.SR + PL.D) / 2, 'Drive', '', 1.2, null, 4); } }
+    if (PL.lot && level === 'ground') { const R = PL.lot; h += '<rect x="' + R.x + '" y="' + R.y + '" width="' + R.w + '" height="' + R.h + '" fill="#E4E1DA"/>'; const n = bays({ x: R.x, y: R.y + 1, w: R.w, h: R.h - 2 }, PL.carsHave, PL.atBack ? null : [aptEntryX(PL) - 2.5, aptEntryX(PL) + 2.5]); OB.push(R); lab(R.x + R.w / 2, R.y + R.h / 2, 'Open parking', n + ' cars', 1.8, null, 7); if (PL.atBack) { h += '<rect x="2" y="' + PL.SR + '" width="' + (PL.SS - 3) + '" height="' + (PL.D - PL.SR) + '" fill="#E4E1DA"/>'; lab(PL.SS / 2, (PL.SR + PL.D) / 2, 'Drive', '', 1.2, null, 4); } }
     if (PL.garden && level === 'ground') { const G = PL.garden; h += '<rect x="' + G.x + '" y="' + G.y + '" width="' + G.w + '" height="' + G.h + '" rx="2" fill="#D3E8C4" stroke="#7FA06A" stroke-width="0.3"/>'; for (let x = G.x + 4; x < G.x + G.w - 3; x += 9) h += '<circle cx="' + x + '" cy="' + (G.y + 2.5) + '" r="1.8" fill="#9CC48A" stroke="#6E9A63" stroke-width="0.15"/>'; h += '<path d="M' + (G.x + 2) + ' ' + (G.y + G.h - 2) + ' Q' + (G.x + G.w / 2) + ' ' + (G.y + G.h / 2) + ' ' + (G.x + G.w - 2) + ' ' + (G.y + G.h - 3) + '" fill="none" stroke="#E8E1D2" stroke-width="1.2"/>'; lab(G.x + G.w * 0.7, G.y + G.h / 2, 'Garden', Math.round(G.w * G.h).toLocaleString('en-IN') + ' sq ft', 1.8, { x: G.x + G.w * 0.45, y: G.y + 1, w: G.w * 0.5, h: G.h - 2 }, 6); }
     const PG = playSpot(PL);
     if (level === 'ground' && PG) { const openBack = { y0: PG.y }, w = PG.w, hh = PG.h; h += '<rect x="' + PG.x + '" y="' + openBack.y0 + '" width="' + w + '" height="' + hh + '" rx="1" fill="#F6E6C8" stroke="#C9A46B" stroke-width="0.3"/>'; lab(PG.x + w / 2, PG.y + hh / 2, 'Playground', ftIn(w) + ' × ' + ftIn(hh), 1.4, { x: PG.x, y: PG.y, w, h: hh }, 7); }
@@ -5284,7 +5402,7 @@ function projPlanSvg(PL, level) {
         h += '<rect x="' + u.x + '" y="' + u.y + '" width="' + u.w + '" height="' + u.h + '" fill="' + UNIT_FILL[u.k] + '" stroke="#24323D" stroke-width="0.45"/>';
         const toCor = u.face === 'road' ? 'top' : 'bottom';
         projRooms(u.k, u.w, u.h).forEach(([n, rx, ry, rw, rh]) => { const yy = toCor === 'top' ? u.y + ry : u.y + u.h - ry - rh; h += '<rect x="' + (u.x + rx) + '" y="' + yy + '" width="' + rw + '" height="' + rh + '" fill="none" stroke="#7B8790" stroke-width="0.15"/>'; });
-        const dy = toCor === 'top' ? u.y : u.y + u.h; h += '<line x1="' + (u.x + 1.5) + '" y1="' + dy + '" x2="' + (u.x + 5) + '" y2="' + dy + '" stroke="#fff" stroke-width="0.7"/>';
+        h += unitOpeningsSvg(unitOpenings(projRooms(u.k, u.w, u.h).map(([n, rx, ry, rw, rh]) => [n, u.x + rx, toCor === 'top' ? u.y + ry : u.y + u.h - ry - rh, rw, rh]), { x: u.x, y: u.y, w: u.w, d: u.h }, toCor), false);
         lab(u.x + u.w / 2, u.y + u.h / 2, (u.k === 'office' ? 'Office ' : 'Flat ') + (i + 1), u.name + ' · ' + Math.round(u.area) + ' sq ft', Math.min(1.8, u.w / 8), { x: u.x + 1, y: u.y + 1, w: u.w - 2, h: u.h - 2 }, 8);
       });
     }
@@ -5300,8 +5418,10 @@ function projPlanSvg(PL, level) {
       OB.push(c);
     }
   }
-  h += '<rect x="' + (PL.SS - (PL.atBack && PL.lot ? PL.SS - 1 : 0) + 2) + '" y="' + (PL.D - 0.6) + '" width="14" height="1.2" fill="#24323D"/>';
-  LB.push({ x: PL.SS + 9, y: PL.D + 1.4, lines: [['Gate', 'gt', 1]], fs: 1.3, minFs: 0.9, pri: 9 });
+  { const ex = aptEntryX(PL), G = GATE_T[projState().gate] || GATE_T.sliding, gx = PL.SS - (PL.atBack && PL.lot ? PL.SS - 1 : 0) + 2;
+    if (level === 'ground' || level === 'basement') { h += '<rect x="' + (ex - 2) + '" y="' + (fp.y + fp.h) + '" width="4" height="' + (PL.D - fp.y - fp.h) + '" fill="#F4EBD8" stroke="#C9963C" stroke-width="0.2" stroke-dasharray="0.8 0.5"/>'; lab(ex, (fp.y + fp.h + PL.D) / 2, 'Entry 4′', 'keep clear', 0.9, { x: ex - 2, y: fp.y + fp.h, w: 4, h: PL.D - fp.y - fp.h }, 8); }
+    h += '<rect x="' + gx + '" y="' + (PL.D - 0.6) + '" width="14" height="1.2" fill="#24323D"/><rect x="' + (ex - 2) + '" y="' + (PL.D - 0.6) + '" width="4" height="1.2" fill="#C9963C"/>';
+    LB.push({ x: gx + 7, y: PL.D + 1.4, lines: [[G[0] + ' 14′', 'gt', 1]], fs: 1.2, minFs: 0.8, pri: 9 }); LB.push({ x: ex, y: PL.D + 3.2, lines: [['Walk-in gate 4′', 'gt', 1]], fs: 1.1, minFs: 0.7, pri: 9 }); }
   h += placeLabels(LB, OB, { x: -m + 0.5, y: -m, w: W - 1, h: H });
   h += '<g class="dim"><line x1="0" y1="-3" x2="' + PL.W + '" y2="-3"/><text x="' + (PL.W / 2) + '" y="-3.8" style="font-size:2.2px">' + ftIn(PL.W) + '</text><line x1="-3" y1="0" x2="-3" y2="' + PL.D + '"/><text x="-3.8" y="' + (PL.D / 2) + '" style="font-size:2.2px" transform="rotate(-90 -3.8 ' + (PL.D / 2) + ')">' + ftIn(PL.D) + '</text></g>';
   return h + '</svg>';
@@ -5476,6 +5596,7 @@ function projSetupUI() {
   h += '<h3 class="q2">Car parking</h3><div class="pkcards">' + Object.keys(PARK_OPT).map(k => { const T2 = k === 'auto' ? null : projectLayout(k), cap = T2 && T2.ok && T2.park === k ? T2.carsHave + ' cars' : k === 'auto' ? (PL.ok && P.park === 'auto' ? 'Picks: ' + PARK_OPT[PL.park][0] : '') : 'does not fit here';
     return '<button class="pkc' + (P.park === k ? ' on' : '') + '" data-a="ppark" data-v="' + k + '"><i class="pki pki-' + k + '"></i><b>' + PARK_OPT[k][0] + '</b><span>' + PARK_OPT[k][1] + '</span>' + (cap ? '<em>' + cap + '</em>' : '') + '</button>'; }).join('') + '</div>';
   if (P.park === 'surface') h += '<div class="seg2"><button class="' + (P.parkAt !== 'back' ? 'on' : '') + '" data-a="pparkat" data-v="front">Open space in front</button><button class="' + (P.parkAt === 'back' ? 'on' : '') + '" data-a="pparkat" data-v="back">Open space at the back</button></div>';
+  h += '<h3 class="q2">Entry gate</h3><div class="seg2 big">' + Object.keys(GATE_T).map(k => '<button class="' + ((P.gate || 'sliding') === k ? 'on' : '') + '" data-a="pgate" data-v="' + k + '"><b>' + GATE_T[k][0] + '</b><small>' + GATE_T[k][1] + '</small></button>').join('') + '</div><p class="hint">A 4 ft walk-in gate and entry path lead straight to the lobby and are never parked on. Every car bay opens onto a 20 ft drive aisle, so each car can get out.</p>';
   h += gardenUI();
   h += amenChips(kind);
   if (!PL.ok) h += '<p class="warn">' + esc(PL.why || 'This design does not fit the land.') + '</p>';
@@ -9079,6 +9200,9 @@ const ACT = {
   vtype: el => keepY(() => { ST.vtype = el.dataset.v; S.design = null; }),
   use: el => keepY(() => { ST.home.use = el.dataset.v; S.design = null; if (el.dataset.v === 'villa') { ST.tier = 'ultra'; if (ST.home.floors < 2) ST.home.floors = 2; if (ST.home.bhk < 4) ST.home.bhk = 4; } }),
   unit: el => keepY(() => { rentState().unit = el.dataset.v; }),
+  pgate: el => keepY(() => { projState().gate = el.dataset.v; }),
+  rdrive: el => keepY(() => { rentState().drive = el.dataset.v; }),
+  rgate: el => keepY(() => { rentState().gate = el.dataset.v; }),
   rtype: el => keepY(() => { const rs = rentState(), k = el.dataset.v, i = rs.types.indexOf(k); if (i >= 0) { if (rs.types.length > 1) rs.types.splice(i, 1); } else rs.types.push(k); }),
   ronly: el => keepY(() => { rentState().types = [el.dataset.v]; }),
   rpark: el => keepY(() => { rentState().park = el.dataset.v; }),

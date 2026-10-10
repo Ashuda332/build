@@ -87,5 +87,20 @@ assert.ok(rz.custom && rz.fcustom && rz.final === rz.cols, 'a resized plan carri
 const bg = await p.evaluate(() => { ST.grid = null; ST.home.floors = 2; ST.home.bhk = 3; ST.step = flow().indexOf('home'); render(); ST.step = flow().indexOf('budget'); render(); const o = { pk: document.querySelectorAll('[data-a="pkg"]').length, tiers: document.querySelectorAll('.tiers [data-a="tier"]').length, lab: /Labour charge/.test(document.body.textContent) }; const t = {}; for (const k of ['core', 'semi', 'full']) { ST.pkg = k; t[k] = tierEstimate('mid').total; } ST.pkg = 'core'; return Object.assign(o, t); });
 assert.equal(bg.pk, 3); assert.equal(bg.tiers, 3); assert.ok(bg.lab); assert.ok(bg.core < bg.semi && bg.semi < bg.full, 'semi and full add to the core cost');
 assert.deepEqual(errs, []);
-console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks, plot/home/budget steps, home fit check, flat per floor and resizable plan');
+// rentals and apartments: the entry path is never parked on, every bay has an aisle, every room of every flat has a door (a bath only from its bedroom)
+const ra = await p.evaluate(() => {
+  const r = { walkHit: 0, noAisle: 0, noDoor: [], bathOff: [], err: [] };
+  const ov = (a, b) => a.x < b.x + b.w - 0.01 && a.x + a.w > b.x + 0.01 && a.y < b.y + b.h - 0.01 && a.y + a.h > b.y + 0.01;
+  for (const [w, d, t] of [[60, 100, 'b2'], [80, 120, 'b2'], [50, 80, 'b1'], [40, 60, 'rk']]) { ST.plot = Object.assign({}, ST.plot, { w, d, sides: { f: w, b: w, l: d, r: d }, shape: null }); ST.home.use = 'rent'; ST.home.floors = 2; rentState().types = [t];
+    for (const drive of ['inside', 'road', 'auto']) { rentState().drive = drive; const R = rentalLayout(); if (R.park) R.park.carBays.concat(R.park.bikeBays).forEach(b => { if (ov(b, R.park.walk)) r.walkHit++; }); } }
+  ST.plot = Object.assign({}, ST.plot, { w: 80, d: 120, sides: { f: 80, b: 80, l: 120, r: 120 } }); ST.home.use = 'apartment'; projState().park = 'surface'; const PL = projectLayout();
+  if (PL.lot) { const B = bayRows({ x: PL.lot.x, y: PL.lot.y + 1, w: PL.lot.w, h: PL.lot.h - 2 }); B.cars.forEach(c => { if (!B.aisles.some(a => Math.abs(a.y - c.y - c.h) < 0.1 || Math.abs(a.y + a.h - c.y) < 0.1)) r.noAisle++; }); }
+  ['rk', 'b1', 'b2', 'b3'].forEach(k => { const T = RENT_T[k]; const rooms = rentRooms(k, T.w, T.d).map(([n, x, y, w, h]) => [n, x, T.d - y - h, w, h]), O = unitOpenings(rooms, { x: 0, y: 0, w: T.w, d: T.d }, 'bottom');
+    rooms.forEach(([n]) => { if (/Wardrobe/.test(n)) return; const dr = O.doors.find(x => x.room === n); if (!dr) r.noDoor.push(k + ':' + n); else if (/Bath/.test(n) && !/Bedroom|^Room/.test(dr.from)) r.bathOff.push(k + ':' + n + '<-' + dr.from); }); });
+  ['b1', 'b2', 'b3'].forEach(k => { const rooms = projRooms(k, 32, 34).map(([n, x, y, w, h]) => [n, x, 34 - y - h, w, h]), O = unitOpenings(rooms, { x: 0, y: 0, w: 32, d: 34 }, 'bottom'); rooms.forEach(([n]) => { if (!/Wardrobe/.test(n) && !O.doors.some(x => x.room === n)) r.noDoor.push('apt ' + k + ':' + n); }); });
+  for (const use of ['rent', 'apartment']) { ST.home.use = use; ST.purpose = 'build'; for (const step of ['home', 'budget', 'layout', 'quote']) { try { const i = flow().indexOf(step); if (i >= 0) { ST.step = i; render(); } } catch (e) { r.err.push(use + ' ' + step + ': ' + e.message); } } }
+  ST.home.use = 'family'; return r; });
+assert.equal(ra.walkHit, 0, 'no car or bike is parked on the entry path'); assert.equal(ra.noAisle, 0, 'every open-parking bay opens onto a drive aisle');
+assert.deepEqual(ra.noDoor, [], 'every room of every flat has a door'); assert.deepEqual(ra.bathOff, [], 'a bath opens off its bedroom'); assert.deepEqual(ra.err, [], 'rental and apartment screens render');
+console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks, plot/home/budget steps, home fit check, flat per floor and resizable plan, rental / apartment parking and flats');
 await b.close(); server.close();
