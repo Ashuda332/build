@@ -58,18 +58,28 @@ assert.equal(await p.$$eval('[data-a="pmode"]', x => x.length), 0, 'only the 4-s
 const sk0 = await p.innerHTML('#plotsk'); await p.fill('#sbui [data-sb="f"]', '6'); assert.notEqual(await p.innerHTML('#plotsk'), sk0, 'the sketch redraws while typing a setback');
 assert.match(await p.textContent('#plotsk'), /SE/, 'corner directions on the road side (east road → SE, NE)');
 await p.fill('#parea', '2400'); assert.equal(await p.evaluate(() => Math.round(plotShape(ST.plot.sides).area / 100)), 24, 'typing the area scales the four sides');
-// home step: room list → live plan, the room list drives the design brief, too many rooms is refused
-const hm = await p.evaluate(() => { ST.plot.sides = { f: 30, b: 30, l: 40, r: 40 }; applySides(); ST.home.setback = null; ST.home.req = null; ST.home.floors = 2; ST.home.bhk = 3; ST.step = flow().indexOf('home'); render();
-  const a = { plan: !!document.querySelector('.hm-plan .rqplan'), rooms: document.querySelectorAll('.rqplan .rqr').length, all: reqRooms().floors.reduce((n, F) => n + F.rooms.length, 0), ok: canNext() };
-  ACT.rq(({ dataset: { k: 'study', d: '1' } })); a.bhk = ST.home.bhk; a.rooms2 = reqRooms().floors.reduce((n, F) => n + F.rooms.length, 0);
-  for (const k of ['dining', 'utility', 'sitout', 'helper']) ACT.rq(({ dataset: { k, d: '1' } }));
-  a.err = (document.querySelector('.rq-err') || {}).textContent || ''; a.ok2 = canNext(); return a; });
-assert.ok(hm.plan && hm.rooms > 4 && hm.ok, 'default rooms fit and are drawn');
-assert.equal(hm.bhk, 3); assert.ok(hm.rooms2 === hm.all + 1, 'a study room appears on the plan');
-assert.match(hm.err, /not valid/, 'too many ground-floor rooms are refused'); assert.equal(hm.ok2, false);
+// home step: plot vs buildable area, what fits (1RK–4BHK), requirements, space check, and the real 2D plan
+const hm = await p.evaluate(() => { document.querySelectorAll('#flib,#bcmp').forEach(x => x.remove()); ST.plot.sides = { f: 30, b: 30, l: 40, r: 40 }; applySides(); ST.home.setback = null; ST.home.floors = 2; ST.home.bhk = 3; ST.home.space = 'balanced'; ST.home.park.kind = '4w'; S.design = null; ST.step = flow().indexOf('home'); render();
+  const ds = designNow(), o = ds.D.options[ds.opt], A = areaFacts();
+  const a = { plan: !!document.querySelector('.hm-plan #planbox svg'), sum: document.querySelectorAll('.ar-sum > div').length, cards: document.querySelectorAll('.fit-c').length, foot: A.foot, land: A.land, st: homeCheck(ds.D, o).st, ok: canNext() };
+  ST.home.floors = 1; ST.home.bhk = 4; render(); const d2 = designNow(); a.st2 = homeCheck(d2.D, d2.D.options[d2.opt]).st; a.fix = document.querySelectorAll('[data-a="hfix"]').length; a.ok2 = canNext();
+  document.querySelector('[data-a="hfix"]').click(); a.ok3 = canNext();
+  // never "comfortable" when the estimate is over 85% or a drawn room is under its minimum
+  let bad = 0;
+  for (const [w, d] of [[30, 40], [40, 60], [25, 50]]) for (let f = 1; f <= 3; f++) for (let k = 1; k <= 5; k++) { ST.plot.sides = { f: w, b: w, l: d, r: d }; applySides(); ST.home.floors = f; ST.home.bhk = k; S.design = null; const x = designNow(), oo = x.D.options[x.opt], C = homeCheck(x.D, oo); if (C.st === 'ok' && (C.V.ratio > 0.85 || C.short.length)) bad++; }
+  a.bad = bad; ST.plot.sides = { f: 30, b: 30, l: 50, r: 50 }; applySides(); ST.home.floors = 2; ST.home.bhk = 3; S.design = null; render(); return a; });
+assert.ok(hm.plan && hm.sum === 4 && hm.cards === 5 && hm.ok, 'the home step shows the real plan, the area summary and the fit cards: ' + JSON.stringify(hm));
+assert.ok(hm.foot < hm.land, 'buildable area is the plot minus the open space');
+assert.equal(hm.st2, 'no'); assert.ok(hm.fix > 0 && !hm.ok2 && hm.ok3, 'a home that does not fit is refused with fixes that work');
+assert.equal(hm.bad, 0, 'an overcrowded home is never called comfortable');
+// resize a room on the home step: the plan changes live and the change reaches the final step, even after a budget change
+await p.click('[data-a="gedit"]'); const gl = await (await p.$('#planbox .gh[data-gi^="c"]')).boundingBox();
+await p.mouse.move(gl.x + gl.width / 2, gl.y + gl.height / 2); await p.mouse.down(); await p.mouse.move(gl.x + gl.width / 2 + 40, gl.y + gl.height / 2, { steps: 6 }); await p.mouse.up(); await p.waitForTimeout(300);
+const rz = await p.evaluate(() => { const o = S.design.D.options[S.design.opt], a = { custom: !!o.custom, cols: o.G.cols.join() }; S.design.edit = false; ST.tier = 'high'; ST.step = flow().indexOf('layout'); render(); const o2 = S.design.D.options[S.design.opt]; a.final = o2.G.cols.join(); a.fcustom = !!o2.custom; ST.tier = 'ultra'; return a; });
+assert.ok(rz.custom && rz.fcustom && rz.final === rz.cols, 'a resized plan carries into the final design: ' + JSON.stringify(rz));
 // budget step: package × range; semi and full cost more than core
-const bg = await p.evaluate(() => { ST.home.req = null; ST.home.floors = 2; ST.home.bhk = 3; ST.step = flow().indexOf('home'); render(); ST.step = flow().indexOf('budget'); render(); const o = { pk: document.querySelectorAll('[data-a="pkg"]').length, tiers: document.querySelectorAll('.tiers [data-a="tier"]').length, lab: /Labour charge/.test(document.body.textContent) }; const t = {}; for (const k of ['core', 'semi', 'full']) { ST.pkg = k; t[k] = tierEstimate('mid').total; } ST.pkg = 'core'; return Object.assign(o, t); });
+const bg = await p.evaluate(() => { ST.grid = null; ST.home.floors = 2; ST.home.bhk = 3; ST.step = flow().indexOf('home'); render(); ST.step = flow().indexOf('budget'); render(); const o = { pk: document.querySelectorAll('[data-a="pkg"]').length, tiers: document.querySelectorAll('.tiers [data-a="tier"]').length, lab: /Labour charge/.test(document.body.textContent) }; const t = {}; for (const k of ['core', 'semi', 'full']) { ST.pkg = k; t[k] = tierEstimate('mid').total; } ST.pkg = 'core'; return Object.assign(o, t); });
 assert.equal(bg.pk, 3); assert.equal(bg.tiers, 3); assert.ok(bg.lab); assert.ok(bg.core < bg.semi && bg.semi < bg.full, 'semi and full add to the core cost');
 assert.deepEqual(errs, []);
-console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks, plot/home/budget steps');
+console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks, plot/home/budget steps, home fit check and resizable plan');
 await b.close(); server.close();
