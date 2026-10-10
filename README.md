@@ -20,7 +20,7 @@ The site then lives at `https://<owner>.github.io/<repo>/`.
     - Needs use practical minimum room sizes, above the NBC 2016 legal minimums.
     - They add 12% for passages, 13% for walls, about 105 sq ft of stair per floor, the parking, and 3% for light shafts on large floors.
     - They also check the house width and what the ground floor must hold.
-  - **Your requirements:** floors, bedrooms, room sizes (compact / balanced / spacious), parking, puja, Vastu, and on G + 1 or more the balcony and roof.
+  - **Your requirements:** on G + 1 or more, choose **One home** (bedrooms counted for the whole building) or **A flat on every floor** (each floor its own 1–4 BHK with kitchen and living; the check names the floor that does not fit). Also floors, bedrooms, room sizes (compact / balanced / spacious), parking, puja, Vastu, and on G + 1 or more the balcony and roof.
   - **The plan:** the same drawing as the final design, with layouts A/B/C, zoom, measure, and **Resize rooms** (drag a gold line; sizes update live).
     - Undersized rooms show in the space check: bedrooms, living, kitchen, dining, car parking, passages, baths, stairs.
     - A resized plan stays through budget, style and paint changes. The 3D in the last step is built from it.

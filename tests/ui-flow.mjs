@@ -72,6 +72,12 @@ assert.ok(hm.plan && hm.sum === 4 && hm.cards === 5 && hm.ok, 'the home step sho
 assert.ok(hm.foot < hm.land, 'buildable area is the plot minus the open space');
 assert.equal(hm.st2, 'no'); assert.ok(hm.fix > 0 && !hm.ok2 && hm.ok3, 'a home that does not fit is refused with fixes that work');
 assert.equal(hm.bad, 0, 'an overcrowded home is never called comfortable');
+// a flat on every floor: each floor has its own BHK and kitchen, and the check names the floor that does not fit
+const pf = await p.evaluate(() => { const h = ST.home; h.floors = 3; h.split = 'floors'; h.perFloor = [1, 1, 3]; ST.plot.sides = { f: 30, b: 30, l: 40, r: 40 }; applySides(); S.design = null; render();
+  const ds = designNow(), o = ds.D.options[ds.opt], C = homeCheck(ds.D, o), a = { brief: ds.D.brief.perFloor.join(), kit: o.floors.map(F => F.rooms.filter(r => r.type === 'kitchen' && !r.void).length).join(), st: C.st, why: C.V.why, fix: C.fixes.length, rows: document.querySelectorAll('[data-a="hpfl"]').length };
+  h.split = 'house'; h.floors = 2; h.bhk = 3; ST.plot.sides = { f: 30, b: 30, l: 50, r: 50 }; applySides(); S.design = null; render(); return a; });
+assert.equal(pf.brief, '1,1,3'); assert.equal(pf.kit, '1,1,1', 'a kitchen on every floor'); assert.equal(pf.rows, 12, 'a BHK choice for each floor');
+assert.ok(pf.st === 'no' && /second floor/.test(pf.why) && pf.fix > 0, 'the floor that does not fit is named: ' + JSON.stringify(pf));
 // resize a room on the home step: the plan changes live and the change reaches the final step, even after a budget change
 await p.click('[data-a="gedit"]'); const gl = await (await p.$('#planbox .gh[data-gi^="c"]')).boundingBox();
 await p.mouse.move(gl.x + gl.width / 2, gl.y + gl.height / 2); await p.mouse.down(); await p.mouse.move(gl.x + gl.width / 2 + 40, gl.y + gl.height / 2, { steps: 6 }); await p.mouse.up(); await p.waitForTimeout(300);
@@ -81,5 +87,5 @@ assert.ok(rz.custom && rz.fcustom && rz.final === rz.cols, 'a resized plan carri
 const bg = await p.evaluate(() => { ST.grid = null; ST.home.floors = 2; ST.home.bhk = 3; ST.step = flow().indexOf('home'); render(); ST.step = flow().indexOf('budget'); render(); const o = { pk: document.querySelectorAll('[data-a="pkg"]').length, tiers: document.querySelectorAll('.tiers [data-a="tier"]').length, lab: /Labour charge/.test(document.body.textContent) }; const t = {}; for (const k of ['core', 'semi', 'full']) { ST.pkg = k; t[k] = tierEstimate('mid').total; } ST.pkg = 'core'; return Object.assign(o, t); });
 assert.equal(bg.pk, 3); assert.equal(bg.tiers, 3); assert.ok(bg.lab); assert.ok(bg.core < bg.semi && bg.semi < bg.full, 'semi and full add to the core cost');
 assert.deepEqual(errs, []);
-console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks, plot/home/budget steps, home fit check and resizable plan');
+console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks, plot/home/budget steps, home fit check, flat per floor and resizable plan');
 await b.close(); server.close();
