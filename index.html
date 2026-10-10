@@ -174,7 +174,9 @@ svg.plan text,svg.elev text,svg.splan text,svg.ssec text{text-rendering:geometri
 svg.plan{max-height:72vh}
 .plan .plot{fill:none;stroke:#93A2AF;stroke-width:.15;stroke-dasharray:.8 .5}
 .plan .road{fill:#E9ECEE}.plan .roadt{font-size:1.05px;fill:#6e6e73;text-anchor:middle;letter-spacing:.08px;font-family:var(--font)}
-.plan .r{stroke:#24323D;stroke-width:.32}.plan .r.sub{stroke-width:.26}
+.ops-t{width:100%;border-collapse:collapse;font-size:13.5px}.ops-t th,.ops-t td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line2)}.ops-t th{font-size:11.5px;color:var(--mute);font-weight:600}.ops-types{display:grid;gap:8px;margin-top:12px}.ops-types label{display:grid;gap:3px;font-size:12.5px;color:var(--mute)}.ops-types select{font:inherit;font-size:13.5px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.plan .fmh{fill:rgba(201,150,60,.12);stroke:#C9963C;stroke-width:.12;cursor:grab;touch-action:none}.plan .fmh:hover{fill:rgba(201,150,60,.25)}.plan .fmh.sel{stroke-width:.22;fill:rgba(201,150,60,.3)}.plan .fmh.bad{fill:rgba(180,35,24,.3);stroke:#b42318}#planbox.fmoving svg{touch-action:none}.fm-act{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.plan .opl{font-size:.5px;fill:#5B6670;text-anchor:middle;font-weight:600;letter-spacing:.01em}.plan .win-l{fill:#2C6E91}.plan .r{stroke:#24323D;stroke-width:.32}.plan .r.sub{stroke-width:.26}
 .plan .r-open{stroke:#9fb59a;stroke-width:.18;stroke-dasharray:.6 .4}.plan .r-park{stroke:#24323D;stroke-width:.32}
 .plan .outer{fill:none;stroke:#1d1d1f;stroke-width:.75}
 .plan .gap{stroke:#fff;stroke-width:.9}.plan .gapw{stroke:#fff;stroke-width:.85}
@@ -1224,7 +1226,7 @@ function makeDesign(input) {
   });
   options.forEach(o => chooseStairFlip({ brief: b }, o));
   // keep the three layouts with the clearest routes (no walking through rooms), best Vastu first among equals
-  options.forEach(o => { o.walk = o.floors.reduce((a, F) => { const P = doorPlan({ brief: b }, o, F); return a + P.unreached.length * 10 + P.passThrough.length; }, 0); });
+  options.forEach(o => { o.walk = o.floors.reduce((a, F) => { const P = doorPlan({ brief: b }, o, F); return a + P.unreached.length * 10 + P.passThrough.reduce((n, r) => n + (r.type === 'master' || r.type === 'bedroom' ? 6 : 1), 0); }, 0); }); // walking through a bedroom costs privacy most
   options.sort((p, q) => p.walk - q.walk || q.score - p.score);
   options.splice(3); options.forEach((o, i) => { o.id = 'ABC'[i]; });
   // a terrace nobody can walk to is just the roof of the room below
@@ -1392,14 +1394,15 @@ function addSubRooms(b, floors, nr, nc) {
   floors.forEach(F => {
     const need = F.fi === 0 ? b.baths >= 1 : F.rooms.some(r => (r.type === 'bedroom' || r.type === 'master') && !r.subs.length);
     if (!need) return;
-    const hosts = F.rooms.filter(r => !r.void && (['store', 'study', 'lounge'].includes(r.type) || (r.type === 'terrace' && r.covered) || (r.type === 'living' && r.rect.w * r.rect.h >= 160) || (r.type === 'passage' && r.rect.w * r.rect.h >= 110)));
+    // privacy: a toilet opens off a passage, lounge, study or store — never off the living room, dining or kitchen
+    const hosts = F.rooms.filter(r => !r.void && (['store', 'study', 'lounge'].includes(r.type) || (r.type === 'terrace' && r.covered) || (r.type === 'passage' && r.rect.w * r.rect.h >= 70)));
     const best = bestBath(b, floors, F, hosts, 'powder', 5, 7);
     if (best && best.sc > -100) best.host.subs.push(best.s);
     else if (F.fi === 0) F.noCommonBath = true;
   });
   // every home needs a toilet: in a very small home take the best spot that is still allowed (never North-East, centre or over the kitchen)
   if (!floors.some(F => F.rooms.some(r => r.subs.some(x => x.type === 'bath' || x.type === 'powder')))) {
-    const F = floors[0], hosts = F.rooms.filter(r => !r.void && ['master', 'bedroom', 'living', 'passage', 'store', 'dining', 'study'].includes(r.type));
+    const F = floors[0], hosts = F.rooms.filter(r => !r.void && ['master', 'bedroom', 'passage', 'store', 'study', 'lounge'].includes(r.type));
     const near = (host, x) => F.rooms.some(r => r !== host && ['kitchen', 'dining'].includes(r.type) && shareLen(r.rect, x) > 0.5) || F.rooms.some(r => r.subs.some(p => p.type === 'pooja' && shareLen(p, x) > 0.1));
     let done = false;
     for (const [w, h] of [[5, 7], [4.5, 6.5], [4, 6]]) { for (const host of hosts) {
@@ -1926,7 +1929,7 @@ function furnLayout(room, swings, entries, wins, ed) {
   const winWall = w => WB.some(b => b.side === w && b.kind === 'window');
   const doorDist = q => (entries || []).reduce((m, [x, y]) => Math.min(m, Math.hypot(Math.max(q.x - x, 0, x - q.x - q.w), Math.max(q.y - y, 0, y - q.y - q.h))), 99);
   const POS = ['mid', 'start', 'end'];
-  if (t === 'master' || t === 'bedroom') {
+  if (ed.frozen) { /* the owner arranged this room by hand: only their pieces, nothing added */ } else if (t === 'master' || t === 'bedroom') {
     // bed sizes: king 6 ft, queen 5 ft, double 4 ft 6 in, single 3 ft — the biggest that keeps a 2 ft path round it scores best
     const sizes = (t === 'master' && short >= 11 ? [6, 5] : short >= 10 ? [5, 4.5] : [4.5, 3]).concat([3]);
     const mkBed = ([q, w]) => { if (Math.min(q.w, q.h) < 2.9) return null; const it = item(q, 'bed', w, 2); const hz = w === 'top' || w === 'bottom'; const sides = hz ? [{ x: q.x - 2, y: q.y, w: 2, h: q.h }, { x: q.x + q.w, y: q.y, w: 2, h: q.h }] : [{ x: q.x, y: q.y - 2, w: q.w, h: 2 }, { x: q.x, y: q.y + q.h, w: q.w, h: 2 }]; if (!sides.some(z => inRoom(z) && !blocks.some(b => !b.sq && ovl(z, b) > 0.04))) return null; const z = sides.find(inRoom), f = front(q, w, 2); it.clr = z ? { x: Math.min(f.x, z.x), y: Math.min(f.y, z.y), w: Math.max(f.x + f.w, z.x + z.w) - Math.min(f.x, z.x), h: Math.max(f.y + f.h, z.y + z.h) - Math.min(f.y, z.y) } : f; it.side = z; return it; };
@@ -2838,7 +2841,38 @@ function furnEditOf(D, o, F, room) { const E = ST.furnEdits && ST.furnEdits[furn
 function furnEditSet(o, F, room, fn) {
   ST.furnEdits = ST.furnEdits || {}; const dk = furnDesignKey(o), rk = furnRoomKey(F, room);
   const E = ST.furnEdits[dk] = ST.furnEdits[dk] || {}; const cur = E[rk] = E[rk] || { pins: [], removed: [], vari: 0 };
-  fn(cur); if (!cur.pins.length && !cur.removed.length && !cur.vari) delete E[rk];
+  fn(cur); if (!cur.frozen && !cur.pins.length && !cur.removed.length && !cur.vari) delete E[rk];
+}
+/* ---------- move furniture by hand on the plan: drag, turn, remove; never in front of a door, in a swing or over a bath ---------- */
+const FM_ROLES = ['bed', 'sofa', 'wardrobe', 'tv', 'dtable', 'study', 'armchair', 'table', 'nstand', 'fridge', 'ottoman', 'plant'];
+const fmList = items => items.filter(q => FM_ROLES.includes(q.role) || q.role === 'chaise');
+const fmPin = q => ({ x: q.x, y: q.y, w: q.w, h: q.h, role: q.role, wall: q.wall, asset: q.asset || null, variant: q.variant || null, label: q.label || null, name: q.name || null, seats: q.seats || null });
+function fmHits(D, o, F, room) {
+  if (!['living', 'master', 'bedroom', 'dining', 'study', 'lounge', 'kitchen'].includes(room.type)) return '';
+  const ri = F.rooms.indexOf(room), sel = S.design && S.design.fsel;
+  return fmList(furnOf(D, o, F, room)).map((q, k) => q.role === 'chaise' ? '' : '<rect class="fmh' + (sel && sel.f === F.fi && sel.r === ri && sel.k === k ? ' sel' : '') + '" data-fr="' + ri + '" data-fk="' + k + '" x="' + q.x + '" y="' + q.y + '" width="' + q.w + '" height="' + q.h + '" rx=".15"><title>' + esc(q.label || q.name || q.role) + ' — drag to move</title></rect>').join('');
+}
+// why a piece cannot stand here ('' when it can)
+function fmWhy(D, o, F, room, q, k) {
+  const M = mainRect(room), e = 0.02;
+  if (q.x < M.x - e || q.y < M.y - e || q.x + q.w > M.x + M.w + e || q.y + q.h > M.y + M.h + e) return 'It has to stay inside the room.';
+  if (room.subs.some(s => ovl(q, s) > 0.04)) return 'That is the ' + (ROOM[room.subs.find(s => ovl(q, s) > 0.04).type] || {}).name.toLowerCase() + '.';
+  if (swingsOf(D, o, F).some(s => s.sq ? hitSwing(q, s) : ovl(q, s) > 0.04)) return 'A door opens over this spot.';
+  if (!['table', 'plant', 'ottoman'].includes(q.role) && roomEntries(D, o, F, room).some(([x, y]) => ovl(q, { x: x - 1.6, y: y - 1.6, w: 3.2, h: 3.2 }) > 0.04)) return 'Keep 3 ft clear in front of the door.';
+  const L = fmList(furnOf(D, o, F, room)), me = L[k], all = furnOf(D, o, F, room).filter(p => p.solid);
+  const other = all.find(p => p !== me && p.host !== me && !(me && (me.parts || []).includes(p)) && !(p.role === 'chair' && me && me.role === 'dtable') && ovl(q, p) > 0.04);
+  return other ? 'It would overlap the ' + (other.name || other.role).toLowerCase() + '.' : '';
+}
+function fmApply(F, ri, k, fn) {
+  const ds = S.design, o = ds.D.options[ds.opt], room = F.rooms[ri];
+  const L = fmList(furnOf(ds.D, o, F, room));
+  furnEditSet(o, F, room, E => { if (!E.frozen) { E.frozen = true; E.pins = L.map(fmPin); E.removed = []; } fn(E.pins); });
+}
+function fmBar(ds) {
+  const sel = ds.fsel;
+  return '<div class="fm-bar"><p class="edit-hint">Drag any piece to move it — it snaps to 6 inches. Tap a piece to turn or remove it. It will not go in front of a door, in a door\'s swing or over a bath.</p>' +
+    (sel ? '<div class="fm-act"><button class="btn sm ghost" data-a="fmturn">Turn 90°</button><button class="btn sm ghost" data-a="fmdel">Remove</button><button class="btn sm ghost" data-a="fmreset">Reset this room</button></div>' : '') +
+    '<p class="fe-m' + (ds.fmMsg ? ' bad' : '') + '" id="fmmsg" aria-live="polite"' + (ds.fmMsg ? '' : ' hidden') + '>' + esc(ds.fmMsg || '') + '</p></div>';
 }
 function furnRefresh() { V3.keep = { th: V3.th, ph: V3.ph, dist: V3.dist, target: V3.target && V3.target.clone() }; keepY(() => {}); }
 const FS = {};
@@ -3379,7 +3413,11 @@ function planSvg(D, o, F, opts) {
   });
   h += '<rect x="' + bx0 + '" y="' + (by0 + o.G.backyard) + '" width="' + (bx1 - bx0) + '" height="' + (by1 - by0 - o.G.backyard) + '" class="outer"/>';
   const DP = doorPlan(D, o, F);
-  doorDraw(D, o, F).forEach(x => { if (x.d.kind !== 'open') h += svgDoor(x.seg, x.side, true); });
+  // every opening carries its size: windows W, doors D (main door MD, bath door BD), archways — and is counted for the schedule
+  let fmh = ''; // furniture handles, drawn last so they sit on top
+  const OPS = F._ops = [], opLab = (seg, side, code, wd, ht) => { const [x1, y1, x2, y2] = seg, mx = (x1 + x2) / 2, my = (y1 + y2) / 2, sv = SWING_DIR[side] || [0, 0], vert = Math.abs(x1 - x2) < 0.01, ox = mx - sv[0] * 0.8, oy = my - sv[1] * 0.8 + (vert ? 0 : 0.15);
+    OPS.push({ code, w: wd, h: ht }); return '<text x="' + ox + '" y="' + oy + '" class="opl"' + (vert ? ' transform="rotate(-90 ' + ox + ' ' + oy + ')"' : '') + '>' + code + ' ' + ftIn(wd) + (ht ? '×' + ftIn(ht) : '') + '</text>'; };
+  doorDraw(D, o, F).forEach(x => { const wd = Math.hypot(x.seg[2] - x.seg[0], x.seg[3] - x.seg[1]); if (x.d.kind !== 'open') h += svgDoor(x.seg, x.side, true) + opLab(x.seg, x.side, x.d.kind === 'main' ? 'MD' : 'D', wd, DOOR_H); else h += opLab(x.seg, x.side, 'Arch', wd, 0); });
   if (opts.vastu) h += vastuOverlaySvg(b, LB);
   F.rooms.forEach(room => {
     if (room.void) return;
@@ -3399,9 +3437,12 @@ function planSvg(D, o, F, opts) {
         if (hitsDoor(DP.doors, horiz, e, (horiz ? M.x : M.y) + a, (horiz ? M.x : M.y) + a + ww)) return;
         h += horiz ? '<g class="win"><line x1="' + (M.x + a) + '" y1="' + e + '" x2="' + (M.x + a + ww) + '" y2="' + e + '" class="gapw"/><line x1="' + (M.x + a) + '" y1="' + (e - 0.18) + '" x2="' + (M.x + a + ww) + '" y2="' + (e - 0.18) + '"/><line x1="' + (M.x + a) + '" y1="' + (e + 0.18) + '" x2="' + (M.x + a + ww) + '" y2="' + (e + 0.18) + '"/></g>'
           : '<g class="win"><line x1="' + e + '" y1="' + (M.y + a) + '" x2="' + e + '" y2="' + (M.y + a + ww) + '" class="gapw"/><line x1="' + (e - 0.18) + '" y1="' + (M.y + a) + '" x2="' + (e - 0.18) + '" y2="' + (M.y + a + ww) + '"/><line x1="' + (e + 0.18) + '" y1="' + (M.y + a) + '" x2="' + (e + 0.18) + '" y2="' + (M.y + a + ww) + '"/></g>';
+        { const c = (horiz ? M.x : M.y) + a + ww / 2, off = sd === 'top' || sd === 'left' ? -0.75 : 1.1, tx = horiz ? c : e + (sd === 'left' ? -0.75 : 0.95), ty = horiz ? e + off : c; OPS.push({ code: 'W', w: ww, h: WIN_TOP - SILL });
+          h += '<text x="' + tx + '" y="' + ty + '" class="opl win-l"' + (horiz ? '' : ' transform="rotate(-90 ' + tx + ' ' + ty + ')"') + '>W ' + ftIn(ww) + '×' + ftIn(WIN_TOP - SILL) + '</text>'; }
       });
     }
-    subDoorsOf(room).forEach(d => { h += svgDoor(d.seg, d.side, true); });
+    subDoorsOf(room).forEach(d => { h += svgDoor(d.seg, d.side, true) + opLab(d.seg, d.side, 'BD', Math.hypot(d.seg[2] - d.seg[0], d.seg[3] - d.seg[1]), DOOR_H); });
+    if (opts.furn && opts.fmove) fmh += fmHits(D, o, F, room);
     if (opts.furn) { h += furniture(room, F, SW, LB, D, o); furnOf(D, o, F, room).forEach(q => { if (!q.d3only && q.w && !q.veh && q.role !== 'pillow') OB.push(q); }); }
   });
   terraceDoors(D, o, F).forEach(t => { h += svgDoor(t.seg, t.side, true); });
@@ -3445,7 +3486,7 @@ function planSvg(D, o, F, opts) {
   const v = { front: [0, 1], rear: [0, -1], left: [-1, 0], right: [1, 0] }[['front', 'left', 'rear', 'right'][[b.facing, cwDir(b.facing, 1), cwDir(b.facing, 2), cwDir(b.facing, 3)].indexOf('N')]];
   const cx = b.w + m - 2.4, cy = -m + 2.6;
   h += '<g class="compass"><circle cx="' + cx + '" cy="' + cy + '" r="1.9"/><line x1="' + (cx - v[0] * 1.5) + '" y1="' + (cy - v[1] * 1.5) + '" x2="' + (cx + v[0] * 1.5) + '" y2="' + (cy + v[1] * 1.5) + '"/><circle cx="' + (cx + v[0] * 1.5) + '" cy="' + (cy + v[1] * 1.5) + '" r="0.35" class="tip"/><text x="' + (cx + v[0] * 2.7) + '" y="' + (cy + v[1] * 2.7 + 0.4) + '">N</text></g>';
-  return h + '</svg>';
+  return h + fmh + '</svg>';
 }
 const STYLES = {
   modern: { name: 'Modern', wall: '#F4F2EE', accent: '#2B3A44', wood: '#A86F3F', glass: '#BFD6DF', trim: '#2B3A44', roof: null },
@@ -5912,10 +5953,10 @@ const ITEMS = [
   { g: 'Paint & putty', id: 'enamel', n: 'Enamel (grills, doors)', u: 'litre', q: Q => Q.winSqft / 60 + Q.railing / 25 + 4, how: 'Grills, railings and door frames', opts: [O('Asian Paints Apcolite', 290, 'IL'), O('Berger Luxol Hi-gloss', 304, 'IL'), O('PU polish / premium enamel', 450, 'EST')], def: [0, 0, 1, 2] },
   { g: 'Paint & putty', id: 'cladding', n: 'Front elevation cladding', u: 'sq ft', q: Q => Q.frontArea * 0.25, how: 'About a quarter of the front wall', opts: [O('Alstrong ACP 4 mm PVDF', 85, 'IL'), O('Stone cladding', 180, 'EST'), O('ACP + natural stone', 220, 'EST')], def: [-1, -1, 1, 2] },
   // Doors & windows
-  { g: 'Doors & windows', id: 'maindoor', n: 'Main door set', u: 'nos', q: Q => Q.mainDoor, how: 'From the plan', opts: [O('Sal frame + flush door + hardware', 9000, 'IL'), O('Sal frame + teak-veneer door + SS hardware', 16000, 'EST'), O('Teak panel door + frame + digital lock', 32000, 'IL'), O('Solid teak designer door + smart lock', 65000, 'EST')], def: [0, 1, 2, 3] },
-  { g: 'Doors & windows', id: 'doors', n: 'Room doors', u: 'nos', q: Q => Q.roomDoors, how: 'From the plan', opts: [O('Flush door + sal frame', 6000, 'IL'), O('Laminated flush door + frame + SS hardware', 8500, 'EST'), O('Veneer door + frame', 14000, 'EST'), O('Teak panel door + frame', 22000, 'IL'), O('Designer veneer / lacquer door', 25000, 'EST')], def: [0, 1, 2, 4] },
-  { g: 'Doors & windows', id: 'bathdoors', n: 'Bathroom doors', u: 'nos', q: Q => Q.bathDoors, how: 'One per bath', opts: [O('PVC door + frame', 4000, 'IL'), O('WPC door + WPC frame', 5500, 'IL'), O('Laminated WPC door', 7500, 'EST'), O('Designer WPC / frosted glass door', 12000, 'EST')], def: [0, 1, 2, 3] },
-  { g: 'Doors & windows', id: 'windows', n: 'Windows', u: 'sq ft', q: Q => Q.winSqft, how: 'From the plan', opts: [O('Aluminium sliding (Jindal sections) + 5 mm glass', 380, 'EST'), O('uPVC sliding windows', 450, 'IL'), O('Fenesta uPVC + toughened glass', 637, 'IL'), O('uPVC/aluminium system + double-glazed glass', 900, 'IL')], def: [0, 1, 2, 3] },
+  { g: 'Doors & windows', id: 'maindoor', n: 'Main door set', u: 'nos', q: Q => Q.mainDoor, how: 'From the plan', opts: [O('Sal frame + flush door + hardware', 9000, 'IL'), O('Sal frame + teak-veneer door + SS hardware', 16000, 'EST'), O('Teak panel door + frame + digital lock', 32000, 'IL'), O('Solid teak designer door + smart lock', 65000, 'EST'), O('Steel safety door + wooden main door', 28000, 'EST'), O('Double-leaf teak door, 5 ft wide', 55000, 'EST'), O('Pivot door, wood + stone cladding', 85000, 'EST')], def: [0, 1, 2, 3] },
+  { g: 'Doors & windows', id: 'doors', n: 'Room doors', u: 'nos', q: Q => Q.roomDoors, how: 'From the plan', opts: [O('Flush door + sal frame', 6000, 'IL'), O('Laminated flush door + frame + SS hardware', 8500, 'EST'), O('Veneer door + frame', 14000, 'EST'), O('Teak panel door + frame', 22000, 'IL'), O('Designer veneer / lacquer door', 25000, 'EST'), O('PVC / membrane door + frame', 5500, 'EST'), O('Sliding door (wood or glass)', 18000, 'EST'), O('Frosted glass door, aluminium frame', 16000, 'EST')], def: [0, 1, 2, 4] },
+  { g: 'Doors & windows', id: 'bathdoors', n: 'Bathroom doors', u: 'nos', q: Q => Q.bathDoors, how: 'One per bath', opts: [O('PVC door + frame', 4000, 'IL'), O('WPC door + WPC frame', 5500, 'IL'), O('Laminated WPC door', 7500, 'EST'), O('Designer WPC / frosted glass door', 12000, 'EST'), O('Aluminium + frosted glass door', 9000, 'EST')], def: [0, 1, 2, 3] },
+  { g: 'Doors & windows', id: 'windows', n: 'Windows', u: 'sq ft', q: Q => Q.winSqft, how: 'From the plan', opts: [O('Aluminium sliding (Jindal sections) + 5 mm glass', 380, 'EST'), O('uPVC sliding windows', 450, 'IL'), O('Fenesta uPVC + toughened glass', 637, 'IL'), O('uPVC/aluminium system + double-glazed glass', 900, 'IL'), O('Aluminium sliding + mosquito mesh', 450, 'EST'), O('uPVC casement (opens outward)', 600, 'EST'), O('Wooden (sal / teak) casement window', 750, 'EST'), O('Fixed glass + louvered ventilator', 520, 'EST'), O('Bay window with seat', 1200, 'EST')], def: [0, 1, 2, 3] },
   { g: 'Doors & windows', id: 'grills', n: 'Window grills', u: 'sq ft', q: Q => Q.winSqft, how: 'Same as windows', opts: [O('MS grill', 140, 'EST'), O('MS designer grill', 160, 'EST'), O('Invisible SS-wire grill', 220, 'EST'), O('SS grill', 280, 'EST')], def: [0, 1, 3, 2] },
   // Bathroom
   { g: 'Bathroom fittings', id: 'wc', n: 'Toilet seat (WC)', u: 'nos', q: Q => Q.baths, how: 'One per bath', opts: [O('Floor-mount WC (Cera / local)', 5164, 'IL'), O('Parryware WC', 8784, 'IL'), O('Wall-hung WC + concealed cistern', 9295, 'IL'), O('Hindware one-piece WC', 11316, 'IL'), O('Kohler wall-hung WC', 28292, 'IL')], def: [0, 1, 3, 4] },
@@ -5995,12 +6036,11 @@ const ST = {
 };
 const S = { design: null };
 const FLOWS = {
-  build: ['purpose', 'use', 'plot', 'home', 'budget', 'layout', 'structure', 'materials', 'quote'],
+  build: ['purpose', 'use', 'plot', 'home', 'budget', 'layout', 'materials', 'quote'],
   cost: ['purpose', 'use', 'plot', 'home', 'budget', 'quote'],
   quote: ['purpose', 'use', 'plot', 'home', 'budget', 'materials', 'quote'],
-  structure: ['purpose', 'use', 'plot', 'home', 'structure']
 };
-const flow = () => { const f = FLOWS[ST.purpose || 'build']; return ST.home && (ST.home.use === 'rent' || isProj()) ? f.filter(x => x !== 'materials') : f; };
+const flow = () => { const f = FLOWS[ST.purpose] || FLOWS.build; return ST.home && (ST.home.use === 'rent' || isProj()) ? f.filter(x => x !== 'materials') : f; };
 const cur = () => flow()[ST.step];
 // a new design also brings a new look unless the buyer picked one: style by the design number, weighted by range
 function seedStyle(seed, ti) { if (!seed) return ti >= 2 ? 'contemporary' : 'modern'; const L = ti >= 2 ? ['contemporary', 'modern', 'contemporary', 'odia'] : ['modern', 'contemporary', 'modern', 'odia']; return L[((seed >>> 0) % 9973) % L.length]; }
@@ -6164,7 +6204,7 @@ function bxArt() {
 }
 SCR.purpose = () => '<section class="bx-hero"><div><span class="bx-lab"><img src="' + BRAND_LOGO + '" alt="Shree BhuChain">Build · Odisha</span><h1>From plot<br><em>to keys.</em></h1><p class="lead">Plan, 3D design, structure and an itemised quotation for your home — in minutes. Speak in Odia, Hindi or English.</p><div class="bx-facts"><span><b>3</b>design options</span><span><b>2D + 3D</b>every floor</span><span><b>PDF</b>home pack</span></div></div><div class="bx-art">' + bxArt() + '</div></section>' +
   '<h2 class="q">What would you like to do?</h2><div class="opts two">' +
-  [['build', 'Build a new home', 'Plan, 3D design, every material and a full quotation.'], ['cost', 'Know my building cost', 'A quick, honest cost per sq ft for your plot.'], ['quote', 'Get a material quotation', 'Every material — grade, brand, quantity and price.'], ['structure', 'Get a structure plan', 'Columns, beams, footings and steel — for your home or any size.']].map(o => '<button class="opt' + (ST.purpose === o[0] ? ' on' : '') + '" data-a="purpose" data-v="' + o[0] + '"><span class="ic">' + ICON[o[0]] + '</span><b>' + o[1] + '</b><span>' + o[2] + '</span></button>').join('') + '</div>';
+  [['build', 'Build a new home', 'Plan, 3D design, every material and a full quotation.'], ['cost', 'Know my building cost', 'A quick, honest cost per sq ft for your plot.'], ['quote', 'Get a material quotation', 'Every material — grade, brand, quantity and price.']].map(o => '<button class="opt' + (ST.purpose === o[0] ? ' on' : '') + '" data-a="purpose" data-v="' + o[0] + '"><span class="ic">' + ICON[o[0]] + '</span><b>' + o[1] + '</b><span>' + o[2] + '</span></button>').join('') + '</div>';
 function useCards() { const use = ST.home.use || 'family'; return '<div class="opts two use">' + [['family', 'Home for my family', 'One house for you to live in. Big land gets a lawn, garden and more.'], ['villa', 'Ultra luxury estate', 'A signature villa, a garden bungalow or a farmhouse estate — designed together with its grounds.'], ['rent', 'Rental units', 'Many self-contained units — each with its own kitchen and attached bath.'], ['apartment', 'Apartment building', 'Flats of 1, 2, 3 or 4 BHK on many floors, with lifts, parking and amenities.'], ['commercial', 'Commercial building', 'Shops and offices, with lifts and open, ground-floor or basement parking.']].map(u => '<button class="opt' + (use === u[0] ? ' on' : '') + '" data-a="use" data-v="' + u[0] + '"><b>' + u[1] + '</b><span>' + u[2] + '</span></button>').join('') + '</div>'; }
 SCR.use = () => '<h2 class="q">What will you build?</h2><p class="sub">Pick one. Next, tell us how big the land is.</p>' + useCards();
 SCR.city = () => '<h2 class="q">Where will you build?</h2><p class="sub">Prices follow the local market.</p><div class="opts two">' + CITIES.map(c => '<button class="opt row' + (ST.city === c.id ? ' on' : '') + '" data-a="city" data-v="' + c.id + '"><b>' + c.name + '</b><span>' + c.note + '</span></button>').join('') + '</div>';
@@ -6683,6 +6723,17 @@ function tierEstimate(tid) {
 }
 function srcA(k) { const s = SOURCES[k]; return s.u ? '<a href="' + s.u + '" target="_blank" rel="noopener noreferrer">' + esc(s.t.split(' — ')[0]) + '</a>' : esc(s.t); }
 // one line that opens on tap (Apple-style list row)
+// door and window schedule: every opening of the house with its size and count, and the type of each kind (changes the price)
+const OP_KIND = { MD: ['maindoor', 'Main door'], D: ['doors', 'Room door'], BD: ['bathdoors', 'Bathroom door'], W: ['windows', 'Window'], Arch: [null, 'Open archway'] };
+function opSchedule(D, o) {
+  const rows = {}; o.floors.forEach(F => { planSvg(D, o, F, { furn: false }); (F._ops || []).forEach(x => { const k = x.code + '|' + ftIn(x.w) + '|' + (x.h ? ftIn(x.h) : ''); (rows[k] = rows[k] || { code: x.code, w: x.w, h: x.h, n: 0 }).n++; }); });
+  const L = Object.values(rows).sort((a, b) => Object.keys(OP_KIND).indexOf(a.code) - Object.keys(OP_KIND).indexOf(b.code) || b.w - a.w);
+  const sel = id => { const it = ITEMS.find(i => i.id === id), c = itemChoice(it); return '<select data-pick="' + id + '" aria-label="' + esc(it.n) + ' type">' + it.opts.map((op, i) => '<option value="' + i + '"' + (c && c.ix === i ? ' selected' : '') + '>' + esc(op.l) + ' · ' + rup(op.r) + '/' + esc(op.u || it.u) + '</option>').join('') + '</select>'; };
+  const n = L.reduce((a, r) => a + (r.code === 'Arch' ? 0 : r.n), 0);
+  return { n, html: '<div class="panel"><table class="ops-t"><thead><tr><th>Mark</th><th>What</th><th>Size (w × h)</th><th>No.</th></tr></thead><tbody>' + L.map(r => '<tr><td><b>' + r.code + '</b></td><td>' + OP_KIND[r.code][1] + '</td><td>' + ftIn(r.w) + (r.h ? ' × ' + ftIn(r.h) : ', full height') + '</td><td>' + r.n + '</td></tr>').join('') + '</tbody></table>' +
+    '<div class="ops-types">' + ['maindoor', 'doors', 'bathdoors', 'windows', 'grills'].map(id => '<label><span>' + esc(ITEMS.find(i => i.id === id).n) + '</span>' + sel(id) + '</label>').join('') + '</div>' +
+    '<p class="hint">The marks are written on the plan next to each opening. Windows sit ' + ftIn(SILL) + ' above the floor; doors are ' + ftIn(DOOR_H) + ' high. The type you choose sets the price in the quotation.</p></div>' };
+}
 function uiRow(k, t, meta, inner) { return inner ? '<details class="row" data-row="' + k + '"' + (ST.rows && ST.rows[k] ? ' open' : '') + '><summary><span>' + t + '</span>' + (meta ? '<em>' + esc(meta) + '</em>' : '') + '</summary><div class="rowb">' + inner + '</div></details>' : ''; }
 SCR.layout = () => {
   if (isProj()) return projectLayoutScr();
@@ -6701,7 +6752,7 @@ SCR.layout = () => {
   // one view at a time
   const VIEWS = (b.site ? [['land', b.site.villa ? 'Estate' : 'Land']] : []).concat([['plan', 'Plan'], ['rooms', 'Rooms'], ['3d', '3D'], ['front', 'Front'], ['lights', 'Lights']]);
   h += '<div class="seg2 vsw" role="tablist">' + VIEWS.map(v => '<button role="tab" class="' + (view === v[0] ? 'on' : '') + '" data-a="view" data-v="' + v[0] + '">' + v[1] + '</button>').join('') + '</div>';
-  h += '<div class="hero">' + (view === 'land' && b.site ? '<div class="panel"><div class="ph"><b>' + (b.site.villa ? ESTATE[vtOf(b)].n + ' — site plan' : 'Site plan') + ' — your whole land (' + b.site.W + ' × ' + b.site.D + ' ft)</b></div>' + sitePlanSvg(D, o) + gardenLegend(D, o) + '<p class="hint">The house takes ' + b.site.Wv + ' × ' + b.site.Dv + ' ft at the front. The rest is planned as lawn, garden' + (siteLayout(D).pool ? ', a swimming pool' : '') + (siteLayout(D).gazebo ? ', a gazebo' : '') + ' — not left empty. The floor plans below show the house part.' + (siteLayout(D).lawn > 20000 ? ' About ' + Math.round(siteLayout(D).lawn / 1000) + ',000 sq ft stays lawn — for income, choose “Rental units” on the home step to see how many units fit.' : '') + '</p></div>' : view === '3d' ? '<div class="panel"><div class="ph"><b>3D</b><button class="btn mini walkbtn' + (ds.walk ? ' on' : '') + '" data-a="walk">' + (ds.walk ? 'Back to 3D model' : 'Walk inside') + '</button>' + (ds.show3d && !ds.walk ? '<div class="seg2 sm">' + [['ext', 'Outside']].concat(o.floors.map((x, i) => ['f' + i, x.label])).map(m => '<button class="' + (ds.v3 === m[0] ? 'on' : '') + '" data-a="v3" data-v="' + m[0] + '">' + esc(m[1]) + '</button>').join('') + '</div><div class="seg2 sm"><button class="' + (ds.night ? '' : 'on') + '" data-a="night" data-v="0">Day</button><button class="' + (ds.night ? 'on' : '') + '" data-a="night" data-v="1">Night lights</button></div>' + furnSkinBar(D, o) : '') + '</div><div id="dz3d" class="v3">' + (ds.show3d ? '<p class="load">Loading 3D…</p>' : '<button class="btn" data-a="make3d">See it in 3D</button><p class="hint">Outside and inside every floor. Drag to turn.</p>') + '</div></div>' : view === 'front' ? '<div class="panel"><div class="ph"><b>Front elevation</b><div class="seg2 sm">' + Object.keys(STYLES).map(k => '<button class="' + (b.style === k ? 'on' : '') + '" data-a="style" data-v="' + k + '">' + esc(STYLES[k].name) + '</button>').join('') + '</div></div>' + elevationSvg(D, o) + '</div>' : view === 'lights' ? lightPanel(D, o, F) : view === 'rooms' ? roomStudioView(D, o) : '<div class="panel"><div class="ph"><div class="seg2 sm">' + o.floors.map((x, i) => '<button class="' + (i === ds.floor ? 'on' : '') + '" data-a="floor" data-v="' + i + '">' + esc(x.label) + '</button>').join('') + '<button class="' + (isRoof ? 'on' : '') + '" data-a="floor" data-v="' + nFl + '">Roof</button></div>' + (!isRoof && F.fi === 0 ? '<button class="tog vtog' + (ST.vgrid ? ' on' : '') + '" data-a="vgrid"><span class="dot"></span>Vastu Purush</button>' : '') + (!isRoof ? '<button class="tog vtog' + (ds.edit ? ' on' : '') + '" data-a="gedit"><span class="dot"></span>Resize rooms</button><button class="tog vtog' + (ds.meas ? ' on' : '') + '" data-a="meas"><span class="dot"></span>Measure</button><button class="tog vtog" data-a="plan3d" data-v="' + F.fi + '"><span class="dot"></span>3D with furniture</button>' : '') + '</div>' + (ds.edit && !isRoof ? '<p class="edit-hint">Drag a gold line. The rooms on both sides change together — on every floor, because the columns run through the whole house.</p>' : '') + '<div id="planbox" class="' + (ds.edit && !isRoof ? 'editing' : ds.meas && !isRoof ? 'measuring' : '') + '">' + (ds.meas && !isRoof ? '<p class="edit-hint">Click two points on the plan to measure between them.</p>' : '') + (isRoof ? roofPlanSvg(D, o) : planSvg(D, o, F, { furn: !ds.edit, edit: ds.edit, vastu: !ds.edit && ST.vgrid && F.fi === 0 })) + '<div id="gtip" hidden></div></div></div>') + (view === 'plan' && !isRoof ? decorLegend(D, o, F) + sizeStrip(D, o) : '') + '</div>';
+  h += '<div class="hero">' + (view === 'land' && b.site ? '<div class="panel"><div class="ph"><b>' + (b.site.villa ? ESTATE[vtOf(b)].n + ' — site plan' : 'Site plan') + ' — your whole land (' + b.site.W + ' × ' + b.site.D + ' ft)</b></div>' + sitePlanSvg(D, o) + gardenLegend(D, o) + '<p class="hint">The house takes ' + b.site.Wv + ' × ' + b.site.Dv + ' ft at the front. The rest is planned as lawn, garden' + (siteLayout(D).pool ? ', a swimming pool' : '') + (siteLayout(D).gazebo ? ', a gazebo' : '') + ' — not left empty. The floor plans below show the house part.' + (siteLayout(D).lawn > 20000 ? ' About ' + Math.round(siteLayout(D).lawn / 1000) + ',000 sq ft stays lawn — for income, choose “Rental units” on the home step to see how many units fit.' : '') + '</p></div>' : view === '3d' ? '<div class="panel"><div class="ph"><b>3D</b><button class="btn mini walkbtn' + (ds.walk ? ' on' : '') + '" data-a="walk">' + (ds.walk ? 'Back to 3D model' : 'Walk inside') + '</button>' + (ds.show3d && !ds.walk ? '<div class="seg2 sm">' + [['ext', 'Outside']].concat(o.floors.map((x, i) => ['f' + i, x.label])).map(m => '<button class="' + (ds.v3 === m[0] ? 'on' : '') + '" data-a="v3" data-v="' + m[0] + '">' + esc(m[1]) + '</button>').join('') + '</div><div class="seg2 sm"><button class="' + (ds.night ? '' : 'on') + '" data-a="night" data-v="0">Day</button><button class="' + (ds.night ? 'on' : '') + '" data-a="night" data-v="1">Night lights</button></div>' + furnSkinBar(D, o) : '') + '</div><div id="dz3d" class="v3">' + (ds.show3d ? '<p class="load">Loading 3D…</p>' : '<button class="btn" data-a="make3d">See it in 3D</button><p class="hint">Outside and inside every floor. Drag to turn.</p>') + '</div></div>' : view === 'front' ? '<div class="panel"><div class="ph"><b>Front elevation</b><div class="seg2 sm">' + Object.keys(STYLES).map(k => '<button class="' + (b.style === k ? 'on' : '') + '" data-a="style" data-v="' + k + '">' + esc(STYLES[k].name) + '</button>').join('') + '</div></div>' + elevationSvg(D, o) + '</div>' : view === 'lights' ? lightPanel(D, o, F) : view === 'rooms' ? roomStudioView(D, o) : '<div class="panel"><div class="ph"><div class="seg2 sm">' + o.floors.map((x, i) => '<button class="' + (i === ds.floor ? 'on' : '') + '" data-a="floor" data-v="' + i + '">' + esc(x.label) + '</button>').join('') + '<button class="' + (isRoof ? 'on' : '') + '" data-a="floor" data-v="' + nFl + '">Roof</button></div>' + (!isRoof && F.fi === 0 ? '<button class="tog vtog' + (ST.vgrid ? ' on' : '') + '" data-a="vgrid"><span class="dot"></span>Vastu Purush</button>' : '') + (!isRoof ? '<button class="tog vtog' + (ds.edit ? ' on' : '') + '" data-a="gedit"><span class="dot"></span>Resize rooms</button><button class="tog vtog' + (ds.meas ? ' on' : '') + '" data-a="meas"><span class="dot"></span>Measure</button><button class="tog vtog' + (ds.fmove ? ' on' : '') + '" data-a="fmove"><span class="dot"></span>Move furniture</button><button class="tog vtog" data-a="plan3d" data-v="' + F.fi + '"><span class="dot"></span>3D with furniture</button>' : '') + '</div>' + (ds.edit && !isRoof ? '<p class="edit-hint">Drag a gold line. The rooms on both sides change together — on every floor, because the columns run through the whole house.</p>' : '') + (ds.fmove && !isRoof && !ds.edit ? fmBar(ds) : '') + '<div id="planbox" class="' + (ds.edit && !isRoof ? 'editing' : ds.meas && !isRoof ? 'measuring' : ds.fmove && !isRoof ? 'fmoving' : '') + '">' + (ds.meas && !isRoof ? '<p class="edit-hint">Click two points on the plan to measure between them.</p>' : '') + (isRoof ? roofPlanSvg(D, o) : planSvg(D, o, F, { furn: !ds.edit, edit: ds.edit, fmove: ds.fmove && !ds.edit, vastu: !ds.edit && ST.vgrid && F.fi === 0 })) + '<div id="gtip" hidden></div></div></div>') + (view === 'plan' && !isRoof ? decorLegend(D, o, F) + sizeStrip(D, o) : '') + '</div>';
   h += '</div><div class="st-side">';
   // three numbers
   let P = null; try { P = priceList(D, o); } catch (e) { }
@@ -6713,6 +6764,7 @@ SCR.layout = () => {
   if (gOn(D)) { const gn = gState().items.length; c += row('garden', 'Garden, fountains and pool', gn ? gn + ' pieces' : 'Trees, fountains, pool types', estateGardenUI(D, o)); }
   if (b.site && b.site.villa) c += row('look', 'Look', (VILLA_V[b.villaV] || {}).n || '', villaVariantUI(D));
   { const nfx = Object.keys(fxState()).filter(k => fxState()[k]).length; c += row('facade', 'Front elevation', nfx ? nfx + ' elements' : 'Choose a style', facadeUI(D, o)); }
+  { const OS = opSchedule(D, o); c += row('ops', 'Doors & windows', OS.n + ' openings · sizes and types', OS.html); }
   c += row('balc', 'Balcony', (BALC[balcStyle(b)] || BALC.none).n, balcUI(D));
   c += row('interior', 'Interior design', istyleOf() ? istyleOf()[1] : 'Choose a style', interiorUI());
   { const nd = Object.keys(decorState()).filter(k => decorState()[k]).length; c += row('decor', 'Decor', nd ? nd + ' pieces' : 'Ideas for every room', decorUI(D, o)); }
@@ -6730,7 +6782,7 @@ SCR.layout = () => {
   d += row('sizes', 'Wall, slab, beam and pillar sizes', '', sizeTable(D, o));
   d += row('arch', 'For your architect', 'CAD · schedules', architectPanel(D, o));
   h += '<h3 class="lh">Details</h3><div class="rows">' + d + '</div>';
-  h += '<p class="fine">Concept design. A licensed architect prepares the approval drawings.</p></div></div>';
+  h += '<p class="fine">Concept design. A licensed architect prepares the approval drawings. Columns, beams, footings and steel are not designed here: meet an architect or a structural engineer / contractor — they design and sign the structure after a soil test.</p></div></div>';
   return h;
 };
 SCR.materials = () => {
@@ -9036,9 +9088,9 @@ function zoomWire(w, svg) {
   const pt = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const m = svg.getScreenCTM(); return m ? p.matrixTransform(m.inverse()) : { x: null, y: null }; };
   w.querySelector('.zt').addEventListener('click', e => { const b = e.target.closest('[data-z]'); if (!b) return; e.stopPropagation(); const z = b.dataset.z; if (z === 'in') zoomAt(0.6); if (z === 'out') zoomAt(1 / 0.6); if (z === 'fit') { vb.splice(0, 4, ...v0); set(); } if (z === 'full') zoomFull(svg); });
   svg.addEventListener('wheel', e => { if (!e.ctrlKey && !e.metaKey && !w.classList.contains('zoomed')) return; e.preventDefault(); const p = pt(e); zoomAt(e.deltaY > 0 ? 1.12 : 0.89, p.x, p.y); }, { passive: false });
-  svg.addEventListener('dblclick', e => { if (svg.closest('.editing,.measuring')) return; const p = pt(e); zoomAt(0.5, p.x, p.y); });
+  svg.addEventListener('dblclick', e => { if (svg.closest('.editing,.measuring,.fmoving')) return; const p = pt(e); zoomAt(0.5, p.x, p.y); });
   const P = new Map(); let pinch = 0, moved = false;
-  svg.addEventListener('pointerdown', e => { if (svg.closest('.editing,.measuring')) return; P.set(e.pointerId, [e.clientX, e.clientY]); moved = false; });
+  svg.addEventListener('pointerdown', e => { if (svg.closest('.editing,.measuring,.fmoving')) return; P.set(e.pointerId, [e.clientX, e.clientY]); moved = false; });
   svg.addEventListener('pointermove', e => {
     if (!P.has(e.pointerId)) return; const last = P.get(e.pointerId), dx = e.clientX - last[0], dy = e.clientY - last[1]; P.set(e.pointerId, [e.clientX, e.clientY]);
     if (P.size === 2) { const [a, c] = [...P.values()], d = Math.hypot(a[0] - c[0], a[1] - c[1]); if (pinch) zoomAt(pinch / d); pinch = d; e.preventDefault(); return; }
@@ -9198,6 +9250,14 @@ const ACT = {
   v3: el => { S.design.v3 = el.dataset.v; document.querySelectorAll('[data-a="v3"]').forEach(b => b.classList.toggle('on', b === el)); mount3D(); },
   pick: el => keepY(() => { ST.pick[el.dataset.id] = +el.dataset.v; }),
   steelbrand: el => keepY(() => { const cur = itemChoice(ITEMS.find(i => i.steel)); ST.steel = { grade: cur.grade, brand: el.dataset.v }; }),
+  fmove: () => keepY(() => { const ds = S.design; ds.fmove = !ds.fmove; ds.edit = false; ds.meas = false; ds.fsel = null; ds.fmMsg = ''; }),
+  fmturn: () => { const ds = S.design, sel = ds.fsel; if (!sel) return; const o = ds.D.options[ds.opt], F = o.floors[sel.f], room = F.rooms[sel.r], q = fmList(furnOf(ds.D, o, F, room))[sel.k]; if (!q) return;
+    const n = { x: q.x + q.w / 2 - q.h / 2, y: q.y + q.h / 2 - q.w / 2, w: q.h, h: q.w, role: q.role }, M = mainRect(room); n.x = Math.max(M.x, Math.min(M.x + M.w - n.w, n.x)); n.y = Math.max(M.y, Math.min(M.y + M.h - n.h, n.y));
+    const why = fmWhy(ds.D, o, F, room, n, sel.k); ds.fmMsg = why ? 'Cannot turn it here: ' + why : '';
+    if (!why) fmApply(F, sel.r, sel.k, P => { Object.assign(P[sel.k], { x: n.x, y: n.y, w: n.w, h: n.h, wall: { top: 'right', right: 'bottom', bottom: 'left', left: 'top' }[P[sel.k].wall] || P[sel.k].wall }); });
+    keepY(() => {}); },
+  fmdel: () => { const ds = S.design, sel = ds.fsel; if (!sel) return; const o = ds.D.options[ds.opt], F = o.floors[sel.f]; fmApply(F, sel.r, sel.k, P => { P.splice(sel.k, 1); }); ds.fsel = null; ds.fmMsg = ''; keepY(() => {}); },
+  fmreset: () => { const ds = S.design, sel = ds.fsel; if (!sel) return; const o = ds.D.options[ds.opt], F = o.floors[sel.f]; furnEditSet(o, F, F.rooms[sel.r], E => { E.frozen = false; E.pins = []; E.removed = []; E.vari = 0; }); ds.fsel = null; ds.fmMsg = ''; keepY(() => {}); },
   interiors: () => keepY(() => { ST.pkg = useInteriors() ? 'core' : 'semi'; }),
   pkg: el => keepY(() => { ST.pkg = el.dataset.v; }),
   pdf: async () => {
@@ -9252,6 +9312,24 @@ document.addEventListener('input', e => {
   const nb = document.querySelector('[data-a="next"]'); if (nb) nb.disabled = !canNext();
 });
 
+/* ---------- move furniture: drag a piece on the plan ---------- */
+document.addEventListener('pointerdown', e => {
+  const t = e.target.closest && e.target.closest('#planbox.fmoving .fmh'); if (!t || !S.design || !S.design.D) return;
+  e.preventDefault();
+  const ds = S.design, o = ds.D.options[ds.opt], F = o.floors[Math.min(ds.floor, o.floors.length - 1)], ri = +t.dataset.fr, k = +t.dataset.fk, room = F.rooms[ri];
+  const svg = t.ownerSVGElement, ctm = svg.getScreenCTM().inverse(), pt = svg.createSVGPoint(), at = ev => { pt.x = ev.clientX; pt.y = ev.clientY; return pt.matrixTransform(ctm); };
+  const q0 = fmList(furnOf(ds.D, o, F, room))[k]; if (!q0) return;
+  const p0 = at(e); let n = { x: q0.x, y: q0.y, w: q0.w, h: q0.h, role: q0.role }, moved = false, why = '';
+  const move = ev => { const p = at(ev), dx = Math.round((p.x - p0.x) * 2) / 2, dy = Math.round((p.y - p0.y) * 2) / 2; if (Math.abs(p.x - p0.x) + Math.abs(p.y - p0.y) > 0.3) moved = true;
+    n = { x: q0.x + dx, y: q0.y + dy, w: q0.w, h: q0.h, role: q0.role }; t.setAttribute('x', n.x); t.setAttribute('y', n.y); why = fmWhy(ds.D, o, F, room, n, k); t.classList.toggle('bad', !!why);
+    const m = document.getElementById('fmmsg'); if (m) { m.hidden = !why; m.textContent = why; m.classList.toggle('bad', !!why); } };
+  const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+    ds.fsel = { f: F.fi, r: ri, k };
+    if (moved && !why && (n.x !== q0.x || n.y !== q0.y)) { fmApply(F, ri, k, P => { const pc = P[k]; if (pc) { pc.x = n.x; pc.y = n.y; } }); ds.fmMsg = ''; }
+    else ds.fmMsg = moved && why ? 'Not moved: ' + why : '';
+    keepY(() => {}); };
+  window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+});
 /* ---------- live resize: drag a grid line, the rooms on both sides change together ---------- */
 (function () {
   let st = null, raf = 0;
@@ -9570,7 +9648,7 @@ const VT = {
   pdf: { or: 'ହୋମ୍ ପ୍ୟାକ୍ ତିଆରି। PDF ପାଇଁ ତଳ ବଟନ୍ ଦବାନ୍ତୁ।', hi: 'होम पैक तैयार है। PDF के लिए नीचे का बटन दबाइए।', en: 'Your home pack is ready. Tap the button below for the PDF.' },
   noFit: { or: 'ଏହି ଜାଗାରେ ଡିଜାଇନ୍ ହେଲା ନାହିଁ। ଜାଗାର ମାପ ଦେଖନ୍ତୁ।', hi: 'इस प्लॉट पर डिज़ाइन नहीं बन पाया। प्लॉट का नाप देखिए।', en: 'No design fits this plot. Check the plot size.' },
   cost: { or: (t, r) => 'ଖର୍ଚ୍ଚ ପ୍ରାୟ ' + t + ' ଲକ୍ଷ ଟଙ୍କା, ବର୍ଗଫୁଟ ପିଛା ' + r + ' ଟଙ୍କା। ପୂରା ହିସାବ ସ୍କ୍ରିନରେ ଅଛି।', hi: (t, r) => 'खर्च लगभग ' + t + ' लाख रुपये, यानी ' + r + ' रुपये प्रति वर्ग फुट। पूरा हिसाब स्क्रीन पर है।', en: (t, r) => 'About ₹' + t + ' lakh, or ₹' + r + ' per sq ft. The full quotation is on screen.' },
-  struct: { or: 'ଷ୍ଟ୍ରକଚର ପ୍ଲାନ୍ ଖୋଲିଲି — ଖମ୍ବ, ମୂଳଦୁଆ ଓ ବିମ୍ ର ମାପ ଦେଖନ୍ତୁ।', hi: 'स्ट्रक्चर प्लान खोल दिया — खंभे, नींव और बीम के नाप देखिए।', en: 'Structure plan is open — see the column, footing and beam sizes.' },
+  struct: { or: 'ଖମ୍ବ, ମୂଳଦୁଆ ଓ ବିମ୍ ର ଡିଜାଇନ୍ ପାଇଁ ଜଣେ ଆର୍କିଟେକ୍ଟ କିମ୍ବା ଷ୍ଟ୍ରକଚରାଲ୍ ଇଞ୍ଜିନିୟରଙ୍କୁ ଭେଟନ୍ତୁ।', hi: 'खंभे, नींव और बीम का डिज़ाइन किसी आर्किटेक्ट या स्ट्रक्चरल इंजीनियर / कॉन्ट्रैक्टर से मिलकर बनवाइए।', en: 'For columns, footings and beams, meet an architect or a structural engineer / contractor — they design and sign the structure.' },
   d3: { or: '3D ଖୋଲିଲି। ଆଙ୍ଗୁଠିରେ ଘୁରାଇ ଦେଖନ୍ତୁ।', hi: '3D खोल दिया। उंगली से घुमाकर देखिए।', en: '3D view is open. Drag to turn it.' },
   newd: { or: 'ନୂଆ ଡିଜାଇନ୍ କରିଦେଲି।', hi: 'नया डिज़ाइन बना दिया।', en: 'Here is a new design.' },
   next: { or: 'ଠିକ୍ ଅଛି, ଆଗକୁ।', hi: 'ठीक है, आगे चलते हैं।', en: 'OK, moving on.' },
@@ -9589,7 +9667,7 @@ window.VOICE_ADAPTER = {
     // commands
     if (/\bpdf\b|download/.test(n)) { if (!goTo('quote')) return { say: say('pdfFirst') }; return { say: say('pdf'), actions: [{ label: 'PDF', run: () => ACT.pdf() }] }; }
     if (/quotation|quote|cost|kitna\s*(?:lagega|kharcha)|kete\s*(?:lagiba|kharcha)|estimate/.test(n) && !vMoney(n)) { ST.purpose = 'build'; goTo('quote'); const ds = designNow(), op = ds.D.options[ds.opt]; if (!op) return { say: say('noFit') }; const P = priceList(ds.D, op); return { say: say('cost', VL(P.total), Math.round(P.perSqft).toLocaleString('en-IN')) }; }
-    if (/structure|column|foundation|footing/.test(n)) { ST.purpose = 'build'; goTo('structure'); return { say: say('struct') }; }
+    if (/structure|column|foundation|footing/.test(n)) return { say: say('struct') };
     if (/\b3d\b/.test(n)) { if (cur() !== 'layout') goTo('layout'); if (S.design) { S.design.show3d = true; S.design.view = '3d'; if (!window.THREE) { ACT.make3d(); } else render(); } return { say: say('d3') }; }
     if (/\bnaya\b|new\s*design|dusra\s*design|another\s*design|badal/.test(n) && !/\d/.test(n)) { if (cur() !== 'layout') goTo('layout'); ACT.newdesign && ACT.newdesign(); return { say: say('newd') }; }
     if (/^(?:next|continue|aage(?:\s*badho|\s*chalo)?|ok\s*next)$/.test(n)) { ACT.next(); return { say: say('next') }; }
