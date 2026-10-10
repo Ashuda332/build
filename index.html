@@ -1429,7 +1429,7 @@ const INT_PAL = [
   { sw: ['#F3EEE8', '#D8C9B8', '#6E3B2E', '#B5532F', '#2F5D50'], sofa: '#2F5D50', bed: '#E8D9C3', head: '#6E3B2E', wood: '#7A4E2C', floor: '#E4D6C3' }
 ];
 // one look per design option: wall colours, facade features and interior palette
-function lookOf(b, o) { const L = lookOf0(b, o); if (typeof ST !== 'undefined' && ST.extRail) { L.rail = ST.extRail; L.st.rail = ST.extRail; } if (typeof bungalowOf === 'function' && bungalowOf()) Object.assign(L, { canopy: false, pergola: false, fins: false, clad: false, frame: false, planters: false, green: false, roofGarden: false, brass: false, water: false }); if (b.villaV && VILLA_V[b.villaV]) Object.assign(L.st, VILLA_V[b.villaV].pal); if (b.paint && PAINT[b.paint] && PAINT[b.paint][1]) Object.assign(L.st, PAINT[b.paint][1]); if (typeof ST !== 'undefined' && ST.paintX) Object.assign(L.st, ST.paintX); if (typeof ST !== 'undefined' && ST.istyle && typeof istyleOf === 'function') { const IS = istyleOf(); if (IS) L.int = Object.assign({}, L.int, { sofa: IS[3].sofa, bed: IS[3].bed, head: IS[3].head, wood: IS[3].wood, floor: IS[3].floor, sw: [IS[3].wall].concat((L.int.sw || []).slice(1)) }); } return L; }
+function lookOf(b, o) { const L = lookOf0(b, o); if (typeof ST !== 'undefined' && ST.extRail) { L.rail = ST.extRail; L.st.rail = ST.extRail; } if (typeof bungalowOf === 'function' && bungalowOf()) Object.assign(L, { canopy: false, pergola: false, fins: false, clad: false, frame: false, planters: false, green: false, roofGarden: false, brass: false, water: false }); if (b.villaV && VILLA_V[b.villaV]) Object.assign(L.st, VILLA_V[b.villaV].pal); if (b.paint && PAINT[b.paint] && PAINT[b.paint][1]) Object.assign(L.st, PAINT[b.paint][1]); if (typeof ST !== 'undefined' && ST.paintX) Object.assign(L.st, ST.paintX); if (typeof trendExt === 'function' && trendExt()) { const P = trendExt()[3]; Object.assign(L.st, { wall: P.wall, accent: P.accent, trim: P.trim, wood: P.wood, stone: P.stone }); } if (typeof ST !== 'undefined' && ST.istyle && typeof istyleOf === 'function') { const IS = istyleOf(); if (IS) L.int = Object.assign({}, L.int, { sofa: IS[3].sofa, bed: IS[3].bed, head: IS[3].head, wood: IS[3].wood, floor: IS[3].floor, sw: [IS[3].wall].concat((L.int.sw || []).slice(1)) }); } return L; }
 function lookOf0(b, o) {
   const v = (b.seed || 1) + (o && o.id ? 'ABC'.indexOf(o.id) * 7 : 0), pals = PALETTES[b.style] || PALETTES.modern;
   const pick = (k, n) => Math.floor((seedJit(v, k) + 0.5) * n) % n;
@@ -2046,6 +2046,9 @@ function furnSkinBar(D, o) {
   h += '<label class="fsk-st">Style <select data-fstyle aria-label="Interior style">' + FURN_STYLES.map(x => '<option value="' + x.id + '"' + (x.id === st.id ? ' selected' : '') + '>' + esc(x.n) + '</option>').join('') + '</select></label>';
   const BS = bungalowOf();
   h += '<label class="fsk-st">Exterior <select data-fbung aria-label="Bungalow exterior style">' + BUNGALOW.map(x => '<option value="' + x.id + '"' + (BS && BS.id === x.id ? ' selected' : '') + ' title="' + esc(x.d) + '">' + esc(x.n) + '</option>').join('') + '<option value="custom"' + (!BS ? ' selected' : '') + '>Custom (my own elements)</option></select></label>';
+  const grp = [...new Set(TREND_EXT.map(x => x[1]))];
+  h += '<label class="fsk-st">Paint <select data-fpaint aria-label="Outside paint trend"><option value="">As the style</option>' + grp.map(g => '<optgroup label="' + esc(g) + '">' + TREND_EXT.filter(x => x[1] === g).map(x => '<option value="' + x[0] + '"' + (ST.extPaint === x[0] ? ' selected' : '') + '>' + esc(x[2]) + '</option>').join('') + '</optgroup>').join('') + '</select></label>';
+  h += '<label class="fsk-st">Inside paint <select data-fipaint aria-label="Inside paint trend"><option value="">As the style</option>' + TREND_INT.map((x, i) => '<option value="' + i + '"' + (ST.intPaint === i ? ' selected' : '') + '>' + esc(x[0]) + '</option>').join('') + '</select></label>';
   if (!BS) h += '<label class="fsk-st">Walls <select data-fext aria-label="Wall finish">' + EXT_FINISH.map(x => '<option value="' + x.id + '"' + (x.id === extFinish().id ? ' selected' : '') + ' title="' + esc(x.d) + '">' + esc(x.n) + '</option>').join('') + '</select></label>';
   h += '<button class="tog vtog' + (ST.furnSizes ? ' on' : '') + '" data-a="fsizes"><span class="dot"></span>Sizes</button></div>';
   h += '<div class="fskin fsk-acts"><button class="btn mini ghost" data-a="flib">Furniture library</button><button class="btn mini ghost" data-a="ftop">Top view</button><button class="btn mini ghost" data-a="bcmp">Compare exterior styles</button><span class="seg2 sm"><button class="' + (!S.design.night && (ST.sunHr == null || ST.sunHr < 16.5) ? 'on' : '') + '" data-a="flight" data-v="day">Day</button><button class="' + (!S.design.night && ST.sunHr >= 16.5 ? 'on' : '') + '" data-a="flight" data-v="golden">Golden hour</button><button class="' + (S.design.night ? 'on' : '') + '" data-a="flight" data-v="night">Evening</button></span><button class="btn mini ghost" data-a="fvary">Try another arrangement</button>' + (edits ? '<button class="btn mini ghost" data-a="freset">Reset furniture</button>' : '') + '<button class="btn mini ghost" data-a="fsave">Save design</button>' + (saved ? '<button class="btn mini ghost" data-a="fopen" title="Saved ' + esc(new Date(saved.savedAt).toLocaleString()) + '">Open saved</button>' : '') + '<button class="btn mini ghost" data-a="fexport">Export file</button><label class="btn mini ghost fimp">Import file<input type="file" id="fimport" accept="application/json,.json" hidden></label></div>';
@@ -2587,6 +2590,8 @@ document.addEventListener('change', e => {
   const t = e.target;
   if (t.matches && t.matches('[data-fstyle]')) { ST.furnStyle = t.value; keepY(() => {}); }
   if (t.matches && t.matches('[data-fext]')) { ST.extFinish = t.value; keepY(() => {}); }
+  if (t.matches && t.matches('[data-fpaint]')) { ST.extPaint = t.value || null; const ds = S.design; if (ds && ds.v3 && ds.v3 !== 'ext') ds.v3 = 'ext'; keepY(() => {}); }
+  if (t.matches && t.matches('[data-fipaint]')) { trendIntApply(t.value === '' ? -1 : +t.value); const ds = S.design; if (ds && (!ds.v3 || ds.v3 === 'ext')) ds.v3 = 'f0'; keepY(() => {}); }
   if (t.matches && t.matches('[data-fbung]')) { const ds = S.design; bungalowChoose(t.value); if (ds) { ds.v3 = 'ext'; keepY(() => {}); } }
   if (t.matches && t.matches('[data-flib]')) furnLibDraw();
   if (t.id === 'fimport' && t.files && t.files[0]) t.files[0].text().then(furnImport);
@@ -2639,7 +2644,7 @@ function furnOmitted(D, o) {
 const PBR = {};
 function pbrSet(T, kind, base) {
   const key = kind + base; if (PBR[key]) return PBR[key];
-  const N = kind === 'planks' || kind === 'stone' || kind === 'brick' ? 1024 : 512, size = PBR_SIZE[kind] || 4;
+  const N = kind === 'planks' || kind === 'stone' || kind === 'brick' || kind === 'travertine' ? 1024 : 512, size = PBR_SIZE[kind] || 4;
   const col = document.createElement('canvas'), hei = document.createElement('canvas'), rgh = document.createElement('canvas'); [col, hei, rgh].forEach(c => { c.width = c.height = N; });
   const g = col.getContext('2d'), h = hei.getContext('2d'), r = rgh.getContext('2d'), B = new T.Color(base), px = N / size;
   let seed = 1234567; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -2670,25 +2675,44 @@ function pbrSet(T, kind, base) {
   } else if (kind === 'rooftile') {   // glazed clay / concrete roof tiles, 10 in courses, 8 in wide, each tile shading the one below
     const th = 0.833 * px, tw = 0.667 * px; for (let row = 0, y = 0; y < N; row++, y += th) for (let x = row % 2 ? -tw / 2 : 0; x < N; x += tw) { const m = 0.85 + rnd() * 0.25; fill(g, tone(m), x, y, tw, th); const gr = g.createLinearGradient(0, y, 0, y + th); gr.addColorStop(0, 'rgba(255,255,255,0.12)'); gr.addColorStop(0.75, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,0.45)'); g.fillStyle = gr; g.fillRect(x, y, tw, th); fill(g, tone(0.45), x, y, 2, th);
       const hg = h.createLinearGradient(0, y, 0, y + th); hg.addColorStop(0, grey(0.35)); hg.addColorStop(1, grey(0.95)); h.fillStyle = hg; h.fillRect(x + 2, y, tw - 4, th); fill(h, grey(0.1), x, y, 2, th); fill(r, grey(0.32 + rnd() * 0.1), x, y, tw, th); }
+  } else if (kind === 'limewash') {   // limewash: soft cloudy mottling and wide brush arcs
+    for (let i = 0; i < 260; i++) { const x = rnd() * N, y = rnd() * N, r0 = 20 + rnd() * 120, gr = g.createRadialGradient(x, y, 0, x, y, r0), lt = rnd() < 0.5; gr.addColorStop(0, lt ? 'rgba(255,255,255,' + (0.05 + rnd() * 0.08) + ')' : 'rgba(0,0,0,' + (0.03 + rnd() * 0.06) + ')'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x - r0, y - r0, 2 * r0, 2 * r0); }
+    for (let i = 0; i < 90; i++) { g.strokeStyle = rnd() < 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.035)'; g.lineWidth = 8 + rnd() * 24; g.beginPath(); const x = rnd() * N, y = rnd() * N; g.arc(x, y, 30 + rnd() * 90, rnd() * 6, rnd() * 6 + 1.2); g.stroke(); }
+    noise(h, 9000, 0.12, 1, 3, true); fill(r, grey(0.93), 0, 0, N, N);
+  } else if (kind === 'microcement') {   // microcement: fine grain, trowel clouds, a soft sheen
+    for (let i = 0; i < 160; i++) { const x = rnd() * N, y = rnd() * N; g.save(); g.translate(x, y); g.rotate(rnd() * 3); g.fillStyle = rnd() < 0.5 ? 'rgba(255,255,255,' + 0.05 * rnd() + ')' : 'rgba(0,0,0,' + 0.06 * rnd() + ')'; g.beginPath(); g.ellipse(0, 0, 30 + rnd() * 90, 8 + rnd() * 20, 0, 0, 7); g.fill(); g.restore(); }
+    noise(g, 16000, 0.06, 1, 2, true); noise(g, 8000, 0.05, 1, 2, false); noise(h, 6000, 0.08, 1, 2, true);
+    for (let i = 0; i < 120; i++) { r.fillStyle = grey(0.55 + rnd() * 0.2); r.globalAlpha = 0.3; r.beginPath(); r.ellipse(rnd() * N, rnd() * N, 40 + rnd() * 80, 10 + rnd() * 20, rnd() * 3, 0, 7); r.fill(); } r.globalAlpha = 1;
+  } else if (kind === 'venetian') {   // Venetian polished plaster: deep cloudy marbling, glossy
+    fill(r, grey(0.22), 0, 0, N, N);
+    for (let i = 0; i < 220; i++) { const x = rnd() * N, y = rnd() * N; g.save(); g.translate(x, y); g.rotate(rnd() * 3); g.fillStyle = rnd() < 0.5 ? 'rgba(255,255,255,' + 0.1 * rnd() + ')' : 'rgba(0,0,0,' + 0.1 * rnd() + ')'; g.beginPath(); g.ellipse(0, 0, 25 + rnd() * 110, 6 + rnd() * 30, 0, 0, 7); g.fill(); g.restore(); r.fillStyle = grey(0.12 + rnd() * 0.25); r.globalAlpha = 0.4; r.beginPath(); r.ellipse(x, y, 40, 14, rnd() * 3, 0, 7); r.fill(); r.globalAlpha = 1; }
+    for (let k = 0; k < 14; k++) { g.strokeStyle = 'rgba(255,255,255,0.08)'; g.lineWidth = 1 + rnd() * 2; g.beginPath(); let x = rnd() * N, y = rnd() * N; g.moveTo(x, y); for (let s = 0; s < 12; s++) { x += (rnd() - 0.3) * 50; y += (rnd() - 0.5) * 30; g.lineTo(x, y); } g.stroke(); }
+  } else if (kind === 'travertine') {   // travertine cladding: 2 × 1 ft slabs, horizontal veining and small pores
+    const sh = 1 * px, sl = 2 * px; for (let row = 0, y = 0; y < N; row++, y += sh) for (let x = row % 2 ? -sl / 2 : 0; x < N; x += sl) { const m = 0.92 + rnd() * 0.12; fill(g, tone(m), x, y, sl, sh);
+      for (let k = 0; k < 7; k++) { g.strokeStyle = tone(m * (0.85 + rnd() * 0.2)); g.globalAlpha = 0.35; g.lineWidth = 1 + rnd() * 3; g.beginPath(); const yy = y + rnd() * sh; g.moveTo(x, yy); for (let s = 0; s <= sl; s += 20) g.lineTo(x + s, yy + Math.sin(s / 40 + k) * 1.5); g.stroke(); } g.globalAlpha = 1;
+      for (let k = 0; k < 40; k++) { const px2 = x + rnd() * sl, py2 = y + rnd() * sh; g.fillStyle = tone(0.7); g.globalAlpha = 0.5; g.beginPath(); g.ellipse(px2, py2, 1.5 + rnd() * 3, 0.8 + rnd(), 0, 0, 7); g.fill(); g.globalAlpha = 1; h.fillStyle = grey(0.3); h.fillRect(px2, py2, 2, 1); }
+      fill(r, grey(0.55 + rnd() * 0.1), x, y, sl, sh); fill(h, grey(0.85), x + 2, y + 2, sl - 4, sh - 4); fill(h, grey(0.2), x, y, sl, 2); fill(h, grey(0.2), x, y, 2, sh); fill(g, tone(0.75), x, y, sl, 1.5); fill(g, tone(0.75), x, y, 1.5, sh); }
+  } else if (kind === 'fluted') {   // fluted panel: 3 in half-round flutes
+    const fw = px / 4; for (let x = 0; x < N; x += fw) for (let i = 0; i < fw; i++) { const t2 = Math.sin(Math.PI * i / fw); fill(h, grey(0.2 + 0.75 * t2), x + i, 0, 1, N); fill(g, tone(0.82 + 0.2 * t2), x + i, 0, 1, N); } fill(r, grey(0.6), 0, 0, N, N);
   } else if (kind === 'grass') {
     for (let i = 0; i < 26000; i++) { g.fillStyle = tone(0.7 + rnd() * 0.6, (rnd() - 0.5) * 0.04); const x = rnd() * N, y = rnd() * N; g.fillRect(x, y, 1.5, 3 + rnd() * 5); h.fillStyle = grey(0.5 + rnd() * 0.5); h.fillRect(x, y, 1.5, 3); } fill(r, grey(0.95), 0, 0, N, N);
   } else if (kind === 'pavers') {   // 8 × 4 in pavers in a herringbone-free running bond
     const ph = 0.333 * px, pl = 0.667 * px; for (let row = 0, y = 0; y < N; row++, y += ph) for (let x = row % 2 ? -pl / 2 : 0; x < N; x += pl) { fill(g, tone(0.85 + rnd() * 0.25), x, y, pl, ph); noise(g, 10, 0.1, 1, 3, true); fill(h, grey(0.8), x + 3, y + 3, pl - 6, ph - 6); fill(r, grey(0.85), x, y, pl, ph); fill(h, grey(0.1), x, y, pl, 3); fill(h, grey(0.1), x, y, 3, ph); fill(g, tone(0.55), x, y, pl, 2); fill(g, tone(0.55), x, y, 2, ph); }
   }
   // normal map from the height map (Sobel)
-  const hd = h.getImageData(0, 0, N, N).data, nc = document.createElement('canvas'); nc.width = nc.height = N; const nx = nc.getContext('2d'), out = nx.createImageData(N, N), st = kind === 'plaster' || kind === 'grass' ? 2.5 : 4;
+  const hd = h.getImageData(0, 0, N, N).data, nc = document.createElement('canvas'); nc.width = nc.height = N; const nx = nc.getContext('2d'), out = nx.createImageData(N, N), st = ['plaster', 'grass', 'limewash', 'microcement', 'venetian'].includes(kind) ? 2.5 : 4;
   const H = (x, y) => hd[(((y + N) % N) * N + ((x + N) % N)) * 4] / 255;
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const dx = (H(x + 1, y - 1) + 2 * H(x + 1, y) + H(x + 1, y + 1) - H(x - 1, y - 1) - 2 * H(x - 1, y) - H(x - 1, y + 1)) * st, dy = (H(x - 1, y + 1) + 2 * H(x, y + 1) + H(x + 1, y + 1) - H(x - 1, y - 1) - 2 * H(x, y - 1) - H(x + 1, y - 1)) * st, l = Math.hypot(dx, dy, 1), i = (y * N + x) * 4; out.data[i] = (-dx / l * 0.5 + 0.5) * 255; out.data[i + 1] = (dy / l * 0.5 + 0.5) * 255; out.data[i + 2] = (1 / l * 0.5 + 0.5) * 255; out.data[i + 3] = 255; }
   nx.putImageData(out, 0, 0);
   const tex = (c, srgb) => { const t = new T.CanvasTexture(c); if (srgb) t.colorSpace = T.SRGBColorSpace; t.wrapS = t.wrapT = T.RepeatWrapping; t.anisotropy = 8; return t; };
   return (PBR[key] = { map: tex(col, true), normalMap: tex(nc), roughnessMap: tex(rgh), size });
 }
-const PBR_SIZE = { rooftile: 4, planks: 4, tile: 4, mosaic: 4, marble: 8, plaster: 4, stone: 4, brick: 4, woodclad: 4, grass: 4, pavers: 4 };
+const PBR_SIZE = { limewash: 8, microcement: 8, venetian: 8, travertine: 4, fluted: 4, rooftile: 4, planks: 4, tile: 4, mosaic: 4, marble: 8, plaster: 4, stone: 4, brick: 4, woodclad: 4, grass: 4, pavers: 4 };
 const PBR_MAT = {};
 // a material whose textures repeat at real size; box() lays its UVs out in feet for any material carrying userData.wuv
 function pbrMat(T, kind, base, o2) {
   const k = kind + base + JSON.stringify(o2 || {}); if (PBR_MAT[k]) return PBR_MAT[k];
-  const P = pbrSet(T, kind, base), m = new T.MeshStandardMaterial(Object.assign({ color: '#ffffff', map: P.map, normalMap: P.normalMap, roughnessMap: P.roughnessMap, roughness: 1, metalness: 0, normalScale: new T.Vector2(kind === 'plaster' ? 0.35 : 0.8, kind === 'plaster' ? 0.35 : 0.8) }, o2 || {}));
+  const P = pbrSet(T, kind, base), m = new T.MeshStandardMaterial(Object.assign({ color: '#ffffff', map: P.map, normalMap: P.normalMap, roughnessMap: P.roughnessMap, roughness: 1, metalness: 0, normalScale: new T.Vector2(...[0, 0].map(() => kind === 'plaster' || kind === 'limewash' ? 0.35 : kind === 'microcement' || kind === 'venetian' ? 0.15 : 0.8)) }, o2 || {}));
   m.userData.wuv = P.size; return (PBR_MAT[k] = m);
 }
 // box UVs in real units: each face repeats the texture once per `size` ft
@@ -2715,7 +2739,90 @@ const EXT_FINISH = [
   { id: 'premium-villa', n: 'Premium villa', d: 'Grey stone base, warm plaster, walnut cladding on the front', ground: ['stone', '#9C978E'], upper: ['plaster', '#DDD5C9'], front: ['woodclad', '#6B4A33'], paving: '#9E9890' },
   { id: 'warm-natural', n: 'Warm natural', d: 'Exposed brick base, sand plaster, teak cladding', ground: ['brick', '#A65A3A'], upper: ['plaster', '#E8DCC6'], front: ['woodclad', '#A0703F'], paving: '#B8A48C' }
 ];
-const extFinish = () => { const id = typeof ST !== 'undefined' && ST.extFinish, B = typeof BUNGALOW !== 'undefined' && BUNGALOW.find(x => x.id === id); return B ? { id: B.id, n: B.n, ground: B.walls.ground, upper: B.walls.upper, front: B.walls.front, paving: B.walls.paving } : EXT_FINISH.find(x => x.id === id) || EXT_FINISH[0]; };
+const extFinish0 = () => { const id = typeof ST !== 'undefined' && ST.extFinish, B = typeof BUNGALOW !== 'undefined' && BUNGALOW.find(x => x.id === id); return B ? { id: B.id, n: B.n, ground: B.walls.ground, upper: B.walls.upper, front: B.walls.front, paving: B.walls.paving } : EXT_FINISH.find(x => x.id === id) || EXT_FINISH[0]; };
+// a paint trend repaints the chosen finish: the style keeps its wood and stone pieces, the walls take the trend's colours and textures
+const extFinish = () => {
+  const F = extFinish0(), t = typeof trendExt === 'function' ? trendExt() : null; if (!t) return F;
+  const P = t[3], fk = F.front ? F.front[0] : 'plaster', gk = F.ground ? F.ground[0] : 'plaster';
+  return { id: 'trend-' + t[0], n: t[2], upper: [t[4], P.wall], ground: [t[5] === 'stone' && gk === 'brick' ? 'brick' : t[5], P.base], front: fk === 'woodclad' ? ['woodclad', P.wood] : fk === 'plaster' ? [t[4], P.wall] : [fk, P.stone], paving: F.paving || '#B5AFA5' };
+};
+/* ---------- 2026 paint trends: exterior and interior colour schemes with wall textures ----------
+   Colours are screen approximations "inspired by" the named shades and trends: Pantone Cloud Dancer, Asian Paints Moonlit Silk,
+   Sherwin-Williams Universal Khaki and Benjamin Moore Silhouette (the 2026 colours of the year), plus the year's broader moves —
+   warm neutrals over cool greys, nature greens, two-tone contrast, colour drenching, moody darks, and limewash, microcement,
+   Venetian plaster, travertine and fluted textures. Match the final shade on a paint company's shade card before buying. */
+// [id, group, name, { wall, base, accent, trim, wood, stone }, upper-wall texture, ground texture]
+const TREND_EXT = [
+  ['cloud-dancer', 'Colours of the year 2026', 'Cloud Dancer white + walnut', { wall: '#F0EEE9', base: '#7F7A72', accent: '#2B2B2B', trim: '#2B2B2B', wood: '#6B4A33', stone: '#7F7A72' }, 'plaster', 'stone'],
+  ['moonlit-silk', 'Colours of the year 2026', 'Moonlit Silk green + cream', { wall: '#D3D6BE', base: '#8D9177', accent: '#4A5240', trim: '#F3EFE4', wood: '#9A6A3E', stone: '#8D9177' }, 'limewash', 'stone'],
+  ['universal-khaki', 'Colours of the year 2026', 'Universal Khaki + soft white', { wall: '#C4B69C', base: '#8A7C66', accent: '#F4F1EA', trim: '#F4F1EA', wood: '#6B4A33', stone: '#8A7C66' }, 'plaster', 'stone'],
+  ['silhouette', 'Colours of the year 2026', 'Silhouette umber + brass', { wall: '#EDE6DC', base: '#5A4A42', accent: '#5A4A42', trim: '#B08D57', wood: '#4A3428', stone: '#5A4A42' }, 'plaster', 'microcement'],
+  ['warm-greige', 'Warm neutrals', 'Warm greige + charcoal', { wall: '#DCD3C7', base: '#8F877C', accent: '#3A3633', trim: '#3A3633', wood: '#7A4E2C', stone: '#8F877C' }, 'plaster', 'stone'],
+  ['alabaster-iron', 'Warm neutrals', 'Alabaster + iron ore', { wall: '#EFEAE0', base: '#4A4B4C', accent: '#3A3B3C', trim: '#3A3B3C', wood: '#8A5A33', stone: '#6E6C68' }, 'plaster', 'plaster'],
+  ['linen-cedar', 'Warm neutrals', 'Linen + cedar wood', { wall: '#E6DCCB', base: '#A8957A', accent: '#6E4B30', trim: '#F5F0E6', wood: '#A0683C', stone: '#A8957A' }, 'limewash', 'stone'],
+  ['taupe-stone', 'Warm neutrals', 'Taupe + dark stone', { wall: '#CFC3B4', base: '#7E7468', accent: '#2F2B28', trim: '#2F2B28', wood: '#5C3A22', stone: '#7E7468' }, 'plaster', 'stone'],
+  ['ivory-travertine', 'Warm neutrals', 'Ivory + travertine (luxury)', { wall: '#F3EEE3', base: '#D9CDB6', accent: '#2E2A26', trim: '#B08D57', wood: '#7A4E2C', stone: '#D9CDB6' }, 'plaster', 'travertine'],
+  ['sage-linen', 'Nature greens', 'Sage + linen', { wall: '#CDD5C0', base: '#EDE6D6', accent: '#4F5D49', trim: '#F4F0E6', wood: '#9A6A3E', stone: '#9AA08C' }, 'limewash', 'plaster'],
+  ['olive-oak', 'Nature greens', 'Olive + oak', { wall: '#E9E5D6', base: '#6B6E4E', accent: '#4C5036', trim: '#4C5036', wood: '#B0814F', stone: '#6B6E4E' }, 'plaster', 'plaster'],
+  ['forest-cream', 'Nature greens', 'Forest green + cream', { wall: '#F2EDE1', base: '#2F4A3A', accent: '#2F4A3A', trim: '#2F4A3A', wood: '#8A5A33', stone: '#5E6B5E' }, 'plaster', 'plaster'],
+  ['eucalyptus', 'Nature greens', 'Eucalyptus limewash + white', { wall: '#DDE3DA', base: '#8C978A', accent: '#3D4A42', trim: '#FFFFFF', wood: '#A0703F', stone: '#8C978A' }, 'limewash', 'stone'],
+  ['white-black', 'Two-tone contrast', 'Crisp white + black', { wall: '#F7F7F5', base: '#262829', accent: '#1C1D1F', trim: '#1C1D1F', wood: '#8A5A33', stone: '#4A4C4E' }, 'plaster', 'plaster'],
+  ['white-navy', 'Two-tone contrast', 'White + deep navy', { wall: '#F5F4F0', base: '#1F3550', accent: '#1F3550', trim: '#F5F4F0', wood: '#9A6A3E', stone: '#5D6B7A' }, 'plaster', 'plaster'],
+  ['snow-storm', 'Two-tone contrast', 'Snow white + storm grey stone', { wall: '#F2F2EF', base: '#6E7378', accent: '#4A4F54', trim: '#4A4F54', wood: '#7A4E2C', stone: '#6E7378' }, 'plaster', 'stone'],
+  ['cream-charcoal', 'Two-tone contrast', 'Cream + charcoal + teak', { wall: '#EFE9DD', base: '#3F4246', accent: '#3F4246', trim: '#3F4246', wood: '#A0683C', stone: '#5A5D61' }, 'plaster', 'microcement'],
+  ['terracotta-cream', 'Earthy and Indian', 'Terracotta brick + cream', { wall: '#F3E9DA', base: '#B5653F', accent: '#7A3420', trim: '#F3E9DA', wood: '#8A5A33', stone: '#B5653F' }, 'plaster', 'brick'],
+  ['desert-sand', 'Earthy and Indian', 'Desert sand limewash', { wall: '#E6D3B3', base: '#C49A6C', accent: '#6E4B30', trim: '#6E4B30', wood: '#8A5A33', stone: '#C49A6C' }, 'limewash', 'stone'],
+  ['laterite-white', 'Earthy and Indian', 'Odisha laterite + white', { wall: '#F4F1EA', base: '#9C4A2B', accent: '#5C2A1A', trim: '#5C2A1A', wood: '#6E4524', stone: '#9C4A2B' }, 'plaster', 'stone'],
+  ['kalinga-sandstone', 'Earthy and Indian', 'Kalinga sandstone', { wall: '#E9D3AE', base: '#C9A774', accent: '#7A3E1D', trim: '#A2552F', wood: '#6E4524', stone: '#C9A774' }, 'limewash', 'stone'],
+  ['haveli-ochre', 'Earthy and Indian', 'Haveli ochre + white trims', { wall: '#E8B964', base: '#A65A3A', accent: '#FFFFFF', trim: '#FFFFFF', wood: '#5B3A22', stone: '#A65A3A' }, 'limewash', 'brick'],
+  ['clay-rose', 'Earthy and Indian', 'Clay rose limewash', { wall: '#E6CFC4', base: '#A87766', accent: '#6B3F35', trim: '#F3ECE6', wood: '#8A5A33', stone: '#A87766' }, 'limewash', 'plaster'],
+  ['charcoal-walnut', 'Moody darks', 'Charcoal microcement + walnut', { wall: '#4A4D50', base: '#2E3033', accent: '#B08D57', trim: '#1E1F21', wood: '#6B4329', stone: '#2E3033' }, 'microcement', 'microcement'],
+  ['navy-brass', 'Moody darks', 'Deep navy + brass', { wall: '#2C3E55', base: '#1E2A3A', accent: '#C9A24B', trim: '#F2EFE8', wood: '#7A4E2C', stone: '#1E2A3A' }, 'plaster', 'plaster'],
+  ['espresso-sand', 'Moody darks', 'Sand + espresso', { wall: '#E3D6C2', base: '#4A3A30', accent: '#4A3A30', trim: '#4A3A30', wood: '#6B4A33', stone: '#4A3A30' }, 'plaster', 'plaster'],
+  ['microcement-grey', 'Concrete and stone', 'Microcement grey', { wall: '#CFCCC6', base: '#8E8B85', accent: '#2B2D2F', trim: '#2B2D2F', wood: '#8A5A33', stone: '#8E8B85' }, 'microcement', 'microcement'],
+  ['travertine-villa', 'Concrete and stone', 'Travertine villa', { wall: '#EADFCC', base: '#D2C3A8', accent: '#3A3633', trim: '#3A3633', wood: '#6B4A33', stone: '#D2C3A8' }, 'travertine', 'travertine'],
+  ['drench-sage', 'Colour drench', 'All sage (colour drench)', { wall: '#A7B49A', base: '#97A48A', accent: '#7F8C72', trim: '#A7B49A', wood: '#8A5A33', stone: '#97A48A' }, 'limewash', 'limewash'],
+  ['drench-terracotta', 'Colour drench', 'All terracotta (colour drench)', { wall: '#C9785A', base: '#B5653F', accent: '#A3583E', trim: '#C9785A', wood: '#6E4524', stone: '#B5653F' }, 'limewash', 'limewash'],
+  ['drench-khaki', 'Colour drench', 'All khaki (colour drench)', { wall: '#B8A992', base: '#A89A82', accent: '#9C8E76', trim: '#B8A992', wood: '#5C3A22', stone: '#A89A82' }, 'plaster', 'plaster'],
+  ['daydream-blue', 'Colour drench', 'Daydream powder blue + white', { wall: '#DCE6EE', base: '#8EA3B4', accent: '#3E5568', trim: '#FFFFFF', wood: '#A0703F', stone: '#8EA3B4' }, 'plaster', 'plaster']
+];
+const trendExt = () => typeof ST !== 'undefined' && ST.extPaint ? TREND_EXT.find(x => x[0] === ST.extPaint) || null : null;
+// interior: [name, walls, feature wall, ceiling, wall texture, feature texture]
+const TREND_INT = [
+  ['Cloud Dancer + fluted oak', '#F0EEE9', '#B08D6A', '#FFFFFF', null, 'fluted'],
+  ['Moonlit Silk calm', '#E3E5D3', '#B9BFA0', '#FBFBF6', null, 'limewash'],
+  ['Universal Khaki', '#EDE6DA', '#B8A992', '#FFFDF8', null, 'limewash'],
+  ['Silhouette umber Venetian', '#EFE8DE', '#5B4B44', '#FFFFFF', null, 'venetian'],
+  ['Mocha mousse', '#EFE7DE', '#A47864', '#FFFFFF', null, null],
+  ['Greige microcement', '#E6E0D7', '#A69C90', '#FFFFFF', null, 'microcement'],
+  ['Japandi oak slats', '#F1ECE3', '#C8A57E', '#FFFFFF', null, 'fluted'],
+  ['Sage limewash', '#E8ECE3', '#A7B49A', '#FBFBF7', null, 'limewash'],
+  ['Olive library', '#EEEADD', '#6B6E4E', '#FFFFFF', null, null],
+  ['Forest green Venetian', '#F2EEE6', '#2F4A3A', '#FFFFFF', null, 'venetian'],
+  ['Terracotta limewash', '#F3E9DA', '#C9785A', '#FFFDF8', null, 'limewash'],
+  ['Clay rose', '#F4ECE7', '#D3A99A', '#FFFFFF', null, 'limewash'],
+  ['Butter yellow', '#F7F0D8', '#E9D9A0', '#FFFFFF', null, null],
+  ['Pista green', '#F4F6EA', '#C5D19B', '#FFFFFF', null, null],
+  ['Mint fresh', '#F2F7F3', '#BFD8C8', '#FFFFFF', null, null],
+  ['Powder blue', '#EEF3F6', '#A9C0D1', '#FFFFFF', null, null],
+  ['Lavender haze', '#F3F1F6', '#C9C0D8', '#FFFFFF', null, null],
+  ['Teal accent', '#EEF1F0', '#2F6B6A', '#FFFFFF', null, null],
+  ['Navy + brass Venetian', '#F2F1EC', '#22344F', '#FFFFFF', null, 'venetian'],
+  ['Burgundy luxe', '#F3EDE8', '#6B2E35', '#FFFFFF', null, 'venetian'],
+  ['Plum dusk', '#F1ECEE', '#6D5462', '#FFFFFF', null, null],
+  ['Chocolate brown', '#EFE6DA', '#5A3E30', '#FFFFFF', null, null],
+  ['Charcoal microcement', '#E9E7E3', '#4A4D50', '#FFFFFF', null, 'microcement'],
+  ['Black fluted accent', '#F3F2EF', '#232527', '#FFFFFF', null, 'fluted'],
+  ['Warm white + walnut slats', '#F6F3EC', '#6B4A33', '#FFFFFF', null, 'fluted'],
+  ['Travertine luxe', '#F3EEE3', '#D9CDB6', '#FFFFFF', null, 'travertine'],
+  ['Venetian ivory (whole room)', '#F6F2EA', '#E9E1D2', '#FFFFFF', 'venetian', 'venetian'],
+  ['Concrete loft', '#DAD7D1', '#8E8B85', '#F2F1EE', 'microcement', 'microcement'],
+  ['Desert sand limewash (whole room)', '#F1E6D4', '#C49A6C', '#FFFDF8', 'limewash', 'limewash'],
+  ['Kalinga ochre', '#F5ECD9', '#C98B3C', '#FFFDF8', null, 'limewash']
+];
+// apply an interior trend to every room
+function trendIntApply(i) { const t = TREND_INT[i]; if (!t) { ST.intPaint = null; if (ST.paintI) delete ST.paintI.all; return; } ST.intPaint = i; ST.paintI = Object.assign({}, ST.paintI || {}, { all: { wall: t[1], feature: t[2], ceiling: t[3], wtex: t[4], ftex: t[5] } }); }
+
 /* ---------- Poly Haven HDRIs (CC0, via @pmndrs/assets): soft daylight and reflections for every material ---------- */
 const ENV = { tex: {}, loading: null };
 function envEnsure() {
@@ -5303,7 +5410,7 @@ function buildHouse3D(T, D, o, opts) {
       const opsOf = sd => ops.filter(op => onLine(sd, op)).map(op => { const [x1, y1, x2, y2] = op.seg; return { a: sd[0] ? Math.min(x1, x2) : Math.min(y1, y2), z: sd[0] ? Math.max(x1, x2) : Math.max(y1, y2), kind: op.kind }; }).sort((p2, q) => p2.a - q.a);
       const fi = sides.map((sd, i) => [i, opsOf(sd).length, sd[3] - sd[2]]).sort((p2, q) => p2[1] - q[1] || q[2] - p2[2])[0][0];
       sides.forEach((sd, i) => {
-        const outer = sd[0] ? onEdge(sd[2], sd[1], sd[3], sd[1]) : onEdge(sd[1], sd[2], sd[1], sd[3]), off = (outer ? 0.375 : 0.1875) + 0.015, m = mat(i === fi && P.feature ? P.feature : (P.wall || intCol), { roughness: 0.92 }), at = sd[1] + sd[4] * off;
+        const outer = sd[0] ? onEdge(sd[2], sd[1], sd[3], sd[1]) : onEdge(sd[1], sd[2], sd[1], sd[3]), off = (outer ? 0.375 : 0.1875) + 0.015, isF = i === fi && P.feature, tx = isF ? P.ftex : P.wtex, m = tx ? pbrMat(T, tx, isF ? P.feature : (P.wall || intCol)) : mat(isF ? P.feature : (P.wall || intCol), { roughness: 0.92 }), at = sd[1] + sd[4] * off;
         const pc = (a, z, y0, y1) => { if (z - a < 0.05 || y1 - y0 < 0.05) return; if (sd[0]) box(a, base + y0, at - 0.01, z - a, y1 - y0, 0.02, m, false); else box(at - 0.01, base + y0, a, 0.02, y1 - y0, z - a, m, false); };
         let c0 = sd[2] + off; opsOf(sd).forEach(op => { if (op.a < c0 - 0.01) return; pc(c0, op.a, 0.06, wallTop); const top = op.kind === 'open' ? wallTop : op.kind === 'vent' ? 6.5 : op.kind === 'window' ? WIN_TOP : DOOR_H, bot = op.kind === 'window' ? SILL : op.kind === 'vent' ? 5 : 0; if (top < wallTop) pc(op.a, op.z, top, wallTop); if (bot > 0) pc(op.a, op.z, 0.06, bot); c0 = op.z; }); pc(c0, sd[3] - off, 0.06, wallTop);
       });
@@ -6756,6 +6863,7 @@ const EXT_ZONES = [['wall', 'Main walls'], ['accent', 'Frames and bands'], ['tri
 const INT_SURF = [['wall', 'Walls'], ['feature', 'Feature wall'], ['ceiling', 'Ceiling']];
 const INT_ROOMS = [['all', 'Every room'], ['living', 'Living room'], ['dining', 'Dining'], ['kitchen', 'Kitchen'], ['master', 'Master bedroom'], ['bedroom', 'Bedrooms'], ['lounge', 'Family lounge'], ['study', 'Study'], ['stair', 'Staircase'], ['passage', 'Passage']];
 const INT_COMBOS = [['Soft white + oak', { wall: '#F4F1EA', feature: '#B08D6A', ceiling: '#FFFFFF' }], ['Sage calm', { wall: '#E8ECE3', feature: '#8FA58A', ceiling: '#FBFBF7' }], ['Warm sand', { wall: '#EFE4D2', feature: '#C49A6C', ceiling: '#FFFDF8' }], ['Coastal blue', { wall: '#EEF3F6', feature: '#5E8BA8', ceiling: '#FFFFFF' }], ['Dusty rose', { wall: '#F5E9E6', feature: '#C98F8A', ceiling: '#FFFFFF' }], ['Charcoal luxe', { wall: '#E7E5E1', feature: '#3B3F45', ceiling: '#F6F5F2' }], ['Terracotta earth', { wall: '#F1E3D6', feature: '#B5643A', ceiling: '#FFF9F2' }], ['Royal teal', { wall: '#EDF2F1', feature: '#1F5E63', ceiling: '#FFFFFF' }]];
+TREND_INT.forEach(t => INT_COMBOS.push([t[0], { wall: t[1], feature: t[2], ceiling: t[3], wtex: t[4], ftex: t[5] }]));
 function paintState() { return ST.pz || (ST.pz = { side: 'out', zone: 'wall', room: 'all', surf: 'wall' }); }
 /* ======================================================================
    Room studio: pick a room, see it, change its walls, ceiling, floor and wall tiles — the picture changes live.

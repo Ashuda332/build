@@ -54,6 +54,19 @@ await p.click('[data-a="bcmp"]'); await p.waitForFunction(() => document.querySe
 assert.equal(await p.evaluate(() => ST.extStyle), before, 'comparing must not change the chosen style');
 if (out) await p.screenshot({ path: path.join(out, 'compare.png') });
 await p.click('#bcmp [data-buse="tropical"]'); await p.waitForFunction(() => ST.extStyle === 'tropical');
+// paint trends: every outside trend repaints the walls with its own colours and textures, every inside trend paints every room
+const tr = await p.evaluate(async () => {
+  const T = await loadThree(), bad = [];
+  ['limewash', 'microcement', 'venetian', 'travertine', 'fluted', 'rooftile'].forEach(k => { const P = pbrSet(T, k, '#B0A090'); if (!P.map || !P.normalMap || !P.roughnessMap) bad.push('texture ' + k); });
+  const ds = S.design, D = ds.D, o = D.options[ds.opt];
+  for (const t of TREND_EXT) { ST.extPaint = t[0]; const F = extFinish(), L = lookOf(D.brief, o); if (F.upper[1] !== t[3].wall || F.ground[1] !== t[3].base || L.st.wall !== t[3].wall) bad.push(t[0]); }
+  ST.extPaint = null;
+  TREND_INT.forEach((t, i) => { trendIntApply(i); const P = paintOfRoom('living', null); if (!P || P.feature !== t[2] || P.wall !== t[1]) bad.push('int ' + t[0]); }); trendIntApply(-1);
+  return { bad, n: TREND_EXT.length, ni: TREND_INT.length };
+});
+assert.deepEqual(tr.bad, [], 'paint trends: ' + tr.bad.join(', '));
+await p.selectOption('[data-fpaint]', 'moonlit-silk'); await ready(); await p.selectOption('[data-fipaint]', '3'); await ready();
+console.log('✓ paint trends: ' + tr.n + ' outside, ' + tr.ni + ' inside');
 assert.deepEqual(errs, []);
 console.log('✓ exterior: ' + res.length + ' style × house checks, all styles rendered');
 await b.close(); server.close();
