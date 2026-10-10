@@ -1429,7 +1429,7 @@ const INT_PAL = [
   { sw: ['#F3EEE8', '#D8C9B8', '#6E3B2E', '#B5532F', '#2F5D50'], sofa: '#2F5D50', bed: '#E8D9C3', head: '#6E3B2E', wood: '#7A4E2C', floor: '#E4D6C3' }
 ];
 // one look per design option: wall colours, facade features and interior palette
-function lookOf(b, o) { const L = lookOf0(b, o); if (typeof ST !== 'undefined' && ST.extRail) { L.rail = ST.extRail; L.st.rail = ST.extRail; } if (typeof archKit === 'function' && archKit()) Object.assign(L, { canopy: false, pergola: false, fins: false, clad: false, frame: false, green: false, roofGarden: false, water: false }); if (b.villaV && VILLA_V[b.villaV]) Object.assign(L.st, VILLA_V[b.villaV].pal); if (b.paint && PAINT[b.paint] && PAINT[b.paint][1]) Object.assign(L.st, PAINT[b.paint][1]); if (typeof ST !== 'undefined' && ST.paintX) Object.assign(L.st, ST.paintX); if (typeof ST !== 'undefined' && ST.istyle && typeof istyleOf === 'function') { const IS = istyleOf(); if (IS) L.int = Object.assign({}, L.int, { sofa: IS[3].sofa, bed: IS[3].bed, head: IS[3].head, wood: IS[3].wood, floor: IS[3].floor, sw: [IS[3].wall].concat((L.int.sw || []).slice(1)) }); } return L; }
+function lookOf(b, o) { const L = lookOf0(b, o); if (typeof ST !== 'undefined' && ST.extRail) { L.rail = ST.extRail; L.st.rail = ST.extRail; } if (typeof bungalowOf === 'function' && bungalowOf()) Object.assign(L, { canopy: false, pergola: false, fins: false, clad: false, frame: false, planters: false, green: false, roofGarden: false, brass: false, water: false }); if (b.villaV && VILLA_V[b.villaV]) Object.assign(L.st, VILLA_V[b.villaV].pal); if (b.paint && PAINT[b.paint] && PAINT[b.paint][1]) Object.assign(L.st, PAINT[b.paint][1]); if (typeof ST !== 'undefined' && ST.paintX) Object.assign(L.st, ST.paintX); if (typeof ST !== 'undefined' && ST.istyle && typeof istyleOf === 'function') { const IS = istyleOf(); if (IS) L.int = Object.assign({}, L.int, { sofa: IS[3].sofa, bed: IS[3].bed, head: IS[3].head, wood: IS[3].wood, floor: IS[3].floor, sw: [IS[3].wall].concat((L.int.sw || []).slice(1)) }); } return L; }
 function lookOf0(b, o) {
   const v = (b.seed || 1) + (o && o.id ? 'ABC'.indexOf(o.id) * 7 : 0), pals = PALETTES[b.style] || PALETTES.modern;
   const pick = (k, n) => Math.floor((seedJit(v, k) + 0.5) * n) % n;
@@ -2735,31 +2735,31 @@ const BUNGALOW = [
     pal: { wall: '#FAF8F3', accent: '#C9A24B', trim: '#FFFFFF', stone: '#D8CFBF', wood: '#5B3A22', glass: '#9FB4C2', roof: null }, walls: { ground: ['plaster', '#FAF8F3'], upper: ['plaster', '#FAF8F3'], front: ['plaster', '#FAF8F3'], paving: '#D6CEC0' }, rail: 'baluster', land: { trees: 'palm', lanterns: true }, light: 17.5 },
   { id: 'colonial-villa', kit: 'colonial', n: 'Colonial verandah villa', d: 'Front verandah of round columns and arches under a pediment, balustrade, floor bands, slate hipped roof with deep eaves on wooden brackets, pillared wall with lamps',
     fx: [['shutters', 'chajja'], ['uplights']],
-    pal: { wall: '#F6EEDD', accent: '#5B3A22', trim: '#FFFFFF', stone: '#D8CFBF', wood: '#5B3A22', glass: '#A7BAC4', roof: null }, walls: { ground: ['plaster', '#F6EEDD'], upper: ['plaster', '#F6EEDD'], front: ['plaster', '#F6EEDD'], paving: '#C9BFAE' }, rail: 'baluster', land: { trees: 'round', lanterns: true }, light: 10 },
+    pal: { wall: '#F2DFA7', accent: '#2F4A3A', trim: '#FFFFFF', stone: '#D8CFBF', wood: '#5B3A22', glass: '#A7BAC4', roof: null }, walls: { ground: ['plaster', '#F2DFA7'], upper: ['plaster', '#F2DFA7'], front: ['plaster', '#F2DFA7'], paving: '#C9BFAE' }, rail: 'baluster', land: { trees: 'round', lanterns: true }, light: 10 },
   { id: 'modern-cantilever', kit: 'modern', n: 'Modern cantilever villa', d: 'Thick white roof slab floating past the walls, cantilevered sunshade, deep frame round the feature bay, wood and ledge-stone, glass railings, stone wall with planters and a slatted gate',
     fx: [['hpl', 'stone'], ['hlouver', 'alufin'], ['ledline'], ['uplights']],
     pal: { wall: '#F7F7F5', accent: '#1E2124', trim: '#1E2124', stone: '#8E8A82', wood: '#7A4E2C', glass: '#9FB8C4', roof: null }, walls: { ground: ['stone', '#8E8A82'], upper: ['plaster', '#F7F7F5'], front: ['woodclad', '#7A4E2C'], paving: '#A9A49C' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 17.5 },
   { id: 'modern-luxury', n: 'Modern Indian luxury', d: 'White geometric frame, dark-blue accents, wood-look cladding, glass balconies, stone piers, warm facade lights',
     fx: [['portal'], ['hpl', 'stone'], ['slate', 'stone'], ['bands'], ['boxframe', 'chajja'], ['canopy', 'glcanopy'], ['parapetgl'], ['planters'], ['uplights'], ['ledline'], ['gateslide'], ['cwstone'], ['hedge']],
-    pal: { wall: '#F5F4F0', accent: '#1F3550', trim: '#1F3550', stone: '#B7AA95', wood: '#8A5A33', glass: '#A9C3CF' , roof: null}, walls: { ground: ['plaster', '#F2F1ED'], upper: ['plaster', '#F6F5F2'], front: ['plaster', '#F6F5F2'], paving: '#B5B0A8' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 17.5 },
+    pal: { wall: '#F7F6F2', accent: '#1F3550', trim: '#1F3550', stone: '#8F8A80', wood: '#7A4E2C', glass: '#A9C3CF' , roof: null}, walls: { ground: ['stone', '#8F8A80'], upper: ['plaster', '#F7F6F2'], front: ['woodclad', '#7A4E2C'], paving: '#B5B0A8' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 17.5 },
   { id: 'stone-timber', n: 'Contemporary stone and timber', d: 'Natural stone feature wall, warm wooden panels, dark frames, clean roof line, horizontal louvers',
     fx: [['stone', 'slate'], ['hpl'], ['hlouver', 'alufin'], ['boxframe'], ['canopy'], ['bands'], ['gateslide'], ['cwstone'], ['hedge'], ['uplights']],
-    pal: { wall: '#EFECE6', accent: '#2A2F33', trim: '#2A2F33', stone: '#A79C8C', wood: '#7A4E2C', glass: '#9FB8C4' , roof: null}, walls: { ground: ['stone', '#A49A8B'], upper: ['plaster', '#EFECE6'], front: ['woodclad', '#7A4E2C'], paving: '#9E9890' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 10 },
+    pal: { wall: '#E8E3DA', accent: '#1E2022', trim: '#1E2022', stone: '#6F6B64', wood: '#5C3A22', glass: '#9FB8C4' , roof: null}, walls: { ground: ['stone', '#6F6B64'], upper: ['plaster', '#E8E3DA'], front: ['woodclad', '#5C3A22'], paving: '#9E9890' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 10 },
   { id: 'tropical', n: 'Modern tropical villa', d: 'Deep sunshades, timber fins, green wall, roof pergola, planters and palms',
     fx: [['vfins', 'bamboo'], ['greenwall'], ['pergola'], ['chajja'], ['planters'], ['hpl'], ['canopy'], ['gateslide'], ['hedge']],
-    pal: { wall: '#ECE7DC', accent: '#3A3F3A', trim: '#3A3F3A', stone: '#B9AC97', wood: '#8A5A33', glass: '#A9C3CF' , roof: '#6B4A33'}, walls: { ground: ['stone', '#B9AC97'], upper: ['plaster', '#ECE7DC'], front: ['woodclad', '#8A5A33'], paving: '#B8A48C' }, rail: 'bars', land: { trees: 'palm', lanterns: true }, light: 10 },
+    pal: { wall: '#DDE3D3', accent: '#2F3A2F', trim: '#2F3A2F', stone: '#7D7F78', wood: '#9A6A3E', glass: '#A9C3CF' , roof: '#5E4630'}, walls: { ground: ['stone', '#7D7F78'], upper: ['plaster', '#DDE3D3'], front: ['woodclad', '#9A6A3E'], paving: '#A8A294' }, rail: 'bars', land: { trees: 'palm', lanterns: true }, light: 10 },
   { id: 'minimal', n: 'Minimalist contemporary', d: 'Clean white volumes, one dark frame, floor bands, glass parapet, laser-cut gate',
     fx: [['portal'], ['bands'], ['boxframe'], ['canopy'], ['parapetgl'], ['gatelaser'], ['cwgrill']],
-    pal: { wall: '#F6F6F4', accent: '#2E3236', trim: '#2E3236', stone: '#C9C6C0', wood: '#9A6A42', glass: '#B7CCD6' , roof: null}, walls: { ground: ['plaster', '#8E9398'], upper: ['plaster', '#F6F6F4'], front: ['plaster', '#F6F6F4'], paving: '#A9ADB0' }, rail: 'glass', land: { trees: 'round' }, light: 10 },
+    pal: { wall: '#FBFBFA', accent: '#202326', trim: '#202326', stone: '#C9C6C0', wood: '#9A6A42', glass: '#B7CCD6' , roof: null}, walls: { ground: ['plaster', '#45494D'], upper: ['plaster', '#FBFBFA'], front: ['plaster', '#FBFBFA'], paving: '#A9ADB0' }, rail: 'glass', land: { trees: 'round' }, light: 10 },
   { id: 'urban-premium', n: 'Premium urban bungalow', d: 'Ledge-stone pier, CNC jaali, glass canopy, aluminium fins, pivot door, name plate',
     fx: [['slate', 'stone'], ['cnc', 'perf'], ['glcanopy', 'canopy'], ['alufin', 'boxframe'], ['ledline'], ['pivot'], ['nameplate'], ['gatelaser'], ['cwstone']],
-    pal: { wall: '#EDEBE6', accent: '#24221F', trim: '#24221F', stone: '#8E8A82', wood: '#6B4329', glass: '#9DB8C6' , roof: null}, walls: { ground: ['plaster', '#5E6266'], upper: ['plaster', '#EDEBE6'], front: ['plaster', '#EDEBE6'], paving: '#9E9890' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 17.5 },
+    pal: { wall: '#E4DFD7', accent: '#1C1B19', trim: '#1C1B19', stone: '#4F4C48', wood: '#6B4329', glass: '#9DB8C6' , roof: null}, walls: { ground: ['plaster', '#3E4247'], upper: ['plaster', '#E4DFD7'], front: ['woodclad', '#6B4329'], paving: '#9E9890' }, rail: 'glass', land: { trees: 'round', lanterns: true }, light: 17.5 },
   { id: 'traditional-luxury', n: 'Traditional luxury bungalow', d: 'Columns at the door, cornice, pediment, floor bands, shutters, tiled roof — scaled to this house',
     fx: [['columns'], ['cornice'], ['pediment'], ['bands'], ['shutters', 'chajja'], ['gable'], ['arches'], ['uplights'], ['cwgrill'], ['hedge']],
     pal: { wall: '#F7F4EC', accent: '#C9A24B', trim: '#FFFFFF', stone: '#E6DCC8', wood: '#5B3A22', glass: '#B9CCD4', roof: '#22345A' }, walls: { ground: ['plaster', '#F4F0E6'], upper: ['plaster', '#F7F4EC'], front: ['plaster', '#F7F4EC'], paving: '#C9C1B2' }, rail: 'bars', land: { trees: 'palm', lanterns: true }, light: 17.5 },
   { id: 'indian-fusion', n: 'Modern Indian fusion', d: 'Stone with a terracotta jaali, metal jaali on the feature bay, chajjas, planters, shaded entrance',
     fx: [['stone', 'laterite'], ['tjaali'], ['cnc'], ['chajja'], ['canopy'], ['planters'], ['gateslide'], ['cwstone'], ['uplights']],
-    pal: { wall: '#F1E9DB', accent: '#6E3B2E', trim: '#6E3B2E', stone: '#C9A77D', wood: '#8A5A33', glass: '#B3C8CF' , roof: null}, walls: { ground: ['stone', '#C9A77D'], upper: ['plaster', '#F1E9DB'], front: ['woodclad', '#9A6A42'], paving: '#B9B2A6' }, rail: 'bars', land: { trees: 'round', lanterns: true }, light: 17.5 }
+    pal: { wall: '#F4EBDD', accent: '#7A2E22', trim: '#7A2E22', stone: '#A9583A', wood: '#8A5A33', glass: '#B3C8CF' , roof: null}, walls: { ground: ['brick', '#A9583A'], upper: ['plaster', '#F4EBDD'], front: ['woodclad', '#8A5A33'], paving: '#B9B2A6' }, rail: 'bars', land: { trees: 'round', lanterns: true }, light: 17.5 }
 ];
 const bungalowOf = () => BUNGALOW.find(x => x.id === ST.extStyle) || null;
 // does this element show anywhere on this house (in the given zone)?
@@ -2836,7 +2836,7 @@ function hipGeom(T, x0, z0, w, d, h) {
 function arch3D(T, D, o, grp, box, mat, night) {
   const kit = archKit(); if (!kit) return;
   const b = D.brief, FM = frameOf(D, o), nF = o.floors.length, R0 = PLINTH + nF * FH, F0 = o.floors[0], st = lookOf(b, o).st;
-  const white = pbrMat(T, 'plaster', kit === 'colonial' ? '#F6EEDD' : '#FAF8F3'), trimW = mat('#FFFFFF', { roughness: 0.6 }), gold = mat('#C9A24B', { metalness: 0.85, roughness: 0.3 });
+  const white = pbrMat(T, 'plaster', kit === 'colonial' ? (st.wall || '#F2DFA7') : '#FAF8F3'), trimW = mat('#FFFFFF', { roughness: 0.6 }), gold = mat('#C9A24B', { metalness: 0.85, roughness: 0.3 });
   const dark = mat('#1B1D20', { metalness: 0.5, roughness: 0.4 }), stoneB = pbrMat(T, 'stone', '#D8CFBF');
   const add = (geo, m, x, y, z) => { const me = new T.Mesh(geo, m); me.position.set(x, y, z); me.castShadow = true; me.receiveShadow = true; grp.add(me); return me; };
   const cells = f => { const L = []; for (let r = 0; r < FM.nr; r++) for (let c = 0; c < FM.nc; c++) if (FM.built[f][r][c]) L.push(cellRect(o.G, b, r, c)); return L; };
@@ -2916,8 +2916,8 @@ function arch3D(T, D, o, grp, box, mat, night) {
     // ledge-stone pier at the corner away from the gate
     const left = car ? car.x0 > b.w / 2 : true, px = left ? b.sL : b.w - b.sR - 3; box(px, 0, frontY - 0.1, 3, R0 + 0.6, 0.45, pbrMat(T, 'stone', '#8E8A82'));
   }
-  /* ---------- compound wall and gate for each kit ---------- */
-  if (!b.shape) {
+  /* ---------- compound wall and gate for each kit (a villa estate has its own boundary) ---------- */
+  if (!b.shape && !(b.site && b.site.villa)) {
     const gaps = G.map(g => [g.kind === 'walk' && g.mx != null ? g.mx - 1.75 : g.x0, g.kind === 'walk' && g.mx != null ? g.mx + 1.75 : g.x1]).sort((a, c) => a[0] - c[0]);
     const segs = []; let x = 0; gaps.forEach(([a, c]) => { if (a - x > 1) segs.push([x, a - 0.5]); x = c + 0.5; }); if (b.w - x > 1) segs.push([x, b.w]);
     const zw = b.d - 0.4;
@@ -4222,6 +4222,21 @@ function villaLook3D(T, D, o, grp, box, mat, night) {
   const b = D.brief, s = b.site, V = VILLA_V[b.villaV]; if (!V || !s) return;
   const nF = o.floors.length, top = PLINTH + nF * FH, x0 = s.ox + b.sL, x1 = s.ox + b.w - b.sR, z1 = s.oy + b.d - b.setF, z0 = z1 - o.G.rows.reduce((a, v) => a + v, 0), w = x1 - x0, d = z1 - z0;
   const pal = V.pal, roofM = mat(pal.roof || '#F2EFE8', { roughness: 0.8 }), wood = mat(pal.wood, { roughness: 0.7 }), stone = mat(pal.stone, { roughness: 0.95 });
+  // a chosen exterior style replaces the villa look's roof and porch, so the two never overlap
+  const BS = typeof bungalowOf === 'function' ? bungalowOf() : null;
+  if (BS) {
+    const pz = villaZones(D, o).find(z => z.kind === 'portico'); if (!pz) return;
+    const H = PLINTH + 11, P = BS.pal, kit = BS.kit, round = kit === 'classical' || kit === 'colonial' || BS.id === 'traditional-luxury';
+    const colM = round ? mat('#FFFFFF', { roughness: 0.6 }) : kit === 'modern' || BS.rail === 'glass' ? mat(P.accent, { metalness: 0.5, roughness: 0.35 }) : mat(P.stone, { roughness: 0.9 });
+    [[1, pz.h - 2], [pz.w - 2, pz.h - 2]].forEach(([dx, dz]) => { const c = new T.Mesh(round ? new T.CylinderGeometry(0.75, 0.85, H, 24) : new T.BoxGeometry(1.0, H, 1.0), colM); c.position.set(pz.x + dx, H / 2, pz.y + dz); c.castShadow = true; grp.add(c); if (kit === 'classical') { box(pz.x + dx - 1, H - 0.9, pz.y + dz - 1, 2, 0.9, 2, mat('#C9A24B', { metalness: 0.85, roughness: 0.3 })); box(pz.x + dx - 1.1, 0, pz.y + dz - 1.1, 2.2, 0.8, 2.2, mat('#D8CFBF')); } });
+    const sh = kit === 'modern' ? 1.4 : 1.1, fas = mat(round ? '#FFFFFF' : P.trim || P.accent);
+    box(pz.x - 0.6, H, pz.y - 0.3, pz.w + 1.2, sh, pz.h + 0.6, mat(P.wall || '#F2EFE8'));
+    box(pz.x - 0.8, H + sh - 0.45, pz.y - 0.5, pz.w + 1.6, 0.45, 0.25, fas); box(pz.x - 0.8, H + sh - 0.45, pz.y + pz.h + 0.25, pz.w + 1.6, 0.45, 0.25, fas);
+    box(pz.x - 0.8, H + sh - 0.45, pz.y - 0.5, 0.25, 0.45, pz.h + 1.0, fas); box(pz.x + pz.w + 0.55, H + sh - 0.45, pz.y - 0.5, 0.25, 0.45, pz.h + 1.0, fas);
+    box(pz.x + 0.4, H - 0.12, pz.y + 0.4, pz.w - 0.8, 0.12, pz.h - 0.8, mat(P.wood, { roughness: 0.7 }), false);
+    if (night) { const p = new T.PointLight('#FFD39A', 20, 18, 1.8); p.position.set(pz.x + pz.w / 2, H - 1, pz.y + pz.h / 2); grp.add(p); }
+    return;
+  }
   if (V.roof === 'float') { box(x0 - 3, top + 3.4, z0 - 3, w + 6, 0.9, d + 6, mat('#F4F1EA')); [[x0 - 2.5, z0 - 2.5], [x1 + 2, z0 - 2.5], [x0 - 2.5, z1 + 2], [x1 + 2, z1 + 2]].forEach(([x, z]) => box(x, top, z, 0.5, 3.4, 0.5, mat(pal.accent))); box(x0 - 3, top + 3.3, z1 + 2.9, w + 6, 0.12, 0.12, mat('#FFE2A8', { emissive: night ? '#FFD27A' : '#000000', emissiveIntensity: 1 })); }
   if (V.roof === 'hip') { const g = new T.ConeGeometry(Math.SQRT1_2, 1, 4, 1); g.rotateY(Math.PI / 4); const me = new T.Mesh(g, roofM); me.scale.set(w + 5, 9, d + 5); me.position.set(x0 + w / 2, top + 4.5, z0 + d / 2); me.castShadow = true; grp.add(me); box(x0 - 2.5, top - 0.3, z0 - 2.5, w + 5, 0.6, d + 5, mat('#EFE6D4')); }
   if (V.roof === 'pergola') { for (let x = x0; x <= x1; x += 2) box(x, top + 3.6, z0 - 2, 0.35, 0.5, d + 4, wood); box(x0 - 2, top + 3.4, z0 - 2, w + 4, 0.3, 0.4, wood); box(x0 - 2, top + 3.4, z1 + 1.6, w + 4, 0.3, 0.4, wood); }
@@ -5374,7 +5389,7 @@ function buildHouse3D(T, D, o, opts) {
       box(M.x - 1, R0 + hM, M.y - 1, M.w + 2, 0.5, M.h + 2, slabCol);
     }
   }
-  if (cutAt == null) { const TS = tankSpot(D, o); if (TS) { const R0 = PLINTH + nF * FH, y0 = TS.onCabin ? R0 + 8.5 : R0 + 3; if (!TS.onCabin) { [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([dx, dz]) => box(TS.x + dx * 1.4 - 0.15, R0, TS.y + dz * 1.4 - 0.15, 0.3, 3, 0.3, mat('#8C9399'))); box(TS.x - 1.9, R0 + 2.8, TS.y - 1.9, 3.8, 0.2, 3.8, mat('#8C9399')); } const tk = new T.Mesh(new T.CylinderGeometry(1.7, 1.7, 3.6, 20), mat('#2F3437', { roughness: 0.6 })); tk.position.set(TS.x, y0 + 1.8, TS.y); tk.castShadow = true; grp.add(tk); } }
+  if (cutAt == null && !pitched) { const TS = tankSpot(D, o); if (TS) { const R0 = PLINTH + nF * FH, y0 = TS.onCabin ? R0 + 8.5 : R0 + 3; if (!TS.onCabin) { [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([dx, dz]) => box(TS.x + dx * 1.4 - 0.15, R0, TS.y + dz * 1.4 - 0.15, 0.3, 3, 0.3, mat('#8C9399'))); box(TS.x - 1.9, R0 + 2.8, TS.y - 1.9, 3.8, 0.2, 3.8, mat('#8C9399')); } const tk = new T.Mesh(new T.CylinderGeometry(1.7, 1.7, 3.6, 20), mat('#2F3437', { roughness: 0.6 })); tk.position.set(TS.x, y0 + 1.8, TS.y); tk.castShadow = true; grp.add(tk); } }
   // outside stair (ground-floor homes without a spare room)
   if (o.ext && cutAt == null) {
     const E = o.ext, m = mat('#BDB6AA'), R0 = PLINTH + FH;
