@@ -102,5 +102,12 @@ const ra = await p.evaluate(() => {
   ST.home.use = 'family'; return r; });
 assert.equal(ra.walkHit, 0, 'no car or bike is parked on the entry path'); assert.equal(ra.noAisle, 0, 'every open-parking bay opens onto a drive aisle');
 assert.deepEqual(ra.noDoor, [], 'every room of every flat has a door'); assert.deepEqual(ra.bathOff, [], 'a bath opens off its bedroom'); assert.deepEqual(ra.err, [], 'rental and apartment screens render');
-console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks, plot/home/budget steps, home fit check, flat per floor and resizable plan, rental / apartment parking and flats');
+// front elevation styles: every style draws its own front, the choice changes the drawing and the estimate
+const lk = await p.evaluate(() => {
+  ST.plot = Object.assign({}, ST.plot, { w: 80, d: 120, sides: { f: 80, b: 80, l: 120, r: 120 } }); ST.home.use = 'apartment'; projState().park = 'auto';
+  const svgs = Object.keys(APT_LOOK).map(k => { ST.aptLook = k; return projElevSvg(projectLayout()); }), costs = ['glass', 'odia'].map(k => { ST.aptLook = k; return Math.round(projectCost().total); });
+  ST.home.use = 'rent'; rentState().types = ['b1']; ST.aptLook = 'fins'; const rsvg = rentElevSvg(rentalLayout()); ST.aptLook = null; ST.home.use = 'family';
+  return { n: svgs.length, distinct: new Set(svgs).size, costs, rent: rsvg.length > 300 }; });
+assert.ok(lk.n >= 10 && lk.distinct === lk.n, 'ten distinct front elevation styles'); assert.notEqual(lk.costs[0], lk.costs[1], 'the style and its finishes change the estimate'); assert.ok(lk.rent, 'rentals get a styled front elevation');
+console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks, plot/home/budget steps, home fit check, flat per floor and resizable plan, rental / apartment parking and flats, elevation styles');
 await b.close(); server.close();

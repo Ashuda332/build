@@ -915,6 +915,7 @@ details.row>summary:hover{background:var(--soft)}
 html[data-theme="dark"] .facts>div,html[data-theme="dark"] .rows{background:#161E25;border-color:#26313B}
 @media (max-width:600px){.facts b{font-size:18px}.lh{margin-top:32px}details.row>summary{padding:15px 14px}.rowb{padding:2px 14px 18px}}
 .plan text.opl{font-size:.5px;fill:#5B6670;text-anchor:middle;font-weight:600}.plan text.win-l{fill:#2C6E91}
+.lk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}.lk{display:flex;flex-direction:column;gap:4px;text-align:left;background:var(--bg);border:1.5px solid var(--line2);border-radius:16px;padding:8px;cursor:pointer}.lk.on{border-color:var(--ink)}.lk b{font-size:13.5px}.lk span{font-size:11.5px;color:var(--mute);line-height:1.3}.lk-th{width:100%;height:auto;background:#E8EEF2;border-radius:10px}.lk-h{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:16px 2px 6px}
 </style>
 </head>
 <body>
@@ -4938,12 +4939,22 @@ function rentRate(tid) {
   const D = makeDesign(b); nameRooms(D); const o = D.options[0], P = priceList(D, o, tid);
   return (rentRate.c[key] = { perSqft: P.perSqft, P, covered: P.Q.covered });
 }
+// the width of the rental building seen from the road, and its front elevation
+function rentFrontW(R) { const fz = Math.max(...R.units.map(u => u.y + u.d)); const us = R.units.filter(u => Math.abs(u.y + u.d - fz) < 0.5); return us.length ? Math.max(...us.map(u => u.x + u.w)) - Math.min(...us.map(u => u.x)) : R.W - 4; }
+function rentElevSvg(R) {
+  const L = aptLook(), fz = Math.max(...R.units.map(u => u.y + u.d)), us = R.units.filter(u => Math.abs(u.y + u.d - fz) < 0.5), x0 = us.length ? Math.min(...us.map(u => u.x)) : 2, w = rentFrontW(R), FHt = FH, H = R.fl * FHt + 8, m = 4;
+  let h = '<svg class="plan" viewBox="' + (x0 - m) + ' ' + (-H) + ' ' + (w + 2 * m) + ' ' + (H + 6) + '" role="img" aria-label="Front elevation"><rect x="' + (x0 - m) + '" y="0" width="' + (w + 2 * m) + '" height="3" fill="#8A949C"/><rect x="' + x0 + '" y="-1.5" width="' + w + '" height="1.5" fill="#8C9399"/>';
+  for (let f = 0; f < R.fl; f++) h += aptFloorSvg(L, x0, -(1.5 + f * FHt), w, FHt, f + 1) + '<rect x="' + (x0 - 0.3) + '" y="' + (-(1.5 + (f + 1) * FHt) - 0.3) + '" width="' + (w + 0.6) + '" height="0.6" fill="#8A949C"/>';
+  h += '<rect x="' + x0 + '" y="' + (-(1.5 + R.fl * FHt) - 3) + '" width="' + w + '" height="3" fill="' + L.wall + '" stroke="#24323D" stroke-width="0.15"/>';
+  return h + '</svg>';
+}
 function rentalCost(tid) {
   const R = rentalLayout(), r = rentRate(tid), f = R.built / Math.max(1, r.covered);
   // the typical home's material list scaled to the rental built-up; its garden items are left out
   const lines = r.P.lines.filter(x => x.it.g !== 'Outside & site' || ['cwall', 'gate', 'sump', 'septic'].includes(x.it.id)).map(x => Object.assign({}, x, { units: /nos|set/.test(x.buyUnit) ? Math.ceil(x.units * f) : x.units * f, amount: x.amount * f }));
   const extra = (n, spec, units, buyUnit, rate) => lines.push({ it: { n, g: 'Outside & site' }, spec, src: 'EST', units, buyUnit, rate, amount: units * rate });
   if (R.park) { extra('Parking paving and markings', 'Paver blocks on a compacted base, bay and aisle markings', R.park.w * R.park.h, 'sq ft', 140); const G = GATE_T[rentState().gate] || GATE_T.sliding; extra('Vehicle gate', G[0], 1, 'nos', G[2]); extra('Walk-in gate', 'MS wicket gate, 4 ft', 1, 'nos', 15000); }
+  aptFinLines(rentFrontW(R) * (R.fl * FH + 3)).forEach(x => extra('Front finish', x[0], 1, 'lump sum', x[1]));
   if (R.garden) extra('Garden', 'Lawn, trees, path and drip lines', R.garden.w * R.garden.h, 'sq ft', [160, 220, 320, 500][TI[tid || ST.tier] ?? 1]);
   const sub = lines.reduce((a, x) => a + x.amount, 0), total = sub * 1.05;
   return { R, lines, sub, total, perUnit: R.total ? total / R.total : 0, rate: R.built ? total / R.built : 0, ref: r };
@@ -5056,7 +5067,7 @@ function buildRental3D(T, R, opts) {
   if (R.garden) { const G = R.garden; box(G.x, 0.04, G.y, G.w, 0.14, G.h, mat('#8DBB6E', { roughness: 1 }), false); for (let x = G.x + 4; x < G.x + G.w - 3; x += 9) { const t = new T.Mesh(new T.SphereGeometry(Math.min(2.2, G.h / 2.5), 10, 8), mat('#5E8A4E')); t.position.set(x, 4.5, G.y + Math.min(2.5, G.h / 2)); grp.add(t); box(x - 0.2, 0, G.y + Math.min(2.5, G.h / 2) - 0.2, 0.4, 3, 0.4, mat('#6B4A2E')); } }
   if (R.park) { const P = R.park; box(P.x, 0.05, P.y, P.w, 0.08, P.h, mat('#A8A399'), false); box(P.walk.x, 0.09, P.walk.y, P.walk.w, 0.04, P.walk.h, mat('#D9C9A8'), false); P.carBays.forEach((c, i) => box(c.x + 1.5, 0.5, c.y + 2, 6, 1.8, 14, mat(['#9B2D2D', '#3C4650', '#D9D9D9', '#2F4B7C'][i % 4]))); P.bikeBays.forEach((c, i) => { if (i < 40) box(c.x + 0.9, 0.3, c.y + 0.7, 0.8, 2.6, 4.6, mat('#3C4650')); }); }
   const cw = mat('#E5E1D8'); box(0, 0, 0, R.W, 4, 0.4, cw); box(0, 0, 0, 0.4, 4, R.D, cw); box(R.W - 0.4, 0, 0, 0.4, 4, R.D, cw); const gx = R.W / 2 - 5; box(0, 0, R.D - 0.4, gx, 4, 0.4, cw); box(gx + 10, 0, R.D - 0.4, R.W - gx - 10, 4, 0.4, cw);
-  const wall = mat('#EDE7DC'), slab = mat('#DEDAD2'), glass = mat('#9FB8C8', night ? { emissive: '#FFB95C', emissiveIntensity: 0.6 } : { roughness: 0.2 }), door = mat('#7A4E2C'), rail = mat('#3A3F44'), low = mat('#F4F1EA');
+  const LOOK = aptLook(), frontZ = Math.max(...R.units.map(u => u.y + u.d)), wall = mat(LOOK.wall), slab = mat('#DEDAD2'), glass = mat('#9FB8C8', night ? { emissive: '#FFB95C', emissiveIntensity: 0.6 } : { roughness: 0.2 }), door = mat('#7A4E2C'), rail = mat('#3A3F44'), low = mat('#F4F1EA');
   const fl = cut != null ? cut + 1 : R.fl, sz = Math.max(2.6, Math.min(5, Math.max(R.W, R.D) / 22));
   R.units.forEach(u => box(u.x, 0, u.y, u.w, PLINTH, u.d, mat('#8C9399'), false));
   for (let f = 0; f < fl; f++) {
@@ -5073,6 +5084,7 @@ function buildRental3D(T, R, opts) {
       box(u.x + 0.15, base, u.y, u.w - 0.3, FH - SLAB, u.d, wall);
       if (u.door === 'left' || u.door === 'right') { const xd = u.door === 'left' ? u.x - 0.05 : u.x + u.w - 0.05, xo = u.door === 'left' ? u.x + u.w - 0.05 : u.x - 0.05; box(xd, base, u.y + 1.5, 0.1, 7, 3, door); box(xd, base + 3, u.y + 6, 0.1, 4, Math.max(0.5, Math.min(5, u.d - 8)), glass); box(xo, base + 3, u.y + 2, 0.1, 4, Math.max(0.5, Math.min(6, u.d - 4)), glass); }
       else { const zf = u.door === 'bottom' ? u.y + u.d : u.y - 0.05; box(u.x + 2, base, zf, 3, 7, 0.1, door); box(u.x + 7, base + 3, zf, Math.min(6, u.w - 9), 4, 0.1, glass); }
+      if (Math.abs(u.y + u.d - frontZ) < 0.5 && u.door !== 'bottom') aptFront3D(box, mat, LOOK, u.x + 0.15, u.y + u.d, u.w - 0.3, base, FH - SLAB, f, night); // the road-facing front wears the style
       box(u.x, base + FH - SLAB, u.y, u.w, SLAB, u.d, slab);
     });
     if (isCut) continue;
@@ -5122,6 +5134,7 @@ function rentLayoutScr() {
   h += '<div class="ph sub3"><b>3D</b><div class="seg2 sm"><button class="' + (ds.cut3d ? '' : 'on') + '" data-a="pcut" data-v="0">Whole building</button><button class="' + (ds.cut3d ? 'on' : '') + '" data-a="pcut" data-v="1">This floor</button></div>' + (ds.show3d && !ds.cut3d ? '<div class="seg2 sm"><button class="' + (ds.night ? '' : 'on') + '" data-a="night" data-v="0">Day</button><button class="' + (ds.night ? 'on' : '') + '" data-a="night" data-v="1">Night lights</button></div>' : '') + '</div><div id="dz3d" class="v3">' + (ds.show3d ? '<p class="load">Loading 3D…</p>' : '<button class="btn" data-a="make3d">See it in 3D</button>') + '</div></div>';
   const seen = {}; const ut = R.units.filter(u => !seen[u.k] && (seen[u.k] = 1));
   h += '<div class="panel"><div class="ph"><b>Unit types</b></div><div class="pk-two">' + ut.map(u => '<figure>' + rentUnitSvg(u) + '<figcaption><b>' + RENT_T[u.k].name + '</b> · ' + u.area + ' sq ft · ' + ftIn(u.w) + ' × ' + ftIn(u.d) + ' · ' + R.count[u.k] * R.fl + ' in the building · smallest bedroom ' + rentBedMin(u) + '</figcaption></figure>').join('') + '</div></div>';
+  { const fw = rentFrontW(R); h += '<div class="panel"><div class="ph"><b>Front elevation — ' + esc(aptLook().n) + '</b></div>' + rentElevSvg(R) + '</div>' + aptLookUI(fw * (R.fl * FH + 3)); }
   const O = rentOptions();
   h += '<div class="panel"><div class="ph"><b>What else fits on ' + R.W + ' × ' + R.D + ' ft</b><span class="ph-s">Same floors, parking and garden — tap to switch</span></div><div class="rent-opts sm">' + O.map(o => '<button class="ropt' + (rs.types.length === 1 && rs.types[0] === o.k ? ' on' : '') + (o.n ? '' : ' off') + '" data-a="ronly" data-v="' + o.k + '"' + (o.n ? '' : ' disabled') + '><div class="ro-top"><b>' + RENT_T[o.k].name + '</b><em>' + (o.n ? o.n + ' per floor' : 'Does not fit') + '</em></div>' + (o.n ? rentalPlanSvg(o.R, 0, true) : '') + '<span>' + (o.n ? o.area + ' sq ft each · ' + o.n * R.fl + ' units' : 'Needs about ' + RENT_T[o.k].minW + ' × ' + RENT_T[o.k].minD + ' ft') + '</span></button>').join('') + '</div></div>';
   // rent per type
@@ -5329,6 +5342,7 @@ function projectCost(tid) {
   if (PL.totalFloors >= 5) extra.push(['Fire safety — sprinklers, hydrant, fire tank and pumps', PL.fp.w * PL.fp.h * PL.totalFloors * 90]);
   if (PL.totalFloors >= 6) extra.push(['Deeper foundation (raft or piles) and a stronger frame for ' + PL.totalFloors + ' floors', PL.fp.w * PL.fp.h * PL.totalFloors * 120]);
   if (PL.garden) extra.push(['Garden — ' + Math.round(PL.garden.w * PL.garden.h).toLocaleString('en-IN') + ' sq ft lawn, trees, path, drip', PL.garden.w * PL.garden.h * [180, 250, 380, 600][tiOf()]]);
+  aptFinLines(PL.faceW * (PL.totalFloors * 10.5 + 5)).forEach(x => extra.push(['Front: ' + x[0], x[1]]));
   { const G = GATE_T[projState().gate] || GATE_T.sliding; extra.push(['Entry gates — ' + G[0].toLowerCase() + ' for vehicles and a 4 ft walk-in gate', G[2] + 15000]); }
   PL.amen.forEach(a => extra.push([AMEN[a].n, AMEN[a].cost]));
   const total = shell + extra.reduce((a, x) => a + x[1], 0);
@@ -5438,19 +5452,82 @@ function projUnitSvg(k, w, d, name) {
   return unitPlanSvg({ w: Math.round(w * 10) / 10, d: Math.round(d * 10) / 10, name, rooms: () => projRooms(k, w, d), entry: 'Corridor side — main door' });
 }
 // front elevation: every floor stacked, windows, balconies, roof amenities
+/* ---------- front elevation styles for apartments and rental buildings ----------
+   Each style draws its own front: glass, fins, frames, brick, stone, balconies, planters, louvers or jaali.
+   fin: the exterior finishes it comes with, each [key, share of the front it covers]. */
+const APT_LOOK = {
+  glass: { n: 'Glass curtain wall', d: 'Full-height glass bands, slim aluminium mullions, dark spandrels', wall: '#3E4A52', frame: '#C9CED4', glass: '#7FA7BD', accent: '#C9CED4', pat: 'curtain', fin: ['glass', 'acp'] },
+  fins: { n: 'Wooden fins', d: 'White frame, wide glass and vertical wooden-look fins', wall: '#F2F0EB', frame: '#FFFFFF', glass: '#8FB2C4', accent: '#9A6B43', pat: 'fins', fin: ['wpc', 'texture'] },
+  boxes: { n: 'Box frames', d: 'A white frame juts out around every flat, staggered floor by floor', wall: '#CFC9BE', frame: '#FBFAF7', glass: '#8FB2C4', accent: '#2B3A44', pat: 'boxes', fin: ['hpl', 'texture', 'glassrail'] },
+  brick: { n: 'Brick and glass', d: 'Terracotta brick tiles, tall black-framed windows', wall: '#B5643A', frame: '#1F2328', glass: '#8FB2C4', accent: '#E9E4DA', pat: 'brick', fin: ['brick', 'texture'] },
+  stone: { n: 'Stone luxe', d: 'Sandstone piers, floor-to-ceiling glass, bronze trims', wall: '#D8C7A8', frame: '#8A6A3A', glass: '#7FA7BD', accent: '#B08D57', pat: 'piers', fin: ['stone', 'glass'] },
+  stagger: { n: 'Staggered balconies', d: 'Glass-railed balconies step left and right floor by floor', wall: '#EDEAE3', frame: '#FFFFFF', glass: '#8FB2C4', accent: '#3A3F44', pat: 'stagger', fin: ['texture', 'glassrail'] },
+  green: { n: 'Green balconies', d: 'Planter balconies on every floor and a vertical garden strip', wall: '#ECE9E1', frame: '#FFFFFF', glass: '#8FB2C4', accent: '#5E8C4E', pat: 'green', fin: ['texture', 'planter', 'tiles'] },
+  mono: { n: 'Monochrome grid', d: 'White walls in a bold black grid, deep window reveals', wall: '#F4F4F2', frame: '#1D1F22', glass: '#7FA0B2', accent: '#1D1F22', pat: 'grid', fin: ['acp', 'tiles'] },
+  louver: { n: 'Aluminium louvers', d: 'Horizontal louvers shade the glass, grey and silver', wall: '#9AA1A7', frame: '#D7DBDF', glass: '#7FA7BD', accent: '#D7DBDF', pat: 'louver', fin: ['acp', 'louver'] },
+  odia: { n: 'Modern Odia', d: 'Laterite-red base, terracotta jaali screens and white bands', wall: '#F1E6D4', frame: '#FFFFFF', glass: '#8FB2C4', accent: '#A04A2A', pat: 'jaali', fin: ['jaali', 'texture', 'stone'] }
+};
+// exterior finishes: [name, rate per sq ft (estimate), share of the front it covers]
+const EXT_FIN = { glass: ['Glass curtain wall (structural glazing)', 900, 0.5], acp: ['ACP cladding (aluminium composite)', 220, 0.3], hpl: ['HPL cladding panels', 380, 0.3], stone: ['Natural stone cladding', 260, 0.3], brick: ['Brick / terracotta cladding tiles', 140, 0.4], wpc: ['WPC wooden-look fins and louvers', 320, 0.2], texture: ['Exterior texture paint', 45, 0.6], tiles: ['Exterior vitrified wall tiles', 120, 0.3], louver: ['Aluminium louvers', 420, 0.3], planter: ['Balcony planters with drip', 250, 0.1], jaali: ['Terracotta / GRC jaali screens', 480, 0.2], glassrail: ['Glass balcony railings', 650, 0.12] };
+// the look of this building: the owner's choice, else one picked from the plot so different projects look different
+function aptLookKey() { const k = ST.aptLook; if (APT_LOOK[k]) return k; const keys = Object.keys(APT_LOOK), h = (ST.plot.w * 31 + ST.plot.d * 17 + (ST.home.use === 'rent' ? 7 : 0) + (ST.seed | 0) * 13) >>> 0; return keys[h % keys.length]; }
+const aptLook = () => APT_LOOK[aptLookKey()];
+const aptFin = () => ST.aptFin && ST.aptFin[aptLookKey()] ? ST.aptFin[aptLookKey()] : aptLook().fin;
+function aptFinLines(faceArea) { return aptFin().filter(k => EXT_FIN[k]).map(k => [EXT_FIN[k][0] + ' — ' + Math.round(faceArea * EXT_FIN[k][2]).toLocaleString('en-IN') + ' sq ft of the front', faceArea * EXT_FIN[k][2] * EXT_FIN[k][1]]); }
+// one floor of the front, drawn in 2D: x0 … x0 + w wide, floor bottom at y (SVG y grows down: the floor spans y - FHt … y)
+function aptFloorSvg(L, x0, yb, w, FHt, f) {
+  const R = (x, y, ww, hh, fill, extra) => ww > 0.01 && hh > 0.01 ? '<rect x="' + x + '" y="' + y + '" width="' + ww + '" height="' + hh + '" fill="' + fill + '"' + (extra || '') + '/>' : '';
+  const top = yb - FHt, G = L.glass, F = L.frame, A = L.accent; let h = R(x0, top, w, FHt, L.wall, ' stroke="#24323D" stroke-width="0.15"');
+  const win = (x, ww, y1, hh, fr) => R(x, y1, ww, hh, G, ' stroke="' + (fr || F) + '" stroke-width="0.35"');
+  switch (L.pat) {
+    case 'curtain': h += R(x0 + 0.3, top + 0.6, w - 0.6, FHt - 2.2, G); for (let x = x0 + 0.3; x <= x0 + w - 0.2; x += 4) h += R(x - 0.1, top + 0.6, 0.2, FHt - 2.2, F); h += R(x0, yb - 1.6, w, 1.6, '#2A3238'); break;
+    case 'fins': h += win(x0 + 1, w - 2, top + 1.6, FHt - 3.4, '#FFFFFF'); for (let x = x0 + 1.4; x < x0 + w - 1; x += 2.6) h += R(x, top, 0.45, FHt, A); h += R(x0, yb - 0.8, w, 0.8, F); break;
+    case 'boxes': { const n = Math.max(1, Math.round(w / 24)), sw = w / n; for (let i = 0; i < n; i++) { const sx = x0 + i * sw + ((f + i) % 2 ? 0.8 : 0), bw = sw - 1.6; h += R(sx, top + 0.4, bw, FHt - 0.4, F); h += win(sx + 0.9, bw - 1.8, top + 1.4, FHt - 3.6); h += R(sx + 0.9, yb - 3.6, bw - 1.8, 0.25, A); } break; }
+    case 'brick': for (let y = top + 0.5; y < yb; y += 0.7) h += '<line x1="' + x0 + '" y1="' + y + '" x2="' + (x0 + w) + '" y2="' + y + '" stroke="#9B5230" stroke-width="0.06"/>'; for (let x = x0 + 2; x + 4 <= x0 + w - 1; x += 7.5) h += win(x, 4, top + 1.2, FHt - 3, F); h += R(x0, yb - 0.5, w, 0.5, A); break;
+    case 'piers': for (let x = x0; x < x0 + w - 1; x += 12) { h += win(x + 2, Math.min(10, x0 + w - x - 2), top + 0.6, FHt - 1.4, A); } for (let x = x0; x <= x0 + w; x += 12) h += R(Math.min(x, x0 + w - 2), top, 2, FHt, L.wall, ' stroke="' + A + '" stroke-width="0.12"'); h += R(x0, yb - 0.4, w, 0.4, A); break;
+    case 'stagger': { const half = w / 2, bx = f % 2 ? x0 + half : x0; h += win(x0 + 1.5, w - 3, top + 1.2, FHt - 3.2); h += R(bx, yb - 0.6, half, 0.6, F) + R(bx, yb - 3.8, half, 3.2, 'rgba(169,195,207,.55)', ' stroke="' + A + '" stroke-width="0.12"'); break; }
+    case 'green': h += win(x0 + 1.5, w - 3, top + 1.2, FHt - 3.2); h += R(x0, yb - 0.6, w, 0.6, F); for (let x = x0 + 1; x < x0 + w - 1; x += 2.2) h += '<circle cx="' + x + '" cy="' + (yb - 1.3) + '" r="0.9" fill="' + A + '"/>'; h += R(x0 + w - 3, top, 3, FHt, '#6E9A63'); break;
+    case 'grid': for (let x = x0 + 1.5; x + 5 <= x0 + w - 1; x += 9) h += win(x, 6, top + 1.4, FHt - 3.2, F); for (let x = x0; x <= x0 + w + 0.01; x += 9) h += R(Math.min(x, x0 + w - 0.6), top, 0.6, FHt, F); h += R(x0, yb - 0.6, w, 0.6, F); break;
+    case 'louver': h += win(x0 + 1, w - 2, top + 0.8, FHt - 2, F); for (let y = top + 1.2; y < yb - 1.2; y += 0.7) h += R(x0 + 1, y, w * 0.55, 0.22, A); break;
+    case 'jaali': for (let x = x0 + 1; x + 4 <= x0 + w - 1; x += 9) { h += win(x, 4, top + 1.4, FHt - 3.2); const jx = x + 4.6; if (jx + 3.6 < x0 + w) { h += R(jx, top + 1, 3.6, FHt - 2.2, A); for (let yy = top + 1.6; yy < yb - 1.4; yy += 1.1) for (let xx = jx + 0.6; xx < jx + 3.4; xx += 1.1) h += '<path d="M' + xx + ' ' + (yy - 0.4) + ' L' + (xx + 0.4) + ' ' + yy + ' L' + xx + ' ' + (yy + 0.4) + ' L' + (xx - 0.4) + ' ' + yy + 'Z" fill="' + L.wall + '"/>'; } } h += R(x0, yb - 0.7, w, 0.7, F); break;
+  }
+  return h;
+}
+// a small elevation of a style, for the style cards
+function aptLookThumb(L) { const w = 40, FHt = 10, n = 5; let h = '<svg viewBox="-2 ' + (-n * FHt - 6) + ' ' + (w + 4) + ' ' + (n * FHt + 9) + '" class="lk-th" aria-hidden="true"><rect x="-2" y="0" width="' + (w + 4) + '" height="3" fill="#8A949C"/>'; for (let f = 0; f < n; f++) h += f === 0 ? '<rect x="0" y="-' + FHt + '" width="' + w + '" height="' + FHt + '" fill="#BDB6AA"/>' : aptFloorSvg(L, 0, -f * FHt, w, FHt, f); return h + '<rect x="0" y="' + (-n * FHt - 2) + '" width="' + w + '" height="2" fill="' + L.wall + '" stroke="#24323D" stroke-width="0.15"/></svg>'; }
+function aptLookUI(faceArea) {
+  const k = aptLookKey(), fin = aptFin();
+  return '<div class="panel"><div class="ph"><b>Front elevation style</b><span class="ph-s">' + Object.keys(APT_LOOK).length + ' styles — tap one</span></div><div class="lk-grid">' + Object.keys(APT_LOOK).map(x => '<button class="lk' + (x === k ? ' on' : '') + '" data-a="alook" data-v="' + x + '">' + aptLookThumb(APT_LOOK[x]) + '<b>' + APT_LOOK[x].n + '</b><span>' + APT_LOOK[x].d + '</span></button>').join('') + '</div>' +
+    '<h4 class="lk-h">Exterior finishes on the front</h4><div class="rq-cats">' + Object.keys(EXT_FIN).map(x => '<button class="rq-c' + (fin.includes(x) ? ' on' : '') + '" data-a="afin" data-v="' + x + '">' + esc(EXT_FIN[x][0]) + '<i>' + rup(EXT_FIN[x][1]) + '/sq ft</i></button>').join('') + '</div>' +
+    '<p class="hint">Finishes cover about ' + Math.round(faceArea).toLocaleString('en-IN') + ' sq ft of front wall; their cost is in the estimate. Rates are BhuChain estimates.</p></div>';
+}
+// the front face of one floor in 3D (the road side at z, facing +z)
+function aptFront3D(box, mat, L, x0, z, w, y0, FHt, f, night) {
+  const G = mat(L.glass, night ? { emissive: '#FFB95C', emissiveIntensity: 0.55 } : { roughness: 0.12, metalness: 0.3 }), F = mat(L.frame, { roughness: 0.5 }), A = mat(L.accent, { roughness: 0.55, metalness: L.pat === 'piers' ? 0.5 : 0.1 }), rail = mat('#A9C3CF', { transparent: true, opacity: 0.45 });
+  switch (L.pat) {
+    case 'curtain': box(x0 + 0.3, y0 + 1.6, z, w - 0.6, FHt - 2.2, 0.12, G); for (let x = x0 + 0.3; x <= x0 + w - 0.2; x += 4) box(x - 0.1, y0 + 1.6, z, 0.2, FHt - 2.2, 0.35, F); box(x0, y0, z, w, 1.6, 0.14, mat('#2A3238')); break;
+    case 'fins': box(x0 + 1, y0 + 1.8, z, w - 2, FHt - 3.4, 0.12, G); for (let x = x0 + 1.4; x < x0 + w - 1; x += 2.6) box(x, y0, z, 0.45, FHt, 1.3, A); box(x0, y0, z, w, 0.8, 0.6, F); break;
+    case 'boxes': { const n = Math.max(1, Math.round(w / 24)), sw = w / n; for (let i = 0; i < n; i++) { const sx = x0 + i * sw + ((f + i) % 2 ? 0.8 : 0), bw = sw - 1.6, d = 2.2; box(sx, y0 + FHt - 1, z, bw, 0.9, d, F); box(sx, y0, z, bw, 0.6, d, F); box(sx, y0, z, 0.8, FHt, d, F); box(sx + bw - 0.8, y0, z, 0.8, FHt, d, F); box(sx + 0.9, y0 + 1.6, z, bw - 1.8, FHt - 3.4, 0.12, G); box(sx + 0.9, y0 + 0.6, z + d - 0.15, bw - 1.8, 3, 0.1, rail); } break; }
+    case 'brick': for (let x = x0 + 2; x + 4 <= x0 + w - 1; x += 7.5) { box(x - 0.25, y0 + 1, z, 4.5, FHt - 2.6, 0.35, F); box(x, y0 + 1.2, z + 0.05, 4, FHt - 3, 0.35, G); } box(x0, y0, z, w, 0.5, 0.3, A); break;
+    case 'piers': for (let x = x0; x < x0 + w - 1; x += 12) box(x + 2, y0 + 0.6, z, Math.min(10, x0 + w - x - 2), FHt - 1.4, 0.12, G); for (let x = x0; x <= x0 + w; x += 12) box(Math.min(x, x0 + w - 2), y0, z, 2, FHt, 0.9, mat(L.wall, { roughness: 0.8 })); box(x0, y0, z, w, 0.4, 1, A); break;
+    case 'stagger': { const half = w / 2, bx = f % 2 ? x0 + half : x0; box(x0 + 1.5, y0 + 1.6, z, w - 3, FHt - 3.2, 0.12, G); box(bx, y0 - 0.35, z, half, 0.35, 4.5, F); box(bx, y0, z + 4.4, half, 3.2, 0.1, rail); break; }
+    case 'green': box(x0 + 1.5, y0 + 1.6, z, w - 3, FHt - 3.2, 0.12, G); box(x0, y0 - 0.35, z, w, 0.35, 4, F); for (let x = x0 + 1; x < x0 + w - 1.5; x += 2.2) box(x, y0, z + 2.8, 1.8, 1.4, 1, mat('#5E8C4E')); box(x0 + w - 3, y0, z, 3, FHt, 0.6, mat('#6E9A63')); break;
+    case 'grid': for (let x = x0 + 1.5; x + 5 <= x0 + w - 1; x += 9) box(x, y0 + 1.6, z, 6, FHt - 3.2, 0.12, G); for (let x = x0; x <= x0 + w + 0.01; x += 9) box(Math.min(x, x0 + w - 0.6), y0, z, 0.6, FHt, 0.9, F); box(x0, y0, z, w, 0.6, 0.9, F); break;
+    case 'louver': box(x0 + 1, y0 + 1, z, w - 2, FHt - 2, 0.12, G); for (let y = y0 + 1.2; y < y0 + FHt - 1.2; y += 0.7) box(x0 + 1, y, z + 0.3, w * 0.55, 0.15, 0.9, A); break;
+    case 'jaali': for (let x = x0 + 1; x + 4 <= x0 + w - 1; x += 9) { box(x, y0 + 1.6, z, 4, FHt - 3.2, 0.12, G); if (x + 8.2 < x0 + w) box(x + 4.6, y0 + 1, z, 3.6, FHt - 2.2, 0.4, A); } box(x0, y0, z, w, 0.7, 0.6, F); break;
+  }
+}
 function projElevSvg(PL) {
   const fp = PL.fp, FHt = 10.5, ti = tiOf(), H = 1.5 + PL.totalFloors * FHt + 14, m = 6, W = fp.w + 2 * m;
-  const wallC = ['#E9E4DA', '#EDE7DC', '#E6E8EA', '#5E6266'][ti], accC = ['#8C9399', '#2B3A44', '#2A2F33', '#B08D57'][ti];
+  const LOOK = aptLook(), wallC = LOOK.wall, accC = LOOK.frame === '#FFFFFF' || LOOK.frame === '#FBFAF7' ? LOOK.accent : LOOK.frame;
   let h = '<svg class="plan" viewBox="' + (-m) + ' ' + (-H) + ' ' + W + ' ' + (H + 8) + '" role="img" aria-label="Front elevation">';
   h += '<rect x="' + (-m) + '" y="0" width="' + W + '" height="3" fill="#8A949C"/>';
   for (let f = 0; f < PL.totalFloors; f++) {
     const y = -(1.5 + (f + 1) * FHt), stilt = f === 0 && PL.ground === 'stilt', shops = f === 0 && PL.ground === 'shops';
     if (stilt) { for (let x = 0; x <= fp.w; x += 18) h += '<rect x="' + Math.min(x, fp.w - 1.5) + '" y="' + y + '" width="1.5" height="' + FHt + '" fill="#BDB6AA"/>'; h += '<rect x="' + (fp.w - PL.CORE) + '" y="' + y + '" width="' + PL.CORE + '" height="' + FHt + '" fill="' + wallC + '" stroke="#24323D" stroke-width="0.2"/>'; }
     else {
-      h += '<rect x="0" y="' + y + '" width="' + fp.w + '" height="' + FHt + '" fill="' + wallC + '" stroke="#24323D" stroke-width="0.2"/>';
-      if (shops) PL.shops.forEach(s => { h += '<rect x="' + (s.x - fp.x + 0.6) + '" y="' + (y + 1) + '" width="' + (s.w - 1.2) + '" height="' + (FHt - 2) + '" fill="#9FB8C8" stroke="#3A3F44" stroke-width="0.2"/>'; });
-      else for (let x = 2; x + 5 <= fp.w - 2; x += 8) h += '<rect x="' + x + '" y="' + (y + 3) + '" width="5" height="4.5" fill="#9FB8C8" stroke="#3A3F44" stroke-width="0.15"/>';
-      if (PL.kind === 'apartment' && f > 0) h += '<rect x="0.5" y="' + (y + FHt - 3.6) + '" width="' + (fp.w - 1) + '" height="0.4" fill="' + accC + '"/>';
+      if (shops) { h += '<rect x="0" y="' + y + '" width="' + fp.w + '" height="' + FHt + '" fill="' + wallC + '" stroke="#24323D" stroke-width="0.2"/>'; PL.shops.forEach(s => { h += '<rect x="' + (s.x - fp.x + 0.6) + '" y="' + (y + 1) + '" width="' + (s.w - 1.2) + '" height="' + (FHt - 2) + '" fill="#9FB8C8" stroke="#3A3F44" stroke-width="0.2"/>'; }); }
+      else h += aptFloorSvg(LOOK, 0, y + FHt, fp.w, FHt, f);
     }
     h += '<rect x="-0.3" y="' + (y - 0.3) + '" width="' + (fp.w + 0.6) + '" height="0.6" fill="' + accC + '"/>';
   }
@@ -5503,7 +5580,7 @@ function buildProject3D(T, PL, opts) {
   box(2, 0.04, fp.y + fp.h, PL.W - 4, 0.08, PL.D - fp.y - fp.h, mat('#B9B4AA'), false);
   if (PL.lot) { const R = PL.lot; box(R.x, 0.05, R.y, R.w, 0.08, R.h, mat('#A8A399'), false); let k = 0; for (let y = R.y + 1; y + 18 <= R.y + R.h && k < PL.carsHave; y += 38) for (let row = 0; row < 2; row++) { const yy = y + row * 20; if (yy + 18 > R.y + R.h) break; for (let x = R.x; x + 9 <= R.x + R.w && k < PL.carsHave; x += 9, k++) box(x + 1.5, 0.5, yy + 2, 6, 1.8, 14, mat(['#9B2D2D', '#3C4650', '#D9D9D9', '#2F4B7C'][k % 4])); } if (PL.atBack) box(2, 0.05, PL.SR, PL.SS - 3, 0.08, PL.D - PL.SR, mat('#A8A399'), false); }
   if (PL.park === 'basement') { box(PL.W - 18, 0.05, PL.D - 62, 12, 0.1, 58, mat('#3B4046'), false); box(PL.W - 18.6, 0, PL.D - 62, 0.6, 3, 58, cw); box(PL.W - 6, 0, PL.D - 62, 0.6, 3, 58, cw); }
-  const LK = { wall: ['#E9E4DA', '#EDE7DC', '#E6E8EA', '#5E6266'][ti], acc: ['#8C9399', '#2B3A44', '#2A2F33', '#B08D57'][ti] };
+  const LOOK = aptLook(), LK = { wall: LOOK.wall, acc: LOOK.frame };
   const wall = mat(LK.wall), glass = mat('#9FB8C8', night ? { emissive: '#FFB95C', emissiveIntensity: 0.6 } : { roughness: 0.15, metalness: 0.25 }), slab = mat('#DEDAD2'), acc = mat(LK.acc, { metalness: ti === 3 ? 0.6 : 0.1, roughness: 0.4 }), dark = mat('#2E3338');
   const cut = opts && opts.cut && opts.cut !== 'roof' ? opts.cut : null, cutF = cut == null ? null : cut === 'basement' ? -1 : cut === 'ground' ? 0 : cut === 'club' ? 1 : PL.clubFloor ? 2 : 1;
   const sz = Math.max(3.2, Math.min(7, Math.max(fp.w, fp.h) / 16));
@@ -5540,7 +5617,7 @@ function buildProject3D(T, PL, opts) {
       if (bk === 'juliet') { box(x + w * 0.3, y0, zf, w * 0.4, 0.2, 0.9, slab); box(x + w * 0.3, y0, zf + 0.8, w * 0.4, 3.2, 0.1, railM); return; }
       if (bk === 'recessed') { box(x, y0 + 0.5, zf + 0.01, w * 0.5, FHt - 2, 0.06, mat('#3C4146')); box(x, y0 + 3, zf + 0.05, w * 0.5, 0.15, 0.15, railM); return; }
       const d = BALC[bk].d, gl = ['glass', 'sky', 'loggia', 'wrap'].includes(bk);
-      box(x, y0 - 0.35, zf, w, 0.35, d, slab); box(x, y0, zf + d - 0.12, w, 3.2, 0.12, gl ? glassM : railM);
+      box(x, y0 - 0.35, zf, w, 0.35, d, slab); box(x, y0, zf + d - 0.12, w, 3.2, 0.12, gl || ['curtain', 'piers', 'louver', 'fins', 'grid'].includes(LOOK.pat) ? glassM : railM);
       if (bk === 'planter' || bk === 'sky') for (let px = x + 0.5; px < x + w - 2; px += 3) box(px, y0, zf + d - 1.4, 2, 1.3, 1.1, mat('#6E9A63'));
       if (bk === 'loggia') [x, x + w - 0.6].forEach(cx => box(cx, y0, zf + d - 0.6, 0.6, FHt - 0.6, 0.6, mat('#EDE9E1')));
       if (bk === 'stacked') [x - 0.4, x + w + 0.1].forEach(cx => box(cx, y0 - 0.35, zf, 0.3, FHt, d + 0.2, mat('#7A6A58')));
@@ -5553,11 +5630,11 @@ function buildProject3D(T, PL, opts) {
     if (stilt) { for (let x = fp.x; x <= fp.x + fp.w - PL.CORE; x += 18) for (let z = fp.y; z <= fp.y + fp.h; z += 18) box(Math.min(x, fp.x + fp.w - 1.5), y0, Math.min(z, fp.y + fp.h - 1.5), 1.5, FHt, 1.5, slab); box(fp.x + fp.w - PL.CORE, y0, PL.core.y, PL.CORE, FHt, PL.core.h, wall); box(fp.x, y0 - 1.5, fp.y, fp.w - PL.CORE, 0.05, fp.h, dark, false); }
     else {
       box(fp.x, y0, fp.y, fp.w, FHt - 0.6, fp.h, wall);
-      const winsZ = [fp.y + fp.h, fp.y - 0.12];
-      if (ti >= 2) winsZ.forEach(z => box(fp.x + 1, y0 + 1, z, PL.faceW - 2, FHt - 2.6, 0.12, glass));
-      else winsZ.forEach(z => { for (let x = fp.x + 2; x + 5 <= fp.x + fp.w - 2; x += 8) box(x, y0 + 3, z, 5, 4.5, 0.12, glass); });
+      // the road side wears the chosen elevation style; the back keeps plain windows
+      if (!(f === 0 && PL.ground === 'shops')) aptFront3D(box, mat, LOOK, fp.x, fp.y + fp.h, PL.faceW, y0, FHt - 0.6, f, night);
+      for (let x = fp.x + 2; x + 5 <= fp.x + fp.w - 2; x += 8) box(x, y0 + 3, fp.y - 0.12, 5, 4.5, 0.12, glass);
       if (f === 0 && PL.ground === 'shops') box(fp.x + 0.5, y0 + 0.2, fp.y + fp.h, PL.faceW - 1, 8.6, 0.15, glass);
-      if (PL.kind === 'apartment' && f > 0 && !(f === 1 && PL.clubFloor)) aptBalc(f, y0);
+      if (PL.kind === 'apartment' && f > 0 && !(f === 1 && PL.clubFloor) && !['boxes', 'stagger', 'green'].includes(LOOK.pat)) aptBalc(f, y0);
     }
     box(fp.x - 0.3, y0 + FHt - 0.6, fp.y - 0.3, fp.w + 0.6, 0.6, fp.h + 0.6, ti === 3 ? acc : slab);
   }
@@ -5676,7 +5753,7 @@ function projectLayoutScr() {
   const seen = {}; const ut = PL.units.filter(u => !seen[u.k] && (seen[u.k] = 1));
   h += '<div class="panel"><div class="ph"><b>' + (PL.kind === 'apartment' ? 'Flat types' : 'Office unit') + '</b></div><div class="pk-two">' + ut.map(u => '<figure>' + projUnitSvg(u.k, u.w, u.h, u.name) + '<figcaption><b>' + esc(u.name) + '</b> · ' + Math.round(u.area).toLocaleString('en-IN') + ' sq ft · ' + ftIn(u.w) + ' × ' + ftIn(u.h) + ' · ' + PL.count[u.k] + ' in the building · smallest bedroom ' + bedMin(u.k, u.w, u.h) + '</figcaption></figure>').join('') + '</div></div>';
   // 3D and elevation
-  h += '<div class="panel"><div class="ph"><b>Front elevation</b></div>' + projElevSvg(PL) + '</div>';
+  h += '<div class="panel"><div class="ph"><b>Front elevation — ' + esc(aptLook().n) + '</b></div>' + projElevSvg(PL) + '</div>' + aptLookUI(PL.faceW * (PL.totalFloors * 10.5 + 5));
   if (PL.kind === 'apartment') h += balcUI({ brief: { floors: 2, setF: 10, balc: projBalc() } });
   // parking explained
   const pcap = ['surface', 'stilt', 'basement'].map(k => { const T2 = projectLayout(k); return [k, T2.ok && T2.park === k ? T2.carsHave : 0]; });
@@ -9200,6 +9277,8 @@ const ACT = {
   vtype: el => keepY(() => { ST.vtype = el.dataset.v; S.design = null; }),
   use: el => keepY(() => { ST.home.use = el.dataset.v; S.design = null; if (el.dataset.v === 'villa') { ST.tier = 'ultra'; if (ST.home.floors < 2) ST.home.floors = 2; if (ST.home.bhk < 4) ST.home.bhk = 4; } }),
   unit: el => keepY(() => { rentState().unit = el.dataset.v; }),
+  alook: el => keepY(() => { ST.aptLook = el.dataset.v; if (S.design) S.design.show3d = false; }),
+  afin: el => keepY(() => { const k = aptLookKey(); ST.aptFin = ST.aptFin || {}; const cur = aptFin().slice(), v = el.dataset.v, i = cur.indexOf(v); if (i >= 0) cur.splice(i, 1); else cur.push(v); ST.aptFin[k] = cur; }),
   pgate: el => keepY(() => { projState().gate = el.dataset.v; }),
   rdrive: el => keepY(() => { rentState().drive = el.dataset.v; }),
   rgate: el => keepY(() => { rentState().gate = el.dataset.v; }),
