@@ -112,7 +112,7 @@ main.wide{max-width:1000px}
 .warn{background:var(--amber-soft);color:var(--amber);border-radius:14px;padding:12px 16px;font-size:15px;margin-top:18px}
 .panel{background:#fff;border:1px solid var(--line2);border-radius:22px;padding:16px;margin-top:18px}
 .ph{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.sb-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:6px 0}.sb-row>span{min-width:130px;font-size:14px}.sb .pchips button[disabled]{opacity:.35;cursor:not-allowed}.fskin{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;width:100%}.fsk-st{font-size:13px;display:flex;gap:6px;align-items:center}.fsk-st select,.flib select,.flib input{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}.fsk-acts{gap:6px}.fsk-om{color:var(--amber)}.fimp{cursor:pointer}
+.fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}.sb .fields{margin-top:6px}.sb .sb-lead{margin:0}.sb .inp input{font-size:20px;padding:10px 0}.sb .inp{border:2px solid var(--line)}.sb .inp:focus-within{border-color:var(--ink)}.sb .inp.bad,.sb .inp.bad:focus-within{border-color:var(--red)}.sb-err{color:var(--red)}@media (max-width:560px){.fields.three{grid-template-columns:1fr}}.fskin{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;width:100%}.fsk-st{font-size:13px;display:flex;gap:6px;align-items:center}.fsk-st select,.flib select,.flib input{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}.fsk-acts{gap:6px}.fsk-om{color:var(--amber)}.fimp{cursor:pointer}
 .fe-x{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:inherit}.fe-m{margin:8px 0 0;padding:7px 9px;border-radius:10px;font-size:12.5px}.fe-m.bad{background:var(--red-soft);color:var(--red)}
 .flib{position:fixed;inset:0;background:rgba(10,14,20,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}.flib-c{background:var(--bg);color:var(--ink);border-radius:20px;max-width:980px;width:100%;max-height:92vh;overflow:auto;padding:18px}.flib-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}.flib-h b{font-size:18px}.flib-h span{color:var(--mute);font-size:13px;flex:1}.flib-f{display:flex;flex-wrap:wrap;gap:8px 12px;margin:12px 0;font-size:13px}.flib-f input{flex:1;min-width:180px}.flib-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}.flib-i{display:flex;gap:10px;background:var(--soft);border-radius:14px;padding:10px}.flib-i img{width:96px;height:96px;object-fit:contain;flex:none;background:#fff;border-radius:10px}.bcmp-g{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}.bcmp-i{flex-direction:column}.flib-i.bcmp-i img{width:100%;height:auto;aspect-ratio:13/9;object-fit:cover}.flib-i div{display:flex;flex-direction:column;gap:4px;min-width:0}.flib-i small{color:var(--mute);font-size:11.5px}.flib-lic a{color:inherit}.flib-i .flib-v{display:flex;flex-direction:row;flex-wrap:wrap;gap:4px}.flib-i .btn{align-self:flex-start}.flib-v button{font:inherit;font-size:11px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;background:var(--bg);color:inherit;cursor:pointer}.flib-v button.on{border-color:var(--ink);font-weight:600}.flib-n{color:var(--mute);font-size:12px;margin-top:12px}html[data-theme="dark"] .flib-i img{background:#e9ecef}.v3credit{position:absolute;right:62px;bottom:14px;max-width:min(520px,calc(100% - 300px));font-size:11px;line-height:1.35;color:#3a3f45;text-align:right}.v3cr-b{font:inherit;font-size:11px;border:0;border-radius:999px;padding:5px 10px;background:rgba(255,255,255,.85);color:inherit;cursor:pointer}.v3cr-t{display:none;margin-top:6px;text-align:left;background:rgba(255,255,255,.92);border-radius:10px;padding:8px 10px;max-height:120px;overflow:auto}.v3credit.open .v3cr-t{display:block}@media(max-width:640px){.v3credit{left:8px;right:8px;bottom:64px;max-width:none}}.v3credit a{color:inherit}html[data-theme="dark"] .v3cr-b,html[data-theme="dark"] .v3cr-t{background:rgba(20,24,30,.85);color:#cfd5dc}.fsk-l{font-weight:600;font-size:13px}.fsk-p{font-size:12.5px;color:var(--mute)}.fsk-p small{font-size:11px}.ph b{font-size:17px}
 .opts-ab{margin-top:22px}
@@ -5974,14 +5974,41 @@ function bedFit() {
   h.bhk = keep; return (bedFit.c[key] = max);
 }
 function smallBeds(D, o) { const out = []; o.floors.forEach(F => F.rooms.forEach(R => { if (!R.void && (R.type === 'master' || R.type === 'bedroom') && Math.min(R.rect.w, R.rect.h) < 9.85) out.push(F.label + ' ' + (R.type === 'master' ? 'master bedroom' : 'bedroom') + ' (' + ftIn(R.rect.w) + ' × ' + ftIn(R.rect.h) + ')'); })); return out; }
-// open space left around the house (setbacks), in feet: front (road side), back, and each side
-const SETBACK_OPT = { f: [3, 5, 6, 8, 10, 12, 15], r: [0, 3, 5, 6, 8, 10], s: [0, 3, 4, 5, 6] };
+// open space left around the house (setbacks), in feet: front (road side), back, and each side.
+// The owner types the values; the only limit is leaving a house of at least 15 × 22 ft.
+const SB_LAB = { f: 'Front (road side)', r: 'Back', s: 'Each side' }, SB_MIN_W = 15, SB_MIN_D = 22;
 const setbackOf = () => Object.assign({ f: 5, r: 3, s: 3 }, (typeof ST !== 'undefined' && ST.home && ST.home.setback) || {});
+// the most each value can be, given the other two, so the house still fits
+const setbackMax = sb => ({ f: Math.max(0, ST.plot.d - SB_MIN_D - sb.r), r: Math.max(0, ST.plot.d - SB_MIN_D - sb.f), s: Math.max(0, Math.floor((ST.plot.w - SB_MIN_W) / 2 * 2) / 2) });
+const setbackFits = sb => ST.plot.w - 2 * sb.s >= SB_MIN_W && ST.plot.d - sb.f - sb.r >= SB_MIN_D;
+const ftx = v => (Math.round(v * 10) / 10).toString();
+function setbackHint(sb, err) {
+  const W = ST.plot.w, D = ST.plot.d, mx = setbackMax(sb);
+  return (err ? '<b class="sb-err">' + err + '</b><br>' : '') +
+    'House area after the open space: <b>' + ftx(W - 2 * sb.s) + ' × ' + ftx(D - sb.f - sb.r) + ' ft</b> on ' + W + ' × ' + D + ' ft. ' +
+    'Most you can leave on this plot: front ' + ftx(mx.f) + ' ft, back ' + ftx(mx.r) + ' ft, each side ' + ftx(mx.s) + ' ft. ' +
+    'Check the rule of your development authority or municipality (BDA, CDA, ULB): it depends on the plot size and the road width.';
+}
 function setbackUI() {
-  const sb = setbackOf(), W = ST.plot.w, D = ST.plot.d, fits = (k, v) => { const t = Object.assign({}, sb, { [k]: v }); return W - 2 * t.s >= 15 && D - t.f - t.r >= 22; };
-  const row = (k, lab) => '<div class="sb-row"><span>' + lab + '</span><div class="pchips">' + SETBACK_OPT[k].map(v => { const ok = fits(k, v); return '<button class="' + (sb[k] === v ? 'on' : '') + '"' + (ok ? '' : ' disabled title="Leaves too little room for the house"') + ' data-a="setb" data-k="' + k + '" data-v="' + v + '">' + v + ' ft</button>'; }).join('') + '</div></div>';
-  return '<div id="sbui"><h3 class="q2">Open space around the house (setback)</h3><div class="card sb">' + row('f', 'Front (road side)') + row('r', 'Back') + row('s', 'Each side') +
-    '<p class="hint">House area after the open space: <b>' + (W - 2 * sb.s) + ' × ' + (D - sb.f - sb.r) + ' ft</b> on ' + W + ' × ' + D + ' ft. Check the rule of your development authority or municipality (BDA, CDA, ULB): it depends on the plot size and the road width.</p></div></div>';
+  const sb = setbackOf(), mx = setbackMax(sb);
+  const fld = k => '<label><span>' + SB_LAB[k] + '</span><div class="inp"><input type="number" inputmode="decimal" min="0" max="' + mx[k] + '" step="0.5" data-sb="' + k + '" value="' + sb[k] + '" aria-describedby="sbmsg"><i>ft</i></div></label>';
+  return '<div id="sbui"><h3 class="q2">Open space around the house (setback)</h3><div class="card sb"><p class="hint sb-lead">Type how many feet to leave open on each side.</p><div class="fields three">' + fld('f') + fld('r') + fld('s') + '</div>' +
+    '<p class="hint" id="sbmsg" aria-live="polite">' + setbackHint(sb) + '</p></div></div>';
+}
+// typing a setback: apply it when it leaves room for the house, otherwise explain and keep the last good value
+function setbackType(t) {
+  const k = t.dataset.sb, box = t.closest('.inp'), msg = document.getElementById('sbmsg'), cur = setbackOf();
+  const raw = t.value.trim(), v = Math.round(parseFloat(raw) * 2) / 2;
+  let err = '';
+  if (raw === '') err = 'Type a number of feet (0 if you leave no space).';
+  else if (!(v >= 0)) err = 'Open space cannot be less than 0 ft.';
+  else if (!setbackFits(Object.assign({}, cur, { [k]: v }))) err = SB_LAB[k] + ' can be at most ' + ftx(setbackMax(cur)[k]) + ' ft here, or the house gets smaller than ' + SB_MIN_W + ' × ' + SB_MIN_D + ' ft.';
+  box && box.classList.toggle('bad', !!err); t.setAttribute('aria-invalid', err ? 'true' : 'false');
+  if (!err && v !== cur[k]) { ST.home.setback = Object.assign({}, cur, { [k]: v }); S.design = null; }
+  const sb = setbackOf(), mx = setbackMax(sb);
+  document.querySelectorAll('#sbui [data-sb]').forEach(x => x.max = mx[x.dataset.sb]);
+  if (msg) msg.innerHTML = setbackHint(sb, err);
+  const nb = document.querySelector('[data-a="next"]'); if (nb) nb.disabled = !canNext();
 }
 function spaceUI(h) { const v = h.space || 'balanced'; return '<h3 class="q2">How should it feel?</h3><div class="opts three space">' + SPACE_OPT.map(o => '<button class="opt' + (v === o[0] ? ' on' : '') + '" data-a="space" data-v="' + o[0] + '"><b>' + o[1] + '</b><span>' + o[2] + '</span></button>').join('') + '</div><ul class="sp-tips">' + SPACE_TIPS[v].map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>'; }
 SCR.home = () => {
@@ -8456,7 +8483,6 @@ const ACT = {
   view: el => { const ds = S.design, v = el.dataset.v; if (ds.walk && v !== '3d') ds.walk = false; ds.view = v; keepY(() => {}); if (v === '3d' && !ds.show3d) ACT.make3d(); },
   style: el => keepY(() => { ST.style = el.dataset.v; }),
   roof: el => keepY(() => { ST.home.roof = el.dataset.v; }),
-  setb: el => keepY(() => { ST.home.setback = Object.assign(setbackOf(), { [el.dataset.k]: +el.dataset.v }); S.design = null; }),
   balc: el => keepY(() => { ST.balc = el.dataset.v; }),
   pk: el => keepY(() => { const p = ST.home.park; p.kind = el.dataset.v; if (p.loc === 'rear') p.gali = Math.max(p.gali, p.kind === '2w' ? 4 : 10); }),
   pkloc: el => keepY(() => { const p = ST.home.park; p.loc = el.dataset.v; if (p.loc === 'rear') p.gali = p.kind === '2w' ? 4 : 10; }),
@@ -8552,6 +8578,8 @@ document.addEventListener('click', e => { const el = e.target.closest('[data-a]'
 document.addEventListener('toggle', e => { const d = e.target; if (d.matches && d.matches('details.grp[data-g]')) ST.open[d.dataset.g] = d.open; }, true);
 document.addEventListener('change', e => {
   const t = e.target;
+  // leaving a setback box with a value that does not fit: put back the last good value
+  if (t.dataset.sb) { const v = setbackOf()[t.dataset.sb]; if (t.getAttribute('aria-invalid') === 'true' || t.value.trim() === '') { t.value = v; setbackType(t); } return; }
   if (t.dataset.pick) { keepY(() => { ST.pick[t.dataset.pick] = +t.value; }); return; }
   if (t.dataset.prent) { keepY(() => { projState().rent[t.dataset.prent] = t.value; }); return; }
   if (t.dataset.pin) { keepY(() => { projState()[t.dataset.pin] = t.value; }); return; }
@@ -8564,6 +8592,7 @@ document.addEventListener('change', e => {
 });
 document.addEventListener('change', e => { const t = e.target; if (t.dataset && (t.dataset.rcol || t.dataset.rcolx)) { let v = t.value.trim(); if (!v.startsWith('#')) v = '#' + v; if (/^#[0-9A-Fa-f]{6}$/.test(v)) keepY(() => rsSetColour(v)); return; } if (t.dataset && (t.dataset.pcol || t.dataset.pcolx)) { let v = t.value.trim(); if (!v.startsWith('#')) v = '#' + v; if (/^#[0-9A-Fa-f]{6}$/.test(v)) keepY(() => paintSet(v)); } });
 document.addEventListener('input', e => {
+  if (e.target.dataset.sb) { setbackType(e.target); return; }
   const t = e.target, f = t.dataset.f; if (!f) return;
   const [a, k] = f.split('.');
   if (a === 'cust') { ST.cust[k] = t.value; const m = document.querySelector('.qmeta dd'); if (m) m.textContent = (ST.cust.name || '—') + (ST.cust.phone ? ' · ' + ST.cust.phone : ''); return; }
