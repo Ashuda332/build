@@ -1218,7 +1218,7 @@ function makeDesign(input) {
       const extra = {}; floors.forEach(F => F.rooms.forEach(R => { if ((R.type === 'master' || R.type === 'bedroom') && R.r >= 0) { const dw = G.cols[R.c] - R.rect.w, dh = G.rows[R.r] - R.rect.h; if (dw > 0.5 && R.rect.w < 9.95) extra['c' + R.c] = Math.max(extra['c' + R.c] || 0, dw); if (dh > 0.5 && R.rect.h < 9.95) extra['r' + R.r] = Math.max(extra['r' + R.r] || 0, dh); } }));
       if (Object.keys(extra).length) { G.extra = extra; optimizeGrid(b, G, BF.floors, pls, nr, nc); floors = make(); }
     }
-    addSubRooms(b, floors, nr, nc);
+    addSubRooms(b, floors, nr, nc); poojaFix(b, floors);
     const vastu = vastuCheck(b, floors, nr, nc);
     return { id: 'ABCDEF'[oi], score: o.score, G, floors, vastu, nr, nc, ext: BF.extStair ? extStairGeom(b, G) : null, sig: sig(o), custom: !!custom };
   });
@@ -1296,15 +1296,15 @@ function bathScore(b, floors, F, host, s) {
   if (Math.abs(s.x - bx0) < 0.06 || Math.abs(s.x + s.w - bx1) < 0.06 || Math.abs(s.y - by0) < 0.06 || Math.abs(s.y + s.h - by1) < 0.06) sc += 6; // outside wall: window / exhaust
   if (['kitchen', 'dining'].includes(host.type)) sc -= 1000;
   if (host.type === 'living') sc -= 25;
-  host.subs.forEach(p => { if (overlapA(p, s) > 0.01) sc -= 1000; else if (p.type === 'pooja' && shareLen(p, s) > 0.2) sc -= 500; });
+  host.subs.forEach(p => { if (overlapA(p, s) > 0.01) sc -= 1000; else if (p.type === 'pooja' && shareLen(p, s) > 0.05) sc -= 5000; });
   F.rooms.forEach(r => {
     if (r === host || r.void) return;
     const L = shareLen(r.rect, s);
     if (L > 0.5) { if (r.type === 'kitchen' || r.type === 'dining') sc -= 500; else if (r.type === 'living') sc -= 12; else if (r.type === 'parking') sc += 1; }
-    r.subs.forEach(p => { if (p.type === 'pooja' && shareLen(p, s) > 0.2) sc -= 500; });
+    r.subs.forEach(p => { if (p.type === 'pooja' && shareLen(p, s) > 0.05) sc -= 5000; });
   });
   const below = floors[F.fi - 1], above = floors[F.fi + 1];
-  if (below) below.rooms.forEach(r => { if (r.type === 'kitchen' && overlapA(r.rect, s) > 1) sc -= 1000; if (r.type === 'dining' && overlapA(r.rect, s) > 1) sc -= 40; r.subs.forEach(p => { if (p.type === 'pooja' && overlapA(p, s) > 0.3) sc -= 300; }); });
+  if (below) below.rooms.forEach(r => { if (r.type === 'kitchen' && overlapA(r.rect, s) > 1) sc -= 1000; if (r.type === 'dining' && overlapA(r.rect, s) > 1) sc -= 40; r.subs.forEach(p => { if (p.type === 'pooja' && overlapA(p, s) > 0.1) sc -= 5000; }); });
   if (above) above.rooms.forEach(r => r.subs.forEach(p => { if (p.type === 'pooja' && overlapA(p, s) > 0.3) sc -= 300; }));
   return sc;
 }
@@ -1317,6 +1317,32 @@ function bestBath(b, floors, F, hosts, type, a, c) {
   let best = null;
   hosts.forEach(host => bathSpots(host, type, a, c).forEach(s => { const sc = bathScore(b, floors, F, host, s) + (b.seed ? seedJit(b.seed, 'bath', host.r, host.c, s.x, s.y) * 2 : 0); if (!best || sc > best.sc) best = { sc, host, s }; }));
   return best;
+}
+// the wall the mandir stands against: an outer side of the room, along the longer side of the pooja
+function poojaBack(room, s) {
+  const R = room.rect, e = 0.06, on = { top: Math.abs(s.y - R.y) < e, bottom: Math.abs(s.y + s.h - R.y - R.h) < e, left: Math.abs(s.x - R.x) < e, right: Math.abs(s.x + s.w - R.x - R.w) < e };
+  const hz = ['top', 'bottom'].filter(k => on[k]), vt = ['left', 'right'].filter(k => on[k]);
+  return (s.w >= s.h ? hz.concat(vt) : vt.concat(hz))[0] || 'top';
+}
+// pooja and toilet never side by side, and never a toilet above the pooja (Vastu)
+function poojaClash(floors, F, p) {
+  const wet = x => x.type === 'bath' || x.type === 'powder';
+  if (F.rooms.some(r => r.subs.some(x => wet(x) && shareLen(p, x) > 0.05))) return true;
+  const up = floors[F.fi + 1]; return !!(up && up.rooms.some(r => r.subs.some(x => wet(x) && overlapA(p, x) > 0.1)));
+}
+// pooja size: a small corner in an ordinary living room; a big alcove when the room is large
+function poojaSizes(host) { const A = host.rect.w * host.rect.h, m = Math.min(host.rect.w, host.rect.h); return (A >= 250 && m >= 14 ? [[7, 6.5], [6, 5.5]] : A >= 180 && m >= 12 ? [[5.5, 5]] : []).concat([[4.5, 4.5], [4, 4]]); }
+// after the baths are in: if the pooja ended up next to (or under) a toilet, move it to the best corner that is clear
+function poojaFix(b, floors) {
+  const gf = floors[0]; let host = null, p = null; gf.rooms.forEach(r => r.subs.forEach(s => { if (s.type === 'pooja') { host = r; p = s; } }));
+  if (!p || !poojaClash(floors, gf, p)) return;
+  host.subs.splice(host.subs.indexOf(p), 1);
+  const hosts = gf.rooms.filter(r => ['living', 'dining', 'study', 'lounge'].includes(r.type) && !r.void);
+  for (const H of hosts) for (const [w, h] of poojaSizes(H).concat([[3.5, 3.5]])) for (const cn of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+    const s = addSub(H, 'pooja', w, h, { right: !!cn[0], bottom: !!cn[1] }); if (!s) continue;
+    if (!poojaClash(floors, gf, s) && !H.subs.some(o => o !== s && overlapA(o, s) > 0.01)) return; H.subs.pop();
+  }
+  b.poojaDropped = true; // nowhere clear of the toilets on this plan
 }
 function addSubRooms(b, floors, nr, nc) {
   if (!floors[0].rooms.length) return;
@@ -1335,7 +1361,7 @@ function addSubRooms(b, floors, nr, nc) {
       const corners = [[0, 0], [1, 0], [0, 1], [1, 1]].map(([rx, ry]) => ({ right: !!rx, bottom: !!ry, d: Math.hypot((rx ? R.x + R.w : R.x) - neX, (ry ? R.y + R.h : R.y) - neY) })).sort((p, q) => p.d - q.d);
       const mainOk = sub => { if (host.type !== 'living') return true; const md = doorAt(host.rect, 'bottom', host.subs, 3.5, mainDoorPref(b)), lo = Math.min(md[0], md[2]), hi = Math.max(md[0], md[2]); return !(Math.abs(sub.y + sub.h - (host.rect.y + host.rect.h)) < 0.06 && lo < sub.x + sub.w + 0.2 && hi > sub.x - 0.2); };
       let placed = false;
-      for (const cn of corners) { const sub = addSub(host, 'pooja', 4.5, 4.5, cn); if (!sub) break; if (can() >= before && mainOk(sub)) { placed = true; break; } host.subs.pop(); }
+      for (const [pw, ph] of poojaSizes(host).slice(0, -1)) { for (const cn of corners) { const sub = addSub(host, 'pooja', pw, ph, cn); if (!sub) break; if (can() >= before && mainOk(sub)) { placed = true; break; } host.subs.pop(); } if (placed) break; }
       if (!placed) for (const cn of corners) { const sub = addSub(host, 'pooja', 4, 4, cn); if (!sub) break; if (mainOk(sub)) break; host.subs.pop(); }
     }
   }
@@ -1777,7 +1803,7 @@ function doorDraw(D, o, F) {
 function swingsOf(D, o, F) {
   const list = doorDraw(D, o, F);
   if (F._sw && F._sw.src === list) return F._sw.out;
-  const out = list.map(x => swingRect(x.seg, x.side));
+  const out = list.filter(x => x.d.kind !== 'open').map(x => swingRect(x.seg, x.side));
   F.rooms.forEach(r => { if (!r.void) subDoorsOf(r).forEach(d => out.push(swingRect(d.seg, d.side))); });
   // the open front of the parking needs a clear drive
   F.rooms.forEach(r => { if (r.type === 'parking' && F.fi === 0) { const R = r.rect; out.push({ x: R.x, y: R.y + R.h - 0.5, w: R.w, h: 0.5 }); } });
@@ -1869,7 +1895,10 @@ function furnLayout(room, swings, entries, wins, ed) {
   const walk = entries && entries.length ? () => walkCheck(room, bodies(), entries, out.filter(p => p.clr).map(p => p.clr)) : () => true;
   // a piece fits when its body is clear of doors, baths and other pieces (and their front space), and its own front space is inside the room and empty
   const winHit = q => WB.some(b => (b.kind === 'french' || TALL_ROLES.includes(q.role)) && ovl(q, b) > 0.04);
-  const fits = (q, clr, host) => inside(q) && !blocks.some(b => bhit(q, b)) && !winHit(q) && !out.some(p => p.solid && ovl(q, p) > 0.02) && !out.some(p => p.clr && p !== host && ovl(q, p.clr) > 0.04) &&
+  // nothing big stands in the 3 ft in front of a door (the kitchen platform runs along its walls and is let off)
+  let DF = 1.6; // half size of the clear square at each door; relaxed to 1 (about 2 ft) only when a living room would otherwise get no sofa
+  const doorFront = q => !['counter', 'hob', 'sink', 'chair'].includes(q.role) && (entries || []).some(([x, y]) => ovl(q, { x: x - DF, y: y - DF, w: 2 * DF, h: 2 * DF }) > 0.04);
+  const fits = (q, clr, host) => inside(q) && !blocks.some(b => bhit(q, b)) && !doorFront(q) && !winHit(q) && !out.some(p => p.solid && ovl(q, p) > 0.02) && !out.some(p => p.clr && p !== host && ovl(q, p.clr) > 0.04) &&
     (!clr || (inRoom(clr) && !out.some(p => p.solid && p !== host && ovl(clr, p) > 0.04)));
   const tryAdd = (cands, mk) => { for (const q of cands) { const it = mk(q); if (!it || !fits(it, it.clr, it.host)) continue; const extra = it.parts || []; out.push(it); extra.forEach(x => out.push(x)); if (walk()) return it; out.splice(out.indexOf(it), 1 + extra.length); } return null; };
   const dirOf = w => ({ top: [0, 1], bottom: [0, -1], left: [1, 0], right: [-1, 0] })[w];
@@ -1935,7 +1964,7 @@ function furnLayout(room, swings, entries, wins, ed) {
     const seat2 = [];
     if (!SPARSE && !GONE.includes('armchair')) { PICK('armchair').forEach(A => seat2.push({ A, name: A.name, asset: true })); seat2.push({ A: { w: 4.5, d: 2.7 }, name: 'Loveseat' }, { A: { w: 2.6, d: 2.5 }, name: 'Armchair' }); }
     const cands = []; specs.forEach(sp => walls.forEach(w => POS.forEach(p => cands.push({ sp, w, p }))));
-    bestOf(cands, c => {
+    const sofaSet = c => {
       const { sp, w } = c, hz = w === 'top' || w === 'bottom', q = wallRect(M, w, sp.L, sp.D, c.p);
       if (Math.abs((hz ? q.w : q.h) - sp.L) > 0.05) return -1;
       const sofa = tryAdd([[q, w]], ([q, w]) => item(q, 'sofa', w, 4, sp.asset ? { asset: sp.asset.id, variant: sp.asset.variant, name: sp.asset.name } : { name: sp.chaise ? 'L-shaped sofa' : FURN_NAME.sofa }));
@@ -1952,7 +1981,7 @@ function furnLayout(room, swings, entries, wins, ed) {
       const [tw, td] = sp.L >= 6 ? [3.6, 2] : [2.6, 1.6], [dx, dy] = sofa.dir, gap = 1.4;
       const ctr = hz ? sofa.x + sofa.w / 2 + (sofa.chaise ? (sofa.chaise.x > sofa.x + 0.1 ? -1 : 1) * sp.D / 2 : 0) : sofa.y + sofa.h / 2 + (sofa.chaise ? (sofa.chaise.y > sofa.y + 0.1 ? -1 : 1) * sp.D / 2 : 0);
       const ct = hz ? { x: ctr - tw / 2, y: dy > 0 ? sofa.y + sofa.h + gap : sofa.y - gap - td, w: tw, h: td } : { x: dx > 0 ? sofa.x + sofa.w + gap : sofa.x - gap - td, y: ctr - tw / 2, w: td, h: tw };
-      let tb = null; if (inside(ct) && !blocks.some(b => bhit(ct, b)) && !out.some(p => p.solid && ovl(ct, p) > 0.02)) { tb = Object.assign(ct, { role: 'table', solid: true, name: FURN_NAME.table, host: sofa, label: 'Teapoy ' + ftIn(tw) + ' × ' + ftIn(td) }); out.push(tb); if (!walk()) { out.pop(); tb = null; } }
+      let tb = null; if (inside(ct) && !blocks.some(b => bhit(ct, b)) && !doorFront(Object.assign({ role: 'table' }, ct)) && !out.some(p => p.solid && ovl(ct, p) > 0.02)) { tb = Object.assign(ct, { role: 'table', solid: true, name: FURN_NAME.table, host: sofa, label: 'Teapoy ' + ftIn(tw) + ' × ' + ftIn(td) }); out.push(tb); if (!walk()) { out.pop(); tb = null; } }
       if (tb) s += 4;
       // TV on the opposite wall, lined up with the sofa, 8–16 ft away
       const opp = OPP_WALL[w], far = hz ? M.h : M.w;
@@ -1965,7 +1994,15 @@ function furnLayout(room, swings, entries, wins, ed) {
       // away from the doorways, a sofa that suits its wall, not across the window
       const ratio = sp.L / wallLen(w);
       return s + Math.min(doorDist(sofa), 6) * 0.6 + 3 * (1 - Math.min(1, Math.abs(ratio - 0.65) * 2)) - (doorWall(w) ? 1.5 : 0) + jit('s' + sp.k + w + c.p) * 1.5;
-    });
+    };
+    // a hall with doors on every wall: first a sofa that keeps 2 ft clear of each door, then a compact 2-seater or an armchair that does;
+    // only if nothing fits does the best sofa spot win anyway
+    if (!bestOf(cands, sofaSet) && cands.length) {
+      DF = 1; let ok = bestOf(cands, sofaSet);
+      if (!ok) { const small = []; [[3.6, 2.6, '2-seater sofa'], [2.6, 2.5, 'Armchair']].forEach(([L, Dd, nm]) => walls.forEach(w => POS.forEach(p2 => small.push({ sp: { k: 's' + L, L, D: Dd, label: nm + ' ' + ftIn(L) + ' × ' + ftIn(Dd) }, w, p: p2 })))); ok = bestOf(small, sofaSet); }
+      if (!ok) { DF = 0; bestOf(cands, sofaSet); }
+      DF = 1.6;
+    }
   } else if (t === 'dining') {
     // 6, 4 or 2 seats, with 1 ft 6 in to pull out each chair and walk behind it
     if (!has('dtable')) for (const [tw, th, n] of [[4, 2.5, 4], [2.5, 2.5, 2]]) {
@@ -2022,7 +2059,7 @@ function furnLayout(room, swings, entries, wins, ed) {
       // shower corner with a glass screen (3D only)
       if (s.type === 'bath' && Math.min(s.w, s.h) >= 4.4) { const sz = Math.min(3, Math.min(s.w, s.h) - 1.2), sh = C.map(c => box(c, sz, sz)).find(q => ok(q) && (!wc || ovl(q, wc) < 0.01) && (!bs || ovl(q, bs) < 0.01)); if (sh) out.push(Object.assign(sh, { role: 'shower', d3only: true })); }
     }
-    if (s.type === 'pooja') out.push({ x: s.x + 0.4, y: s.y + 0.4, w: s.w - 0.8, h: 1.2, role: 'altar' });
+    if (s.type === 'pooja') { const bk = poojaBack(room, s), d = Math.min(s.w, s.h) >= 6 ? 2.4 : 1.4; out.push(Object.assign(bk === 'top' ? { x: s.x + 0.4, y: s.y + 0.2, w: s.w - 0.8, h: d } : bk === 'bottom' ? { x: s.x + 0.4, y: s.y + s.h - 0.2 - d, w: s.w - 0.8, h: d } : bk === 'left' ? { x: s.x + 0.2, y: s.y + 0.4, w: d, h: s.h - 0.8 } : { x: s.x + s.w - 0.2 - d, y: s.y + 0.4, w: d, h: s.h - 0.8 }, { role: 'altar' })); }
   });
   // measured free space in front of each piece
   const B = out.filter(p => p.solid);
@@ -2128,6 +2165,187 @@ function furnRugTex(T, kind) {
   else if (kind === 'dhurrie') { g.fillStyle = '#E9DFCB'; g.fillRect(0, 0, 256, 256); const cs = ['#B5532F', '#2F5D50', '#C9963C']; for (let y = 16; y < 256; y += 48) for (let x = 16; x < 256; x += 48) { g.fillStyle = cs[((x + y) / 48 | 0) % 3]; g.beginPath(); g.moveTo(x + 16, y); g.lineTo(x + 32, y + 16); g.lineTo(x + 16, y + 32); g.lineTo(x, y + 16); g.closePath(); g.fill(); } g.strokeStyle = '#B5532F'; g.lineWidth = 10; g.strokeRect(5, 5, 246, 246); }
   else { g.fillStyle = '#7A2E2A'; g.fillRect(0, 0, 256, 256); g.fillStyle = '#E7D9BC'; g.fillRect(22, 22, 212, 212); g.fillStyle = '#2F4A5C'; g.fillRect(34, 34, 188, 188); g.fillStyle = '#C9A24B'; g.beginPath(); g.moveTo(128, 60); g.lineTo(196, 128); g.lineTo(128, 196); g.lineTo(60, 128); g.closePath(); g.fill(); g.fillStyle = '#7A2E2A'; g.beginPath(); g.arc(128, 128, 30, 0, 7); g.fill(); for (let i = 0; i < 8; i++) { g.fillStyle = '#C9A24B'; g.fillRect(40 + i * 24, 40, 10, 10); g.fillRect(40 + i * 24, 206, 10, 10); } }
   const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; FURN_TEX[kind] = t; return t;
+}
+/* ---------- pooja mandir in 3D: white marble temple with Radha–Krishna murtis ----------
+   Small (a corner of the living / dining room): a marble cabinet with a pillared temple on top.
+   Big (an alcove of 7 ft or more): a floor-standing temple on a stepped platform, backlit marble wall,
+   carved arch and dome, a festive cloth canopy, lit niches on both sides and tall brass diyas.
+   Local frame: x along the back wall (0 … L), z into the room (0 … Dp), y up, in feet. */
+function mandirTex(T, kind) {
+  const key = 'mandir-' + kind; if (FURN_TEX[key]) return FURN_TEX[key];
+  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+  if (kind === 'mandala') {
+    const r0 = g.createRadialGradient(128, 128, 10, 128, 128, 128); r0.addColorStop(0, '#FFF6E2'); r0.addColorStop(1, '#F2E6CF'); g.fillStyle = r0; g.fillRect(0, 0, 256, 256);
+    g.strokeStyle = '#C9A25A'; g.lineWidth = 2;
+    for (let ring = 1; ring <= 5; ring++) { const rr = ring * 22, n = 8 + ring * 4; g.beginPath(); g.arc(128, 128, rr, 0, 7); g.stroke(); for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, x = 128 + Math.cos(a) * rr, y = 128 + Math.sin(a) * rr; g.beginPath(); g.ellipse(x, y, 7, 3.5, a, 0, 7); g.stroke(); } }
+    g.fillStyle = '#E2B86A'; g.beginPath(); g.arc(128, 128, 12, 0, 7); g.fill();
+  } else if (kind === 'lehenga-r' || kind === 'lehenga-o') {
+    g.fillStyle = kind === 'lehenga-r' ? '#B3202A' : '#D2551C'; g.fillRect(0, 0, 256, 256);
+    g.fillStyle = '#E6B74E'; for (let y = 18; y < 220; y += 26) for (let x = (y / 26 % 2) * 13; x < 256; x += 26) { g.beginPath(); g.arc(x, y, 3, 0, 7); g.fill(); }
+    g.fillRect(0, 222, 256, 26); g.fillStyle = '#1F6B45'; g.fillRect(0, 232, 256, 6); g.fillStyle = '#E6B74E'; g.fillRect(0, 0, 256, 6);
+  } else if (kind === 'jhalar') {
+    g.fillStyle = '#9E1C24'; g.fillRect(0, 0, 256, 256); g.fillStyle = '#1E5B3B'; g.fillRect(0, 0, 256, 70); g.fillStyle = '#E3B04B';
+    g.fillRect(0, 66, 256, 8); g.fillRect(0, 150, 256, 6); for (let x = 8; x < 256; x += 32) { g.beginPath(); g.moveTo(x, 90); g.lineTo(x + 12, 110); g.lineTo(x, 130); g.lineTo(x - 12, 110); g.closePath(); g.fill(); }
+  } else if (kind === 'rug') {
+    g.fillStyle = '#7C1F23'; g.fillRect(0, 0, 256, 256); g.strokeStyle = '#E2B86A'; g.lineWidth = 8; g.strokeRect(12, 12, 232, 232); g.fillStyle = '#26324A'; g.fillRect(36, 36, 184, 184);
+    g.fillStyle = '#C98E3A'; g.beginPath(); g.arc(128, 128, 54, 0, 7); g.fill(); g.fillStyle = '#7C1F23'; g.beginPath(); g.arc(128, 128, 30, 0, 7); g.fill();
+  }
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; FURN_TEX[key] = t; return t;
+}
+function mandir3D(T, g, L, Dp, H, tag, bx, cyl, sph) {
+  g.userData.mandir = { L, Dp };
+  const big = L >= 6.2 && Dp >= 5.5, M = (c, o) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.6 }, o || {}));
+  const marble = furnMat(T, 'marble', '#F6F3EC', { roughness: 0.18 }), carve = M('#ECE6D9', { roughness: 0.35 }), gold = M('#D4A445', { metalness: 0.85, roughness: 0.28 }),
+    glow = M('#FFF4DC', { emissive: '#FFE2A8', emissiveIntensity: 0.95, roughness: 0.4 }), flame = M('#FFB347', { emissive: '#FF9A1F', emissiveIntensity: 1.6 }),
+    marigold = M('#F29A16', { roughness: 0.8 }), red = M('#B3202A', { roughness: 0.85 }), wood = furnMat(T, 'wood', '#8A5A35', { roughness: 0.5 });
+  const mesh = (geo, m, x, y, z) => { const me = tag(new T.Mesh(geo, m)); me.position.set(x, y, z); g.add(me); return me; };
+  const cx = L / 2;
+  // dimensions of the temple
+  const fw = big ? Math.min(L * 0.6, 5.2) : Math.min(L - 0.5, 3.4), fd = big ? Math.min(Dp * 0.42, 2.4) : Math.min(Dp - 0.3, 1.5);
+  // the cut-away floor view stops walls at about 4 ft: the temple then sits low and stays under the cut
+  const low = H < 6, base = big ? (low ? 0.5 : 1.0) : low ? 0.4 : 2.4, fh = low ? Math.max(1.6, H - base - 1.1) : big ? Math.min(H - base - 0.6, 5.6) : Math.min(H - base - 1.2, 3.3), x0 = cx - fw / 2;
+  // backlit marble wall with a glowing frame
+  bx(g, 0, 0, 0, L, H, 0.12, marble);
+  bx(g, x0 - 0.35, base, 0.12, fw + 0.7, fh + 0.5, 0.03, glow);
+  // platform / cabinet
+  if (big) {
+    bx(g, cx - fw / 2 - 0.5, 0, 0.15, fw + 1, base / 2, fd + 1.5, marble, 0.06); bx(g, cx - fw / 2 - 0.15, base / 2, 0.15, fw + 0.3, base / 2, fd + 0.7, marble, 0.05);
+    bx(g, cx - fw / 2 - 0.5, base / 2 - 0.02, fd + 1.6, fw + 1, 0.03, 0.03, gold);
+  } else if (low) {
+    bx(g, x0, 0, 0.15, fw, base, fd, marble, 0.04);
+  } else {
+    bx(g, x0, 0, 0.15, fw, base - 0.1, fd, wood, 0.03); bx(g, x0 - 0.05, base - 0.12, 0.12, fw + 0.1, 0.12, fd + 0.08, marble, 0.02);
+    bx(g, x0 + 0.15, 0.35, fd + 0.16, fw / 2 - 0.2, base - 0.65, 0.02, M('#6E4426', { roughness: 0.5 })); bx(g, cx + 0.05, 0.35, fd + 0.16, fw / 2 - 0.2, base - 0.65, 0.02, M('#6E4426', { roughness: 0.5 }));
+    cyl(g, cx - 0.15, base * 0.55, fd + 0.2, 0.03, 0.03, 0.04, gold, 8); cyl(g, cx + 0.15, base * 0.55, fd + 0.2, 0.03, 0.03, 0.04, gold, 8);
+  }
+  // inner sanctum: mandala and a seat for the murtis
+  const md = mesh(new T.CircleGeometry(fw * 0.3, 48), M('#ffffff', { map: mandirTex(T, 'mandala'), emissive: '#FFE7B5', emissiveIntensity: 0.75, roughness: 0.5 }), cx, base + fh * 0.6, 0.17);
+  const seatH = big ? 0.55 : 0.25; bx(g, cx - fw * 0.32, base, 0.3, fw * 0.64, seatH, fd * 0.55, marble, 0.04); bx(g, cx - fw * 0.32, base + seatH - 0.04, 0.3 + fd * 0.55 - 0.04, fw * 0.64, 0.04, 0.04, gold);
+  // pillars: base, fluted shaft, carved rings, capital
+  const pr = big ? 0.2 : 0.11, ph = fh * 0.78;
+  [[x0 + pr + 0.08, fd - pr], [x0 + fw - pr - 0.08, fd - pr]].concat(big ? [[x0 + pr + 0.08, 0.5], [x0 + fw - pr - 0.08, 0.5]] : []).forEach(([px, pz]) => {
+    bx(g, px - pr * 1.6, base, pz - pr * 1.6, pr * 3.2, pr * 1.2, pr * 3.2, carve, 0.02);
+    cyl(g, px, base + pr * 1.2, pz, pr, pr * 1.1, ph - pr * 2.6, marble, 16);
+    for (let i = 1; i <= 3; i++) cyl(g, px, base + pr * 1.2 + (ph - pr * 2.6) * i / 4, pz, pr * 1.25, pr * 1.25, pr * 0.35, carve, 16);
+    cyl(g, px, base + ph - pr * 1.4, pz, pr * 1.7, pr * 1.05, pr * 1.0, carve, 16); bx(g, px - pr * 1.7, base + ph - pr * 0.4, pz - pr * 1.7, pr * 3.4, pr * 0.4, pr * 3.4, marble, 0.02);
+  });
+  // carved arch between the front pillars
+  const ar = fw / 2 - pr * 2.2, arch = mesh(new T.TorusGeometry(ar, pr * 0.55, 10, 32, Math.PI), carve, cx, base + ph - ar * 0.55 - pr, fd - pr);
+  arch.scale.y = 0.55;
+  for (let i = 0; i <= 8; i++) { const a = Math.PI * i / 8; sph(g, cx + Math.cos(a) * ar, base + ph - ar * 0.55 - pr + Math.sin(a) * ar * 0.55 - pr * 0.6, fd - pr, pr * 0.32, carve); }
+  // entablature, roof slab and the dome (shikhara) with a gold kalash
+  const ey = base + ph; bx(g, x0 - 0.1, ey, 0.12, fw + 0.2, pr * 2, fd + 0.05, marble, 0.03); bx(g, x0 - 0.18, ey + pr * 2, 0.12, fw + 0.36, pr * 0.6, fd + 0.15, carve, 0.03);
+  for (let i = 0; i < 9; i++) bx(g, x0 + 0.05 + i * (fw - 0.1) / 9, ey + pr * 0.6, fd + 0.15, (fw - 0.1) / 9 * 0.55, pr * 0.8, 0.04, carve);
+  const domeR = Math.min(fw * 0.26, fd * 0.6), dy = ey + pr * 2.6;
+  const prof = []; for (let i = 0; i <= 14; i++) { const t = i / 14; prof.push(new T.Vector2(domeR * Math.max(0.04, Math.sin(Math.PI * (0.5 + t * 0.5)) * (1 - t * 0.25) + (i % 3 === 0 ? 0.04 : 0)), t * domeR * 1.45)); }
+  mesh(new T.LatheGeometry(prof, 28), marble, cx, dy, fd / 2 + 0.1);
+  bx(g, cx - domeR * 1.1, dy - 0.02, fd / 2 + 0.1 - domeR * 1.05, domeR * 2.2, pr * 0.8, domeR * 2.1, carve, 0.03);
+  cyl(g, cx, dy + domeR * 1.45, fd / 2 + 0.1, 0.02, pr * 0.9, pr * 1.2, gold, 12); sph(g, cx, dy + domeR * 1.45 + pr * 1.4, fd / 2 + 0.1, pr * 0.55, gold); cyl(g, cx, dy + domeR * 1.45 + pr * 1.8, fd / 2 + 0.1, 0.01, 0.03, pr * 1.6, gold, 8);
+  [-1, 1].forEach(sd => { const sx = cx + sd * fw * 0.36; mesh(new T.ConeGeometry(domeR * 0.38, domeR * 0.9, 14), marble, sx, dy + domeR * 0.45, fd / 2 + 0.1); sph(g, sx, dy + domeR * 0.95, fd / 2 + 0.1, pr * 0.3, gold); });
+  // the murtis: Krishna (left, with flute and peacock feather) and Radha (right), on gold pedestals
+  const sc = Math.min(big ? 1.9 : Math.min(1.25, fw / 2.6), (fh * 0.82 - seatH) / 1.95), fz = 0.3 + fd * 0.3, fy = base + seatH;
+  murti(T, g, tag, cx - 0.3 * sc, fy, fz, sc, 'krishna', { gold, marigold, M });
+  murti(T, g, tag, cx + 0.3 * sc, fy, fz, sc, 'radha', { gold, marigold, M });
+  // offerings: diyas, flowers, a small kalash
+  [-1, 1].forEach(sd => { const dx = cx + sd * fw * 0.33; cyl(g, dx, fy, fz + 0.45 * sc, 0.08, 0.06, 0.05, gold, 12); sph(g, dx, fy + 0.1, fz + 0.45 * sc, 0.035, flame, 1.6); });
+  for (let i = 0; i < 9; i++) sph(g, cx - fw * 0.28 + i * fw * 0.07, base + seatH * 0.5, 0.3 + fd * 0.55 + 0.04, 0.07, marigold);
+  // a marigold toran across the arch
+  for (let i = 0; i <= 14; i++) { const t = i / 14, x = x0 + 0.2 + t * (fw - 0.4), y = ey - 0.12 - Math.sin(t * Math.PI) * 0.35; sph(g, x, y, fd + 0.02, 0.06, i % 2 ? marigold : red); }
+  if (big && !low) {
+    // tall brass diya stands on the platform
+    [-1, 1].forEach(sd => { const dx = cx + sd * (fw / 2 + 0.25), dz = fd + 0.9; cyl(g, dx, 1.0, dz, 0.18, 0.22, 0.08, gold, 16); cyl(g, dx, 1.08, dz, 0.035, 0.05, 2.4, gold, 10); cyl(g, dx, 3.45, dz, 0.22, 0.06, 0.12, gold, 16); sph(g, dx, 3.65, dz, 0.06, flame, 1.7); });
+    // festive cloth canopy (jhalar) high in front
+    const jy = Math.min(H - 0.5, ey + domeR * 1.45 + 1.2), jw = Math.min(L - 0.4, fw + 1.6);
+    bx(g, cx - jw / 2, jy, 0.12, jw, 0.12, Dp * 0.55, M('#7A1A20', { roughness: 0.9 }));
+    const front = mesh(new T.PlaneGeometry(jw, 0.9), M('#ffffff', { map: mandirTex(T, 'jhalar'), side: T.DoubleSide, roughness: 0.9 }), cx, jy - 0.4, 0.12 + Dp * 0.55);
+    for (let i = 0; i < 12; i++) mesh(new T.ConeGeometry(0.05, 0.22, 8), gold, cx - jw / 2 + 0.2 + i * (jw - 0.4) / 11, jy - 0.95, 0.12 + Dp * 0.55).rotation.x = Math.PI;
+    // lit niches with small brass idols on both sides
+    [[0.2, x0 - 0.6], [x0 + fw + 0.6, L - 0.2]].forEach(([a, b2]) => { const w = b2 - a; if (w < 0.9) return;
+      bx(g, a, 0, 0.12, w, 2.6, 1.5, wood, 0.03); bx(g, a - 0.02, 2.6, 0.1, w + 0.04, 0.1, 1.56, marble, 0.02);
+      for (let k = 0; k < 3; k++) { const y = 3.3 + k * 1.2; if (y > H - 1) break; bx(g, a + 0.1, y, 0.12, w - 0.2, 0.08, 0.9, wood); bx(g, a + 0.1, y + 0.08, 0.13, w - 0.2, 0.9, 0.02, glow); cyl(g, a + w / 2, y + 0.08, 0.6, 0.12, 0.15, 0.08, gold, 12); sph(g, a + w / 2, y + 0.35, 0.6, 0.13, gold, 1.5); } });
+    // prayer rug in front
+    const rg = mesh(new T.BoxGeometry(Math.min(L - 1, 4.5), 0.03, Math.max(0.5, Dp - fd - 2.1)), M('#ffffff', { map: mandirTex(T, 'rug'), roughness: 1 }), cx, 0.015, (fd + 1.8 + Dp) / 2); rg.castShadow = false;
+  } else {
+    // a brass bell and a small diya on the cabinet top
+    cyl(g, x0 + 0.25, base, fd - 0.2, 0.07, 0.1, 0.18, gold, 12); sph(g, x0 + 0.25, base + 0.25, fd - 0.2, 0.05, gold);
+    cyl(g, x0 + fw - 0.25, base, fd - 0.2, 0.06, 0.08, 0.3, gold, 10); sph(g, x0 + fw - 0.25, base + 0.36, fd - 0.2, 0.04, flame, 1.6);
+  }
+}
+// a marble murti about 1.9 ft tall at sc = 1, after the white marble Radha–Krishna idols dressed in poshak:
+// lotus pedestal, flowing dress, dupatta, white marble face and hands, gold mukut, halo and long garlands
+function murtiTex(T, kind) {
+  const key = 'murti-' + kind; if (FURN_TEX[key]) return FURN_TEX[key];
+  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+  const emb = (bg, dot, border) => { g.fillStyle = bg; g.fillRect(0, 0, 256, 256); g.fillStyle = dot; for (let y = 14; y < 210; y += 22) for (let x = (y / 22 % 2) * 11; x < 256; x += 22) { g.beginPath(); g.ellipse(x, y, 4, 6, 0.5, 0, 7); g.fill(); } g.fillStyle = border; g.fillRect(0, 212, 256, 44); g.fillStyle = dot; for (let x = 6; x < 256; x += 16) { g.beginPath(); g.arc(x, 234, 5, 0, 7); g.fill(); } g.fillRect(0, 212, 256, 4); };
+  if (kind === 'pitambar') emb('#E8A21C', '#FCE7A0', '#C2372B');
+  else if (kind === 'lehenga') emb('#D6457A', '#F7D27A', '#1E8A7A');
+  else if (kind === 'teal') emb('#1E8A84', '#F2CF6B', '#E8A21C');
+  else if (kind === 'odhni') { g.fillStyle = '#C8325E'; g.fillRect(0, 0, 256, 256); g.fillStyle = '#F2CF6B'; g.fillRect(0, 0, 256, 18); for (let y = 40; y < 256; y += 30) for (let x = (y / 30 % 2) * 15; x < 256; x += 30) { g.beginPath(); g.arc(x, y, 3, 0, 7); g.fill(); } }
+  else if (kind === 'feather') { g.clearRect(0, 0, 256, 256); const gr = g.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#2E8B57'); gr.addColorStop(1, '#1F5E3A'); g.fillStyle = gr; g.beginPath(); g.ellipse(128, 128, 70, 124, 0, 0, 7); g.fill(); g.fillStyle = '#C9A227'; g.beginPath(); g.ellipse(128, 90, 42, 54, 0, 0, 7); g.fill(); g.fillStyle = '#1C6E8C'; g.beginPath(); g.ellipse(128, 92, 30, 40, 0, 0, 7); g.fill(); g.fillStyle = '#122A6B'; g.beginPath(); g.ellipse(128, 96, 16, 22, 0, 0, 7); g.fill(); }
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; FURN_TEX[key] = t; return t;
+}
+function murti(T, g, tag, x, y, z, sc, who, m) {
+  const k = who === 'krishna', M = m.M, gold = m.gold;
+  const marble = M('#F6EFE5', { roughness: 0.32 }), hair = M('#16110E', { roughness: 0.6 }), ink = M('#141414', { roughness: 0.3 }), lipM = M('#C2414B', { roughness: 0.4 }), kum = M('#C21F1F', { roughness: 0.5 });
+  const dress = M('#ffffff', { map: murtiTex(T, k ? 'pitambar' : 'lehenga'), roughness: 0.55 }), teal = M('#ffffff', { map: murtiTex(T, 'teal'), roughness: 0.55 }),
+    odhni = M('#ffffff', { map: murtiTex(T, 'odhni'), roughness: 0.6, side: T.DoubleSide }), white = M('#F4F1E6', { roughness: 0.7 }), pink = M('#F2A7BE', { roughness: 0.6 });
+  const grp = new T.Group(); grp.position.set(x, y, z); grp.scale.setScalar(sc); grp.rotation.y = k ? 0.18 : -0.18; g.add(grp);
+  const add = (geo, mt, px, py, pz) => { const me = tag(new T.Mesh(geo, mt)); me.position.set(px, py, pz); grp.add(me); return me; };
+  const lathe = (pts, mt, py, seg) => add(new T.LatheGeometry(pts.map(([r, h]) => new T.Vector2(r, h)), seg || 32), mt, 0, py || 0, 0);
+  const V = (a, b2, c) => new T.Vector3(a, b2, c);
+  const limb = (A, B, r, mt) => { const d = B.clone().sub(A), me = add(new T.CylinderGeometry(r * 0.82, r, d.length(), 10), mt, 0, 0, 0); me.position.copy(A.clone().add(B).multiplyScalar(0.5)); me.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize()); return me; };
+  // lotus pedestal
+  lathe([[0.27, 0], [0.29, 0.04], [0.26, 0.08], [0.2, 0.1], [0, 0.1]], gold);
+  for (let i = 0; i < 14; i++) { const a = i / 14 * Math.PI * 2, p = add(new T.SphereGeometry(0.06, 10, 8), i % 2 ? pink : M('#F7D6E0', { roughness: 0.6 }), Math.sin(a) * 0.2, 0.12, Math.cos(a) * 0.2); p.scale.set(0.7, 0.45, 1.3); p.rotation.y = a; }
+  // feet
+  [-0.05, 0.05].forEach(fx => { const f = add(new T.SphereGeometry(0.035, 10, 8), marble, fx, 0.15, 0.08); f.scale.set(0.9, 0.5, 1.6); });
+  // dress: Krishna's pitambar dhoti, Radha's long flared lehenga
+  if (k) lathe([[0.15, 0.16], [0.14, 0.3], [0.125, 0.5], [0.12, 0.66], [0.115, 0.74], [0, 0.74]], dress);
+  else lathe([[0.22, 0.15], [0.2, 0.3], [0.17, 0.48], [0.14, 0.64], [0.115, 0.76], [0, 0.76]], dress);
+  add(new T.TorusGeometry(0.118, 0.018, 8, 24), gold, 0, 0.75, 0).rotation.x = Math.PI / 2; // waist band
+  // torso: Radha in a teal choli; Krishna bare-chested marble with a teal dupatta
+  lathe([[0.115, 0], [0.125, 0.08], [0.135, 0.16], [0.14, 0.22], [0.12, 0.27], [0.06, 0.3], [0, 0.3]], k ? marble : teal, 0.75);
+  [-1, 1].forEach(sd => { const sh = add(new T.SphereGeometry(0.06, 12, 10), k ? marble : teal, sd * 0.13, 0.99, 0); sh.scale.set(1, 0.8, 0.9); });
+  if (k) { // dupatta over the shoulders, both ends falling in front
+    const d1 = add(new T.TorusGeometry(0.13, 0.03, 8, 20, Math.PI), teal, 0, 0.97, -0.02); d1.rotation.x = -Math.PI / 2.4;
+    [-1, 1].forEach(sd => { const st = add(new T.BoxGeometry(0.06, 0.5, 0.015), teal, sd * 0.17, 0.72, 0.06); st.rotation.z = sd * 0.08; });
+  }
+  // necklaces and long garlands
+  [0.06, 0.09].forEach((r, i) => { const n = add(new T.TorusGeometry(r, 0.01, 6, 20), gold, 0, 1.0 - i * 0.03, 0.05); n.rotation.x = Math.PI / 2.4; n.scale.y = 1.4; });
+  [[0.1, 0.42, 0], [0.13, 0.55, 1]].forEach(([wd, ln, j]) => { for (let i = 0; i <= 22; i++) { const t = i / 22, a = (t - 0.5) * Math.PI, xx = Math.sin(a) * wd, yy = 1.02 - Math.cos(a) * ln, zz = 0.12 + Math.cos(a) * 0.05 + (yy < 0.75 ? 0.06 : 0); add(new T.SphereGeometry(0.022, 8, 6), (i + j) % 3 === 0 ? white : m.marigold, xx, yy, zz); } });
+  // neck and head (white marble face)
+  add(new T.CylinderGeometry(0.04, 0.045, 0.08, 12), marble, 0, 1.05, 0);
+  const hd = add(new T.SphereGeometry(0.095, 24, 18), marble, 0, 1.17, 0.005); hd.scale.set(0.95, 1.12, 0.95);
+  const ns = add(new T.ConeGeometry(0.014, 0.04, 8), marble, 0, 1.16, 0.095); ns.rotation.x = Math.PI / 2.2;
+  [-0.035, 0.035].forEach(ex => { const w = add(new T.SphereGeometry(0.02, 12, 8), M('#FFFFFF', { roughness: 0.2 }), ex, 1.19, 0.08); w.scale.set(1.5, 0.7, 0.45); add(new T.SphereGeometry(0.011, 8, 6), ink, ex, 1.19, 0.088); const ln = add(new T.BoxGeometry(0.06, 0.006, 0.01), ink, ex + (ex > 0 ? 0.008 : -0.008), 1.199, 0.086); ln.rotation.z = ex > 0 ? 0.12 : -0.12; const br = add(new T.TorusGeometry(0.025, 0.004, 4, 10, Math.PI), ink, ex, 1.215, 0.085); br.scale.y = 0.4; });
+  const lp = add(new T.SphereGeometry(0.014, 10, 6), lipM, 0, 1.125, 0.09); lp.scale.set(1.7, 0.55, 0.6);
+  if (k) { add(new T.BoxGeometry(0.008, 0.045, 0.004), M('#E8B33F'), -0.01, 1.245, 0.088); add(new T.BoxGeometry(0.008, 0.045, 0.004), M('#E8B33F'), 0.01, 1.245, 0.088); add(new T.BoxGeometry(0.006, 0.03, 0.004), kum, 0, 1.24, 0.09); }
+  else add(new T.SphereGeometry(0.008, 8, 6), kum, 0, 1.235, 0.091);
+  // hair: Krishna's curls at the sides, Radha's long hair down the back
+  const hr = add(new T.SphereGeometry(0.1, 16, 12), hair, 0, 1.2, -0.025); hr.scale.set(1, 1.05, 0.95);
+  if (k) [-1, 1].forEach(sd => { for (let i = 0; i < 3; i++) add(new T.SphereGeometry(0.025, 8, 6), hair, sd * 0.09, 1.13 - i * 0.04, -0.01); });
+  else { const lh = add(new T.BoxGeometry(0.16, 0.5, 0.04), hair, 0, 0.92, -0.08); lh.rotation.x = 0.06; }
+  // earrings
+  [-1, 1].forEach(sd => add(new T.SphereGeometry(0.016, 8, 6), gold, sd * 0.092, 1.12, 0.01));
+  // mukut: tall jewelled crown for Krishna with a peacock feather; a rounded crown and odhni for Radha
+  const cp = k ? [[0.09, 0], [0.1, 0.05], [0.085, 0.09], [0.11, 0.16], [0.09, 0.22], [0.05, 0.27], [0.01, 0.3]] : [[0.088, 0], [0.098, 0.04], [0.085, 0.08], [0.095, 0.12], [0.05, 0.16], [0.01, 0.17]];
+  const cr = lathe(cp, gold, 1.26, 24); cr.scale.z = 0.85;
+  for (let i = 0; i < 7; i++) { const a = (i / 6 - 0.5) * 2.2; add(new T.SphereGeometry(0.013, 8, 6), M(i % 2 ? '#C21F3A' : '#1E7A5A', { roughness: 0.25 }), Math.sin(a) * 0.1, 1.32, Math.cos(a) * 0.085); }
+  if (k) { const fe = add(new T.PlaneGeometry(0.16, 0.28), M('#ffffff', { map: murtiTex(T, 'feather'), transparent: true, alphaTest: 0.3, side: T.DoubleSide, roughness: 0.4 }), 0.03, 1.62, -0.03); fe.rotation.z = -0.3; fe.rotation.x = -0.2; }
+  else { const od = add(new T.SphereGeometry(0.135, 20, 14, Math.PI / 2 + 1.05, Math.PI * 2 - 2.1, 0, Math.PI * 0.62), odhni, 0, 1.19, -0.015); od.scale.set(1, 1.15, 0.9); od.rotation.x = -0.25;
+    const bk = add(new T.PlaneGeometry(0.3, 0.75), odhni, 0, 0.75, -0.11); bk.rotation.x = 0.1; }
+  // halo behind the head
+  add(new T.TorusGeometry(0.2, 0.012, 8, 40), gold, 0, 1.24, -0.16); const disc = add(new T.CircleGeometry(0.2, 40), M('#E9C46A', { metalness: 0.6, roughness: 0.35, emissive: '#8A6A1E', emissiveIntensity: 0.25, side: T.DoubleSide }), 0, 1.24, -0.165);
+  // arms (marble), with gold armlets and bangles
+  const arm2 = (S2, E, H) => { limb(S2, E, 0.032, marble); limb(E, H, 0.027, marble); add(new T.SphereGeometry(0.031, 8, 6), marble, E.x, E.y, E.z); add(new T.SphereGeometry(0.03, 10, 8), marble, H.x, H.y, H.z); const bg = add(new T.TorusGeometry(0.031, 0.008, 6, 12), gold, H.x * 0.82 + E.x * 0.18, H.y * 0.82 + E.y * 0.18, H.z * 0.82 + E.z * 0.18); bg.rotation.x = Math.PI / 2; const am = add(new T.TorusGeometry(0.035, 0.007, 6, 12), gold, S2.x * 0.6 + E.x * 0.4, S2.y * 0.6 + E.y * 0.4, S2.z * 0.6 + E.z * 0.4); am.rotation.x = Math.PI / 2; };
+  if (k) {
+    const fl = add(new T.CylinderGeometry(0.011, 0.011, 0.5, 8), M('#7A4A22', { roughness: 0.45 }), 0.17, 1.14, 0.13); fl.rotation.z = Math.PI / 2 - 0.12;
+    [0.0, 0.14, 0.3].forEach(o => { const b2 = add(new T.CylinderGeometry(0.014, 0.014, 0.016, 8), gold, -0.07 + o + 0.1, 1.11 + o * 0.12, 0.13); b2.rotation.z = Math.PI / 2 - 0.12; });
+    arm2(V(-0.15, 0.98, 0), V(-0.14, 0.86, 0.1), V(0.04, 1.11, 0.14)); arm2(V(0.15, 0.98, 0), V(0.26, 0.88, 0.08), V(0.28, 1.15, 0.13));
+  } else {
+    arm2(V(0.15, 0.98, 0), V(0.2, 0.86, 0.07), V(0.19, 1.04, 0.13)); const palm = add(new T.BoxGeometry(0.05, 0.07, 0.016), marble, 0.19, 1.09, 0.14); palm.rotation.z = -0.08;
+    arm2(V(-0.15, 0.98, 0), V(-0.19, 0.84, 0.04), V(-0.12, 0.76, 0.14));
+  }
 }
 // draws every piece of one room. y0 = floor top. cap = height the walls are cut at (dollhouse view) or null.
 function furn3D(T, grp, room, items, y0, ix, mat, cap, ctx) {
@@ -2316,11 +2534,8 @@ function furn3D(T, grp, room, items, y0, ix, mat, cap, ctx) {
       return;
     }
     if (role === 'altar') {
-      const g = piece(q.x, q.y, 0), w = q.w, d = q.h, base = hi ? stone : wood, trim = hi ? metal : mat('#C9963C', { metalness: 0.5, roughness: 0.4 });
-      bx(g, 0, 0, 0, w, 2.3, d, base, 0.03); bx(g, 0.1, 2.3, 0.05, w - 0.2, 0.08, d - 0.1, trim);
-      bx(g, 0.2, 2.38, 0.05, w - 0.4, 1.3, d - 0.2, base, 0.03); bx(g, 0.4, 2.48, d - 0.16, w - 0.8, 1.0, 0.02, mat('#7A2E2A', { roughness: 0.8 }));
-      const dm = sph(g, w / 2, 3.68, d / 2 - 0.05, Math.min(0.55, w / 3), hi ? metal : trim, 0.9); dm.scale.z = 0.8; cyl(g, w / 2, 4.1, d / 2 - 0.05, 0.02, 0.08, 0.35, trim, 8);
-      sph(g, w / 2, 2.55, d - 0.25, 0.07, mat('#FFB347', { emissive: '#FF9A1F', emissiveIntensity: 1.2 }));
+      const sb = subOf(q) || q, { g, L, Dp } = orient(sb, poojaBack(room, sb));
+      mandir3D(T, g, L, Dp, Math.min(top, FH - SLAB - 0.4), tag, bx, cyl, sph);
       return;
     }
   });
@@ -2483,7 +2698,7 @@ function doors3D(T, grp, D, o, F, base, ix, mat, cap) {
   const leafC = ['#CDB28E', '#8A5A33', '#5A3B26', '#3E2A1E'][ix] || '#8A5A33', frameM = mat(['#9C7A55', '#6E4526', '#3B2A1E', '#2A1C14'][ix] || '#6E4526', { roughness: 0.5 }), hm = mat(S.metal, { metalness: S.metalM, roughness: 0.3 });
   const tag = me => { me.castShadow = true; me.receiveShadow = true; me.userData.fur = 1; return me; };
   const bx = (g, x, y, z, w, h, d, m) => { const me = tag(new T.Mesh(furnRBox(T, w, h, d, 0.015), m)); me.position.set(x + w / 2, y + h / 2, z + d / 2); g.add(me); return me; };
-  const list = doorDraw(D, o, F).map(x => ({ seg: x.seg, side: x.side, main: x.d.kind === 'main' }));
+  const list = doorDraw(D, o, F).filter(x => x.d.kind !== 'open').map(x => ({ seg: x.seg, side: x.side, main: x.d.kind === 'main' }));
   F.rooms.forEach(r => { if (!r.void) subDoorsOf(r).forEach(d => list.push({ seg: d.seg, side: d.side, bath: true })); });
   list.forEach(dd => {
     const [x1, y1, x2, y2] = dd.seg, w = Math.hypot(x2 - x1, y2 - y1); if (w < 1) return;
@@ -3160,11 +3375,11 @@ function planSvg(D, o, F, opts) {
     if (room.void) return;
     const R = room.rect, cls = (room.type === 'terrace' && !room.covered) || room.type === 'open' ? 'r-open' : room.type === 'parking' ? 'r-park' : 'r';
     h += '<rect x="' + R.x + '" y="' + R.y + '" width="' + R.w + '" height="' + R.h + '" class="' + cls + '" style="fill:' + ROOM[room.type].tint + '"/>';
-    room.subs.forEach(s => { h += '<rect x="' + s.x + '" y="' + s.y + '" width="' + s.w + '" height="' + s.h + '" class="r sub" style="fill:' + ROOM[s.type].tint + '"/>'; });
+    room.subs.forEach(s => { h += '<rect x="' + s.x + '" y="' + s.y + '" width="' + s.w + '" height="' + s.h + '" class="r sub" style="fill:' + ROOM[s.type].tint + (s.type === 'pooja' ? ';stroke-dasharray:.6 .4' : '') + '"/>'; }); // the pooja is an open alcove
   });
   h += '<rect x="' + bx0 + '" y="' + (by0 + o.G.backyard) + '" width="' + (bx1 - bx0) + '" height="' + (by1 - by0 - o.G.backyard) + '" class="outer"/>';
   const DP = doorPlan(D, o, F);
-  doorDraw(D, o, F).forEach(x => { h += svgDoor(x.seg, x.side, true); });
+  doorDraw(D, o, F).forEach(x => { if (x.d.kind !== 'open') h += svgDoor(x.seg, x.side, true); });
   if (opts.vastu) h += vastuOverlaySvg(b, LB);
   F.rooms.forEach(room => {
     if (room.void) return;
@@ -3794,7 +4009,7 @@ function addCorridors(b, o) {
     delete F._doors;
   });
 }
-const CIRC = { passage: 1, living: 1, dining: 1, lounge: 1, stair: 1 };
+const CIRC = { passage: 1, living: 1, dining: 1, lounge: 1, stair: 1 }, OPEN_WAY = CIRC;
 // door plan of one floor: a tree from the entrance (living on the ground floor, the stair upstairs) through
 // circulation rooms; bedrooms, kitchen, store and study are reached from it and are never passed through
 function doorPlan(D, o, F) {
@@ -3846,6 +4061,9 @@ function doorPlan(D, o, F) {
   F.rooms.forEach(t => { if (t.type === 'terrace') t.unreach = !t.void && !via.has(t) && t !== root; });
   const passThrough = [];
   via.forEach((x, v) => { if (v.type === 'terrace' && !CIRC[x.from.type]) { const up = via.get(x.from); if (!up || CIRC[up.from.type] || up.from === root) { if (![...via.values()].some(y => y.from === v)) return; } } let p = x.from; while (p && p !== root) { if (!CIRC[p.type] && p.type !== 'parking' && p.type !== 'terrace' && !passThrough.includes(p)) passThrough.push(p); const q = via.get(p); p = q ? q.from : null; } });
+  // between the hall, dining, stair, lounge and passage the doorway stays open (an arch, no door leaf), as in most Indian homes,
+  // so these rooms are not ringed with door leaves; rooms, kitchen and baths keep their doors
+  doors.forEach(d => { if (d.kind === 'door' && d.a && d.b && OPEN_WAY[d.a.type] && OPEN_WAY[d.b.type]) d.kind = 'open'; });
   F._doors = { doors, unreached, passThrough: [...new Set(passThrough)], root };
   return F._doors;
 }
@@ -4055,7 +4273,7 @@ function wallSegments(D, o, F) {
   const H = {}, V = {}, key = v => Math.round(v * 100) / 100;
   const add = (m, k, a, z) => { if (z - a < 0.05) return; (m[key(k)] = m[key(k)] || []).push([a, z]); };
   const rects = [];
-  F.rooms.forEach(r => { if (!['terrace', 'open'].includes(r.type)) rects.push(r.rect); r.subs.forEach(s => rects.push(s)); });
+  F.rooms.forEach(r => { if (!['terrace', 'open'].includes(r.type)) rects.push(r.rect); r.subs.forEach(s => { if (s.type !== 'pooja') rects.push(s); }); }); // the pooja is an open alcove: no walls on its room side
   rects.forEach(R => { add(H, R.y, R.x, R.x + R.w); add(H, R.y + R.h, R.x, R.x + R.w); add(V, R.x, R.y, R.y + R.h); add(V, R.x + R.w, R.y, R.y + R.h); });
   const merge = list => { list.sort((a, b) => a[0] - b[0]); const out = []; list.forEach(s => { const l = out[out.length - 1]; if (l && s[0] <= l[1] + 0.05) l[1] = Math.max(l[1], s[1]); else out.push(s.slice()); }); return out; };
   const b = D.brief, ext = { x0: b.sL, x1: b.w - b.sR, y0: b.setR + o.G.backyard, y1: b.d - b.setF };
@@ -6093,7 +6311,7 @@ const RQ = [
   { k: 'store', n: 'Store room', s: 'Store', min: [6, 5], max: 2, fl: 'any', z: 2, sec: 'Kitchen & utility' },
   { k: 'ctoilet', n: 'Common toilet & bathroom', s: 'Toilet', min: [7, 7], max: 3, fl: 'any', z: 2, sec: 'Toilets', cats: [['western', 'Western WC', 7, 7], ['indian', 'Indian WC', 7, 7], ['shower', 'With shower area', 8, 7], ['split', 'Toilet + bath separate', 9, 7]] },
   { k: 'atoilet', n: 'Attached toilet & bathroom', s: 'Att. toilet', min: [7, 7], max: 5, fl: 'bed', z: 1, sec: 'Toilets', note: 'One per bedroom', cats: [['std', 'Standard', 7, 7], ['shower', 'Glass shower', 8, 7], ['wetdry', 'Wet + dry zones', 9, 7], ['tub', 'Bathtub', 10, 8]] },
-  { k: 'puja', n: 'Puja room', s: 'Puja', min: [7, 5], ms: '7 × 5', max: 1, fl: 'g', z: 1, sec: 'More rooms' },
+  { k: 'puja', n: 'Puja room', s: 'Puja', min: [7, 5], ms: '7 × 5', max: 1, fl: 'g', z: 1, sec: 'More rooms', note: 'Never next to a toilet', cats: [['room', 'Separate room', 7, 5], ['corner', 'Corner of the living room', 5, 5]] },
   { k: 'study', n: 'Study room / Office', s: 'Study', min: [10, 8], max: 2, fl: 'any', z: 1, sec: 'More rooms' },
   { k: 'helper', n: 'Helper / driver room', s: 'Helper', min: [10, 8], max: 1, fl: 'g', z: 2, sec: 'More rooms' },
   { k: 'stair', n: 'Staircase', s: 'Stair', min: [12, 8], fixed: 1, fl: 'all', z: 1, sec: 'Stair, lift & balcony', note: 'Every home has one, up to the roof', cats: [['dog', 'Dog-legged', 12, 8], ['l', 'L-shaped', 13, 8], ['u', 'U-shaped (open well)', 12, 10], ['spiral', 'Spiral', 12, 8]], cats2: [['rcc', 'RCC + granite'], ['marble', 'RCC + marble'], ['float', 'Floating steel + wood'], ['glass', 'Glass railing']] },
@@ -6142,7 +6360,7 @@ function reqRooms() {
   const put = (f, r) => { fl[f].push(r); used[f] += r.w * r.d; };
   const best = pref => { let bf = 0, bv = Infinity; for (let f = 0; f < nF; f++) { const v = used[f] / cap + (pref(f) ? 0 : 0.3); if (v < bv - 1e-9) { bv = v; bf = f; } } return bf; };
   for (let f = 0; f < nF; f++) { const st = mk('stair'); st.s = 'Stair'; put(f, st); if (R.lift.n && nF > 1) { const l = mk('lift'); l.s = 'Lift'; put(f, l); } }
-  ['parking', 'sitout', 'living', 'kitchen', 'dining', 'puja', 'utility', 'helper'].forEach(k => { for (let i = 0; i < R[k].n; i++) put(0, mk(k)); });
+  ['parking', 'sitout', 'living', 'kitchen', 'dining', 'puja', 'utility', 'helper'].forEach(k => { if (k === 'puja' && R.puja.c === 'corner' && R.living.n) return; for (let i = 0; i < R[k].n; i++) put(0, mk(k)); });
   // bedrooms, each with its attached bath and dressing while those last
   let at = R.atoilet.n, dr = R.dress.n;
   [['master', f => f > 0 || nF === 1], ['bed', () => true], ['guest', f => f === 0]].forEach(([k, pref]) => {
@@ -6152,11 +6370,19 @@ function reqRooms() {
   for (let i = 0; i < R.balcony.n; i++) put(nF > 1 ? 1 + i % (nF - 1) : 0, mk('balcony'));
   for (let i = 0; i < R.lounge.n; i++) put(best(f => f > 0), mk('lounge'));
   ['study', 'store'].forEach(k => { for (let i = 0; i < R[k].n; i++) put(best(() => true), mk(k)); });
-  return { floors: fl.map((rooms, f) => Object.assign(packFloor(rooms, A.w, A.d), { f })), A };
+  const floors = fl.map((rooms, f) => Object.assign(packFloor(rooms, A.w, A.d), { f }));
+  // small plots: the puja is a 5 × 5 ft corner of the living room, in a corner away from the toilets
+  if (R.puja.n && R.puja.c === 'corner' && R.living.n) { const G = floors[0], lv = G.rooms.find(r => r.k === 'living' && !r.over);
+    if (lv) for (const [cx, cy] of [[1, 0], [0, 0], [1, 1], [0, 1]]) { const P = { k: 'puja', s: 'Puja', x: lv.x + cx * (lv.w - 5), y: lv.y + cy * (lv.d - 5), w: 5, d: 5, inner: true }; if (!rqClash(P, { x: P.x, y: P.y, w: 5, h: 5 }, G.rooms)) { G.rooms.push(P); break; } } }
+  return { floors, A };
 }
 // fit the rooms into the house rectangle (max-rects packing). Road-side rooms (z 0) go to the front, service rooms (z 2) to the back.
 // The stair goes in first, so it sits in the same place on every floor. 10% is kept for walls and the passage.
-const WALLS = 0.1;
+const WALLS = 0.1, RQ_WET = ['ctoilet', 'atoilet'];
+function rqClash(it, R, placed) {
+  const other = it.k === 'puja' ? RQ_WET : RQ_WET.includes(it.k) ? ['puja'] : null; if (!other) return false;
+  return placed.some(o => other.includes(o.k) && shareLen(R, { x: o.x, y: o.y, w: o.w, h: o.d }) > 0.05);
+}
 function packFloor(rooms, W, D) {
   let free = W > 0 && D > 0 ? [{ x: 0, y: 0, w: W, h: D }] : [];
   const out = [], miss = [], first = r => r.k === 'stair' ? 0 : r.k === 'lift' ? 1 : 2;
@@ -6166,6 +6392,7 @@ function packFloor(rooms, W, D) {
     (it.fix ? [[it.w, it.d]] : [[it.w, it.d], [it.d, it.w]]).forEach(([w, h]) => free.forEach(fr => {
       if (w > fr.w + 1e-6 || h > fr.h + 1e-6) return;
       [[fr.x, fr.y], [fr.x, fr.y + fr.h - h], [fr.x + fr.w - w, fr.y], [fr.x + fr.w - w, fr.y + fr.h - h]].forEach(([x, y]) => {
+        if (rqClash(it, { x, y, w, h }, out)) return; // puja and toilet never share a wall
         const band = it.z === 0 ? D - (y + h) : it.z === 2 ? y : 0, fit = Math.min(fr.w - w, fr.h - h);
         const sc = band * 4 + fit + (it.k === 'stair' ? x : 0) * 0.01;
         if (!best || sc < best.sc - 1e-9) best = { sc, x, y, w, h };
@@ -6210,7 +6437,7 @@ function reqPlanSvg(C, view) {
   if (F) {
     F.rooms.forEach(r => {
       const X = sb.s + r.x, Y = sb.r + r.y, over = r.over, small = Math.min(r.w, r.d) < 6.5, f1 = Math.min(fs, r.w / 5.2, r.d / 2.4);
-      g += '<g class="rqr"><rect x="' + X + '" y="' + Y + '" width="' + r.w + '" height="' + r.d + '" fill="' + (over ? '#FBE1DE' : RQ_FILL[r.k] || '#eee') + '" stroke="' + (over ? '#C0392B' : '#24323D') + '" stroke-width="' + fs / 10 + '"' + (over ? ' stroke-dasharray="' + fs / 2 + ' ' + fs / 3 + '"' : '') + '/>' +
+      g += '<g class="rqr"><rect x="' + X + '" y="' + Y + '" width="' + r.w + '" height="' + r.d + '" fill="' + (over ? '#FBE1DE' : RQ_FILL[r.k] || '#eee') + '" stroke="' + (over ? '#C0392B' : '#24323D') + '" stroke-width="' + fs / 10 + '"' + (over || r.inner ? ' stroke-dasharray="' + fs / 2 + ' ' + fs / 3 + '"' : '') + '/>' +
         t(X + r.w / 2, Y + r.d / 2 - (small ? 0 : f1 * 0.1), esc(r.s), 'font-size:' + f1 + 'px;font-weight:600;fill:' + (over ? '#C0392B' : '#24323D')) +
         (small ? '' : t(X + r.w / 2, Y + r.d / 2 + f1 * 1.05, ft2(r.w) + ' × ' + ft2(r.d), 'font-size:' + f1 * 0.82 + 'px;fill:#5B6670')) + '</g>';
     });
@@ -6251,7 +6478,7 @@ SCR.home = () => {
   if (use === 'rent') return '<h2 class="q">Your rental units.</h2>' + rentSetupUI();
   if (!h.req) { // first visit: start from a list that fits this plot
     const R0 = reqState();
-    for (const k of ['balcony', 'puja', 'atoilet', 'parking', 'atoilet', 'bed', 'bed']) { if (reqCheck().ok) break; if (k === 'puja') h.pooja = false; else if (k === 'parking') h.park.kind = R0.parking.c === 'both' ? '4w' : R0.parking.c === '4w' ? '2w' : h.park.kind; else if (R0[k].n) R0[k].n--; reqSync(); reqState(); }
+    for (const k of ['puja', 'balcony', 'puja', 'atoilet', 'parking', 'atoilet', 'bed', 'bed']) { if (reqCheck().ok) break; if (k === 'puja') { if (R0.puja.c !== 'corner') R0.puja.c = 'corner'; else h.pooja = false; } else if (k === 'parking') h.park.kind = R0.parking.c === 'both' ? '4w' : R0.parking.c === '4w' ? '2w' : h.park.kind; else if (R0[k].n) R0[k].n--; reqSync(); reqState(); }
     reqSync();
   }
   const R = reqState(), C = reqCheck(), A = C.P.A, nF = h.floors;

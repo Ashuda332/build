@@ -13,6 +13,8 @@ window.placementChecks = function placementChecks(D, o) {
         if (room.subs.some(s => ovl(p, s) > 0.04)) tag(p, 'inside a bath / pooja sub-room');
         // door leaves: every swing on the floor, including doors of neighbouring rooms that open into this one
         SW.forEach(s => { if (s.sq ? hitSwing(p, s) : ovl(p, s) > 0.04) tag(p, 'in a door swing'); });
+        // nothing big right in front of a door: at least 2 ft clear (3 ft wherever the room allows; the kitchen platform along its walls is let off)
+        if (!['counter', 'hob', 'sink', 'chair'].includes(p.role) && !p.pinned && roomEntries(D, o, F, room).some(([x, y]) => ovl(p, { x: x - 1, y: y - 1, w: 2, h: 2 }) > 0.04)) tag(p, 'in front of a door');
         solids.slice(i + 1).forEach(q => { const tucked = (p.role === 'dtable' && q.role === 'chair' && (p.parts || []).includes(q)) || (q.role === 'dtable' && p.role === 'chair' && (q.parts || []).includes(p)); if (!tucked && ovl(p, q) > 0.04) tag(p, 'overlaps ' + q.role); });
         // tall pieces must not stand in front of a window or french door
         if (TALL.includes(p.role)) ops.filter(op => op.kind === 'window' || op.kind === 'french').forEach(op => {
@@ -27,5 +29,7 @@ window.placementChecks = function placementChecks(D, o) {
       if (ent.length && walkCheck(room, [], ent, []) && !walkCheck(room, solids, ent, targets)) out.push({ floor: F.fi, room: room.type, role: '-', msg: 'walking path blocked', rect: [] });
     });
   });
+  // Vastu: the pooja never shares a wall with a toilet, and no toilet sits above it
+  o.floors.forEach(F => F.rooms.forEach(room => room.subs.forEach(s => { if (s.type === 'pooja' && poojaClash(o.floors, F, s)) out.push({ floor: F.fi, room: room.type, role: 'pooja', msg: 'pooja next to or under a toilet', rect: [s.x, s.y, s.w, s.h] }); })));
   return out;
 };
