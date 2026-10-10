@@ -718,7 +718,7 @@ main.homew{max-width:1180px}
 .hm-plan{position:sticky;top:72px}
 .hm-card{background:var(--soft);border:1px solid var(--line2);border-radius:22px;padding:14px}
 .hm-tabs{margin:0 auto 10px}
-.rqplan{display:block;width:100%;height:auto;max-height:calc(100vh - 290px);background:#fff;border-radius:16px}.rqplan text{font-family:var(--font)}
+.hm-plan #planbox svg{max-height:calc(100vh - 250px)}@media (max-width:860px){.hm-plan{position:static}.hm-plan #planbox svg{max-height:62vh}}.ar-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 10px}.ar-sum>div{background:var(--soft);border:1px solid var(--line2);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column}.ar-sum span{font-size:12px;color:#6B7680}.ar-sum b{font-size:16px}.ar-sum small{font-size:11.5px;color:#6B7680}.fit-g{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.fit-c{border:1.5px solid var(--line2);background:var(--soft);border-radius:12px;padding:9px 8px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit}.fit-c b{font-size:15px}.fit-c em{font-style:normal;font-size:12px;font-weight:600}.fit-c span,.fit-c small{font-size:11px;color:#6B7680}.fit-c.ok em{color:#1E7F4F}.fit-c.tight em{color:#A86A00}.fit-c.no em{color:#C0392B}.fit-c.no{opacity:.75}.fit-c.on{border-color:var(--ink,#1B2630);box-shadow:0 0 0 2px var(--ink,#1B2630) inset}.fit-c[disabled]{cursor:default}.hm-chk{border-radius:12px;padding:10px 12px;border:1.5px solid}.hm-chk b{font-size:15px}.hm-chk p{margin:4px 0}.hm-chk ul{margin:4px 0 4px 18px;padding:0;font-size:13px}.hm-chk.ok{border-color:#9ED3B5;background:#EEF9F2}.hm-chk.ok b{color:#1E7F4F}.hm-chk.tight{border-color:#F0CF8A;background:#FFF7E6}.hm-chk.tight b{color:#A86A00}.hm-chk.no{border-color:#EDA9A1;background:#FDEEEC}.hm-chk.no b{color:#C0392B}.hm-fx-l{font-size:13px;font-weight:600;margin-top:8px}.hm-fx i{font-style:normal;font-size:11px;margin-left:6px;opacity:.8}.hm-ph{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.hm-3d{margin-top:6px}html[data-theme="dark"] .hm-chk.ok{background:#12261C}html[data-theme="dark"] .hm-chk.tight{background:#2A2210}html[data-theme="dark"] .hm-chk.no{background:#2B1614}html[data-theme="dark"] .hm-chk p,html[data-theme="dark"] .hm-chk li{color:#DCE3E8}@media (max-width:860px){.ar-sum{grid-template-columns:repeat(2,1fr)}.fit-g{grid-template-columns:repeat(3,1fr)}}.rqplan{display:block;width:100%;height:auto;max-height:calc(100vh - 290px);background:#fff;border-radius:16px}.rqplan text{font-family:var(--font)}
 .rqr rect{transition:fill .2s}
 .rq-bar{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;font-size:12.5px;color:var(--mute);margin-top:8px}
 .rq-bar div{height:6px;border-radius:99px;background:var(--line2);overflow:hidden}.rq-bar i{display:block;height:100%;border-radius:99px;background:var(--gold);transition:width .3s}
@@ -6015,9 +6015,11 @@ function tierBrief(noGrid) {
   const sf = ST.home.use === 'rent' ? null : isVilla() ? villaFit(B.w, B.d, B.bhk, B.vt) : siteFit(B.w, B.d, B.bhk, B.park.kind);
   const shp = ST.plot.mode === 'sides' && ST.plot.shape ? ST.plot.shape : null;
   if (sf) { B.w = sf.Wv; B.d = sf.Dv; B.site = sf; if (shp) B.site = Object.assign({}, sf, { shape: shp }); } else if (shp) B.shape = shp;
-  if (!noGrid && ST.grid && ST.grid.base === JSON.stringify(B)) B.grid = ST.grid;
+  if (!noGrid && ST.grid && ST.grid.base === gridKey(B)) B.grid = ST.grid;
   return B;
 }
+// what the room grid depends on (not the budget, style or paint), so a resized plan survives those choices
+function gridKey(B) { const c = Object.assign({}, B); ['tier', 'paint', 'style', 'finish', 'grid'].forEach(k => delete c[k]); return JSON.stringify(c); }
 function designNow() {
   const b = tierBrief(), key = JSON.stringify(b);
   if (!S.design || S.design.key !== key) {
@@ -6275,7 +6277,7 @@ function setbackUI() {
   const sb = setbackOf(), mx = setbackMax(sb);
   const fld = k => '<label><span>' + SB_LAB[k] + '</span><div class="inp"><input type="number" inputmode="decimal" min="0" max="' + mx[k] + '" step="0.5" data-sb="' + k + '" value="' + sb[k] + '" aria-describedby="sbmsg"><i>ft</i></div></label>';
   return '<div id="sbui"><h3 class="q2">Open space around the house (setback)</h3><div class="card sb"><p class="hint sb-lead">Type how many feet to leave open on each side.</p><div class="fields three">' + fld('f') + fld('r') + fld('s') + '</div>' +
-    '<p class="hint" id="sbmsg" aria-live="polite">' + setbackHint(sb) + '</p></div></div>';
+    '<p class="hint" id="sbmsg" aria-live="polite">' + setbackHint(sb) + '</p><div id="areasum">' + areaSumHtml() + '</div></div></div>';
 }
 // typing a setback: apply it when it leaves room for the house, otherwise explain and keep the last good value
 function setbackType(t) {
@@ -6290,6 +6292,7 @@ function setbackType(t) {
   const sb = setbackOf(), mx = setbackMax(sb);
   document.querySelectorAll('#sbui [data-sb]').forEach(x => x.max = mx[x.dataset.sb]);
   if (msg) msg.innerHTML = setbackHint(sb, err);
+  { const as = document.getElementById('areasum'); if (as) as.innerHTML = areaSumHtml(); }
   const nb = document.querySelector('[data-a="next"]'); if (nb) nb.disabled = !canNext();
 }
 function spaceUI(h) { const v = h.space || 'balanced'; return '<h3 class="q2">How should it feel?</h3><div class="opts three space">' + SPACE_OPT.map(o => '<button class="opt' + (v === o[0] ? ' on' : '') + '" data-a="space" data-v="' + o[0] + '"><b>' + o[1] + '</b><span>' + o[2] + '</span></button>').join('') + '</div><ul class="sp-tips">' + SPACE_TIPS[v].map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>'; }
@@ -6472,26 +6475,132 @@ function reqPanel(R) {
   });
   return secs.map(x => '<section class="rq-sec"><h4>' + esc(x.t) + '</h4>' + x.h + '</section>').join('');
 }
+/* ---------- Home: what fits on the plot, the owner's requirements, a space check, and the real 2D plan ----------
+   Room sizes are practical minimums in ft (width × depth). They sit above the legal minimums of the National Building Code
+   2016 (a habitable room at least 9.5 m² ≈ 102 sq ft and 2.4 m wide, a kitchen 5 m², a bath + WC 2.8 m²), so furniture and a
+   door swing fit. Passages and the lobby add 12% to the rooms, walls take 13% of the built-up area, a stair takes about
+   105 sq ft on every floor, and a big floor keeps 3% for light and ventilation shafts. */
+const FIT_PROG = [
+  { n: '1RK', bhk: 0, minW: 12, rooms: [['Room', 10, 12], ['Kitchenette', 6, 7], ['Toilet', 5, 7]] },
+  { n: '1BHK', bhk: 1, minW: 15, rooms: [['Living', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 7, 8], ['Toilet', 5, 7]] },
+  { n: '2BHK', bhk: 2, minW: 18, rooms: [['Living', 11, 12], ['Master bedroom', 11, 11], ['Bedroom', 10, 10], ['Kitchen', 8, 8], ['Toilet', 5, 7], ['Toilet', 5, 7]] },
+  { n: '3BHK', bhk: 3, minW: 20, rooms: [['Living', 12, 13], ['Dining', 8, 10], ['Master bedroom', 11, 12], ['Bedroom', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 8, 10], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7]] },
+  { n: '4BHK', bhk: 4, minW: 22, rooms: [['Living', 13, 14], ['Dining', 9, 10], ['Master bedroom', 12, 12], ['Bedroom', 11, 11], ['Bedroom', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 9, 10], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7]] },
+  { n: '5BHK', bhk: 5, minW: 24, rooms: [['Living', 14, 15], ['Dining', 10, 10], ['Master bedroom', 12, 13], ['Bedroom', 11, 12], ['Bedroom', 11, 11], ['Bedroom', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 9, 11], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7]] }
+];
+const FIT_SPACE = { compact: { k: 0.9, circ: 0.1, n: 'Compact' }, balanced: { k: 1, circ: 0.12, n: 'Balanced' }, spacious: { k: 1.25, circ: 0.15, n: 'Spacious' } };
+const FIT_WALL = 0.13, FIT_STAIR = 105, FIT_PARK = { none: 0, '2w': 42, '4w': 180, both: 252 };
+// the plot, the buildable rectangle after the open space, and what a floor can hold
+function areaFacts() {
+  const p = ST.plot, sb = setbackOf(), W = Math.max(0, p.w - 2 * sb.s), D = Math.max(0, p.d - sb.f - sb.r), land = Math.round(p.area || p.w * p.d);
+  return { land, W, D, foot: Math.round(W * D), pct: land ? Math.round(W * D / land * 100) : 0, open: Math.max(0, land - Math.round(W * D)), carpet: Math.round(W * D * (1 - FIT_WALL)) };
+}
+// sq ft a home needs, built up, for a room program on this many floors
+function fitNeed(prog, o) {
+  const S = FIT_SPACE[o.space] || FIT_SPACE.balanced, rooms = prog.rooms.reduce((a, r) => a + r[1] * r[2], 0) * S.k + (o.pooja ? 20 : 0);
+  const net = rooms * (1 + S.circ), built = net / (1 - FIT_WALL), stair = FIT_STAIR * o.floors, park = FIT_PARK[o.park] || 0;
+  const foot = o.foot, shaft = foot > 800 ? 0.03 * foot * o.floors : 0;
+  // the ground floor holds the parking, the stair, living, kitchen and a toilet at least
+  const gRooms = prog.rooms.filter(r => /Living|Room|Kitchen|Toilet/.test(r[0])).slice(0, 3).reduce((a, r) => a + r[1] * r[2], 0) * S.k;
+  const gNeed = park + FIT_STAIR + gRooms * (1 + S.circ) / (1 - FIT_WALL);
+  return { rooms: Math.round(rooms), need: Math.round(built + stair + park + shaft), gNeed: Math.round(gNeed) };
+}
+// one verdict: ok (comfortable), tight (fits at minimum sizes) or no (does not fit)
+function fitVerdict(prog, o) {
+  const A = areaFacts(), avail = A.foot * o.floors, N = fitNeed(prog, Object.assign({ foot: A.foot }, o)), ratio = avail ? N.need / avail : 9;
+  let st = ratio <= 0.85 ? 'ok' : ratio <= 1 ? 'tight' : 'no', why = '';
+  if (A.W < prog.minW) { st = 'no'; why = 'the house area is only ' + ftx(A.W) + ' ft wide; a ' + prog.n + ' needs ' + prog.minW + ' ft for rooms and a passage side by side'; }
+  else if (N.gNeed > A.foot) { st = 'no'; why = 'the ground floor needs about ' + N.gNeed.toLocaleString('en-IN') + ' sq ft for ' + (o.park !== 'none' ? 'parking, ' : '') + 'the stair, living, kitchen and a toilet, but has ' + A.foot.toLocaleString('en-IN'); }
+  else if (st === 'no') why = 'it needs about ' + N.need.toLocaleString('en-IN') + ' sq ft built up; ' + (o.floors > 1 ? o.floors + ' floors give ' : 'the floor gives ') + avail.toLocaleString('en-IN');
+  return { st, ratio, need: N.need, avail, why, prog };
+}
+const fitOpts = h => ({ floors: h.floors, space: h.space || 'balanced', park: h.park.kind, pooja: !!h.pooja });
+const FIT_LAB = { ok: 'Comfortable', tight: 'Tight — rooms at minimum size', no: 'Too small' };
+// rooms in the drawn plan that are under the practical minimum
+function planShort(D, o) {
+  const out = [], L = (R, F) => F.label + ' ' + roomLabel(R, F, D).toLowerCase() + ' (' + ftIn(R.rect.w) + ' × ' + ftIn(R.rect.h) + ')';
+  o.floors.forEach(F => F.rooms.forEach(R => { if (R.void) return; const a = Math.min(R.rect.w, R.rect.h);
+    if (['master', 'bedroom'].includes(R.type) && a < 9.85) out.push(L(R, F) + ' is under 10 ft across');
+    if (R.type === 'kitchen' && a < 6.9) out.push(L(R, F) + ' is under 7 ft across');
+    if (R.type === 'living' && a < 9.85) out.push(L(R, F) + ' is under 10 ft across');
+    if (R.type === 'stair' && a < 6.5) out.push(L(R, F) + ' is too narrow for a stair');
+    if (R.type === 'parking' && D.brief.park && ['4w', 'both'].includes(D.brief.park.kind) && (a < 9 || Math.max(R.rect.w, R.rect.h) < 15)) out.push(L(R, F) + ' is too small for a car (needs about 9 × 15 ft)');
+    if (R.type === 'dining' && a < 7) out.push(L(R, F) + ' is under 7 ft across');
+    if (R.type === 'passage' && a < 3) out.push(L(R, F) + ' is under 3 ft wide');
+    (R.subs || []).forEach(x => { if (x.type === 'bath' && Math.min(x.w, x.h) < 4) out.push(F.label + ' bath in the ' + roomLabel(R, F, D).toLowerCase() + ' is under 4 ft across'); }); }));
+  return out;
+}
+// the whole check for the current requirements: estimate, the drawn plan, and what to change
+function homeCheck(D, o) {
+  const h = ST.home, P = FIT_PROG[Math.min(5, Math.max(1, h.bhk))], V = fitVerdict(P, fitOpts(h)), short = o ? planShort(D, o) : ['No layout could be drawn.'];
+  const notes = (D ? D.warn : []).concat(o && o.walkNote ? [o.walkNote] : []);
+  let st = V.st; if (short.length && st === 'ok') st = 'tight'; if (!o) st = 'no';
+  // the smallest changes that make it fit: one change first, then two together
+  const fixes = [];
+  if (st !== 'ok') {
+    const cur = { bhk: h.bhk, floors: h.floors, space: h.space || 'balanced', park: h.park.kind }, ch = [];
+    if (h.bhk > 1) ch.push({ bhk: h.bhk - 1 }); if (h.bhk > 2) ch.push({ bhk: h.bhk - 2 });
+    if (h.floors < 3) ch.push({ floors: h.floors + 1 }); if (h.floors < 2) ch.push({ floors: 3 });
+    if (cur.space !== 'compact') ch.push({ space: 'compact' });
+    if (cur.park === '4w' || cur.park === 'both') ch.push({ park: '2w' }); if (cur.park !== 'none') ch.push({ park: 'none' });
+    const lab = c => Object.keys(c).map(k => k === 'bhk' ? c.bhk + ' BHK instead' : k === 'floors' ? 'build ' + ['', 'ground only', 'G + 1', 'G + 2'][c.floors] : k === 'space' ? 'compact rooms' : c.park === 'none' ? 'no parking' : 'bike parking only').join(' and ');
+    // a bigger change than one already offered (fewer bedrooms, more floors) is not worth showing
+    const worse = c => fixes.some(f => { const a = f.c; if (Object.keys(a).sort().join() !== Object.keys(c).sort().join()) return false; return Object.keys(c).every(k => k === 'bhk' ? a.bhk >= c.bhk : k === 'floors' ? a.floors <= c.floors : a[k] === c[k]); });
+    const test = c => { const o2 = Object.assign({}, cur, c); return fitVerdict(FIT_PROG[Math.min(5, Math.max(1, o2.bhk))], { floors: o2.floors, space: o2.space, park: o2.park, pooja: !!h.pooja }).st; };
+    const seen = new Set(), add = c => { const key = JSON.stringify(c); if (seen.has(key) || worse(c)) return; seen.add(key); const t = test(c); if (t === 'ok' || (t === 'tight' && st === 'no')) fixes.push({ lab: lab(c).replace(/^./, x => x.toUpperCase()), c, st: t }); };
+    ch.forEach(add);
+    if (fixes.filter(f => f.st === 'ok').length < 2) ch.forEach((a, x) => ch.forEach((b2, y) => { if (y <= x || Object.keys(a).some(k => k in b2)) return; add(Object.assign({}, a, b2)); }));
+    fixes.sort((a, b2) => (a.st === 'ok' ? 0 : 1) - (b2.st === 'ok' ? 0 : 1) || Object.keys(a.c).length - Object.keys(b2.c).length); fixes.splice(4);
+  }
+  return { st, V, short, notes, fixes };
+}
+function fitCards() {
+  const h = ST.home, o = fitOpts(h);
+  return '<div class="fit-g">' + FIT_PROG.slice(0, 5).map(P => { const V = fitVerdict(P, o), on = P.bhk && h.bhk === P.bhk;
+    return '<button class="fit-c ' + V.st + (on ? ' on' : '') + '"' + (P.bhk ? ' data-a="hbhk" data-v="' + P.bhk + '"' : ' disabled') + ' title="' + esc(V.why || '') + '"><b>' + P.n + '</b><em>' + FIT_LAB[V.st].replace(' — rooms at minimum size', '') + '</em><span>' + V.need.toLocaleString('en-IN') + ' of ' + V.avail.toLocaleString('en-IN') + ' sq ft</span>' + (P.bhk ? '' : '<small>For reference: plans start at 1 BHK</small>') + '</button>'; }).join('') + '</div>';
+}
+function areaSumHtml() {
+  const A = areaFacts(), n = v => v.toLocaleString('en-IN');
+  return '<div class="ar-sum"><div><span>Plot area</span><b>' + n(A.land) + ' sq ft</b><small>your whole land</small></div><div><span>Buildable area</span><b>' + n(A.foot) + ' sq ft</b><small>' + ftx(A.W) + ' × ' + ftx(A.D) + ' ft a floor · ' + A.pct + '% of the plot</small></div><div><span>Open space</span><b>' + n(A.open) + ' sq ft</b><small>setbacks, left open</small></div><div><span>Usable inside</span><b>≈ ' + n(A.carpet) + ' sq ft</b><small>a floor, after walls</small></div></div>';
+}
 SCR.home = () => {
   const h = ST.home, use = h.use || 'family';
   if (use === 'apartment' || use === 'commercial') return '<h2 class="q">' + (use === 'apartment' ? 'Your apartment building.' : 'Your commercial building.') + '</h2>' + projSetupUI();
   if (use === 'rent') return '<h2 class="q">Your rental units.</h2>' + rentSetupUI();
-  if (!h.req) { // first visit: start from a list that fits this plot
-    const R0 = reqState();
-    for (const k of ['puja', 'balcony', 'puja', 'atoilet', 'parking', 'atoilet', 'bed', 'bed']) { if (reqCheck().ok) break; if (k === 'puja') { if (R0.puja.c !== 'corner') R0.puja.c = 'corner'; else h.pooja = false; } else if (k === 'parking') h.park.kind = R0.parking.c === 'both' ? '4w' : R0.parking.c === '4w' ? '2w' : h.park.kind; else if (R0[k].n) R0[k].n--; reqSync(); reqState(); }
-    reqSync();
-  }
-  const R = reqState(), C = reqCheck(), A = C.P.A, nF = h.floors;
-  let view = h.view == null ? 0 : h.view; if (view !== 'roof' && view >= nF) view = 0; if (view === 'roof' && !R.terrace.n) view = 0;
+  h.split = 'house'; if (h.bhk > 5) h.bhk = 5;
+  const ds = designNow(), D = ds.D, o = D.options[ds.opt] || null, nF = o ? o.floors.length : 1, isRoof = o && ds.floor >= nF, F = o ? o.floors[Math.min(ds.floor, nF - 1)] : null;
+  const C = homeCheck(D, o), A = areaFacts(), chip = (a, v, cur, lab, extra) => '<button class="rq-c' + (cur ? ' on' : '') + '" data-a="' + a + '" data-v="' + v + '"' + (extra || '') + '>' + lab + '</button>';
   const vt = ESTATE[ST.vtype] ? ST.vtype : 'villa';
-  const villa = use === 'villa' ? '<div class="rq-sec"><h4>Ultra luxury collection</h4><div class="rq-cats">' + Object.keys(ESTATE).map(k => '<button class="rq-c' + (vt === k ? ' on' : '') + '" data-a="vtype" data-v="' + k + '">' + esc(ESTATE[k].n) + '</button>').join('') + '</div></div>' : '';
-  const tabs = FLOOR_NAME.slice(0, nF).map((n, f) => '<button class="' + (view === f ? 'on' : '') + '" data-a="hview" data-v="' + f + '">' + n.replace(' floor', '') + '</button>').join('') + (R.terrace.n ? '<button class="' + (view === 'roof' ? 'on' : '') + '" data-a="hview" data-v="roof">Roof</button>' : '');
-  const cap = Math.round(A.w * A.d), bars = C.P.floors.map(F => { const u = Math.round(F.area), pc = Math.min(100, u / Math.max(1, cap) * 100); return '<div class="rq-bar' + (F.ok ? '' : ' bad') + '"><span>' + FLOOR_NAME[F.f] + '</span><div><i style="width:' + pc + '%"></i></div><em>' + u.toLocaleString('en-IN') + ' / ' + cap.toLocaleString('en-IN') + ' sq ft</em></div>'; }).join('');
-  return '<h2 class="q">Your home.</h2><p class="sub">Add the rooms you want. The plan on the left draws them as you go, on your ' + ft2(A.w) + ' × ' + ft2(A.d) + ' ft house area (' + cap.toLocaleString('en-IN') + ' sq ft a floor).</p>' +
-    '<div class="hm"><div class="hm-plan"><div class="hm-card"><div class="seg2 sm hm-tabs">' + tabs + '</div><div id="rqplan">' + reqPlanSvg(C, view) + '</div>' + bars +
-    (C.ok ? '<p class="rq-ok">Everything fits. Free space stays open as passage and light.</p>' : '<p class="rq-err" role="alert">' + esc(C.msg) + '</p>') + '</div></div>' +
-    '<div class="hm-req"><div class="rq-sec"><h4>Floors</h4><div class="rq-cats">' + ['Ground', 'G + 1', 'G + 2'].map((n, i) => '<button class="rq-c' + (nF === i + 1 ? ' on' : '') + '" data-a="hfloors" data-v="' + (i + 1) + '">' + n + '</button>').join('') +
-    '<button class="rq-c' + (h.vastu ? ' on' : '') + '" data-a="tog" data-v="vastu">Follow Vastu</button></div></div>' + villa + reqPanel(R) + '</div></div>';
+  // the plan: the same drawing the final design uses — resize rooms by dragging the gold lines, zoom, measure
+  let plan = '<div class="hm-card"><div class="ph hm-ph"><div class="seg2 sm">' + (o ? o.floors.map((x, i) => '<button class="' + (!isRoof && i === ds.floor ? 'on' : '') + '" data-a="floor" data-v="' + i + '">' + esc(x.label.replace(' floor', '')) + '</button>').join('') + '<button class="' + (isRoof ? 'on' : '') + '" data-a="floor" data-v="' + nF + '">Roof</button>' : '') + '</div>' +
+    (o ? '<div class="seg2 sm">' + (o.custom ? '<button class="on">Yours</button><button data-a="gridreset">Reset</button>' : D.options.map((x, i) => '<button class="' + (i === ds.opt ? 'on' : '') + '" data-a="opt" data-v="' + i + '" title="Layout ' + x.id + '">' + x.id + '</button>').join('')) + '</div>' : '') +
+    (o && !isRoof ? '<button class="tog vtog' + (ds.edit ? ' on' : '') + '" data-a="gedit"><span class="dot"></span>Resize rooms</button><button class="tog vtog' + (ds.meas ? ' on' : '') + '" data-a="meas"><span class="dot"></span>Measure</button>' : '') + '</div>';
+  if (o) plan += (ds.edit && !isRoof ? '<p class="edit-hint">Drag a gold line. The rooms on both sides change together, on every floor. Sizes update as you drag.</p>' : '') +
+    '<div id="planbox" class="' + (ds.edit && !isRoof ? 'editing' : ds.meas && !isRoof ? 'measuring' : '') + '">' + (ds.meas && !isRoof ? '<p class="edit-hint">Click two points on the plan to measure between them.</p>' : '') + (isRoof ? roofPlanSvg(D, o) : planSvg(D, o, F, { furn: !ds.edit, edit: ds.edit })) + '<div id="gtip" hidden></div></div>';
+  else plan += '<p class="warn">No layout fits these requirements on this plot. Try one of the changes on the right.</p>';
+  plan += '<p class="hint hm-3d">This plan is the one you get: the 3D in the last step is built from it, with your changes.</p></div>';
+  // 1 · what fits
+  const fit = '<section class="rq-sec"><h4>1 · What fits on your plot</h4>' + areaSumHtml() + '<p class="hint">For ' + ['', 'one floor', 'G + 1', 'G + 2'][h.floors] + (h.park.kind !== 'none' ? ' with ' + { '2w': 'bike', '4w': 'car', both: 'car and bike' }[h.park.kind] + ' parking' : '') + '. Needs count real minimum room sizes, walls, passages, the stair' + (h.floors > 1 ? 's' : '') + ' and light shafts. Tap one to plan it.</p>' + fitCards() + '</section>';
+  // 2 · your requirements
+  const req = '<section class="rq-sec"><h4>2 · Your requirements</h4>' +
+    '<div class="bm"><b>Floors</b><div class="rq-cats">' + ['Ground', 'G + 1', 'G + 2'].map((n, i) => chip('hfl', i + 1, h.floors === i + 1, n)).join('') + '</div></div>' +
+    '<div class="bm"><b>Bedrooms</b><div class="rq-cats">' + [1, 2, 3, 4, 5].map(k => chip('hbhk', k, h.bhk === k, k + ' BHK')).join('') + '</div></div>' +
+    '<div class="bm"><b>Room sizes</b><div class="rq-cats">' + Object.keys(FIT_SPACE).map(k => { const S = FIT_SPACE[k], bd = Math.round(10 * Math.sqrt(S.k) * 2) / 2; return chip('hspace', k, (h.space || 'balanced') === k, S.n + '<i>bedroom ≈ ' + bd + ' × ' + bd + ' ft</i>'); }).join('') + '</div></div>' +
+    '<div class="bm"><b>Parking</b><div class="rq-cats">' + [['none', 'None'], ['2w', 'Bike'], ['4w', 'Car'], ['both', 'Car + bike']].map(x => chip('pk', x[0], h.park.kind === x[0], x[1])).join('') + '</div></div>' +
+    '<div class="bm"><b>More</b><div class="rq-cats">' + chip('tog', 'pooja', h.pooja, 'Puja room') + chip('tog', 'vastu', h.vastu, 'Follow Vastu') + '</div></div>' +
+    (h.floors > 1 ? '<div class="bm"><b>Balcony</b><div class="rq-cats">' + Object.keys(BALC).filter(k => BALC[k].t <= TI[ST.tier]).map(k => chip('balc', k, (ST.balc || 'none') === k, esc(BALC[k].n))).join('') + '</div></div>' +
+      '<div class="bm"><b>Roof</b><div class="rq-cats">' + chip('roof', 'single', (h.roof || 'single') === 'single', 'One roof') + chip('roof', 'multi', h.roof === 'multi', 'Stepped terraces') + '</div></div>' : '') +
+    (use === 'villa' ? '<div class="bm"><b>Estate</b><div class="rq-cats">' + Object.keys(ESTATE).map(k => chip('vtype', k, vt === k, esc(ESTATE[k].n))).join('') + '</div></div>' : '') + '</section>';
+  // 3 · space check
+  const msg = C.st === 'ok' ? 'Your ' + h.bhk + ' BHK needs about ' + C.V.need.toLocaleString('en-IN') + ' sq ft built up of the ' + C.V.avail.toLocaleString('en-IN') + ' sq ft you can build, so rooms keep a little extra room.'
+    : C.st === 'tight' ? 'It fits, but rooms are at their minimum size' + (C.short.length ? '' : ' (' + C.V.need.toLocaleString('en-IN') + ' of ' + C.V.avail.toLocaleString('en-IN') + ' sq ft)') + '. It will not feel spacious.'
+    : (C.V.st === 'no' ? 'This does not fit: ' + C.V.why + '.' : 'The drawn plan squeezes rooms below a livable size.') + ' Change something below.';
+  const chk = '<section class="rq-sec"><h4>Space check</h4><div class="hm-chk ' + C.st + '" role="status"><b>' + esc(FIT_LAB[C.st]) + '</b><p>' + esc(msg) + '</p>' +
+    (C.short.length ? '<ul>' + C.short.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '') + (C.notes.length ? '<ul class="hm-notes">' + C.notes.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '') +
+    (!C.fixes.length && C.st === 'no' ? '<p class="hm-fx-l">Even the smallest home does not fit with this open space. Go back to the Plot step and leave less open space, if your authority allows it.</p>' : '') +
+    (C.fixes.length ? '<p class="hm-fx-l">Better options for this plot:</p><div class="rq-cats">' + C.fixes.map(f => '<button class="rq-c hm-fx ' + f.st + '" data-a="hfix" data-v="' + esc(JSON.stringify(f.c)) + '">' + esc(f.lab) + '<i>' + FIT_LAB[f.st].replace(' — rooms at minimum size', '') + '</i></button>').join('') + '</div>' : '') + '</div></section>';
+  return '<h2 class="q">Your home.</h2><p class="sub">Plot ' + A.land.toLocaleString('en-IN') + ' sq ft · you can build ' + ftx(A.W) + ' × ' + ftx(A.D) + ' ft (' + A.foot.toLocaleString('en-IN') + ' sq ft) a floor after the open space. Pick what you need; the plan redraws as you go.</p>' +
+    '<div class="hm"><div class="hm-plan">' + plan + '</div><div class="hm-req">' + chk + fit + req + '</div></div>';
 };
 // brands that belong to one range: options between the neighbouring ranges' defaults
 function tierBand(it, ti) {
@@ -6761,7 +6870,7 @@ function canNext() {
   const c = cur();
   if (c === 'purpose') return !!ST.purpose;
   if (c === 'plot') return ST.plot.w >= 15 && ST.plot.d >= 20;
-  if (c === 'home' && !isProj() && ST.home.use !== 'rent') return reqCheck().ok;
+  if (c === 'home' && !isProj() && ST.home.use !== 'rent') { const ds = designNow(), o = ds.D.options[ds.opt]; return !!o && homeCheck(ds.D, o).st !== 'no'; }
   if (c === 'budget' && isProj()) return projectLayout().ok;
   if (c === 'budget') { const ds = designNow(); return ds.D.options.length > 0; }
   return true;
@@ -8995,6 +9104,10 @@ const ACT = {
   rq: el => keepY(() => { const R = reqState(), q = RQ_BY[el.dataset.k], r = R[q.k]; r.n = Math.max(0, Math.min(q.max, r.n + +el.dataset.d)); if (['master', 'bed', 'guest'].includes(q.k) && rqBeds(R) > RQ_MAXBED) r.n -= rqBeds(R) - RQ_MAXBED; if (q.k === 'parking' && !r.c) r.c = '4w'; reqSync(); }),
   rqc: el => keepY(() => { const R = reqState(); R[el.dataset.k][el.dataset.g] = el.dataset.v; reqSync(); }),
   hfloors: el => keepY(() => { ST.home.floors = +el.dataset.v; const R = reqState(); if (ST.home.floors > 1 && !R.balcony.n && R._bal == null) { R.balcony.n = 1; R._bal = 1; } reqSync(); if (ST.home.view !== 'roof' && ST.home.view >= ST.home.floors) ST.home.view = 0; }),
+  hfl: el => keepY(() => { ST.home.floors = +el.dataset.v; if (S.design) S.design.floor = 0; if (ST.home.floors > 1 && (!ST.balc || ST.balc === 'none') && ST.home._balAuto == null) { ST.balc = 'cantilever'; ST.home._balAuto = 1; } }),
+  hbhk: el => keepY(() => { ST.home.bhk = +el.dataset.v; }),
+  hspace: el => keepY(() => { ST.home.space = el.dataset.v; }),
+  hfix: el => keepY(() => { const h = ST.home, c = JSON.parse(el.dataset.v); if (c.bhk) h.bhk = c.bhk; if (c.floors) { h.floors = c.floors; if (S.design) S.design.floor = 0; } if (c.space) h.space = c.space; if (c.park) h.park.kind = c.park; }),
   hview: el => keepY(() => { ST.home.view = el.dataset.v === 'roof' ? 'roof' : +el.dataset.v; }),
   balc: el => keepY(() => { ST.balc = el.dataset.v; }),
   pk: el => keepY(() => { const p = ST.home.park; p.kind = el.dataset.v; if (p.loc === 'rear') p.gali = Math.max(p.gali, p.kind === '2w' ? 4 : 10); }),
@@ -9137,7 +9250,7 @@ document.addEventListener('input', e => {
     e.preventDefault();
     const svg = g.ownerSVGElement, ds = S.design, o = ds.D.options[ds.opt] || ds.D.options[0], ctm = svg.getScreenCTM().inverse(), pt = svg.createSVGPoint();
     const at = ev => { pt.x = ev.clientX; pt.y = ev.clientY; return pt.matrixTransform(ctm); };
-    st = { gi: g.dataset.gi, p0: at(e), cols: o.G.cols.slice(), rows: o.G.rows.slice(), sig: o.sig, base: JSON.stringify(tierBrief(true)), at, ev: e };
+    st = { gi: g.dataset.gi, p0: at(e), cols: o.G.cols.slice(), rows: o.G.rows.slice(), sig: o.sig, base: gridKey(tierBrief(true)), at, ev: e };
     const move = ev => {
       if (!st) return; const p = st.at(ev), k = st.gi[0], i = +st.gi.slice(1), src = k === 'c' ? st.cols : st.rows, arr = src.slice(), tot = arr[i] + arr[i + 1];
       const d = k === 'c' ? p.x - st.p0.x : -(p.y - st.p0.y);
