@@ -41,10 +41,17 @@ const sb = await p.evaluate(() => {
     o.floors.forEach(F => F.rooms.forEach(R => { if (R.void) return; const q = R.rect; if (q.x < B.sL - 0.05 || q.x + q.w > B.w - B.sR + 0.05 || q.y < B.setR - 0.05 || q.y + q.h > B.d - B.setF + 0.05) bad++; }));
     out.push(bad);
   }
-  ST.home.setback = JSON.parse(keep); ST.step = flow().indexOf('plot'); render(); const ui = !!document.querySelector('#sbui [data-a="setb"]');
-  return { out, ui };
+  ST.home.setback = JSON.parse(keep); ST.plot = Object.assign({}, ST.plot, { w: 30, d: 40, mode: 'sides', sides: { f: 30, b: 30, l: 40, r: 40 }, area: 1200, shape: null }); ST.step = flow().indexOf('plot'); render();
+  return { out, ui: document.querySelectorAll('#sbui input[data-sb]').length };
 });
-assert.ok(sb.ui, 'setback chips on the plot step'); assert.deepEqual(sb.out, sb.out.map(() => 0), 'setbacks respected');
+assert.equal(sb.ui, 3, 'front, back and side setbacks are typed in on the plot step'); assert.deepEqual(sb.out, sb.out.map(() => 0), 'setbacks respected');
+// typing: any value that leaves a 15 x 22 ft house is taken; a value that does not fit is refused and explained
+await p.fill('#sbui [data-sb="f"]', '9.5'); await p.fill('#sbui [data-sb="s"]', '2');
+assert.deepEqual(await p.evaluate(() => [setbackOf().f, setbackOf().s]), [9.5, 2], 'typed setbacks are used');
+await p.fill('#sbui [data-sb="r"]', '20');
+assert.equal(await p.evaluate(() => setbackOf().r), 3, 'a back setback that leaves no room is refused');
+assert.match(await p.textContent('#sbmsg'), /at most/, 'the limit is explained');
+await p.press('#sbui [data-sb="r"]', 'Tab'); assert.equal(await p.inputValue('#sbui [data-sb="r"]'), '3', 'the box goes back to the last good value');
 assert.deepEqual(errs, []);
 console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks');
 await b.close(); server.close();
