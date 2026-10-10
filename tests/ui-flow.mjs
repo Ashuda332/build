@@ -52,6 +52,24 @@ await p.fill('#sbui [data-sb="r"]', '20');
 assert.equal(await p.evaluate(() => setbackOf().r), 3, 'a back setback that leaves no room is refused');
 assert.match(await p.textContent('#sbmsg'), /at most/, 'the limit is explained');
 await p.press('#sbui [data-sb="r"]', 'Tab'); assert.equal(await p.inputValue('#sbui [data-sb="r"]'), '3', 'the box goes back to the last good value');
+// plot step: no city step, 4 sides only with the area box; the sketch follows setbacks live and shows the corner directions
+assert.ok(!(await p.evaluate(() => Object.values(FLOWS).some(f => f.includes('city')))), 'no "where will you build" step');
+assert.equal(await p.$$eval('[data-a="pmode"]', x => x.length), 0, 'only the 4-sides entry');
+const sk0 = await p.innerHTML('#plotsk'); await p.fill('#sbui [data-sb="f"]', '6'); assert.notEqual(await p.innerHTML('#plotsk'), sk0, 'the sketch redraws while typing a setback');
+assert.match(await p.textContent('#plotsk'), /SE/, 'corner directions on the road side (east road → SE, NE)');
+await p.fill('#parea', '2400'); assert.equal(await p.evaluate(() => Math.round(plotShape(ST.plot.sides).area / 100)), 24, 'typing the area scales the four sides');
+// home step: room list → live plan, the room list drives the design brief, too many rooms is refused
+const hm = await p.evaluate(() => { ST.plot.sides = { f: 30, b: 30, l: 40, r: 40 }; applySides(); ST.home.setback = null; ST.home.req = null; ST.home.floors = 2; ST.home.bhk = 3; ST.step = flow().indexOf('home'); render();
+  const a = { plan: !!document.querySelector('.hm-plan .rqplan'), rooms: document.querySelectorAll('.rqplan .rqr').length, all: reqRooms().floors.reduce((n, F) => n + F.rooms.length, 0), ok: canNext() };
+  ACT.rq(({ dataset: { k: 'study', d: '1' } })); a.bhk = ST.home.bhk; a.rooms2 = reqRooms().floors.reduce((n, F) => n + F.rooms.length, 0);
+  for (const k of ['dining', 'utility', 'sitout', 'helper']) ACT.rq(({ dataset: { k, d: '1' } }));
+  a.err = (document.querySelector('.rq-err') || {}).textContent || ''; a.ok2 = canNext(); return a; });
+assert.ok(hm.plan && hm.rooms > 4 && hm.ok, 'default rooms fit and are drawn');
+assert.equal(hm.bhk, 3); assert.ok(hm.rooms2 === hm.all + 1, 'a study room appears on the plan');
+assert.match(hm.err, /not valid/, 'too many ground-floor rooms are refused'); assert.equal(hm.ok2, false);
+// budget step: package × range; semi and full cost more than core
+const bg = await p.evaluate(() => { ST.home.req = null; ST.home.floors = 2; ST.home.bhk = 3; ST.step = flow().indexOf('home'); render(); ST.step = flow().indexOf('budget'); render(); const o = { pk: document.querySelectorAll('[data-a="pkg"]').length, tiers: document.querySelectorAll('.tiers [data-a="tier"]').length, lab: /Labour charge/.test(document.body.textContent) }; const t = {}; for (const k of ['core', 'semi', 'full']) { ST.pkg = k; t[k] = tierEstimate('mid').total; } ST.pkg = 'core'; return Object.assign(o, t); });
+assert.equal(bg.pk, 3); assert.equal(bg.tiers, 3); assert.ok(bg.lab); assert.ok(bg.core < bg.semi && bg.semi < bg.full, 'semi and full add to the core cost');
 assert.deepEqual(errs, []);
-console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks');
+console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks, plot/home/budget steps');
 await b.close(); server.close();
