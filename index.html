@@ -711,7 +711,7 @@ body.cad-on{overflow:hidden}
 main.homew{max-width:1180px}
 .opts.three.pkgs{grid-template-columns:repeat(3,minmax(0,1fr))}.tiers.t3{grid-template-columns:repeat(3,minmax(0,1fr))}.tiers.t3:has(.tier:only-child){grid-template-columns:minmax(0,340px);justify-content:center}
 .bmat{display:flex;flex-direction:column;gap:14px}.bm-g{display:flex;flex-direction:column;gap:6px}
-.bm{background:var(--soft);border:1px solid var(--line2);border-radius:16px;padding:10px 12px}.bm b{font-size:14px;font-weight:600}.bm .rq-cats{margin-top:6px}
+.bm{background:var(--soft);border:1px solid var(--line2);border-radius:16px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:6px 14px;align-items:center}.bm b{font-size:14px;font-weight:600}.bm .rq-cats{margin-top:6px}.bm-sel{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}html[data-theme="dark"] .bm-sel{background:#10171D;color:#E8EDF2;border-color:#2A353F}@media (max-width:600px){.bm{grid-template-columns:1fr}}
 .fine.c{text-align:center;margin:-6px 0 12px}
 .lab{padding:14px 16px}.lab-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.lab-top b{display:block;font-size:15px}.lab-top span{font-size:13px;color:var(--mute)}.lab-top em{font-style:normal;font-weight:700;font-size:18px;white-space:nowrap}
 .wages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:8px 0 6px}.wages span{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--bg);border:1px solid var(--line2);border-radius:12px;padding:7px 10px}.wages b{font-weight:600;font-variant-numeric:tabular-nums}
@@ -923,7 +923,7 @@ html[data-theme="dark"] .facts>div,html[data-theme="dark"] .rows{background:#161
 .pm-r{padding:10px 4px 10px 0;display:flex;flex-direction:column;gap:3px}.pm-r b{font-size:15px}.pm-r span{font-size:12.5px;color:var(--mute);line-height:1.35}
 .pm-c{background:var(--soft);border:2px solid transparent;border-radius:16px;padding:10px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink);font:inherit}.pm-c b{font-size:16px;font-variant-numeric:tabular-nums}.pm-c i{font-style:normal;font-size:12px;color:var(--mute)}.pm-c.on{border-color:var(--ink)}
 .pcmp-w{overflow-x:auto;border:1px solid var(--line2);border-radius:16px}.pcmp{width:100%;border-collapse:collapse;font-size:13.5px}.pcmp th,.pcmp td{text-align:left;vertical-align:top;padding:9px 10px;border-top:1px solid var(--line2)}.pcmp thead th{border-top:0;font-size:14px}.pcmp tbody th{font-weight:600;width:22%}.pcmp td.on,.pcmp th.on{background:var(--soft)}
-.pcmp ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}.pcmp li b{font-weight:600}.pcmp li.add{color:#1E7A46}.pcmp li.add::before{content:'+ '}.pcmp .no{color:var(--faint)}
+.pcmp ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}.pcmp li b{font-weight:600}.pc-brick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}.pc-brick>b{font-size:14px;margin-right:4px}.pcmp li.add{color:#1E7A46}.pcmp li.add::before{content:'+ '}.pcmp .no{color:var(--faint)}
 html[data-theme="dark"] .pcmp li.add{color:#6BCB8F}
 @media (max-width:600px){.pm{grid-template-columns:repeat(var(--n),minmax(0,1fr))}.pm>.pm-h:first-child{display:none}.pm-r{grid-column:1/-1;padding:8px 0 0}.pcmp{min-width:640px}}
 </style>
@@ -6140,7 +6140,7 @@ const ITEMS = [
   { g: 'Structure', id: 'steel', n: 'Steel (TMT bars)', u: 'kg', q: (Q, ti) => Q.covered * [3.5, 3.8, 4, 4.5][ti == null ? 1 : ti], how: '3.5–4.5 kg per sq ft built-up by range (market thumb rule 3–4.5 kg)', steel: true },
   { g: 'Structure', id: 'sand', n: 'Sand', u: 'cft', q: Q => Q.covered * 1.5, how: '1.5 cft per sq ft built-up (market 1.2–1.6)', opts: [O('M-sand', 56, 'TPR'), O('M-sand for concrete + river sand for plaster', 68, 'TPR'), O('River sand', 80, 'TPR'), O('Washed river sand', 86, 'TPR')], def: [0, 1, 2, 3] },
   { g: 'Structure', id: 'aggregate', n: 'Stone chips (aggregate)', u: 'cft', q: Q => Q.covered * 1.35, how: '1.35 cft per sq ft built-up (market 1.15–2.0)', opts: [O('20 mm stone chips', 44, 'TPR'), O('20 mm stone chips (crusher)', 48, 'IL'), O('20 mm + 10 mm graded chips', 52, 'IL'), O('20 mm + 10 mm graded, washed', 56, 'IL')], def: [0, 1, 2, 3] },
-  { g: 'Structure', id: 'walling', n: 'Wall bricks / blocks', u: 'cft of wall', q: Q => Q.wallCft, how: 'From the drawn walls, minus doors and windows', opts: [O('Fly-ash bricks (IS 12894)', 6.5, 'IL', 0.074, 'brick'), O('Red clay bricks 9×4×3"', 9, 'IL', 0.074, 'brick'), O('Concrete solid blocks', 36, 'TPR', 0.6, 'block'), O('AAC blocks 600×200×150', 50, 'IL', 0.635, 'block'), O('AAC blocks 600×200×200', 62, 'EST', 0.85, 'block')], def: [0, 1, 3, 4] },
+  { g: 'Structure', id: 'walling', n: 'Wall bricks / blocks', u: 'cft of wall', q: Q => Q.wallCft, how: 'From the drawn walls, minus doors and windows', opts: [O('Fly-ash bricks (IS 12894)', 6.5, 'IL', 0.074, 'brick'), O('Red clay bricks 9×4×3"', 9, 'IL', 0.074, 'brick'), O('Red clay bricks 10×5×3" (10 inch)', 11, 'EST', 0.103, 'brick'), O('Concrete solid blocks', 36, 'TPR', 0.6, 'block'), O('AAC blocks 600×200×150', 50, 'IL', 0.635, 'block'), O('AAC blocks 600×200×200', 62, 'EST', 0.85, 'block')], def: [0, 1, 4, 5] },
   { g: 'Structure', id: 'termite', n: 'Anti-termite treatment', u: 'sq ft', q: Q => Q.footprint, how: 'Ground floor area', opts: [O('Chemical treatment', 8, 'EST'), O('Chemical treatment, 2 stages', 10, 'EST'), O('Pre-construction treatment with warranty', 12, 'EST'), O('Pre + post construction with warranty', 15, 'EST')], def: [0, 1, 2, 3] },
   { g: 'Structure', id: 'waterproof', n: 'Waterproofing (roof + baths)', u: 'sq ft', q: Q => Q.roof + Q.wetFloor, how: 'Roof and bathroom floors', opts: [O('Cement-based coating', 30, 'EST'), O('Dr. Fixit polymer coating', 45, 'EST'), O('PU / crystalline system', 60, 'EST'), O('PU membrane + heat-reflective coat', 80, 'EST')], def: [0, 1, 2, 3] },
   // Flooring
@@ -6338,7 +6338,7 @@ const PKG_ROWS = [['Structural shell', ['walling', 'maindoor', 'doors', 'windows
 function pkgGrid(tiers) {
   const keep = { tier: ST.tier, pkg: ST.pkg, interiors: ST.interiors, style: ST.style, design: S.design }, out = {};
   try {
-    tiers.forEach(T => { ST.tier = T.id; ST.interiors = null; ST.style = null; S.design = null; const ds = designNow(), o = ds.D.options[0]; out[T.id] = {}; PKGS.forEach(P => { ST.pkg = P.id; out[T.id][P.id] = o ? priceList(ds.D, o, T.id) : { perSqft: 0, total: 0, lines: [] }; }); });
+    tiers.forEach(T => { ST.tier = T.id; ST.interiors = null; ST.style = null; S.design = null; const ds = designNow(), o = ds.D.options[0]; out[T.id] = {}; PKGS.forEach(P => { ST.pkg = P.id; out[T.id][P.id] = o ? priceList(ds.D, o, T.id === keep.tier ? undefined : T.id) : { perSqft: 0, total: 0, lines: [] }; }); });
   } finally { Object.assign(ST, { tier: keep.tier, pkg: keep.pkg, interiors: keep.interiors, style: keep.style }); S.design = keep.design; }
   return out;
 }
@@ -6351,7 +6351,9 @@ function pkgCompare(tiers, G) {
   const T = tiers.find(x => x.id === ST.tier) || tiers[0], pk = ST.pkg || 'core', has = {};
   PKGS.forEach(P => { has[P.id] = {}; G[T.id][P.id].lines.forEach(L => { has[P.id][L.it.id] = L.c.l; }); });
   const cell = (P, ids) => { const L = ids.filter(id => has[P.id][id]).map(id => '<li' + (P.id !== 'core' && !has.core[id] ? ' class="add"' : '') + '>' + (PKG_K[id] ? '<b>' + PKG_K[id] + ':</b> ' : '') + esc(has[P.id][id]) + '</li>'); return L.length ? '<ul>' + L.join('') + '</ul>' : '<span class="no">None</span>'; };
-  return '<div class="pcmp-w"><table class="pcmp"><thead><tr><th>' + T.short + ' budget</th>' + PKGS.map(P => '<th' + (pk === P.id ? ' class="on"' : '') + '>' + P.n + '</th>').join('') + '</tr></thead><tbody>' +
+  const wi = ITEMS.find(it => it.id === 'walling'), wc = T.id === ST.tier ? itemChoice(wi) : null, bricks = wi.opts.map((o, i) => [o, i]).filter(([o]) => /^Red clay bricks/.test(o.l));
+  const bsel = wc ? '<div class="pc-brick"><b>Brick size</b>' + bricks.map(([o, i]) => '<button class="rq-c' + (wc.ix === i ? ' on' : '') + '" data-a="pick" data-id="walling" data-v="' + i + '">' + (/10×5/.test(o.l) ? '10 inch' : '9 inch') + ' red brick<i>' + rup(o.r) + '/brick</i></button>').join('') + '</div>' : '';
+  return bsel + '<div class="pcmp-w"><table class="pcmp"><thead><tr><th>' + T.short + ' budget</th>' + PKGS.map(P => '<th' + (pk === P.id ? ' class="on"' : '') + '>' + P.n + '</th>').join('') + '</tr></thead><tbody>' +
     PKG_ROWS.map(([n, ids]) => '<tr><th>' + n + '</th>' + PKGS.map(P => '<td' + (pk === P.id ? ' class="on"' : '') + '>' + cell(P, ids) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div><p class="fine c">Green lines are added on top of the core house. Tap Low, Mid or High above to compare that level.</p>';
 }
 const PKG_R = { core: 0, semi: 1, full: 2 }, pkgHas = p => PKG_R[ST.pkg || 'core'] >= PKG_R[p];
@@ -6904,20 +6906,26 @@ function tierBand(it, ti) {
 const MAT_GROUPS = ['Structure', 'Flooring & tiles', 'Paint & putty', 'Doors & windows', 'Bathroom fittings', 'Kitchen', 'Electrical', 'Plumbing & water'];
 // daily wages, Cuttack–Bhubaneswar (approx., 2026)
 const WAGES = [['Mason (raj mistri)', '₹850–1,000'], ['Helper / coolie', '₹500–600'], ['Bar bender', '₹800–950'], ['Shuttering carpenter', '₹800–950'], ['Tile & marble mason', '₹900–1,100'], ['Plumber', '₹800–1,000'], ['Electrician', '₹800–1,000'], ['Painter', '₹700–900']];
+// one dropdown per item: the choices for this budget first, then every other option sold
+function pickSel(it, c, band) {
+  const ti = TI[ST.tier], inB = band && band.length ? band : it.opts.map((o, i) => i), opt = i => { const o = it.opts[i]; return '<option value="' + i + '"' + (c && c.ix === i ? ' selected' : '') + '>' + esc(o.l) + ' — ' + rup(o.r) + '/' + esc((o.u || it.u).replace(/ \(.*\)/, '')) + '</option>'; };
+  const rest = it.opts.map((o, i) => i).filter(i => !inB.includes(i));
+  return '<select class="bm-sel" data-pick="' + it.id + '" aria-label="' + esc(it.n) + '">' + (rest.length ? '<optgroup label="' + TIERS[ti].short + ' budget">' + inB.map(opt).join('') + '</optgroup><optgroup label="Other options">' + rest.map(opt).join('') + '</optgroup>' : inB.map(opt).join('')) + '</select>';
+}
 function budgetMaterials() {
   const ti = TI[ST.tier], rows = {};
   ITEMS.forEach(it => {
     if (!MAT_GROUPS.includes(it.g) || it.pkg || it.optional || it.vlook || it.balc) return;
     let chips = '';
-    if (it.steel) { const c = itemChoice(it), L = STEEL_BRANDS.slice().sort((a, b) => a.base - b.base), di = L.findIndex(B => B.b === STEEL_DEF.brand[ti]), band = L.filter((B, i) => ti === 0 ? i <= Math.max(2, di) : ti === 1 ? Math.abs(i - di) <= 2 : i >= Math.min(di, L.length - 3)); chips = band.filter(B => B.grades.includes(c.grade)).map(B => '<button class="rq-c' + (c.brand === B.b ? ' on' : '') + '" data-a="steelbrand" data-v="' + esc(B.b) + '">' + esc(B.p) + '<i>₹' + steelRate(B.b, c.grade) + '/kg</i></button>').join(''); }
-    else { const band = tierBand(it, ti); if (!band.length) return; const c = itemChoice(it); chips = band.map(i => { const o = it.opts[i]; return '<button class="rq-c' + (c && c.ix === i ? ' on' : '') + '" data-a="pick" data-id="' + it.id + '" data-v="' + i + '">' + esc(o.l) + '<i>' + rup(o.r) + '/' + esc((o.u || it.u).replace(/ \(.*\)/, '')) + '</i></button>'; }).join(''); }
-    (rows[it.g] = rows[it.g] || []).push('<div class="bm"><b>' + esc(it.n) + '</b><div class="rq-cats">' + chips + '</div></div>');
+    if (it.steel) { const c = itemChoice(it), L = STEEL_BRANDS.slice().sort((a, b) => a.base - b.base), di = L.findIndex(B => B.b === STEEL_DEF.brand[ti]), band = L.filter((B, i) => ti === 0 ? i <= Math.max(2, di) : ti === 1 ? Math.abs(i - di) <= 2 : i >= Math.min(di, L.length - 3)); const all = L.filter(B => B.grades.includes(c.grade)), o = B => '<option value="' + esc(B.b) + '"' + (c.brand === B.b ? ' selected' : '') + '>' + esc(B.p) + ' ' + c.grade + ' — ₹' + steelRate(B.b, c.grade) + '/kg</option>', inB = all.filter(B => band.includes(B)), rest = all.filter(B => !band.includes(B)); chips = '<select class="bm-sel" data-steel="1" aria-label="' + esc(it.n) + '">' + (rest.length ? '<optgroup label="' + TIERS[ti].short + ' budget">' + inB.map(o).join('') + '</optgroup><optgroup label="Other options">' + rest.map(o).join('') + '</optgroup>' : inB.map(o).join('')) + '</select>'; }
+    else { const band = tierBand(it, ti); if (!band.length) return; chips = pickSel(it, itemChoice(it), band); }
+    (rows[it.g] = rows[it.g] || []).push('<label class="bm"><b>' + esc(it.n) + '</b>' + chips + '</label>');
   });
   return MAT_GROUPS.filter(g => rows[g]).map(g => '<section class="rq-sec"><h4>' + esc(g) + '</h4><div class="bm-g">' + rows[g].join('') + '</div></section>').join('');
 }
 function budgetExtras() {
   const ti = TI[ST.tier], L = ITEMS.filter(it => it.pkg && pkgHas(it.pkg));
-  return '<div class="bm-g">' + L.map(it => { const c = itemChoice(it); return '<div class="bm"><b>' + esc(it.n) + '</b><div class="rq-cats">' + it.opts.map((o, i) => '<button class="rq-c' + (c && c.ix === i ? ' on' : '') + '" data-a="pick" data-id="' + it.id + '" data-v="' + i + '">' + esc(o.l) + '<i>' + rup(o.r) + '/' + esc(o.u || it.u) + '</i></button>').join('') + '</div></div>'; }).join('') + '</div>';
+  return '<div class="bm-g">' + L.map(it => '<label class="bm"><b>' + esc(it.n) + '</b>' + pickSel(it, itemChoice(it), tierBand(it, ti)) + '</label>').join('') + '</div>';
 }
 function homeBudget(ds, o) {
   if (!isVilla() && ST.tier === 'ultra') ST.tier = 'high';
@@ -6929,7 +6937,7 @@ function homeBudget(ds, o) {
     '<h3 class="q2">3 · ' + (pk.id === 'core' ? 'Materials and brands' : 'Core materials and brands') + ' — ' + TIERS[TI[ST.tier]].short + ' budget</h3><p class="fine c">Every brand sold in this range. Tap one to use it; the price updates in the quotation.</p><div class="bmat">' + budgetMaterials() + '</div>' +
     (pk.id !== 'core' ? '<h3 class="q2">Added for ' + pk.n.toLowerCase() + '</h3><div class="bmat">' + budgetExtras() + '</div>' : '') +
     '<h3 class="q2">4 · Labour charge</h3><div class="card lab"><div class="lab-top"><div><b>' + esc(lc.l) + '</b><span>' + rup(lc.r) + ' / sq ft × ' + area.toLocaleString('en-IN') + ' sq ft built-up</span></div><em>' + inr(lc.r * area) + '</em></div>' +
-    '<div class="rq-cats">' + lab.opts.map((x, i) => '<button class="rq-c' + (lc.ix === i ? ' on' : '') + '" data-a="pick" data-id="labour" data-v="' + i + '">' + esc(x.l) + '<i>' + rup(x.r) + '/sq ft</i></button>').join('') + '</div>' +
+    pickSel(lab, lc) +
     '<p class="hint">Contract rate for civil and finishing work: masonry, concrete, plaster, tiling, plumbing, wiring and painting. Daily wages in Cuttack–Bhubaneswar, 2026 (approx.):</p><div class="wages">' + WAGES.map(w => '<span>' + w[0] + '<b>' + w[1] + '</b></span>').join('') + '</div></div>' +
     '<p class="fine">Our rate comes from the material list for your design. “Market” is the published range for Bhubaneswar–Cuttack (' + srcA('BB') + ', ' + srcA('ILC') + '). Wages are estimates; confirm with your contractor. Land and approval fees are not included.</p>';
 }
@@ -9528,6 +9536,7 @@ document.addEventListener('change', e => {
   // leaving a setback box with a value that does not fit: put back the last good value
   if (t.dataset.sb) { const v = setbackOf()[t.dataset.sb]; if (t.getAttribute('aria-invalid') === 'true' || t.value.trim() === '') { t.value = v; setbackType(t); } return; }
   if (t.dataset.pick) { keepY(() => { ST.pick[t.dataset.pick] = +t.value; }); return; }
+  if (t.dataset.steel) { keepY(() => { const cur = itemChoice(ITEMS.find(i => i.steel)); ST.steel = { grade: cur.grade, brand: t.value }; }); return; }
   if (t.dataset.prent) { keepY(() => { projState().rent[t.dataset.prent] = t.value; }); return; }
   if (t.dataset.pin) { keepY(() => { projState()[t.dataset.pin] = t.value; }); return; }
   if (t.dataset.rrent) { keepY(() => { rentState().rents[t.dataset.rrent] = t.value; }); return; }
