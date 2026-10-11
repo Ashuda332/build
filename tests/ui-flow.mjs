@@ -89,6 +89,18 @@ assert.equal(bg.cells, 9, 'three packages × three budgets'); assert.equal(bg.ro
 // every material on the budget step is a dropdown, and changing one changes the price
 const dd = await p.evaluate(() => { ST.step = flow().indexOf('budget'); ST.pick = {}; render(); const sels = document.querySelectorAll('.bmat select.bm-sel'), chips = document.querySelectorAll('.bmat .rq-c').length, before = tierEstimate('mid').total; const w = document.querySelector('select[data-pick="walling"]'); const ten = [...w.options].find(o => /10×5/.test(o.text)); w.value = ten.value; w.dispatchEvent(new Event('change', { bubbles: true })); const r = { sels: sels.length, chips, picked: ST.pick.walling === +ten.value, steel: !!document.querySelector('select[data-steel]'), lab: !!document.querySelector('select[data-pick="labour"]') }; ST.pick = {}; return r; });
 assert.ok(dd.sels > 20 && dd.chips === 0 && dd.picked && dd.steel && dd.lab, 'budget materials are dropdowns: ' + JSON.stringify(dd));
+// GIS: 4 corners on the map give the sides, area and road side; the papers check flags a gap
+const gis = await p.evaluate(() => {
+  const la = 20.30, lo = 85.82, dLa = ft => ft * 0.3048 / 110574, dLo = ft => ft * 0.3048 / (111320 * Math.cos(la * Math.PI / 180));
+  const P = [[la, lo], [la + dLa(30), lo], [la + dLa(30), lo - dLo(40)], [la, lo - dLo(40)]]; // road along the east edge
+  const M = geoMeasure(P), crossed = geoMeasure([P[0], P[2], P[1], P[3]]);
+  ST.step = flow().indexOf('plot'); render(); gisApply(P, M); render();
+  const card = /Marked at/.test(document.querySelector('.gisc').textContent);
+  ST.plot.doc = { area: (1200 / 435.6).toFixed(2), unit: 'dec' }; const ok = docCheckHTML(); ST.plot.doc = { area: '4', unit: 'dec' }; const bad = docCheckHTML(); ST.plot.doc = null; ST.plot.geo = null;
+  return { f: M.f, b: M.b, l: M.l, r: M.r, area: M.area, facing: M.facing, crossed: !!(crossed && crossed.bad), card, sides: ST.plot.sides.f + 'x' + ST.plot.sides.l, ok: /dc-ok/.test(ok), bad: /dc-bad/.test(bad), papers: !!document.querySelector('[data-f="doc.area"]') };
+});
+assert.ok(Math.abs(gis.f - 30) <= 0.5 && Math.abs(gis.b - 30) <= 0.5 && Math.abs(gis.l - 40) <= 0.5 && Math.abs(gis.r - 40) <= 0.5, 'map sides ' + JSON.stringify(gis));
+assert.ok(Math.abs(gis.area - 1200) <= 15 && gis.facing === 'E' && gis.crossed && gis.card && gis.ok && gis.bad && gis.papers, 'GIS ' + JSON.stringify(gis));
 assert.deepEqual(errs, []);
 // no structure step; toilets never open off the living room, dining or kitchen; every opening is labelled; furniture moves by hand but never in front of a door
 const pv = await p.evaluate(() => {

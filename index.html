@@ -926,6 +926,17 @@ html[data-theme="dark"] .facts>div,html[data-theme="dark"] .rows{background:#161
 .pcmp ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}.pcmp li b{font-weight:600}.pc-brick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}.pc-brick>b{font-size:14px;margin-right:4px}.pcmp li.add{color:#1E7A46}.pcmp li.add::before{content:'+ '}.pcmp .no{color:var(--faint)}
 html[data-theme="dark"] .pcmp li.add{color:#6BCB8F}
 @media (max-width:600px){.pm{grid-template-columns:repeat(var(--n),minmax(0,1fr))}.pm>.pm-h:first-child{display:none}.pm-r{grid-column:1/-1;padding:8px 0 0}.pcmp{min-width:640px}}
+.gisc{padding:14px 18px;margin-top:22px}.gisc-t{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}.gisc-t>div:first-child{flex:1 1 280px}.gisc-t b{display:block;font-size:16px}.gisc-t span{font-size:13.5px;color:var(--mute)}.gisc-b{display:flex;gap:8px;flex-wrap:wrap}.gisc-b a.rq-c{text-decoration:none}
+.papers{padding:14px 18px 10px}.papers .fields{margin-top:0}.papers select{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--bg);color:var(--ink);font:inherit}
+.dc{border-radius:14px;padding:10px 14px;margin:6px 0 10px;display:flex;flex-direction:column;gap:4px}.dc b{font-size:14.5px}.dc span{font-size:13px;color:var(--mute)}.dc-ok{background:#E7F6EC;color:#14532D}.dc-warn{background:#FFF4DB;color:#7A4B00}.dc-bad{background:#FDE8E8;color:#8A1C1C}
+html[data-theme="dark"] .dc-ok{background:#12301F;color:#9BE3B5}html[data-theme="dark"] .dc-warn{background:#33280F;color:#F3CC7A}html[data-theme="dark"] .dc-bad{background:#3A1717;color:#F4A3A3}
+.pp-more{margin:4px 0 6px}.pp-more summary{cursor:pointer;font-weight:600;font-size:14px;padding:6px 0}.pp-more ol{margin:6px 0;padding-left:20px;font-size:13.5px;line-height:1.5;color:var(--ink2)}.pp-more a{color:inherit}
+.gis-m{position:fixed;inset:0;background:rgba(10,14,20,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:12px}.gis-b{background:var(--bg);color:var(--ink);border-radius:20px;width:100%;max-width:960px;max-height:96vh;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.gis-h{display:flex;justify-content:space-between;align-items:center}.gis-h b{font-size:17px}.gis-x{border:0;background:var(--soft);color:var(--ink);border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:15px}
+.gis-bar{display:flex;gap:8px;flex-wrap:wrap}.gis-bar input{flex:1 1 220px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}
+#gismap{height:min(58vh,520px);border-radius:14px;overflow:hidden;background:#1d2329}.gis-load{color:#cfd6dc;text-align:center;padding-top:22%;margin:0}.gis-tip{margin:0;font-size:14px;font-weight:600}
+.gis-sum{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px}.gis-f{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.gis-ok{border:0;border-radius:999px;padding:9px 18px;background:var(--ink);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}.gis-ok:disabled{opacity:.4;cursor:default}
+.gis-pin{display:flex;align-items:center;justify-content:center;background:#FFB020;color:#111;border:2px solid #fff;border-radius:50%;font-size:12px}.gis-len span{display:inline-block;transform:translate(-50%,-50%);white-space:nowrap;background:rgba(17,24,30,.82);color:#fff;font-size:11.5px;padding:2px 6px;border-radius:8px}
 </style>
 </head>
 <body>
@@ -6490,16 +6501,124 @@ function plotSketch(S) {
 // a rectangular plot from width × depth (voice): the four sides follow
 function rectPlot() { const p = ST.plot; p.mode = 'sides'; p.sides = { f: p.w, b: p.w, l: p.d, r: p.d }; p.shape = null; p.area = p.w * p.d; }
 function applySides() { const P = plotShape(ST.plot.sides || {}); if (!P) return false; ST.plot.w = Math.max(15, P.w); ST.plot.d = Math.max(20, P.d); ST.plot.area = P.area; ST.plot.shape = P.how === 'rect' ? null : P.shape; return true; }
+/* ---------- GIS: find the plot on a satellite map, measure it, check it against the papers ---------- */
+// corners are [lat, lng] going round the plot: 1–2 along the road, then 3 and 4 at the back
+function geoLocal(P) { const la0 = P.reduce((a, p) => a + p[0], 0) / P.length, lo0 = P.reduce((a, p) => a + p[1], 0) / P.length, kx = 111320 * Math.cos(la0 * Math.PI / 180), ky = 110574; return P.map(p => [(p[1] - lo0) * kx, (p[0] - la0) * ky]); }
+function geoMeasure(P) {
+  if (!P || P.length !== 4) return null;
+  const X = geoLocal(P), FT = 3.28084, d = (a, b) => Math.hypot(X[a][0] - X[b][0], X[a][1] - X[b][1]) * FT, half = v => Math.round(v * 2) / 2;
+  const cross = (a, b, c, e) => { const o = (p, q, r) => Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])); return o(X[a], X[b], X[c]) * o(X[a], X[b], X[e]) < 0 && o(X[c], X[e], X[a]) * o(X[c], X[e], X[b]) < 0; };
+  if (cross(0, 1, 2, 3) || cross(1, 2, 3, 0)) return { bad: 'The corners cross over. Tap them in order going round the plot: the two on the road first, then the back two.' };
+  let A = 0; for (let i = 0; i < 4; i++) { const p = X[i], q = X[(i + 1) % 4]; A += p[0] * q[1] - q[0] * p[1]; }
+  const cx = X.reduce((a, p) => a + p[0], 0) / 4, cy = X.reduce((a, p) => a + p[1], 0) / 4, ex = X[1][0] - X[0][0], ey = X[1][1] - X[0][1];
+  let nx = ey, ny = -ex; if (nx * ((X[0][0] + X[1][0]) / 2 - cx) + ny * ((X[0][1] + X[1][1]) / 2 - cy) < 0) { nx = -nx; ny = -ny; }
+  const bearing = (Math.atan2(nx, ny) * 180 / Math.PI + 360) % 360, facing = 'NESW'[Math.round(bearing / 90) % 4];
+  const S = { f: half(d(0, 1)), r: half(d(1, 2)), b: half(d(2, 3)), l: half(d(3, 0)) }, area = Math.round(Math.abs(A) / 2 * FT * FT);
+  if (Math.min(S.f, S.r, S.b, S.l) < 10) return { bad: 'One side is under 10 ft. Zoom in and tap the real corners of the plot.' };
+  if (area > 200000) return { bad: 'That is over 200,000 sq ft. Zoom in to your plot and tap its corners.' };
+  return Object.assign(S, { area, facing, bearing: Math.round(bearing), at: [+(P.reduce((a, p) => a + p[0], 0) / 4).toFixed(6), +(P.reduce((a, p) => a + p[1], 0) / 4).toFixed(6)] });
+}
+const DOC_UNITS = { dec: ['decimal', 435.6], acre: ['acre', 43560], sqft: ['sq ft', 1], sqm: ['sq m', 10.7639], guntha: ['guntha', 1089] };
+// the papers say one area, the land measures another: how far apart, and what to do about it
+function docCheck(docSqft, landSqft) {
+  if (!(docSqft > 0) || !(landSqft > 0)) return null;
+  const diff = (landSqft - docSqft) / docSqft, pct = Math.abs(diff) * 100;
+  const lvl = pct <= 5 ? 'ok' : pct <= 15 ? 'warn' : 'bad';
+  return { lvl, pct: Math.round(pct * 10) / 10, more: diff > 0 };
+}
+function docCheckHTML() {
+  const p = ST.plot, D = p.doc || {}, u = DOC_UNITS[D.unit || 'dec'], docSq = (+D.area || 0) * u[1], fromMap = p.geo && !p.geo.edited, land = fromMap ? p.geo.area : p.area;
+  const R = docCheck(docSq, land), dec = v => (Math.round(v / 435.6 * 100) / 100).toLocaleString('en-IN');
+  if (!R) return '<p class="hint">Type the area written in your RoR (khatiyan) or sale deed. We compare it with the land ' + (fromMap ? 'you marked on the map' : 'you measured') + '.</p>';
+  const say = { ok: 'Matches: the papers and the land agree within 5%.', warn: 'Small gap: the land is ' + R.pct + '% ' + (R.more ? 'bigger' : 'smaller') + ' than the papers. Ask a government amin or licensed surveyor to measure it before you pay.', bad: 'Big gap: the land is ' + R.pct + '% ' + (R.more ? 'bigger' : 'smaller') + ' than the papers. Do not pay an advance until a survey and the RoR agree. Part of the land may belong to someone else, or the papers may be for a different plot.' }[R.lvl];
+  return '<div class="dc dc-' + R.lvl + '"><b>' + say + '</b><span>Papers: ' + Math.round(docSq).toLocaleString('en-IN') + ' sq ft (' + dec(docSq) + ' decimal) · Land ' + (fromMap ? 'on the map' : 'from your sides') + ': ' + Math.round(land).toLocaleString('en-IN') + ' sq ft (' + dec(land) + ' decimal)</span></div>';
+}
+function geoCardHTML() {
+  const g = ST.plot.geo;
+  return '<div class="card gisc"><div class="gisc-t"><div><b>Find your plot on the map</b><span>' + (g ? 'Marked at ' + g.at[0].toFixed(5) + ', ' + g.at[1].toFixed(5) + ' · ' + g.area.toLocaleString('en-IN') + ' sq ft · road on the ' + ({ N: 'north', E: 'east', S: 'south', W: 'west' })[g.facing] + (g.edited ? ' · sides changed by hand since' : '') : 'Mark the 4 corners on a satellite view. We measure every side, the area and the road side for you, and you can see what is around the land: roads, water, fields and buildings.') + '</span></div>' +
+    '<div class="gisc-b"><button class="rq-c on" data-a="gisopen">' + (g ? 'Open map again' : 'Open the map') + '</button>' + (g ? '<a class="rq-c" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps?q=' + g.at[0] + ',' + g.at[1] + '">Google Maps</a>' : '') + '</div></div></div>';
+}
+function papersHTML() {
+  const D = ST.plot.doc || {};
+  return '<h3 class="q2">Check your land papers</h3><div class="card papers"><div class="fields two"><label><span>Area in the RoR or sale deed</span><div class="inp"><input type="number" inputmode="decimal" min="0" step="any" data-f="doc.area" value="' + (D.area || '') + '" placeholder="e.g. 3.5"></div></label><label><span>Unit</span><select data-f="doc.unit">' + Object.keys(DOC_UNITS).map(k => '<option value="' + k + '"' + ((D.unit || 'dec') === k ? ' selected' : '') + '>' + DOC_UNITS[k][0] + '</option>').join('') + '</select></label></div>' +
+    '<div id="doccheck">' + docCheckHTML() + '</div>' +
+    '<details class="pp-more"><summary>Before you buy: 6 checks against land fraud</summary><ol>' +
+    '<li>The seller\'s name is on the RoR (khatiyan) on <a href="https://bhulekh.ori.nic.in/" target="_blank" rel="noopener noreferrer">Bhulekh Odisha</a>, with the same khata and plot number as the sale deed.</li>' +
+    '<li>The area in the RoR, the deed and the land on the map agree (the check above).</li>' +
+    '<li>The plot on the village map (cadastral map) has the same shape and neighbours as on the satellite view.</li>' +
+    '<li>No pond, canal, road, forest or government land inside the boundary on the satellite view.</li>' +
+    '<li>An encumbrance certificate from the <a href="https://igrodisha.gov.in/" target="_blank" rel="noopener noreferrer">IGR Odisha</a> office shows no loan or other sale on the plot.</li>' +
+    '<li>The land use (kisam) allows a house. Agricultural land needs conversion first.</li></ol><p class="fine">BhuChain helps you compare. It is not a legal title check. Get the final word from a lawyer and a government survey.</p></details></div>';
+}
+const GIS = { map: null, L: null, pts: [], layer: null, sat: true, base: null };
+function gisLoad() {
+  if (window.L && window.L.map) return Promise.resolve(window.L);
+  return new Promise((ok, no) => {
+    const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'; document.head.appendChild(c);
+    const j = document.createElement('script'); j.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'; j.onload = () => ok(window.L); j.onerror = () => no(new Error('map')); document.head.appendChild(j);
+  });
+}
+function gisTiles() {
+  const L = GIS.L; if (GIS.base) GIS.map.removeLayer(GIS.base);
+  GIS.base = GIS.sat ? L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 21, maxNativeZoom: 19, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' }) : L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 21, maxNativeZoom: 19, attribution: '© OpenStreetMap contributors' });
+  GIS.base.addTo(GIS.map); const b = document.querySelector('[data-g="layer"]'); if (b) b.textContent = GIS.sat ? 'Street map' : 'Satellite';
+}
+function gisDraw() {
+  const L = GIS.L, P = GIS.pts; if (GIS.layer) GIS.map.removeLayer(GIS.layer); GIS.layer = L.layerGroup().addTo(GIS.map);
+  if (P.length > 1) L.polyline(P.length === 4 ? P.concat([P[0]]) : P, { color: '#FFB020', weight: 3 }).addTo(GIS.layer);
+  if (P.length === 4) L.polygon(P, { color: '#FFB020', weight: 0, fillOpacity: 0.18 }).addTo(GIS.layer);
+  P.forEach((p, i) => L.marker(p, { icon: L.divIcon({ className: 'gis-pin', html: '<b>' + (i + 1) + '</b>', iconSize: [24, 24] }) }).addTo(GIS.layer));
+  const M = geoMeasure(P), res = document.getElementById('gisres'), ap = document.querySelector('[data-g="apply"]'), tip = document.getElementById('gistip');
+  if (M && !M.bad) [[0, 1, M.f, 'Front'], [1, 2, M.r, ''], [2, 3, M.b, 'Back'], [3, 0, M.l, '']].forEach(([a, b, v, n]) => L.marker([(P[a][0] + P[b][0]) / 2, (P[a][1] + P[b][1]) / 2], { icon: L.divIcon({ className: 'gis-len', html: '<span>' + (n ? n + ' ' : '') + ftIn(v) + '</span>', iconSize: [0, 0] }) }).addTo(GIS.layer));
+  if (tip) tip.textContent = ['Zoom in till you see your plot. Tap corner 1 on the road side.', 'Now tap corner 2, the other end of the road side.', 'Tap corner 3, the back corner next to corner 2.', 'Tap corner 4, the last back corner.', 'Done. Drag the map to check, or Undo a corner.'][P.length];
+  if (res) res.innerHTML = !M ? '' : M.bad ? '<p class="warn">' + M.bad + '</p>' : '<div class="gis-sum"><span>Front <b>' + ftIn(M.f) + '</b></span><span>Back <b>' + ftIn(M.b) + '</b></span><span>Sides <b>' + ftIn(M.l) + '</b> · <b>' + ftIn(M.r) + '</b></span><span>Area <b>' + M.area.toLocaleString('en-IN') + ' sq ft</b> (' + (Math.round(M.area / 435.6 * 100) / 100) + ' decimal)</span><span>Road on the <b>' + ({ N: 'north', E: 'east', S: 'south', W: 'west' })[M.facing] + '</b></span></div><p class="fine">Satellite pictures can be a few feet off. Use this to check, and get a surveyor\'s measure before you build.</p>';
+  if (ap) ap.disabled = !(M && !M.bad);
+}
+function gisClose() { const m = document.getElementById('gism'); if (m) m.remove(); if (GIS.map) { GIS.map.remove(); GIS.map = null; } GIS.layer = null; GIS.base = null; document.body.style.overflow = ''; }
+function gisOpen() {
+  gisClose(); const g = ST.plot.geo; GIS.pts = g && g.pts ? g.pts.map(p => p.slice()) : [];
+  const m = document.createElement('div'); m.id = 'gism'; m.className = 'gis-m';
+  m.innerHTML = '<div class="gis-b" role="dialog" aria-label="Find your plot on the map"><div class="gis-h"><b>Find your plot on the map</b><button class="gis-x" data-g="close" aria-label="Close">✕</button></div>' +
+    '<form class="gis-bar" data-g-form="1"><input id="gisq" placeholder="Village, area or landmark, e.g. Patia, Bhubaneswar" autocomplete="off"><button class="rq-c" type="submit">Search</button><button class="rq-c" type="button" data-g="me">My location</button><button class="rq-c" type="button" data-g="layer">Street map</button></form>' +
+    '<div id="gismap"><p class="gis-load">Loading the map…</p></div><p class="gis-tip" id="gistip"></p><div id="gisres"></div>' +
+    '<div class="gis-f"><button class="rq-c" data-g="undo">Undo corner</button><button class="rq-c" data-g="clear">Clear</button><button class="gis-ok" data-g="apply" disabled>Use these measurements</button></div></div>';
+  document.body.appendChild(m); document.body.style.overflow = 'hidden';
+  m.addEventListener('click', e => { if (e.target === m) return gisClose(); const b = e.target.closest('[data-g]'); if (!b) return; e.preventDefault(); gisAct(b.dataset.g); });
+  m.querySelector('form').addEventListener('submit', e => { e.preventDefault(); gisSearch(document.getElementById('gisq').value); });
+  gisLoad().then(L => {
+    if (!document.getElementById('gism')) return; GIS.L = L; document.getElementById('gismap').innerHTML = '';
+    GIS.map = L.map('gismap', { zoomControl: true }).setView(g ? g.at : [20.2961, 85.8245], g ? 19 : 13); gisTiles();
+    GIS.map.on('click', e => { if (GIS.pts.length >= 4) return; GIS.pts.push([+e.latlng.lat.toFixed(7), +e.latlng.lng.toFixed(7)]); gisDraw(); });
+    gisDraw(); setTimeout(() => GIS.map && GIS.map.invalidateSize(), 60);
+  }).catch(() => { const el = document.getElementById('gismap'); if (el) el.innerHTML = '<p class="gis-load">The map could not load. Check your internet connection and try again.</p>'; });
+}
+function gisSearch(q) {
+  q = (q || '').trim(); if (!q || !GIS.map) return; const tip = document.getElementById('gistip'); if (tip) tip.textContent = 'Searching…';
+  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q=' + encodeURIComponent(q)).then(r => r.json()).then(R => { if (!GIS.map) return; if (R && R[0]) { GIS.map.setView([+R[0].lat, +R[0].lon], 17); gisDraw(); } else if (tip) tip.textContent = 'Not found. Try a nearby landmark, the village name or the PIN code.'; }).catch(() => { if (tip) tip.textContent = 'Search did not work. Drag and zoom the map instead.'; });
+}
+function gisAct(a) {
+  if (a === 'close') return gisClose();
+  if (!GIS.map) return;
+  if (a === 'undo') { GIS.pts.pop(); gisDraw(); }
+  else if (a === 'clear') { GIS.pts = []; gisDraw(); }
+  else if (a === 'layer') { GIS.sat = !GIS.sat; gisTiles(); }
+  else if (a === 'me') { if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => GIS.map && GIS.map.setView([p.coords.latitude, p.coords.longitude], 19), () => { const t = document.getElementById('gistip'); if (t) t.textContent = 'Could not get your location. Allow location in the browser, or search instead.'; }); }
+  else if (a === 'apply') { const M = geoMeasure(GIS.pts); if (!M || M.bad) return; gisApply(GIS.pts, M); gisClose(); render(); }
+}
+function gisApply(pts, M) {
+  const p = ST.plot; p.mode = 'sides'; p.sides = { f: M.f, b: M.b, l: M.l, r: M.r }; p.facing = M.facing; applySides();
+  p.geo = { pts: pts.map(x => x.slice()), at: M.at, area: M.area, facing: M.facing, edited: false }; S.design = null; ST.grid = null;
+}
 SCR.plot = () => {
   const p = ST.plot; p.mode = 'sides';
   if (!p.sides) { p.sides = { f: p.w, b: p.w, l: p.d, r: p.d }; applySides(); }
   const S = p.sides, fld = (k, lab) => '<label><span>' + lab + '</span><div class="inp"><input type="number" inputmode="decimal" min="10" max="400" data-f="sides.' + k + '" value="' + S[k] + '"><i>ft</i></div></label>';
-  return '<h2 class="q">How big is your land?</h2><p class="sub">Measure all four sides — plots are rarely a perfect rectangle. The road side is the front. Or type the area and the sides follow.</p>' +
+  return '<h2 class="q">How big is your land?</h2><p class="sub">Measure all four sides — plots are rarely a perfect rectangle. The road side is the front. Or type the area and the sides follow. Or mark the plot on the map.</p>' + geoCardHTML() +
     '<div class="card plotin"><div class="fields four">' + fld('f', 'Front (road side)') + fld('b', 'Back') + fld('l', 'Left side') + fld('r', 'Right side') + '</div>' +
     '<div class="fields one parea"><label><span>Area</span><div class="inp"><input type="number" inputmode="decimal" min="300" max="50000" id="parea" data-f="plot.area" value="' + p.area + '"><i>sq ft</i></div></label><p class="hint">1 decimal = 435.6 sq ft. Typing the area scales all four sides and keeps the shape.</p></div></div>' +
     '<div id="plotsk">' + plotSketch(S) + '</div>' +
     ((ST.home.use || 'family') !== 'villa' ? setbackUI() : '') +
-    '<h3 class="q2">Road side</h3><div class="compass">' + [['N', 'North'], ['E', 'East'], ['S', 'South'], ['W', 'West']].map(d => '<button class="' + (p.facing === d[0] ? 'on' : '') + '" data-a="facing" data-v="' + d[0] + '"><b>' + d[0] + '</b><span>' + d[1] + '</span></button>').join('') + '</div>';
+    '<h3 class="q2">Road side</h3><div class="compass">' + [['N', 'North'], ['E', 'East'], ['S', 'South'], ['W', 'West']].map(d => '<button class="' + (p.facing === d[0] ? 'on' : '') + '" data-a="facing" data-v="' + d[0] + '"><b>' + d[0] + '</b><span>' + d[1] + '</span></button>').join('') + '</div>' + papersHTML();
 };
 // type the plot area: scale the four sides by the same factor so the shape stays and the area matches
 function areaType(v) {
@@ -9402,6 +9521,7 @@ const ACT = {
   city: el => keepY(() => { ST.city = el.dataset.v; }),
   pmode: el => keepY(() => { ST.plot.mode = el.dataset.v; if (el.dataset.v !== 'sides') ST.plot.shape = null; if (el.dataset.v === 'area') { ST.plot.area = Math.round(ST.plot.w * ST.plot.d); } if (el.dataset.v === 'sides') { ST.plot.sides = ST.plot.sides || { f: ST.plot.w, b: ST.plot.w, l: ST.plot.d, r: ST.plot.d }; applySides(); } S.design = null; ST.grid = null; }),
   facing: el => keepY(() => { ST.plot.facing = el.dataset.v; }),
+  gisopen: () => gisOpen(),
   pbyf: el => keepY(() => { const P = projState(); P.byFloor = el.dataset.v === '1'; if (P.byFloor && (!P.plan || !P.plan.length)) P.plan = [{ k: 'b1', n: 0 }, { k: 'b2', n: 0 }]; }),
   pfk: el => keepY(() => { projState().plan[+el.dataset.i].k = el.dataset.v; }),
   pfn: el => keepY(() => { const x = projState().plan[+el.dataset.i]; x.n = Math.max(0, Math.min(20, (x.n || 0) + +el.dataset.d)); }),
@@ -9551,9 +9671,11 @@ document.addEventListener('input', e => {
   if (e.target.dataset.sb) { setbackType(e.target); return; }
   const t = e.target, f = t.dataset.f; if (!f) return;
   const [a, k] = f.split('.');
+  if (a === 'doc') { ST.plot.doc = ST.plot.doc || {}; ST.plot.doc[k] = t.value; const dc = document.getElementById('doccheck'); if (dc) dc.innerHTML = docCheckHTML(); return; }
+  if ((a === 'sides' || k === 'area') && ST.plot.geo) ST.plot.geo.edited = true;
   if (a === 'cust') { ST.cust[k] = t.value; const m = document.querySelector('.qmeta dd'); if (m) m.textContent = (ST.cust.name || '—') + (ST.cust.phone ? ' · ' + ST.cust.phone : ''); return; }
   const v = parseFloat(t.value);
-  if (a === 'sides') { if (v > 0) { ST.plot.sides = ST.plot.sides || {}; ST.plot.sides[k] = v; applySides(); S.design = null; ST.grid = null; const sk = document.getElementById('plotsk'); if (sk) sk.innerHTML = plotSketch(ST.plot.sides); const pa = document.getElementById('parea'); if (pa) pa.value = ST.plot.area; } }
+  if (a === 'sides') { if (v > 0) { ST.plot.sides = ST.plot.sides || {}; ST.plot.sides[k] = v; applySides(); S.design = null; ST.grid = null; const sk = document.getElementById('plotsk'); if (sk) sk.innerHTML = plotSketch(ST.plot.sides); const pa = document.getElementById('parea'); if (pa) pa.value = ST.plot.area; const dc = document.getElementById('doccheck'); if (dc) dc.innerHTML = docCheckHTML(); } }
   else if (k === 'area') { if (v >= 300) { areaType(v); ST.plot.area = v; const sk = document.getElementById('plotsk'); if (sk) sk.innerHTML = plotSketch(ST.plot.sides); } }
   else if (v > 0 && a === 'plot') { ST.plot[k] = v; ST.plot.shape = null; }
   { const sbu = document.getElementById('sbui'); if (sbu && (a === 'sides' || a === 'plot')) sbu.outerHTML = setbackUI(); }
