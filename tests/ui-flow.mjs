@@ -89,6 +89,12 @@ assert.equal(bg.cells, 9, 'three packages × three budgets'); assert.equal(bg.ro
 // every material on the budget step is a dropdown, and changing one changes the price
 const dd = await p.evaluate(() => { ST.step = flow().indexOf('budget'); ST.pick = {}; render(); const sels = document.querySelectorAll('.bmat select.bm-sel'), chips = document.querySelectorAll('.bmat .rq-c').length, before = tierEstimate('mid').total; const w = document.querySelector('select[data-pick="walling"]'); const ten = [...w.options].find(o => /10×5/.test(o.text)); w.value = ten.value; w.dispatchEvent(new Event('change', { bubbles: true })); const r = { sels: sels.length, chips, picked: ST.pick.walling === +ten.value, steel: !!document.querySelector('select[data-steel]'), lab: !!document.querySelector('select[data-pick="labour"]') }; ST.pick = {}; return r; });
 assert.ok(dd.sels > 20 && dd.chips === 0 && dd.picked && dd.steel && dd.lab, 'budget materials are dropdowns: ' + JSON.stringify(dd));
+// a plot handed over from Bhu AI fills the plot step, shows where it came from, and can be dismissed
+await p.evaluate(() => localStorage.setItem('bhu_plot_handoff', JSON.stringify({ v: 1, id: 'test1', at: new Date().toISOString(), from: 'bhu-ai', sides: { f: 32.5, b: 32, l: 48, r: 47.5 }, facing: 'S', area_sqft: 1540, khata: '123', plot: '456/7', village: 'Patia' })));
+await p.reload(); await p.waitForTimeout(600);
+const ho = await p.evaluate(() => { const r = { step: flow()[ST.step], f: ST.plot.sides.f, l: ST.plot.sides.l, facing: ST.plot.facing, note: /Plot from Bhu AI/.test(document.body.textContent) && /Khata 123/.test(document.body.textContent) };
+  ST.step = flow().indexOf('plot'); render(); r.notePlot = !!document.querySelector('.aiplot'); document.querySelector('[data-a="aiplotoff"]').click(); r.gone = !document.querySelector('.aiplot') && localStorage.getItem('bhu_plot_dismissed') === 'test1'; localStorage.removeItem('bhu_plot_handoff'); localStorage.removeItem('bhu_plot_dismissed'); return r; });
+assert.deepEqual(ho, { step: 'use', f: 32.5, l: 48, facing: 'S', note: true, notePlot: true, gone: true });
 assert.deepEqual(errs, []);
 // no structure step; toilets never open off the living room, dining or kitchen; every opening is labelled; furniture moves by hand but never in front of a door
 const pv = await p.evaluate(() => {

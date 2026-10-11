@@ -926,6 +926,7 @@ html[data-theme="dark"] .facts>div,html[data-theme="dark"] .rows{background:#161
 .pcmp ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}.pcmp li b{font-weight:600}.pc-brick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}.pc-brick>b{font-size:14px;margin-right:4px}.pcmp li.add{color:#1E7A46}.pcmp li.add::before{content:'+ '}.pcmp .no{color:var(--faint)}
 html[data-theme="dark"] .pcmp li.add{color:#6BCB8F}
 @media (max-width:600px){.pm{grid-template-columns:repeat(var(--n),minmax(0,1fr))}.pm>.pm-h:first-child{display:none}.pm-r{grid-column:1/-1;padding:8px 0 0}.pcmp{min-width:640px}}
+.aiplot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;margin:0 0 18px;border-left:4px solid #2F6B4F}.aiplot div{flex:1 1 260px;display:flex;flex-direction:column;gap:2px}.aiplot b{font-size:15px}.aiplot span{font-size:13.5px;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -6441,7 +6442,15 @@ SCR.purpose = () => '<section class="bx-hero"><div><span class="bx-lab"><img src
   '<h2 class="q">What would you like to do?</h2><div class="opts two">' +
   [['build', 'Build a new home', 'Plan, 3D design, every material and a full quotation.'], ['cost', 'Know my building cost', 'A quick, honest cost per sq ft for your plot.'], ['quote', 'Get a material quotation', 'Every material — grade, brand, quantity and price.']].map(o => '<button class="opt' + (ST.purpose === o[0] ? ' on' : '') + '" data-a="purpose" data-v="' + o[0] + '"><span class="ic">' + ICON[o[0]] + '</span><b>' + o[1] + '</b><span>' + o[2] + '</span></button>').join('') + '</div>';
 function useCards() { const use = ST.home.use || 'family'; return '<div class="opts two use">' + [['family', 'Home for my family', 'One house for you to live in. Big land gets a lawn, garden and more.'], ['villa', 'Ultra luxury estate', 'A signature villa, a garden bungalow or a farmhouse estate — designed together with its grounds.'], ['rent', 'Rental units', 'Many self-contained units — each with its own kitchen and attached bath.'], ['apartment', 'Apartment building', 'Flats of 1, 2, 3 or 4 BHK on many floors, with lifts, parking and amenities.'], ['commercial', 'Commercial building', 'Shops and offices, with lifts and open, ground-floor or basement parking.']].map(u => '<button class="opt' + (use === u[0] ? ' on' : '') + '" data-a="use" data-v="' + u[0] + '"><b>' + u[1] + '</b><span>' + u[2] + '</span></button>').join('') + '</div>'; }
-SCR.use = () => '<h2 class="q">What will you build?</h2><p class="sub">Pick one. Next, tell us how big the land is.</p>' + useCards();
+/* ---------- a plot sent from Bhu AI: the land was checked against the papers and the map ---------- */
+function bhuHandoff() { try { const H = JSON.parse(localStorage.getItem('bhu_plot_handoff') || 'null'); if (!H || H.v !== 1 || !H.sides || !(+H.sides.f > 0) || Date.now() - Date.parse(H.at) > 7 * 864e5) return null; return H; } catch (e) { return null; } }
+function applyHandoff(H) { const p = ST.plot; p.mode = 'sides'; p.sides = { f: +H.sides.f, b: +H.sides.b, l: +H.sides.l, r: +H.sides.r }; if ('NESW'.includes(H.facing)) p.facing = H.facing; applySides(); p.fromAI = Object.assign({}, H, { edited: false }); ST.purpose = ST.purpose || 'build'; S.design = null; ST.grid = null; }
+function aiPlotNote() {
+  const H = ST.plot.fromAI; if (!H) return '';
+  const id = [H.khata ? 'Khata ' + esc(H.khata) : '', H.plot ? 'Plot ' + esc(H.plot) : '', H.village ? esc(H.village) : ''].filter(Boolean).join(' · ');
+  return '<div class="card aiplot"><div><b>Plot from Bhu AI</b><span>' + (id ? id + ' — ' : '') + 'checked against the papers and the map. ' + ftIn(H.sides.f) + ' × ' + ftIn(H.sides.l) + ', ' + Math.round(H.area_sqft || 0).toLocaleString('en-IN') + ' sq ft, road on the ' + ({ N: 'north', E: 'east', S: 'south', W: 'west' })[H.facing] + '.' + (H.approx ? ' The plot has more than 4 corners, so these are the sides of the box around it.' : '') + (H.edited ? ' You have changed the sides since.' : '') + '</span></div><button class="rq-c" data-a="aiplotoff">Use a different plot</button></div>';
+}
+SCR.use = () => aiPlotNote() + '<h2 class="q">What will you build?</h2><p class="sub">Pick one. Next, tell us how big the land is.</p>' + useCards();
 SCR.city = () => '<h2 class="q">Where will you build?</h2><p class="sub">Prices follow the local market.</p><div class="opts two">' + CITIES.map(c => '<button class="opt row' + (ST.city === c.id ? ' on' : '') + '" data-a="city" data-v="' + c.id + '"><b>' + c.name + '</b><span>' + c.note + '</span></button>').join('') + '</div>';
 /* ---------- plots that are not a rectangle: four side lengths → the land's shape → the biggest straight (rectangular) house area on it ---------- */
 // F = front (road side), B = back, L = left side, R = right side (as seen standing on the road). Coordinates: road along y = 0, x to the right, y into the plot.
@@ -6494,7 +6503,7 @@ SCR.plot = () => {
   const p = ST.plot; p.mode = 'sides';
   if (!p.sides) { p.sides = { f: p.w, b: p.w, l: p.d, r: p.d }; applySides(); }
   const S = p.sides, fld = (k, lab) => '<label><span>' + lab + '</span><div class="inp"><input type="number" inputmode="decimal" min="10" max="400" data-f="sides.' + k + '" value="' + S[k] + '"><i>ft</i></div></label>';
-  return '<h2 class="q">How big is your land?</h2><p class="sub">Measure all four sides — plots are rarely a perfect rectangle. The road side is the front. Or type the area and the sides follow.</p>' +
+  return aiPlotNote() + '<h2 class="q">How big is your land?</h2><p class="sub">Measure all four sides — plots are rarely a perfect rectangle. The road side is the front. Or type the area and the sides follow.</p>' +
     '<div class="card plotin"><div class="fields four">' + fld('f', 'Front (road side)') + fld('b', 'Back') + fld('l', 'Left side') + fld('r', 'Right side') + '</div>' +
     '<div class="fields one parea"><label><span>Area</span><div class="inp"><input type="number" inputmode="decimal" min="300" max="50000" id="parea" data-f="plot.area" value="' + p.area + '"><i>sq ft</i></div></label><p class="hint">1 decimal = 435.6 sq ft. Typing the area scales all four sides and keeps the shape.</p></div></div>' +
     '<div id="plotsk">' + plotSketch(S) + '</div>' +
@@ -9401,7 +9410,8 @@ const ACT = {
   restart: () => { ST.step = 0; ST.purpose = null; S.design = null; render(); },
   city: el => keepY(() => { ST.city = el.dataset.v; }),
   pmode: el => keepY(() => { ST.plot.mode = el.dataset.v; if (el.dataset.v !== 'sides') ST.plot.shape = null; if (el.dataset.v === 'area') { ST.plot.area = Math.round(ST.plot.w * ST.plot.d); } if (el.dataset.v === 'sides') { ST.plot.sides = ST.plot.sides || { f: ST.plot.w, b: ST.plot.w, l: ST.plot.d, r: ST.plot.d }; applySides(); } S.design = null; ST.grid = null; }),
-  facing: el => keepY(() => { ST.plot.facing = el.dataset.v; }),
+  facing: el => keepY(() => { ST.plot.facing = el.dataset.v; if (ST.plot.fromAI) ST.plot.fromAI.edited = true; }),
+  aiplotoff: () => keepY(() => { const H = ST.plot.fromAI; try { if (H) localStorage.setItem('bhu_plot_dismissed', H.id); } catch (e) {} ST.plot.fromAI = null; rectPlot(); }),
   pbyf: el => keepY(() => { const P = projState(); P.byFloor = el.dataset.v === '1'; if (P.byFloor && (!P.plan || !P.plan.length)) P.plan = [{ k: 'b1', n: 0 }, { k: 'b2', n: 0 }]; }),
   pfk: el => keepY(() => { projState().plan[+el.dataset.i].k = el.dataset.v; }),
   pfn: el => keepY(() => { const x = projState().plan[+el.dataset.i]; x.n = Math.max(0, Math.min(20, (x.n || 0) + +el.dataset.d)); }),
@@ -9553,6 +9563,7 @@ document.addEventListener('input', e => {
   const [a, k] = f.split('.');
   if (a === 'cust') { ST.cust[k] = t.value; const m = document.querySelector('.qmeta dd'); if (m) m.textContent = (ST.cust.name || '—') + (ST.cust.phone ? ' · ' + ST.cust.phone : ''); return; }
   const v = parseFloat(t.value);
+  if ((a === 'sides' || k === 'area') && ST.plot.fromAI) ST.plot.fromAI.edited = true;
   if (a === 'sides') { if (v > 0) { ST.plot.sides = ST.plot.sides || {}; ST.plot.sides[k] = v; applySides(); S.design = null; ST.grid = null; const sk = document.getElementById('plotsk'); if (sk) sk.innerHTML = plotSketch(ST.plot.sides); const pa = document.getElementById('parea'); if (pa) pa.value = ST.plot.area; } }
   else if (k === 'area') { if (v >= 300) { areaType(v); ST.plot.area = v; const sk = document.getElementById('plotsk'); if (sk) sk.innerHTML = plotSketch(ST.plot.sides); } }
   else if (v > 0 && a === 'plot') { ST.plot[k] = v; ST.plot.shape = null; }
@@ -9959,6 +9970,7 @@ window.VOICE_ADAPTER = {
 };
 vMount();
 window.BhuBuild = { ST, S, steelRate, STEEL_BRANDS, priceList, quantities, designNow, go, render, ITEMS, TIERS };
+{ const H = bhuHandoff(); let off = null; try { off = localStorage.getItem('bhu_plot_dismissed'); } catch (e) {} if (H && H.id !== off) { applyHandoff(H); ST.step = flow().indexOf('use'); } }
 render();
 assetCatalogLoad();
 
