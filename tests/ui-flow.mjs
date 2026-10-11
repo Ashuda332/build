@@ -87,5 +87,19 @@ assert.ok(rz.custom && rz.fcustom && rz.final === rz.cols, 'a resized plan carri
 const bg = await p.evaluate(() => { ST.grid = null; ST.home.floors = 2; ST.home.bhk = 3; ST.step = flow().indexOf('home'); render(); ST.step = flow().indexOf('budget'); render(); const o = { pk: document.querySelectorAll('[data-a="pkg"]').length, tiers: document.querySelectorAll('.tiers [data-a="tier"]').length, lab: /Labour charge/.test(document.body.textContent) }; const t = {}; for (const k of ['core', 'semi', 'full']) { ST.pkg = k; t[k] = tierEstimate('mid').total; } ST.pkg = 'core'; return Object.assign(o, t); });
 assert.equal(bg.pk, 3); assert.equal(bg.tiers, 3); assert.ok(bg.lab); assert.ok(bg.core < bg.semi && bg.semi < bg.full, 'semi and full add to the core cost');
 assert.deepEqual(errs, []);
+// no structure step; toilets never open off the living room, dining or kitchen; every opening is labelled; furniture moves by hand but never in front of a door
+const pv = await p.evaluate(() => {
+  const r = { structure: Object.values(FLOWS).some(f => f.includes('structure')), offLiving: 0, labels: 0, ops: 0 };
+  for (const [w, d, bhk] of [[30, 40, 3], [30, 50, 3], [40, 60, 4]]) { ST.plot = Object.assign({}, ST.plot, { w, d, sides: { f: w, b: w, l: d, r: d }, shape: null }); Object.assign(ST.home, { bhk, floors: 2, req: null, setback: null, use: 'family', split: 'house' }); S.design = null;
+    const ds = designNow(), o = ds.D.options[0]; o.floors.forEach(F => { F.rooms.forEach(R => { if (['living', 'dining', 'kitchen'].includes(R.type) && R.subs.some(x => x.type === 'bath' || x.type === 'powder')) r.offLiving++; }); const sv = planSvg(ds.D, o, F, { furn: true }); r.labels += (sv.match(/class="opl/g) || []).length; r.ops += F._ops.length; }); }
+  return r; });
+assert.equal(pv.structure, false, 'the structure step is gone'); assert.equal(pv.offLiving, 0, 'no toilet opens off the living room, dining or kitchen');
+assert.ok(pv.labels > 10 && pv.labels === pv.ops, 'every door and window carries its size');
+const fm = await p.evaluate(() => { ST.plot = Object.assign({}, ST.plot, { w: 30, d: 40, sides: { f: 30, b: 30, l: 40, r: 40 } }); Object.assign(ST.home, { bhk: 3, floors: 2, req: null }); S.design = null; ST.step = flow().indexOf('layout'); render(); S.design.view = 'plan'; S.design.fmove = true; render();
+  const ds = S.design, o = ds.D.options[ds.opt], F = o.floors[0], R = F.rooms.find(x => x.type === 'living'), ri = F.rooms.indexOf(R), q = fmList(furnOf(ds.D, o, F, R))[0];
+  const bad = R.subs.length ? fmWhy(ds.D, o, F, R, Object.assign({}, q, { x: R.subs[0].x, y: R.subs[0].y }), 0) : 'n/a';
+  fmApply(F, ri, 0, P => { P[0].x += 0.5; }); const q2 = fmList(furnOf(ds.D, o, F, R))[0];
+  return { handles: document.querySelectorAll('#planbox .fmh').length, moved: +(q2.x - q.x).toFixed(2), bad }; });
+assert.ok(fm.handles > 3, 'pieces can be picked on the plan'); assert.equal(fm.moved, 0.5, 'a moved piece stays where it is put');
 console.log('✓ ui flow: styles change the models (' + a0 + ' → leather-sofa → parametric), placement rules hold, save/reopen, library filters (' + n + ' models), setbacks, plot/home/budget steps, home fit check, flat per floor and resizable plan');
 await b.close(); server.close();

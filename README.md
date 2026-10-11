@@ -1,6 +1,6 @@
 # BhuChain Build
 
-Plan, design and build your home in Odisha — plot to plan, 3D, structure, materials and quotation, all in one page (`index.html`).
+Plan, design and build your home in Odisha — plot to plan, 3D, materials and quotation, all in one page (`index.html`).
 
 ## Live site
 
@@ -25,6 +25,10 @@ The site then lives at `https://<owner>.github.io/<repo>/`.
     - Undersized rooms show in the space check: bedrooms, living, kitchen, dining, car parking, passages, baths, stairs.
     - A resized plan stays through budget, style and paint changes. The 3D in the last step is built from it.
 - **Pooja**: an open alcove in a corner of the living or dining room. It is a small corner in an ordinary room and a big alcove of up to 7 ft in a large one. It never shares a wall with a toilet, and no toilet sits above it (Vastu); if a toilet ends up next to it, the pooja moves to a clear corner. In 3D it is a white marble mandir with Radha–Krishna murtis: pillars, a carved arch, a dome with kalash, a lit mandala and diyas. The big version adds a backlit wall, a cloth canopy and lit side niches.
+- **Structure**: not designed here. Columns, beams, footings and steel come from an architect or a structural engineer / contractor after a soil test; the quotation says so.
+- **Privacy**: a toilet opens off a bedroom, passage, lounge, study or store — never off the living room, dining or kitchen.
+- **Door and window sizes**: every opening on the plan carries its mark and size (W 4′×4′, D 3′×7′, MD main door, BD bath door, Arch). **Doors & windows** on the layout step lists them with counts and lets you pick the type of main door, room doors, bath doors, windows and grills; the price follows.
+- **Move furniture**: on the plan, drag a piece to move it (6-inch snap), or turn or remove it; the rest of the room stays as it is. A spot in front of a door, in a door swing, over a bath or on another piece is refused, with the reason.
 - **Doors and furniture**: the openings between the hall, dining, stair, lounge and passage are open archways; bedrooms, kitchen and baths keep their doors. Furniture keeps 3 ft clear in front of every door. In a hall with doors on every wall, it uses a 2 ft gap or a compact seat instead.
 - **Budget** step: first the package, then the range. The packages are **Core house** (ready to live in), **Semi-furnished** (adds modular kitchen, wardrobes and false ceiling) and **Fully furnished** (adds furniture and interiors). The ranges are **Low / Mid / High** (Ultra luxury for villas). The step lists every brand sold in the chosen range for each material, and lets you change it. It also shows the labour charge per sq ft with approximate 2026 daily wages for Cuttack–Bhubaneswar. Prices use Cuttack–Bhubaneswar rates, so there is no separate location step. **Style** sets the look: 14 interior styles that change the models, finishes, materials and how full the rooms are.
 - **Furniture library** lets you browse, filter, choose models and finishes for the house. **Try another arrangement** rearranges every room. **Save design** keeps the whole design on this device, and **Export file** / **Import file** move it to another device.
