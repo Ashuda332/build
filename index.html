@@ -937,6 +937,16 @@ html[data-theme="dark"] .dc-ok{background:#12301F;color:#9BE3B5}html[data-theme=
 #gismap{height:min(58vh,520px);border-radius:14px;overflow:hidden;background:#1d2329}.gis-load{color:#cfd6dc;text-align:center;padding-top:22%;margin:0}.gis-tip{margin:0;font-size:14px;font-weight:600}
 .gis-sum{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px}.gis-f{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.gis-ok{border:0;border-radius:999px;padding:9px 18px;background:var(--ink);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}.gis-ok:disabled{opacity:.4;cursor:default}
 .gis-pin{display:flex;align-items:center;justify-content:center;background:#FFB020;color:#111;border:2px solid #fff;border-radius:50%;font-size:12px}.gis-len span{display:inline-block;transform:translate(-50%,-50%);white-space:nowrap;background:rgba(17,24,30,.82);color:#fff;font-size:11.5px;padding:2px 6px;border-radius:8px}
+.vai{margin:4px 0 10px}.vai summary{cursor:pointer;font-weight:600;font-size:14px;padding:6px 0}.vai textarea,.gis-co textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);color:var(--ink);font:13px/1.4 ui-monospace,Menlo,monospace}.vai-b{display:flex;gap:10px;align-items:center;margin:6px 0}
+.vds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.vd h4{margin:6px 0 2px;font-size:15px}.vd .fields{margin-top:6px;gap:8px 12px}.vd .fields.four{grid-template-columns:repeat(2,minmax(0,1fr))}.vd select{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--bg);color:var(--ink);font:inherit}.vd-l{margin:10px 0 0;font-size:13px;font-weight:600;color:var(--mute)}
+.vrun{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.ev-sum{border-radius:14px;padding:12px 14px;margin:8px 0;display:flex;flex-direction:column;gap:3px}.ev-sum b{font-size:16px}.ev-sum span{font-size:13.5px}.ev-c{opacity:.85}.ev-stop{background:#FDE8E8;color:#8A1C1C}.ev-check{background:#FFF4DB;color:#7A4B00}.ev-clear{background:#E7F6EC;color:#14532D}
+html[data-theme="dark"] .ev-stop{background:#3A1717;color:#F4A3A3}html[data-theme="dark"] .ev-check{background:#33280F;color:#F3CC7A}html[data-theme="dark"] .ev-clear{background:#12301F;color:#9BE3B5}
+.ev-w{overflow-x:auto;border:1px solid var(--line2);border-radius:14px}.ev{width:100%;border-collapse:collapse;font-size:13px}.ev th,.ev td{text-align:left;vertical-align:top;padding:8px 9px;border-top:1px solid var(--line2)}.ev thead th{border-top:0;font-size:12.5px;color:var(--mute)}
+.ev-r{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap}.ev-match .ev-r{background:#DDF3E4;color:#14532D}.ev-mismatch .ev-r{background:#FBD5D5;color:#8A1C1C}.ev-warn .ev-r{background:#FCEBC0;color:#7A4B00}.ev-unknown .ev-r,.ev-manual .ev-r{background:var(--line2);color:var(--ink2)}
+.gis-co{display:flex;flex-direction:column;gap:8px}.gis-co select{border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--bg);color:var(--ink);font:inherit;font-size:13.5px}
+.vd .inp input{font-size:15px;font-weight:500;padding:9px 0;letter-spacing:0}.ev thead{display:none}.ev,.ev tbody{display:block}.ev tr{display:block;border-top:1px solid var(--line2);padding:8px 0}.ev tr:first-child{border-top:0}.ev td{display:flex;gap:12px;border:0;padding:3px 12px}.ev td::before{content:attr(data-l);flex:0 0 110px;color:var(--mute);font-size:12px;padding-top:1px}.ev td.ev-e{display:none}.ev-cf{font-size:12px;color:var(--mute);margin-left:6px}
+@media (max-width:760px){.vds{grid-template-columns:1fr}.ev td::before{flex-basis:92px}}
 </style>
 </head>
 <body>
@@ -6501,56 +6511,297 @@ function plotSketch(S) {
 // a rectangular plot from width × depth (voice): the four sides follow
 function rectPlot() { const p = ST.plot; p.mode = 'sides'; p.sides = { f: p.w, b: p.w, l: p.d, r: p.d }; p.shape = null; p.area = p.w * p.d; }
 function applySides() { const P = plotShape(ST.plot.sides || {}); if (!P) return false; ST.plot.w = Math.max(15, P.w); ST.plot.d = Math.max(20, P.d); ST.plot.area = P.area; ST.plot.shape = P.how === 'rect' ? null : P.shape; return true; }
-/* ---------- GIS: find the plot on a satellite map, measure it, check it against the papers ---------- */
-// corners are [lat, lng] going round the plot: 1–2 along the road, then 3 and 4 at the back
-function geoLocal(P) { const la0 = P.reduce((a, p) => a + p[0], 0) / P.length, lo0 = P.reduce((a, p) => a + p[1], 0) / P.length, kx = 111320 * Math.cos(la0 * Math.PI / 180), ky = 110574; return P.map(p => [(p[1] - lo0) * kx, (p[0] - la0) * ky]); }
-function geoMeasure(P) {
-  if (!P || P.length !== 4) return null;
-  const X = geoLocal(P), FT = 3.28084, d = (a, b) => Math.hypot(X[a][0] - X[b][0], X[a][1] - X[b][1]) * FT, half = v => Math.round(v * 2) / 2;
-  const cross = (a, b, c, e) => { const o = (p, q, r) => Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])); return o(X[a], X[b], X[c]) * o(X[a], X[b], X[e]) < 0 && o(X[c], X[e], X[a]) * o(X[c], X[e], X[b]) < 0; };
-  if (cross(0, 1, 2, 3) || cross(1, 2, 3, 0)) return { bad: 'The corners cross over. Tap them in order going round the plot: the two on the road first, then the back two.' };
-  let A = 0; for (let i = 0; i < 4; i++) { const p = X[i], q = X[(i + 1) % 4]; A += p[0] * q[1] - q[0] * p[1]; }
-  const cx = X.reduce((a, p) => a + p[0], 0) / 4, cy = X.reduce((a, p) => a + p[1], 0) / 4, ex = X[1][0] - X[0][0], ey = X[1][1] - X[0][1];
+/* ---------- GIS: find the plot on a satellite map, measure it, and check it against the papers and the map ---------- */
+// WGS84 → UTM (Snyder's series, mm-level over a plot). Plots are measured in UTM metres, then corrected by the
+// point scale factor, so sides and area are true ground values, not map-projection values.
+function utm(lat, lng, zone) {
+  const a = 6378137, f = 1 / 298.257223563, k0 = 0.9996, e2 = f * (2 - f), ep2 = e2 / (1 - e2), D = Math.PI / 180;
+  zone = zone || Math.floor((lng + 180) / 6) + 1;
+  const ph = lat * D, l0 = ((zone - 1) * 6 - 180 + 3) * D, s = Math.sin(ph), c = Math.cos(ph), t = Math.tan(ph);
+  const N = a / Math.sqrt(1 - e2 * s * s), T = t * t, C = ep2 * c * c, A = c * (lng * D - l0), e4 = e2 * e2, e6 = e4 * e2;
+  const M = a * ((1 - e2 / 4 - 3 * e4 / 64 - 5 * e6 / 256) * ph - (3 * e2 / 8 + 3 * e4 / 32 + 45 * e6 / 1024) * Math.sin(2 * ph) + (15 * e4 / 256 + 45 * e6 / 1024) * Math.sin(4 * ph) - (35 * e6 / 3072) * Math.sin(6 * ph));
+  const x = k0 * N * (A + (1 - T + C) * A ** 3 / 6 + (5 - 18 * T + T * T + 72 * C - 58 * ep2) * A ** 5 / 120) + 500000;
+  const y = k0 * (M + N * t * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * A ** 4 / 24 + (61 - 58 * T + T * T + 600 * C - 330 * ep2) * A ** 6 / 720));
+  const k = k0 * (1 + (1 + C) * A * A / 2 + (5 - 4 * T + 42 * C + 13 * C * C - 28 * ep2) * A ** 4 / 24);
+  return { x, y, k, zone };
+}
+const geoMid = P => [P.reduce((a, p) => a + p[0], 0) / P.length, P.reduce((a, p) => a + p[1], 0) / P.length];
+// corners [lat, lng] → ground metres around the plot's middle (one UTM zone for the whole plot)
+function geoXY(P, ref) { const m = ref || geoMid(P), z = utm(m[0], m[1]), o = utm(m[0], m[1], z.zone); return { X: P.map(p => { const u = utm(p[0], p[1], z.zone); return [(u.x - o.x) / o.k, (u.y - o.y) / o.k]; }), zone: z.zone }; }
+const mPerPx = (lat, zoom) => 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2, zoom);
+function segX(a, b, c, d) { const o = (p, q, r) => Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])); return o(a, b, c) * o(a, b, d) < 0 && o(c, d, a) * o(c, d, b) < 0; }
+function inPoly(q, X) { let c = false; for (let i = 0, j = X.length - 1; i < X.length; j = i++) { const [xi, yi] = X[i], [xj, yj] = X[j]; if ((yi > q[1]) !== (yj > q[1]) && q[0] < (xj - xi) * (q[1] - yi) / (yj - yi) + xi) c = !c; } return c; }
+function segDist(p, a, b) { const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy, t = L ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L)) : 0; return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy); }
+const dirOf = (nx, ny) => 'NESW'[Math.round(((Math.atan2(nx, ny) * 180 / Math.PI + 360) % 360) / 90) % 4];
+const DIRN = { N: 'north', E: 'east', S: 'south', W: 'west' };
+// corners going round the plot, 1–2 along the road. sig = how sure each corner is, in metres (1 sigma)
+function geoMeasure(P, sig) {
+  if (!P || P.length < 4) return null;
+  if (P.length > 12) return { bad: 'Use at most 12 corners.' };
+  const n = P.length, { X } = geoXY(P), FT = 3.28084, half = v => Math.round(v * 2) / 2;
+  for (let i = 0; i < n; i++) for (let j = i + 2; j < n; j++) { if (i === 0 && j === n - 1) continue; if (segX(X[i], X[(i + 1) % n], X[j], X[(j + 1) % n])) return { bad: 'The corners cross over. Tap them in order going round the plot: the two on the road first, then the rest.' }; }
+  let A = 0; for (let i = 0; i < n; i++) { const p = X[i], q = X[(i + 1) % n]; A += p[0] * q[1] - q[0] * p[1]; }
+  const areaM = Math.abs(A) / 2, side = X.map((p, i) => Math.hypot(X[(i + 1) % n][0] - p[0], X[(i + 1) % n][1] - p[1]) * FT);
+  // area uncertainty: dA/dP_i = half the vector between its two neighbours, so sigma_A = 1/2 * sqrt(sum sig_i^2 |P_i+1 - P_i-1|^2)
+  const sg = P.map((p, i) => (sig && sig[i] != null ? sig[i] : 1)), sA = 0.5 * Math.sqrt(X.reduce((a, p, i) => { const q = X[(i + 1) % n], r = X[(i + n - 1) % n]; return a + sg[i] * sg[i] * ((q[0] - r[0]) ** 2 + (q[1] - r[1]) ** 2); }, 0));
+  const cx = X.reduce((a, p) => a + p[0], 0) / n, cy = X.reduce((a, p) => a + p[1], 0) / n, ex = X[1][0] - X[0][0], ey = X[1][1] - X[0][1];
   let nx = ey, ny = -ex; if (nx * ((X[0][0] + X[1][0]) / 2 - cx) + ny * ((X[0][1] + X[1][1]) / 2 - cy) < 0) { nx = -nx; ny = -ny; }
-  const bearing = (Math.atan2(nx, ny) * 180 / Math.PI + 360) % 360, facing = 'NESW'[Math.round(bearing / 90) % 4];
-  const S = { f: half(d(0, 1)), r: half(d(1, 2)), b: half(d(2, 3)), l: half(d(3, 0)) }, area = Math.round(Math.abs(A) / 2 * FT * FT);
+  const bearing = (Math.atan2(nx, ny) * 180 / Math.PI + 360) % 360, facing = dirOf(nx, ny);
+  let S, approx = false;
+  if (n === 4) S = { f: half(side[0]), r: half(side[1]), b: half(side[2]), l: half(side[3]) };
+  else { // the planner needs four sides: the box around the plot, square to the road
+    const L = Math.hypot(ex, ey), ux = ex / L, uy = ey / L, pu = X.map(p => p[0] * ux + p[1] * uy), pv = X.map(p => -p[0] * uy + p[1] * ux);
+    const w = (Math.max(...pu) - Math.min(...pu)) * FT, d = (Math.max(...pv) - Math.min(...pv)) * FT; S = { f: half(w), b: half(w), l: half(d), r: half(d) }; approx = true;
+  }
+  const area = Math.round(areaM * FT * FT);
+  if (Math.min(...side) < 3) return { bad: 'Two corners are almost on top of each other. Undo one.' };
   if (Math.min(S.f, S.r, S.b, S.l) < 10) return { bad: 'One side is under 10 ft. Zoom in and tap the real corners of the plot.' };
-  if (area > 200000) return { bad: 'That is over 200,000 sq ft. Zoom in to your plot and tap its corners.' };
-  return Object.assign(S, { area, facing, bearing: Math.round(bearing), at: [+(P.reduce((a, p) => a + p[0], 0) / 4).toFixed(6), +(P.reduce((a, p) => a + p[1], 0) / 4).toFixed(6)] });
+  if (area > 2000000) return { bad: 'That is over 2,000,000 sq ft. Zoom in to your plot and tap its corners.' };
+  const m = geoMid(P);
+  return Object.assign(S, { n, sides: side.map(half), approx, area, areaSig: Math.round(sA * FT * FT), perim: Math.round(side.reduce((a, v) => a + v, 0)), facing, bearing: Math.round(bearing), at: [+m[0].toFixed(7), +m[1].toFixed(7)] });
 }
-const DOC_UNITS = { dec: ['decimal', 435.6], acre: ['acre', 43560], sqft: ['sq ft', 1], sqm: ['sq m', 10.7639], guntha: ['guntha', 1089] };
-// the papers say one area, the land measures another: how far apart, and what to do about it
-function docCheck(docSqft, landSqft) {
+const DOC_UNITS = { dec: ['decimal', 435.6], acre: ['acre', 43560], sqft: ['sq ft', 1], sqm: ['sq m', 10.7639], guntha: ['guntha', 1089], hect: ['hectare', 107639.1] };
+// the papers say one area, the land measures another: within the measuring error (95%) plus 2% it matches
+function docCheck(docSqft, landSqft, landSig) {
   if (!(docSqft > 0) || !(landSqft > 0)) return null;
-  const diff = (landSqft - docSqft) / docSqft, pct = Math.abs(diff) * 100;
-  const lvl = pct <= 5 ? 'ok' : pct <= 15 ? 'warn' : 'bad';
-  return { lvl, pct: Math.round(pct * 10) / 10, more: diff > 0 };
+  const diff = (landSqft - docSqft) / docSqft, pct = Math.abs(diff) * 100, tol = Math.max(3, 2 * (landSig || 0) / landSqft * 100 + 2);
+  const lvl = pct <= tol ? 'ok' : pct <= Math.max(15, tol + 5) ? 'warn' : 'bad';
+  return { lvl, pct: Math.round(pct * 10) / 10, more: diff > 0, tol: Math.round(tol * 10) / 10 };
 }
-function docCheckHTML() {
-  const p = ST.plot, D = p.doc || {}, u = DOC_UNITS[D.unit || 'dec'], docSq = (+D.area || 0) * u[1], fromMap = p.geo && !p.geo.edited, land = fromMap ? p.geo.area : p.area;
-  const R = docCheck(docSq, land), dec = v => (Math.round(v / 435.6 * 100) / 100).toLocaleString('en-IN');
-  if (!R) return '<p class="hint">Type the area written in your RoR (khatiyan) or sale deed. We compare it with the land ' + (fromMap ? 'you marked on the map' : 'you measured') + '.</p>';
-  const say = { ok: 'Matches: the papers and the land agree within 5%.', warn: 'Small gap: the land is ' + R.pct + '% ' + (R.more ? 'bigger' : 'smaller') + ' than the papers. Ask a government amin or licensed surveyor to measure it before you pay.', bad: 'Big gap: the land is ' + R.pct + '% ' + (R.more ? 'bigger' : 'smaller') + ' than the papers. Do not pay an advance until a survey and the RoR agree. Part of the land may belong to someone else, or the papers may be for a different plot.' }[R.lvl];
-  return '<div class="dc dc-' + R.lvl + '"><b>' + say + '</b><span>Papers: ' + Math.round(docSq).toLocaleString('en-IN') + ' sq ft (' + dec(docSq) + ' decimal) · Land ' + (fromMap ? 'on the map' : 'from your sides') + ': ' + Math.round(land).toLocaleString('en-IN') + ' sq ft (' + dec(land) + ' decimal)</span></div>';
+const GEO_SRC = { map: ['Tapped on the satellite map', 'medium'], survey: ['Surveyor / DGPS coordinates', 'high'], gps: ['Phone GPS at the corners', 'low'], earth: ['Google Earth / map coordinates', 'medium'] };
+
+/* ---------- documents: RoR and sale deed, typed or from BhuChain AI ---------- */
+const DOC_KINDS = { ror: 'RoR (khatiyan)', deed: 'Sale deed' };
+const docsOf = () => { const p = ST.plot; p.docs = p.docs || { ror: {}, deed: {} }; if (p.doc && p.doc.area && !p.docs.ror.area) p.docs.ror.area = { value: +p.doc.area, unit: p.doc.unit || 'dec' }; return p.docs; };
+const docSqft = d => d && d.area && +d.area.value > 0 ? +d.area.value * (DOC_UNITS[d.area.unit || 'dec'] || DOC_UNITS.dec)[1] : 0;
+// accepts what an AI or a form gives: { ror: {...}, deed: {...} }, an array of docs with a type, or one doc
+function docsFromAI(J) {
+  if (typeof J === 'string') J = JSON.parse(J);
+  const out = {}, pick = (o, ks) => { for (const k of ks) if (o[k] != null && o[k] !== '') return o[k]; return undefined; };
+  const one = o => {
+    const d = {}, s = v => v == null ? undefined : String(v).trim();
+    d.owner = s(pick(o, ['owner', 'owner_name', 'tenant', 'raiyat', 'seller', 'name'])); d.buyer = s(pick(o, ['buyer', 'purchaser']));
+    d.khata = s(pick(o, ['khata', 'khata_no', 'khatiyan_no', 'khatian'])); d.plot = s(pick(o, ['plot', 'plot_no', 'plot_number', 'survey_no']));
+    d.village = s(pick(o, ['village', 'mouza', 'mauza'])); d.tahasil = s(pick(o, ['tahasil', 'tehsil'])); d.district = s(pick(o, ['district']));
+    d.kisam = s(pick(o, ['kisam', 'land_class', 'land_type', 'class']));
+    let A = pick(o, ['area']); if (A == null) { for (const [k, u] of [['area_decimal', 'dec'], ['area_acre', 'acre'], ['area_sqft', 'sqft'], ['area_sqm', 'sqm'], ['area_hectare', 'hect']]) if (o[k] != null) { A = { value: +o[k], unit: u }; break; } }
+    if (typeof A === 'number' || typeof A === 'string') A = { value: parseFloat(A), unit: (o.area_unit || o.unit || 'dec') };
+    if (A) { const u = String(A.unit || 'dec').toLowerCase(); A = { value: +A.value, unit: /acre|ac\b/.test(u) ? 'acre' : /hect|ha\b/.test(u) ? 'hect' : /gunth/.test(u) ? 'guntha' : /sq ?m|square ?met/.test(u) ? 'sqm' : /sq ?f|square ?f/.test(u) ? 'sqft' : 'dec' }; d.area = A; }
+    const B = pick(o, ['boundaries', 'chauhaddi', 'chouhaddi', 'bounded_by']); if (B && typeof B === 'object') { d.bound = {}; [['N', ['north', 'n', 'uttar']], ['E', ['east', 'e', 'purba']], ['S', ['south', 's', 'dakshin']], ['W', ['west', 'w', 'paschim']]].forEach(([k, ks]) => { const v = pick(Object.fromEntries(Object.entries(B).map(([a, b]) => [a.toLowerCase(), b])), ks); if (v) d.bound[k] = String(v); }); }
+    const R = s(pick(o, ['road_side', 'facing', 'road'])); if (R) { const r = R.toUpperCase()[0]; if ('NESW'.includes(r)) d.road = r; }
+    let C = pick(o, ['coordinates', 'corners', 'geometry']); if (C && C.type && C.coordinates) C = (C.type === 'Polygon' ? C.coordinates[0] : C.coordinates).map(p => [p[1], p[0]]);
+    if (Array.isArray(C) && C.length >= 4) { d.coords = C.map(p => Array.isArray(p) ? [+p[0], +p[1]] : [+p.lat, +(p.lng != null ? p.lng : p.lon)]).filter(p => isFinite(p[0]) && isFinite(p[1])); if (d.coords.length > 4 && d.coords[0][0] === d.coords[d.coords.length - 1][0] && d.coords[0][1] === d.coords[d.coords.length - 1][1]) d.coords.pop(); }
+    if (o.confidence && typeof o.confidence === 'object') d.aiConf = o.confidence;
+    Object.keys(d).forEach(k => d[k] === undefined && delete d[k]); return d;
+  };
+  const kind = o => /deed|sale|registr/i.test(o.type || o.doc_type || o.source || o.kind || '') ? 'deed' : 'ror';
+  if (Array.isArray(J)) J.forEach(o => { out[kind(o)] = one(o); });
+  else if (J.ror || J.deed || J.RoR) { if (J.ror || J.RoR) out.ror = one(J.ror || J.RoR); if (J.deed) out.deed = one(J.deed); }
+  else out[kind(J)] = one(J);
+  return out;
 }
+
+/* ---------- what is on and around the plot: OpenStreetMap (open data, ODbL) ---------- */
+const ROAD_HALF = { motorway: 8, trunk: 7, primary: 6, secondary: 5, tertiary: 4, unclassified: 3, residential: 3, living_street: 3, service: 2.5, track: 2, path: 1, footway: 1, cycleway: 1, pedestrian: 2 };
+function osmQuery(P) {
+  const la = P.map(p => p[0]), lo = P.map(p => p[1]), m = 0.0008; // about 80–90 m around the plot
+  const bb = [Math.min(...la) - m, Math.min(...lo) - m, Math.max(...la) + m, Math.max(...lo) + m].map(v => v.toFixed(6)).join(',');
+  return '[out:json][timeout:25][bbox:' + bb + '];(way["natural"="water"];relation["natural"="water"];way["water"];way["landuse"~"^(reservoir|basin)$"];way["waterway"];way["highway"];way["railway"~"^(rail|light_rail|narrow_gauge|subway)$"];way["building"];way["landuse"~"^(farmland|meadow|orchard|forest|cemetery|military)$"];way["natural"="wood"];way["amenity"="grave_yard"];);out tags geom;';
+}
+function osmFeatures(osm) {
+  const F = [], cls = t => {
+    if (t.waterway === 'riverbank' || t.natural === 'water' || t.water || t.landuse === 'reservoir' || t.landuse === 'basin') return ['water', 'poly'];
+    if (t.waterway) return ['waterway', 'line'];
+    if (t.highway && t.area !== 'yes') return ['road', 'line'];
+    if (t.railway) return ['rail', 'line'];
+    if (t.building) return ['building', 'poly'];
+    if (t.landuse === 'forest' || t.natural === 'wood') return ['forest', 'poly'];
+    if (t.landuse === 'cemetery' || t.amenity === 'grave_yard') return ['burial', 'poly'];
+    if (t.landuse === 'military') return ['military', 'poly'];
+    if (t.landuse) return ['field', 'poly'];
+    return null;
+  };
+  ((osm && osm.elements) || []).forEach(e => {
+    const t = e.tags || {}, c = cls(t); if (!c) return;
+    const rings = e.type === 'way' ? [e.geometry] : (e.members || []).filter(m => m.role !== 'inner' && m.geometry).map(m => m.geometry);
+    rings.forEach(g => { if (!g || g.length < 2) return; const pts = g.map(q => [q.lat, q.lon]), closed = pts.length > 3 && pts[0][0] === pts[pts.length - 1][0] && pts[0][1] === pts[pts.length - 1][1]; F.push({ k: c[0], geom: c[1] === 'poly' && closed ? 'poly' : 'line', pts, name: t.name || t['name:en'] || '', sub: t.highway || t.waterway || t.railway || t.landuse || t.building || '' }); });
+  });
+  return F;
+}
+// overlap is measured by sampling the plot on a fine grid (≤ 2,500 points, about 1% of the area)
+function osmAnalyse(P, osm) {
+  const ref = geoMid(P), { X } = geoXY(P, ref), F = osmFeatures(osm).map(f => Object.assign(f, { X: geoXY(f.pts, ref).X })), n = X.length;
+  const bx = [Math.min(...X.map(p => p[0])), Math.max(...X.map(p => p[0]))], by = [Math.min(...X.map(p => p[1])), Math.max(...X.map(p => p[1]))];
+  const areaM = Math.abs(X.reduce((a, p, i) => a + p[0] * X[(i + 1) % n][1] - X[(i + 1) % n][0] * p[1], 0)) / 2, step = Math.max(0.4, Math.sqrt(areaM) / 50);
+  const grid = []; for (let x = bx[0] + step / 2; x < bx[1]; x += step) for (let y = by[0] + step / 2; y < by[1]; y += step) if (inPoly([x, y], X)) grid.push([x, y]);
+  const lineD = (q, f) => { let d = Infinity; for (let i = 0; i + 1 < f.X.length; i++) d = Math.min(d, segDist(q, f.X[i], f.X[i + 1])); return d; };
+  const half = f => f.k === 'road' ? (ROAD_HALF[f.sub] || 3) : f.k === 'rail' ? 3 : f.k === 'waterway' ? (/river/.test(f.sub) ? 15 : /canal/.test(f.sub) ? 5 : 1.5) : 0;
+  const over = {}, inside = {}, near = {};
+  F.forEach(f => {
+    if (f.geom === 'poly') { const fx = f.X.map(p => p[0]), fy = f.X.map(p => p[1]); if (Math.max(...fx) < bx[0] || Math.min(...fx) > bx[1] || Math.max(...fy) < by[0] || Math.min(...fy) > by[1]) { /* outside the plot's box: only "near" */ } else { let c = 0; grid.forEach(q => { if (inPoly(q, f.X)) c++; }); if (c) { const o = over[f.k] = over[f.k] || { pts: 0, names: new Set() }; o.pts += c; if (f.name) o.names.add(f.name); } } }
+    else { // a line: does its corridor cut into the plot?
+      const h = half(f); let c = 0; grid.forEach(q => { if (lineD(q, f) <= h) c++; });
+      const cross = f.X.some((p, i) => i + 1 < f.X.length && X.some((a, j) => segX(p, f.X[i + 1], a, X[(j + 1) % n]))) || f.X.some(p => inPoly(p, X));
+      if (c || cross) { const o = inside[f.k] = inside[f.k] || { pts: 0, names: new Set(), subs: new Set() }; o.pts += c; if (f.name) o.names.add(f.name); o.subs.add(f.sub); }
+    }
+    // nearest distance from the plot's edge to this feature
+    let d = Infinity; f.X.forEach(p => { if (inPoly(p, X)) d = 0; for (let j = 0; j < n; j++) d = Math.min(d, segDist(p, X[j], X[(j + 1) % n])); });
+    X.forEach(p => { if (f.geom === 'poly' && inPoly(p, f.X)) d = 0; for (let i = 0; i + 1 < f.X.length; i++) d = Math.min(d, segDist(p, f.X[i], f.X[i + 1])); });
+    d = Math.max(0, d - half(f)); if (!near[f.k] || d < near[f.k].d) near[f.k] = { d: Math.round(d * 10) / 10, name: f.name, sub: f.sub };
+  });
+  // what lies just outside each side (2–12 m out): the map's own chauhaddi
+  const sides = { N: {}, E: {}, S: {}, W: {} }, cx = X.reduce((a, p) => a + p[0], 0) / n, cy = X.reduce((a, p) => a + p[1], 0) / n;
+  X.forEach((a, i) => {
+    const b = X[(i + 1) % n], L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (L < 1) return;
+    let nx = (b[1] - a[1]) / L, ny = -(b[0] - a[0]) / L; if (nx * ((a[0] + b[0]) / 2 - cx) + ny * ((a[1] + b[1]) / 2 - cy) < 0) { nx = -nx; ny = -ny; }
+    const dir = dirOf(nx, ny);
+    [0.15, 0.35, 0.5, 0.65, 0.85].forEach(t => [2, 5, 8, 12].forEach(off => {
+      const q = [a[0] + (b[0] - a[0]) * t + nx * off, a[1] + (b[1] - a[1]) * t + ny * off];
+      F.forEach(f => { const hit = f.geom === 'poly' ? inPoly(q, f.X) : lineD(q, f) <= half(f) + 4; if (hit && (!sides[dir][f.k] || off < sides[dir][f.k].off)) sides[dir][f.k] = { off, name: f.name, sub: f.sub }; });
+    }));
+  });
+  const pct = o => o ? Math.round(o.pts / Math.max(1, grid.length) * 1000) / 10 : 0, fin = o => o ? { pct: pct(o), names: [...o.names], subs: o.subs ? [...o.subs] : undefined } : null;
+  const K = ['water', 'building', 'forest', 'burial', 'military', 'field'], L2 = ['road', 'rail', 'waterway'];
+  return { features: F.length, samples: grid.length, over: Object.fromEntries(K.map(k => [k, fin(over[k])]).filter(x => x[1])), cuts: Object.fromEntries(L2.map(k => [k, fin(inside[k])]).filter(x => x[1])), near, sides, roadSides: Object.keys(sides).filter(k => sides[k].road && sides[k].road.off <= 8) };
+}
+
+/* ---------- the evidence report: every check, what each source says, how sure we are, what to do by hand ---------- */
+const BOUND_K = [['road', /road|rasta|raasta|sadak|sarak|path\b|lane|gali|street|highway|\bNH\b|\bSH\b|ରାସ୍ତା|ପଥ|ସଡ଼କ|ସଡକ/i], ['water', /nala|nallah|drain|canal|nahar|nadi|river|pond|pokhari|pokhori|tank|jora|water|ନାଳ|ନଦୀ|ପୋଖରୀ|ଜୋର|ନାହାର/i], ['rail', /rail/i], ['govt', /govt|government|sarkar|anabadi|gochar|ଅନାବାଦୀ|ଗୋଚର|ସରକାର/i], ['house', /house|ghar|building|ଘର/i], ['field', /field|khet|bila|paddy|ବିଲ/i]];
+const boundKind = s => { for (const [k, r] of BOUND_K) if (r.test(s || '')) return k; return s ? 'land' : null; };
+const normTxt = s => String(s || '').toLowerCase().replace(/[^a-z0-9଀-୿]/g, '');
+const normNo = s => String(s || '').replace(/[^0-9a-z/]/gi, '').replace(/^0+/, '').toLowerCase();
+function verifyChecks(docs, geo, A, place) {
+  const R = [], add = (check, doc, gis, src, res, conf, todo) => R.push({ check, doc: doc || '—', gis: gis || '—', src, res, conf, todo: todo || '' });
+  const D = docs || {}, r = D.ror || {}, d = D.deed || {}, both = (k, nf) => r[k] && d[k] ? (nf || normTxt)(r[k]) === (nf || normTxt)(d[k]) : null;
+  const sq = v => Math.round(v).toLocaleString('en-IN') + ' sq ft (' + (Math.round(v / 435.6 * 100) / 100) + ' dec)';
+  // papers against papers
+  [['Khata number', 'khata', normNo], ['Plot number', 'plot', normNo], ['Owner / seller name', 'owner', normTxt], ['Village (mouza)', 'village', normTxt]].forEach(([n, k, f]) => { const m = both(k, f); if (m != null) add(n + ': RoR vs deed', 'RoR: ' + r[k] + ' · Deed: ' + d[k], '', 'RoR + sale deed', m ? 'match' : 'mismatch', 'high', m ? '' : 'The deed and the RoR must name the same ' + n.toLowerCase() + '. Ask the seller why they differ, and get it corrected before you pay.'); });
+  if (docSqft(r) && docSqft(d)) { const c = docCheck(docSqft(r), docSqft(d), 0); add('Area: RoR vs deed', 'RoR: ' + sq(docSqft(r)) + ' · Deed: ' + sq(docSqft(d)), '', 'RoR + sale deed', c.lvl === 'ok' ? 'match' : c.lvl === 'warn' ? 'warn' : 'mismatch', 'high', c.lvl === 'ok' ? '' : 'The deed sells ' + c.pct + '% ' + (c.more ? 'more' : 'less') + ' than the RoR shows. Only the RoR area can be transferred.'); }
+  // papers against the land
+  const gSrc = geo ? (GEO_SRC[geo.src || 'map'] || GEO_SRC.map) : null;
+  const docA = docSqft(r) || docSqft(d), docN = docSqft(r) ? 'RoR' : 'Deed';
+  if (docA && geo) { const c = docCheck(docA, geo.area, geo.areaSig); add('Area: papers vs land', docN + ': ' + sq(docA), sq(geo.area) + ' ± ' + Math.round(2 * (geo.areaSig || 0)).toLocaleString('en-IN') + ' (95%)', gSrc[0], c.lvl === 'ok' ? 'match' : c.lvl === 'warn' ? 'warn' : 'mismatch', c.lvl === 'ok' ? gSrc[1] : 'high', c.lvl === 'ok' ? '' : 'The land is ' + c.pct + '% ' + (c.more ? 'bigger' : 'smaller') + ' than the papers (allowed gap ' + c.tol + '%). Get a government amin or licensed surveyor to measure and mark the boundary.'); }
+  else if (docA) add('Area: papers vs land', docN + ': ' + sq(docA), 'Plot not marked on the map', '—', 'unknown', 'low', 'Open the map and mark the plot to compare.');
+  const coordDoc = (r.coords && r.coords.length >= 4 && r) || (d.coords && d.coords.length >= 4 && d);
+  if (coordDoc && geo && geo.pts) {
+    const a = coordDoc.coords, b = geo.pts, ref = geoMid(b), XA = geoXY(a, ref).X, XB = geoXY(b, ref).X; let best = Infinity;
+    if (XA.length === XB.length) for (const dirn of [1, -1]) for (let s = 0; s < XA.length; s++) { let w = 0; for (let i = 0; i < XA.length; i++) w = Math.max(w, Math.hypot(XA[i][0] - XB[((s + dirn * i) % XB.length + XB.length) % XB.length][0], XA[i][1] - XB[((s + dirn * i) % XB.length + XB.length) % XB.length][1])); best = Math.min(best, w); }
+    else { const ca = geoMid(a), cb = geoMid(b), u = geoXY([ca, cb], ref).X; best = Math.hypot(u[0][0] - u[1][0], u[0][1] - u[1][1]); }
+    const lim = 3 + 2 * Math.max(...(geo.sig || [1]));
+    add('Corner coordinates', a.length + ' corners in the ' + (coordDoc === r ? 'RoR' : 'deed'), (XA.length === XB.length ? 'Worst corner is ' : 'Centres are ') + best.toFixed(1) + ' m apart', gSrc[0], best <= lim ? 'match' : best <= 10 ? 'warn' : 'mismatch', geo.src === 'survey' ? 'high' : 'medium', best <= lim ? '' : 'The plot you marked is not where the papers put it. Check you marked the right plot; then get a survey.');
+  }
+  // the road side
+  const docRoad = r.road || d.road || (['N', 'E', 'S', 'W'].find(k => boundKind((d.bound || {})[k]) === 'road' || boundKind((r.bound || {})[k]) === 'road'));
+  if (docRoad && geo) { const mapR = A ? A.roadSides : [], ok = geo.facing === docRoad || mapR.includes(docRoad); add('Road side', 'Road on the ' + DIRN[docRoad], 'Marked front faces ' + DIRN[geo.facing] + (A ? '; OSM roads on: ' + (mapR.length ? mapR.map(k => DIRN[k]).join(', ') : 'none found') : ''), A ? gSrc[0] + ' + OpenStreetMap' : gSrc[0], ok ? 'match' : 'mismatch', A && mapR.includes(docRoad) ? 'high' : 'medium', ok ? '' : 'The papers put the road on a different side. You may have marked a neighbouring plot, or the corners are out of order (1–2 must be on the road).'); }
+  // chauhaddi: the four neighbours in the deed against what the map shows on each side
+  const bd = Object.assign({}, r.bound || {}, d.bound || {});
+  if (A) ['N', 'E', 'S', 'W'].forEach(k => {
+    const txt = bd[k]; if (!txt) return; const want = boundKind(txt), got = A.sides[k] || {}, seen = Object.keys(got), say = seen.length ? seen.map(x => ({ road: 'road', water: 'water', waterway: 'drain / canal', rail: 'railway', building: 'building', field: 'field', forest: 'forest', burial: 'burial ground', military: 'defence land' })[x] + (got[x].name ? ' (' + got[x].name + ')' : '')).join(', ') : 'nothing mapped';
+    let res = 'unknown', conf = 'low', todo = 'Check on the ground: stand on the ' + DIRN[k] + ' side and see what is there.';
+    if (want === 'road') { res = got.road ? 'match' : 'mismatch'; conf = got.road ? 'high' : 'medium'; todo = got.road ? '' : 'The deed says a road, the map has none here. Small lanes are sometimes not mapped: check on the ground.'; }
+    else if (want === 'water') { res = got.water || got.waterway ? 'match' : 'warn'; conf = 'medium'; todo = got.water || got.waterway ? '' : 'The deed names water on this side, the map has none. Check on the ground.'; }
+    else if (want === 'rail') { res = got.rail ? 'match' : 'mismatch'; conf = 'medium'; }
+    else if (want === 'govt') { res = 'unknown'; conf = 'low'; todo = 'Government land on this side: check the village map at the tahasil that it is not inside your boundary.'; }
+    else if (want === 'house') { res = got.building ? 'match' : 'unknown'; conf = got.building ? 'medium' : 'low'; }
+    else if (want === 'field' || want === 'land') { res = got.road || got.water || got.rail ? 'mismatch' : 'unknown'; conf = got.road || got.water || got.rail ? 'medium' : 'low'; todo = res === 'mismatch' ? 'The deed names private land here, but the map shows ' + say + '. You may have marked the wrong plot.' : 'Neighbour\'s land: confirm with the neighbour and the village map.'; }
+    add('Chauhaddi: ' + DIRN[k], txt, say, 'OpenStreetMap', res, conf, todo);
+  });
+  // what is inside the plot
+  if (A) {
+    const o = A.over, c = A.cuts;
+    add('Water inside the plot', '', o.water ? o.water.pct + '% of the plot' + (o.water.names.length ? ' (' + o.water.names.join(', ') + ')' : '') : 'None mapped', 'OpenStreetMap', o.water && o.water.pct >= 1 ? 'mismatch' : 'match', o.water ? 'medium' : 'low', o.water && o.water.pct >= 1 ? 'A pond or water body cannot be sold as homestead land. Check the kisam in the RoR and the village map.' : 'Look at the satellite view for any pond the map missed.');
+    ['road', 'rail', 'waterway'].forEach(k => { if (c[k]) add({ road: 'Road through the plot', rail: 'Railway through the plot', waterway: 'Drain / canal through the plot' }[k], '', c[k].pct + '% of the plot' + (c[k].names.length ? ' (' + c[k].names.join(', ') + ')' : ''), 'OpenStreetMap', 'mismatch', 'medium', 'Part of the marked plot is a public ' + (k === 'road' ? 'road' : k === 'rail' ? 'railway' : 'drain or canal') + '. Re-check the corners; if it is right, that part cannot be bought.'); });
+    if (o.building) add('Buildings on the plot', '', o.building.pct + '% of the plot is built', 'OpenStreetMap', 'warn', 'medium', 'Is the seller selling the building too? If the papers say vacant land, find out who built it.');
+    ['forest', 'burial', 'military'].forEach(k => { if (o[k]) add({ forest: 'Forest land', burial: 'Burial / cremation ground', military: 'Defence land' }[k], '', o[k].pct + '% of the plot', 'OpenStreetMap', 'mismatch', 'medium', 'This land is usually not sellable for a house. Check the kisam and get legal advice.'); });
+    const nr = A.near; if (nr.rail && nr.rail.d < 30) add('Near a railway', '', nr.rail.d + ' m from the railway', 'OpenStreetMap', 'warn', 'medium', 'Building within 30 m of railway land needs a no-objection certificate from the railways.');
+    if (nr.waterway && nr.waterway.d < 15 && (!c.waterway)) add('Near a drain / canal / river', '', nr.waterway.d + ' m from ' + (nr.waterway.name || nr.waterway.sub), 'OpenStreetMap', 'warn', 'low', 'Leave the setback the water resources department or the development authority asks for, and check flooding in the rains.');
+  }
+  // land class (kisam)
+  const kis = r.kisam || d.kisam;
+  if (kis) { const k = String(kis); const bad = /jalasaya|pond|pokhari|gochar|anabadi|jungle|forest|nala|rasta|smasan|sarkari|ଜଳାଶୟ|ଗୋଚର|ଅନାବାଦୀ|ଜଙ୍ଗଲ|ଶ୍ମଶାନ|ରାସ୍ତା/i.test(k), home = /ghara|bari|homestead|residential|basti|ଘରବାରି|ବସ୍ତି/i.test(k), agri = /sarad|jala|bahal|berna|atta|bila|agri|paddy|ଶାରଦ|ବହାଲ|ବେର୍ଣ୍ଣା|ଅଟା|ବିଲ/i.test(k);
+    add('Land class (kisam)', k, '', 'RoR', bad ? 'mismatch' : home ? 'match' : agri ? 'warn' : 'unknown', bad || home || agri ? 'high' : 'low', bad ? 'This class is public or restricted land. It cannot be sold for a house.' : agri ? 'Agricultural land: get it converted to homestead (OLR Act, Section 8-A) before you build.' : home ? '' : 'Ask the tahasil what this kisam allows.'); }
+  // the place name
+  const vil = r.village || d.village;
+  if (vil && place) { const names = [place.village, place.hamlet, place.suburb, place.neighbourhood, place.town, place.city, place.city_district, place.county, place.state_district].filter(Boolean), m = names.some(x => normTxt(x).includes(normTxt(vil)) || normTxt(vil).includes(normTxt(x))); add('Village / area name', vil, names.slice(0, 3).join(', ') || '—', 'OpenStreetMap (place names)', m ? 'match' : 'unknown', m ? 'medium' : 'low', m ? '' : 'Revenue villages (mouza) often have other names on maps. Confirm on Bhulekh that this plot is in ' + vil + '.'); }
+  // what no open map can tell us
+  add('Village map (cadastral) match', '', 'Not openly available', 'Bhulekh Odisha / tahasil', 'manual', '—', 'Get the village map sheet for the plot number and check the shape and neighbours against the satellite view.');
+  add('Encumbrance (loans, earlier sales)', '', 'Not openly available', 'IGR Odisha / sub-registrar', 'manual', '—', 'Get an encumbrance certificate for at least 30 years.');
+  add('Flood and zoning', '', 'Not openly available', 'BDA / CDA / ULB, Water Resources Dept', 'manual', '—', 'Check the plot is in a residential zone of the development plan and not in a flood or no-build zone.');
+  return R;
+}
+function verifySummary(R) { const c = { match: 0, warn: 0, mismatch: 0, unknown: 0, manual: 0 }; R.forEach(x => c[x.res]++); return { c, verdict: c.mismatch ? 'stop' : c.warn ? 'check' : 'clear' }; }
+const RES_T = { match: 'Match', mismatch: 'Mismatch', warn: 'Check', unknown: 'Not sure', manual: 'By hand' };
+function reportHTML(R, meta) {
+  const s = verifySummary(R), V = { stop: ['Do not pay yet', 'Some things do not match. Sort them out before any advance.'], check: ['Check before you pay', 'Nothing is clearly wrong, but some things need a check by hand.'], clear: ['No red flags in what we could check', 'Still do the checks marked "By hand" before you pay.'] }[s.verdict];
+  return '<div class="ev-sum ev-' + s.verdict + '"><b>' + V[0] + '</b><span>' + V[1] + '</span><span class="ev-c">' + s.c.match + ' match · ' + s.c.mismatch + ' mismatch · ' + s.c.warn + ' to check · ' + s.c.unknown + ' not sure · ' + s.c.manual + ' by hand</span></div>' +
+    '<div class="ev-w"><table class="ev"><thead><tr><th>Check</th><th>Papers say</th><th>Map / GIS says</th><th>Source</th><th>Result</th><th>Confidence</th><th>What to do</th></tr></thead><tbody>' +
+    R.map(x => { const td = (l, v, raw) => v && v !== '—' ? '<td data-l="' + l + '">' + (raw ? v : esc(v)) + '</td>' : '<td class="ev-e" data-l="' + l + '"></td>'; return '<tr class="ev-' + x.res + '"><td data-l="Check"><b>' + esc(x.check) + '</b></td>' + td('Papers say', x.doc) + td('Map / GIS says', x.gis) + td('Source', x.src) + '<td data-l="Result"><span class="ev-r">' + RES_T[x.res] + '</span>' + (x.conf && x.conf !== '—' ? ' <span class="ev-cf">' + esc(x.conf) + ' confidence</span>' : '') + '</td><td class="ev-e" data-l="Confidence"></td>' + td('What to do', x.todo) + '</tr>'; }).join('') + '</tbody></table></div>' +
+    '<p class="fine">' + esc(meta || '') + ' Map data © OpenStreetMap contributors (ODbL). BhuChain compares sources; it is not a legal title check. Get the final word from a lawyer and a government survey.</p>';
+}
+function reportJSON() {
+  const p = ST.plot, g = p.geo, V = p.ver; const R = verifyChecks(docsOf(), g, V && V.A, V && V.place);
+  return { tool: 'BhuChain GIS land check', version: 1, at: new Date().toISOString(), plot: g ? { corners: g.pts, sigma_m: g.sig, source: g.src, area_sqft: g.area, area_sigma_sqft: g.areaSig, road_side: g.facing, centre: g.at } : null, documents: docsOf(), osm: V && V.A ? { features: V.A.features, samples: V.A.samples, overlap: V.A.over, cuts: V.A.cuts, near: V.A.near, road_sides: V.A.roadSides, fetched: V.t } : null, place: V && V.place || null, checks: R, summary: verifySummary(R) };
+}
+
+/* ---------- plot step: map card, papers, report ---------- */
 function geoCardHTML() {
-  const g = ST.plot.geo;
-  return '<div class="card gisc"><div class="gisc-t"><div><b>Find your plot on the map</b><span>' + (g ? 'Marked at ' + g.at[0].toFixed(5) + ', ' + g.at[1].toFixed(5) + ' · ' + g.area.toLocaleString('en-IN') + ' sq ft · road on the ' + ({ N: 'north', E: 'east', S: 'south', W: 'west' })[g.facing] + (g.edited ? ' · sides changed by hand since' : '') : 'Mark the 4 corners on a satellite view. We measure every side, the area and the road side for you, and you can see what is around the land: roads, water, fields and buildings.') + '</span></div>' +
+  const g = ST.plot.geo, src = g ? (GEO_SRC[g.src || 'map'] || GEO_SRC.map)[0] : '';
+  return '<div class="card gisc"><div class="gisc-t"><div><b>Find your plot on the map</b><span>' + (g ? g.n + ' corners · ' + esc(src) + ' · ' + g.area.toLocaleString('en-IN') + ' ± ' + Math.round(2 * (g.areaSig || 0)).toLocaleString('en-IN') + ' sq ft · road on the ' + DIRN[g.facing] + ' · ' + g.at[0].toFixed(6) + ', ' + g.at[1].toFixed(6) + (g.approx ? ' · the planner uses the box around it' : '') + (g.edited ? ' · sides changed by hand since' : '') : 'Mark the corners on a satellite view, or paste a surveyor\'s coordinates. We measure every side, the area with its error and the road side, and check what is on and around the land.') + '</span></div>' +
     '<div class="gisc-b"><button class="rq-c on" data-a="gisopen">' + (g ? 'Open map again' : 'Open the map') + '</button>' + (g ? '<a class="rq-c" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps?q=' + g.at[0] + ',' + g.at[1] + '">Google Maps</a>' : '') + '</div></div></div>';
 }
+function docCheckHTML() {
+  const p = ST.plot, D = docsOf(), g = p.geo && !p.geo.edited ? p.geo : null, docA = docSqft(D.ror) || docSqft(D.deed), land = g ? g.area : p.area;
+  const R = docCheck(docA, land, g ? g.areaSig : 0), dec = v => (Math.round(v / 435.6 * 100) / 100).toLocaleString('en-IN');
+  if (!R) return '<p class="hint">Type the area from the RoR or deed, or paste the details from BhuChain AI. We compare it with the land ' + (g ? 'you marked on the map' : 'you measured') + '.</p>';
+  const say = { ok: 'Matches: the papers and the land agree within ' + R.tol + '%.', warn: 'Small gap: the land is ' + R.pct + '% ' + (R.more ? 'bigger' : 'smaller') + ' than the papers. Get a government amin or licensed surveyor to measure it before you pay.', bad: 'Big gap: the land is ' + R.pct + '% ' + (R.more ? 'bigger' : 'smaller') + ' than the papers. Do not pay an advance until a survey and the RoR agree.' }[R.lvl];
+  return '<div class="dc dc-' + R.lvl + '"><b>' + say + '</b><span>Papers: ' + Math.round(docA).toLocaleString('en-IN') + ' sq ft (' + dec(docA) + ' decimal) · Land ' + (g ? 'on the map' : 'from your sides') + ': ' + Math.round(land).toLocaleString('en-IN') + (g ? ' ± ' + Math.round(2 * g.areaSig).toLocaleString('en-IN') : '') + ' sq ft (' + dec(land) + ' decimal)</span></div>';
+}
+function docFormHTML(kind) {
+  const d = docsOf()[kind] || {}, A = d.area || {}, B = d.bound || {}, f = (k, lab, v, ph) => '<label><span>' + lab + '</span><div class="inp"><input data-f="docs.' + kind + '.' + k + '" value="' + esc(v || '') + '" placeholder="' + esc(ph || '') + '"></div></label>';
+  return '<div class="vd"><h4>' + DOC_KINDS[kind] + '</h4><div class="fields">' + f('owner', kind === 'deed' ? 'Seller' : 'Owner (raiyat)', d.owner) + f('khata', 'Khata no.', d.khata) + f('plot', 'Plot no.', d.plot) + f('village', 'Village (mouza)', d.village) +
+    '<label><span>Area</span><div class="inp"><input type="number" inputmode="decimal" step="any" min="0" data-f="docs.' + kind + '.area.value" value="' + esc(A.value || '') + '" placeholder="e.g. 3.5"></div></label><label><span>Unit</span><select data-f="docs.' + kind + '.area.unit">' + Object.keys(DOC_UNITS).map(k => '<option value="' + k + '"' + ((A.unit || 'dec') === k ? ' selected' : '') + '>' + DOC_UNITS[k][0] + '</option>').join('') + '</select></label>' +
+    f('kisam', 'Kisam (land class)', d.kisam, 'e.g. Gharabari, Sarad') +
+    '<label><span>Road side</span><select data-f="docs.' + kind + '.road"><option value="">Not stated</option>' + ['N', 'E', 'S', 'W'].map(k => '<option value="' + k + '"' + (d.road === k ? ' selected' : '') + '>' + DIRN[k] + '</option>').join('') + '</select></label></div>' +
+    '<p class="vd-l">Chauhaddi (what is on each side)</p><div class="fields four">' + ['N', 'E', 'S', 'W'].map(k => f('bound.' + k, DIRN[k][0].toUpperCase() + DIRN[k].slice(1), B[k], k === 'N' ? 'e.g. 20 ft road' : 'e.g. land of R. Das')).join('') + '</div>' +
+    (d.coords ? '<p class="hint">' + d.coords.length + ' corner coordinates from this document.</p>' : '') + '</div>';
+}
 function papersHTML() {
-  const D = ST.plot.doc || {};
-  return '<h3 class="q2">Check your land papers</h3><div class="card papers"><div class="fields two"><label><span>Area in the RoR or sale deed</span><div class="inp"><input type="number" inputmode="decimal" min="0" step="any" data-f="doc.area" value="' + (D.area || '') + '" placeholder="e.g. 3.5"></div></label><label><span>Unit</span><select data-f="doc.unit">' + Object.keys(DOC_UNITS).map(k => '<option value="' + k + '"' + ((D.unit || 'dec') === k ? ' selected' : '') + '>' + DOC_UNITS[k][0] + '</option>').join('') + '</select></label></div>' +
+  const V = ST.plot.ver, g = ST.plot.geo, fresh = V && g && V.key === geoKey(g);
+  return '<h3 class="q2">Check your land papers</h3><div class="card papers">' +
+    '<details class="vai"' + (ST.plot.aiOpen ? ' open' : '') + '><summary>Paste details from BhuChain AI</summary><p class="hint">Paste the JSON your AI read from the RoR and deed: owner, khata, plot, village, area, kisam, chauhaddi, road side and corner coordinates. The fields below fill in.</p><textarea id="aijson" rows="5" placeholder=\'{"ror": {"khata": "123", "plot": "456", "area": {"value": 3.5, "unit": "decimal"}}, "deed": {...}}\'></textarea><div class="vai-b"><button class="rq-c on" data-a="aipaste">Fill from AI</button><span id="aimsg" class="hint"></span></div></details>' +
+    '<div class="vds">' + docFormHTML('ror') + docFormHTML('deed') + '</div>' +
     '<div id="doccheck">' + docCheckHTML() + '</div>' +
+    '<div class="vrun"><button class="gis-ok" data-a="gisverify"' + (g ? '' : ' disabled') + '>' + (fresh ? 'Run the checks again' : 'Run GIS checks') + '</button><span class="hint">' + (g ? 'Looks at OpenStreetMap around the plot and compares it with the papers.' : 'Mark the plot on the map first.') + '</span></div>' +
+    '<div id="vreport">' + (fresh ? reportHTML(verifyChecks(docsOf(), g, V.A, V.place), 'Checked ' + new Date(V.t).toLocaleString('en-IN') + ' against ' + V.A.features + ' mapped features.') + '<div class="vrun"><button class="rq-c" data-a="vprint">Print / save as PDF</button><button class="rq-c" data-a="vjson">Download JSON</button></div>' : '') + '</div>' +
     '<details class="pp-more"><summary>Before you buy: 6 checks against land fraud</summary><ol>' +
     '<li>The seller\'s name is on the RoR (khatiyan) on <a href="https://bhulekh.ori.nic.in/" target="_blank" rel="noopener noreferrer">Bhulekh Odisha</a>, with the same khata and plot number as the sale deed.</li>' +
-    '<li>The area in the RoR, the deed and the land on the map agree (the check above).</li>' +
+    '<li>The area in the RoR, the deed and the land on the map agree.</li>' +
     '<li>The plot on the village map (cadastral map) has the same shape and neighbours as on the satellite view.</li>' +
-    '<li>No pond, canal, road, forest or government land inside the boundary on the satellite view.</li>' +
+    '<li>No pond, canal, road, forest or government land inside the boundary.</li>' +
     '<li>An encumbrance certificate from the <a href="https://igrodisha.gov.in/" target="_blank" rel="noopener noreferrer">IGR Odisha</a> office shows no loan or other sale on the plot.</li>' +
-    '<li>The land use (kisam) allows a house. Agricultural land needs conversion first.</li></ol><p class="fine">BhuChain helps you compare. It is not a legal title check. Get the final word from a lawyer and a government survey.</p></details></div>';
+    '<li>The land class (kisam) allows a house. Agricultural land needs conversion first.</li></ol><p class="fine">BhuChain helps you compare. It is not a legal title check. Get the final word from a lawyer and a government survey.</p></details></div>';
 }
-const GIS = { map: null, L: null, pts: [], layer: null, sat: true, base: null };
+const geoKey = g => g ? g.pts.map(p => p.join(',')).join(';') : '';
+function gisVerify() {
+  const g = ST.plot.geo; if (!g) return; const out = document.getElementById('vreport'); if (out) out.innerHTML = '<p class="hint">Checking OpenStreetMap around the plot…</p>';
+  const ov = fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(osmQuery(g.pts)), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(r => { if (!r.ok) throw new Error('overpass ' + r.status); return r.json(); });
+  const rv = fetch('https://nominatim.openstreetmap.org/reverse?format=json&zoom=16&addressdetails=1&lat=' + g.at[0] + '&lon=' + g.at[1]).then(r => r.json()).then(j => j.address || null).catch(() => null);
+  return Promise.all([ov, rv]).then(([osm, place]) => { ST.plot.ver = { key: geoKey(g), A: osmAnalyse(g.pts, osm), place, t: Date.now() }; keepY(() => {}); }).catch(() => { const o = document.getElementById('vreport'); if (o) o.innerHTML = '<p class="warn">OpenStreetMap did not answer. Check your internet connection and try again in a minute.</p>'; });
+}
+function reportPrint() {
+  const J = reportJSON(), w = window.open('', '_blank'); if (!w) return;
+  const css = 'body{font:14px/1.45 system-ui,sans-serif;color:#111;margin:24px}.ev,.ev tbody{display:block;width:100%}.ev thead,.ev-e{display:none}.ev tr{display:block;border:1px solid #ccc;border-radius:6px;margin:6px 0;padding:6px 0;page-break-inside:avoid}.ev td{display:flex;gap:10px;padding:2px 8px;font-size:12.5px}.ev td::before{content:attr(data-l);flex:0 0 120px;color:#666}.ev-mismatch{background:#fdecec}.ev-warn{background:#fff6dd}.ev-match{background:#eef9f1}.ev-r{font-weight:700}.ev-cf{color:#666;margin-left:6px}.ev-sum{padding:10px;border:1px solid #ccc;margin:10px 0}.ev-sum b,.ev-sum span{display:block}.fine{color:#555;font-size:12px}';
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>BhuChain land check</title><style>' + css + '</style></head><body><h2>BhuChain land check</h2><p>' + (J.plot ? 'Plot centre ' + J.plot.centre.join(', ') + ' · ' + J.plot.area_sqft.toLocaleString('en-IN') + ' ± ' + Math.round(2 * J.plot.area_sigma_sqft) + ' sq ft (95%) · ' + esc((GEO_SRC[J.plot.source] || GEO_SRC.map)[0]) : '') + '</p>' + reportHTML(J.checks, 'Made ' + new Date().toLocaleString('en-IN') + '.') + '</body></html>');
+  w.document.close(); setTimeout(() => w.print(), 300);
+}
+function gisAIFill() {
+  const t = document.getElementById('aijson'), msg = document.getElementById('aimsg'); if (!t || !t.value.trim()) return;
+  try { const D = docsFromAI(t.value), cur = docsOf(); Object.keys(D).forEach(k => { cur[k] = Object.assign({}, cur[k], D[k]); }); ST.plot.aiOpen = false; keepY(() => {}); }
+  catch (e) { if (msg) msg.textContent = 'That is not valid JSON: ' + e.message; }
+}
+
+/* ---------- the map ---------- */
+const GIS = { map: null, L: null, pts: [], sig: [], src: 'map', layer: null, sat: true, base: null };
 function gisLoad() {
   if (window.L && window.L.map) return Promise.resolve(window.L);
   return new Promise((ok, no) => {
@@ -6560,26 +6811,41 @@ function gisLoad() {
 }
 function gisTiles() {
   const L = GIS.L; if (GIS.base) GIS.map.removeLayer(GIS.base);
-  GIS.base = GIS.sat ? L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 21, maxNativeZoom: 19, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' }) : L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 21, maxNativeZoom: 19, attribution: '© OpenStreetMap contributors' });
+  GIS.base = GIS.sat ? L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 22, maxNativeZoom: 19, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' }) : L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 22, maxNativeZoom: 19, attribution: '© OpenStreetMap contributors' });
   GIS.base.addTo(GIS.map); const b = document.querySelector('[data-g="layer"]'); if (b) b.textContent = GIS.sat ? 'Street map' : 'Satellite';
 }
+// a tap is good to about 3 screen pixels; at zoom 19 in Odisha that is about 0.85 m on the ground
+const tapSig = () => 3 * mPerPx(GIS.map.getCenter().lat, GIS.map.getZoom());
 function gisDraw() {
   const L = GIS.L, P = GIS.pts; if (GIS.layer) GIS.map.removeLayer(GIS.layer); GIS.layer = L.layerGroup().addTo(GIS.map);
-  if (P.length > 1) L.polyline(P.length === 4 ? P.concat([P[0]]) : P, { color: '#FFB020', weight: 3 }).addTo(GIS.layer);
-  if (P.length === 4) L.polygon(P, { color: '#FFB020', weight: 0, fillOpacity: 0.18 }).addTo(GIS.layer);
-  P.forEach((p, i) => L.marker(p, { icon: L.divIcon({ className: 'gis-pin', html: '<b>' + (i + 1) + '</b>', iconSize: [24, 24] }) }).addTo(GIS.layer));
-  const M = geoMeasure(P), res = document.getElementById('gisres'), ap = document.querySelector('[data-g="apply"]'), tip = document.getElementById('gistip');
-  if (M && !M.bad) [[0, 1, M.f, 'Front'], [1, 2, M.r, ''], [2, 3, M.b, 'Back'], [3, 0, M.l, '']].forEach(([a, b, v, n]) => L.marker([(P[a][0] + P[b][0]) / 2, (P[a][1] + P[b][1]) / 2], { icon: L.divIcon({ className: 'gis-len', html: '<span>' + (n ? n + ' ' : '') + ftIn(v) + '</span>', iconSize: [0, 0] }) }).addTo(GIS.layer));
-  if (tip) tip.textContent = ['Zoom in till you see your plot. Tap corner 1 on the road side.', 'Now tap corner 2, the other end of the road side.', 'Tap corner 3, the back corner next to corner 2.', 'Tap corner 4, the last back corner.', 'Done. Drag the map to check, or Undo a corner.'][P.length];
-  if (res) res.innerHTML = !M ? '' : M.bad ? '<p class="warn">' + M.bad + '</p>' : '<div class="gis-sum"><span>Front <b>' + ftIn(M.f) + '</b></span><span>Back <b>' + ftIn(M.b) + '</b></span><span>Sides <b>' + ftIn(M.l) + '</b> · <b>' + ftIn(M.r) + '</b></span><span>Area <b>' + M.area.toLocaleString('en-IN') + ' sq ft</b> (' + (Math.round(M.area / 435.6 * 100) / 100) + ' decimal)</span><span>Road on the <b>' + ({ N: 'north', E: 'east', S: 'south', W: 'west' })[M.facing] + '</b></span></div><p class="fine">Satellite pictures can be a few feet off. Use this to check, and get a surveyor\'s measure before you build.</p>';
+  if (P.length > 1) L.polyline(P.length >= 4 ? P.concat([P[0]]) : P, { color: '#FFB020', weight: 3 }).addTo(GIS.layer);
+  if (P.length >= 4) L.polygon(P, { color: '#FFB020', weight: 0, fillOpacity: 0.18 }).addTo(GIS.layer);
+  P.forEach((p, i) => { const mk = L.marker(p, { draggable: true, icon: L.divIcon({ className: 'gis-pin', html: '<b>' + (i + 1) + '</b>', iconSize: [24, 24] }) }).addTo(GIS.layer); mk.on('dragend', () => { const q = mk.getLatLng(); GIS.pts[i] = [+q.lat.toFixed(7), +q.lng.toFixed(7)]; GIS.sig[i] = tapSig(); GIS.src = 'map'; gisDraw(); }); });
+  const M = geoMeasure(P, GIS.sig), res = document.getElementById('gisres'), ap = document.querySelector('[data-g="apply"]'), tip = document.getElementById('gistip');
+  if (M && !M.bad) P.forEach((p, i) => { const q = P[(i + 1) % P.length]; L.marker([(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], { icon: L.divIcon({ className: 'gis-len', html: '<span>' + (i === 0 ? 'Front ' : '') + ftIn(M.sides[i]) + '</span>', iconSize: [0, 0] }) }).addTo(GIS.layer); });
+  if (tip) tip.textContent = P.length < 4 ? ['Zoom in till you see your plot. Tap corner 1 on the road side.', 'Now tap corner 2, the other end of the road side.', 'Tap corner 3, the back corner next to corner 2.', 'Tap corner 4 going round the plot.'][P.length] : P.length < 12 ? 'Drag a corner to fine-tune it. If the plot has more corners, tap them in order.' : 'That is 12 corners, the most we take.';
+  if (res) res.innerHTML = !M ? '' : M.bad ? '<p class="warn">' + M.bad + '</p>' : '<div class="gis-sum"><span>Front <b>' + ftIn(M.sides[0]) + '</b></span>' + (M.n === 4 ? '<span>Back <b>' + ftIn(M.sides[2]) + '</b></span><span>Sides <b>' + ftIn(M.sides[1]) + '</b> · <b>' + ftIn(M.sides[3]) + '</b></span>' : '<span>' + M.n + ' sides, perimeter <b>' + M.perim + ' ft</b></span>') + '<span>Area <b>' + M.area.toLocaleString('en-IN') + ' ± ' + Math.round(2 * M.areaSig).toLocaleString('en-IN') + ' sq ft</b> (' + (Math.round(M.area / 435.6 * 100) / 100) + ' decimal)</span><span>Road on the <b>' + DIRN[M.facing] + '</b></span></div><p class="fine">± is the 95% range from how exactly the corners were placed (' + esc((GEO_SRC[GIS.src] || GEO_SRC.map)[0].toLowerCase()) + ', about ' + (Math.round(Math.max(...GIS.sig) * 10) / 10) + ' m a corner). Zoom in further to tighten it. Satellite photos can sit a few metres off true ground: that moves the plot but not its size.</p>';
   if (ap) ap.disabled = !(M && !M.bad);
 }
 function gisClose() { const m = document.getElementById('gism'); if (m) m.remove(); if (GIS.map) { GIS.map.remove(); GIS.map = null; } GIS.layer = null; GIS.base = null; document.body.style.overflow = ''; }
+// pasted coordinates: "lat, lng" per line, a GeoJSON polygon, or KML <coordinates>
+function parseCoords(t) {
+  t = (t || '').trim(); if (!t) return [];
+  let P = [];
+  if (/^[\[{]/.test(t)) { let J = JSON.parse(t); if (J.type === 'FeatureCollection') J = J.features[0]; if (J.type === 'Feature') J = J.geometry; if (J.type === 'Polygon') P = J.coordinates[0].map(p => [p[1], p[0]]); else if (Array.isArray(J)) P = J.map(p => Array.isArray(p) ? [+p[0], +p[1]] : [+p.lat, +(p.lng != null ? p.lng : p.lon)]); }
+  else if (/<coordinates>/i.test(t)) P = t.replace(/[\s\S]*<coordinates>|<\/coordinates>[\s\S]*/gi, '').trim().split(/\s+/).map(s => s.split(',')).map(a => [+a[1], +a[0]]);
+  else P = t.split(/\n|;/).map(l => l.match(/-?\d+(\.\d+)?/g)).filter(m => m && m.length >= 2).map(m => [+m[0], +m[1]]);
+  P = P.filter(p => isFinite(p[0]) && isFinite(p[1]) && Math.abs(p[0]) <= 90 && Math.abs(p[1]) <= 180);
+  if (P.length > 4 && P[0][0] === P[P.length - 1][0] && P[0][1] === P[P.length - 1][1]) P.pop();
+  return P;
+}
+const SRC_SIG = { survey: 0.1, earth: 2, gps: 5 };
 function gisOpen() {
-  gisClose(); const g = ST.plot.geo; GIS.pts = g && g.pts ? g.pts.map(p => p.slice()) : [];
+  gisClose(); const g = ST.plot.geo; GIS.pts = g && g.pts ? g.pts.map(p => p.slice()) : []; GIS.sig = g && g.sig ? g.sig.slice() : GIS.pts.map(() => 1); GIS.src = g && g.src || 'map';
   const m = document.createElement('div'); m.id = 'gism'; m.className = 'gis-m';
   m.innerHTML = '<div class="gis-b" role="dialog" aria-label="Find your plot on the map"><div class="gis-h"><b>Find your plot on the map</b><button class="gis-x" data-g="close" aria-label="Close">✕</button></div>' +
-    '<form class="gis-bar" data-g-form="1"><input id="gisq" placeholder="Village, area or landmark, e.g. Patia, Bhubaneswar" autocomplete="off"><button class="rq-c" type="submit">Search</button><button class="rq-c" type="button" data-g="me">My location</button><button class="rq-c" type="button" data-g="layer">Street map</button></form>' +
+    '<form class="gis-bar"><input id="gisq" placeholder="Village, area or landmark, e.g. Patia, Bhubaneswar" autocomplete="off"><button class="rq-c" type="submit">Search</button><button class="rq-c" type="button" data-g="me">My location</button><button class="rq-c" type="button" data-g="layer">Street map</button><button class="rq-c" type="button" data-g="coords">Enter coordinates</button></form>' +
+    '<div class="gis-co" id="gisco" hidden><textarea id="gisct" rows="4" placeholder="One corner a line, in order round the plot, road side first:\n20.296100, 85.824500\n20.296180, 85.824500 …\nor paste GeoJSON / KML"></textarea><div class="gis-bar"><select id="giscs"><option value="survey">Surveyor / DGPS (about 0.1 m)</option><option value="earth">Google Earth / map (about 2 m)</option><option value="gps">Phone GPS at the corners (about 5 m)</option></select><button class="rq-c on" type="button" data-g="load">Load corners</button><span class="hint" id="giscm"></span></div></div>' +
     '<div id="gismap"><p class="gis-load">Loading the map…</p></div><p class="gis-tip" id="gistip"></p><div id="gisres"></div>' +
     '<div class="gis-f"><button class="rq-c" data-g="undo">Undo corner</button><button class="rq-c" data-g="clear">Clear</button><button class="gis-ok" data-g="apply" disabled>Use these measurements</button></div></div>';
   document.body.appendChild(m); document.body.style.overflow = 'hidden';
@@ -6587,28 +6853,39 @@ function gisOpen() {
   m.querySelector('form').addEventListener('submit', e => { e.preventDefault(); gisSearch(document.getElementById('gisq').value); });
   gisLoad().then(L => {
     if (!document.getElementById('gism')) return; GIS.L = L; document.getElementById('gismap').innerHTML = '';
-    GIS.map = L.map('gismap', { zoomControl: true }).setView(g ? g.at : [20.2961, 85.8245], g ? 19 : 13); gisTiles();
-    GIS.map.on('click', e => { if (GIS.pts.length >= 4) return; GIS.pts.push([+e.latlng.lat.toFixed(7), +e.latlng.lng.toFixed(7)]); gisDraw(); });
+    GIS.map = L.map('gismap', { zoomControl: true, maxZoom: 22 }).setView(g ? g.at : [20.2961, 85.8245], g ? 19 : 13); gisTiles();
+    GIS.map.on('click', e => { if (GIS.pts.length >= 12) return; GIS.pts.push([+e.latlng.lat.toFixed(7), +e.latlng.lng.toFixed(7)]); GIS.sig.push(tapSig()); if (GIS.src !== 'map') { GIS.src = 'map'; GIS.sig = GIS.sig.map(s => Math.max(s, tapSig())); } gisDraw(); });
+    if (g) GIS.map.fitBounds(L.latLngBounds(g.pts), { maxZoom: 20, padding: [40, 40], animate: false });
     gisDraw(); setTimeout(() => GIS.map && GIS.map.invalidateSize(), 60);
   }).catch(() => { const el = document.getElementById('gismap'); if (el) el.innerHTML = '<p class="gis-load">The map could not load. Check your internet connection and try again.</p>'; });
 }
 function gisSearch(q) {
   q = (q || '').trim(); if (!q || !GIS.map) return; const tip = document.getElementById('gistip'); if (tip) tip.textContent = 'Searching…';
-  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q=' + encodeURIComponent(q)).then(r => r.json()).then(R => { if (!GIS.map) return; if (R && R[0]) { GIS.map.setView([+R[0].lat, +R[0].lon], 17); gisDraw(); } else if (tip) tip.textContent = 'Not found. Try a nearby landmark, the village name or the PIN code.'; }).catch(() => { if (tip) tip.textContent = 'Search did not work. Drag and zoom the map instead.'; });
+  const ll = q.match(/^\s*(-?\d+\.\d+)\s*[, ]\s*(-?\d+\.\d+)\s*$/); if (ll) { GIS.map.setView([+ll[1], +ll[2]], 19); return gisDraw(); }
+  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q=' + encodeURIComponent(q)).then(r => r.json()).then(R => { if (!GIS.map) return; if (R && R[0]) { GIS.map.setView([+R[0].lat, +R[0].lon], 17); gisDraw(); } else if (tip) tip.textContent = 'Not found. Try a nearby landmark, the village name, the PIN code, or type "lat, lng".'; }).catch(() => { if (tip) tip.textContent = 'Search did not work. Drag and zoom the map instead.'; });
 }
 function gisAct(a) {
   if (a === 'close') return gisClose();
+  if (a === 'coords') { const c = document.getElementById('gisco'); if (c) c.hidden = !c.hidden; return; }
   if (!GIS.map) return;
-  if (a === 'undo') { GIS.pts.pop(); gisDraw(); }
-  else if (a === 'clear') { GIS.pts = []; gisDraw(); }
+  if (a === 'undo') { GIS.pts.pop(); GIS.sig.pop(); gisDraw(); }
+  else if (a === 'clear') { GIS.pts = []; GIS.sig = []; GIS.src = 'map'; gisDraw(); }
   else if (a === 'layer') { GIS.sat = !GIS.sat; gisTiles(); }
-  else if (a === 'me') { if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => GIS.map && GIS.map.setView([p.coords.latitude, p.coords.longitude], 19), () => { const t = document.getElementById('gistip'); if (t) t.textContent = 'Could not get your location. Allow location in the browser, or search instead.'; }); }
-  else if (a === 'apply') { const M = geoMeasure(GIS.pts); if (!M || M.bad) return; gisApply(GIS.pts, M); gisClose(); render(); }
+  else if (a === 'load') { const msg = document.getElementById('giscm'); try { const P = parseCoords(document.getElementById('gisct').value); if (P.length < 4 || P.length > 12) throw new Error('need 4 to 12 corners, found ' + P.length); const src = document.getElementById('giscs').value; GIS.pts = P; GIS.src = src; GIS.sig = P.map(() => SRC_SIG[src]); GIS.map.fitBounds(GIS.L.latLngBounds(P), { maxZoom: 20, padding: [40, 40], animate: false }); gisDraw(); if (msg) msg.textContent = P.length + ' corners loaded.'; } catch (e) { if (msg) msg.textContent = 'Could not read that: ' + e.message; } }
+  else if (a === 'me') { if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => { if (!GIS.map) return; GIS.map.setView([p.coords.latitude, p.coords.longitude], 19); const t = document.getElementById('gistip'); if (t) t.textContent = 'You are here, to about ' + Math.round(p.coords.accuracy) + ' m.'; }, () => { const t = document.getElementById('gistip'); if (t) t.textContent = 'Could not get your location. Allow location in the browser, or search instead.'; }, { enableHighAccuracy: true, timeout: 15000 }); }
+  else if (a === 'apply') { const M = geoMeasure(GIS.pts, GIS.sig); if (!M || M.bad) return; gisApply(GIS.pts, M, GIS.sig, GIS.src); gisClose(); render(); }
 }
-function gisApply(pts, M) {
+function gisApply(pts, M, sig, src) {
   const p = ST.plot; p.mode = 'sides'; p.sides = { f: M.f, b: M.b, l: M.l, r: M.r }; p.facing = M.facing; applySides();
-  p.geo = { pts: pts.map(x => x.slice()), at: M.at, area: M.area, facing: M.facing, edited: false }; S.design = null; ST.grid = null;
+  p.geo = { pts: pts.map(x => x.slice()), sig: (sig || pts.map(() => 1)).map(s => Math.round(s * 100) / 100), src: src || 'map', n: M.n, at: M.at, area: M.area, areaSig: M.areaSig, facing: M.facing, approx: M.approx, edited: false }; S.design = null; ST.grid = null;
 }
+// for BhuChain AI and other tools on the page: measure, analyse and check without the screens
+window.BhuGIS = {
+  utm, measure: geoMeasure, analyse: osmAnalyse, osmQuery, checks: verifyChecks, fromAI: docsFromAI, parseCoords,
+  setDocs(J) { const D = docsFromAI(J), cur = docsOf(); Object.keys(D).forEach(k => { cur[k] = Object.assign({}, cur[k], D[k]); }); if (typeof render === 'function' && cur) keepY(() => {}); return cur; },
+  setPlot(corners, src) { const P = parseCoords(typeof corners === 'string' ? corners : JSON.stringify(corners)), sg = P.map(() => SRC_SIG[src] || 1), M = geoMeasure(P, sg); if (!M || M.bad) return M; gisApply(P, M, sg, SRC_SIG[src] ? src : 'map'); keepY(() => {}); return M; },
+  run: () => gisVerify(), report: () => reportJSON()
+};
 SCR.plot = () => {
   const p = ST.plot; p.mode = 'sides';
   if (!p.sides) { p.sides = { f: p.w, b: p.w, l: p.d, r: p.d }; applySides(); }
@@ -9522,6 +9799,10 @@ const ACT = {
   pmode: el => keepY(() => { ST.plot.mode = el.dataset.v; if (el.dataset.v !== 'sides') ST.plot.shape = null; if (el.dataset.v === 'area') { ST.plot.area = Math.round(ST.plot.w * ST.plot.d); } if (el.dataset.v === 'sides') { ST.plot.sides = ST.plot.sides || { f: ST.plot.w, b: ST.plot.w, l: ST.plot.d, r: ST.plot.d }; applySides(); } S.design = null; ST.grid = null; }),
   facing: el => keepY(() => { ST.plot.facing = el.dataset.v; }),
   gisopen: () => gisOpen(),
+  gisverify: () => gisVerify(),
+  aipaste: () => gisAIFill(),
+  vprint: () => reportPrint(),
+  vjson: () => saveText('BhuChain-land-check.json', JSON.stringify(reportJSON(), null, 2), 'application/json'),
   pbyf: el => keepY(() => { const P = projState(); P.byFloor = el.dataset.v === '1'; if (P.byFloor && (!P.plan || !P.plan.length)) P.plan = [{ k: 'b1', n: 0 }, { k: 'b2', n: 0 }]; }),
   pfk: el => keepY(() => { projState().plan[+el.dataset.i].k = el.dataset.v; }),
   pfn: el => keepY(() => { const x = projState().plan[+el.dataset.i]; x.n = Math.max(0, Math.min(20, (x.n || 0) + +el.dataset.d)); }),
@@ -9671,7 +9952,7 @@ document.addEventListener('input', e => {
   if (e.target.dataset.sb) { setbackType(e.target); return; }
   const t = e.target, f = t.dataset.f; if (!f) return;
   const [a, k] = f.split('.');
-  if (a === 'doc') { ST.plot.doc = ST.plot.doc || {}; ST.plot.doc[k] = t.value; const dc = document.getElementById('doccheck'); if (dc) dc.innerHTML = docCheckHTML(); return; }
+  if (a === 'docs') { const P = f.split('.').slice(1), D = docsOf(); let o = D[P[0]] = D[P[0]] || {}; for (let i = 1; i < P.length - 1; i++) o = o[P[i]] = o[P[i]] || {}; o[P[P.length - 1]] = P[P.length - 1] === 'value' ? parseFloat(t.value) || '' : t.value; const dc = document.getElementById('doccheck'); if (dc) dc.innerHTML = docCheckHTML(); return; }
   if ((a === 'sides' || k === 'area') && ST.plot.geo) ST.plot.geo.edited = true;
   if (a === 'cust') { ST.cust[k] = t.value; const m = document.querySelector('.qmeta dd'); if (m) m.textContent = (ST.cust.name || '—') + (ST.cust.phone ? ' · ' + ST.cust.phone : ''); return; }
   const v = parseFloat(t.value);

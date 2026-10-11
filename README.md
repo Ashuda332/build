@@ -34,8 +34,55 @@ The site then lives at `https://<owner>.github.io/<repo>/`.
 - **Parking for rentals and apartments**: car bays 9 × 18 ft and bike stalls 2′6″ × 6′, each with its size on the plan; a drive aisle kept free to take vehicles out (12 ft for rentals, 20 ft between apartment bay rows), or for rentals “back out to the road” through wide gates when that fits more units. A 4 ft entry path runs from a walk-in gate to the building door and is never parked on. The entry gate type (sliding, swing, telescopic, automatic, folding) is a choice and is priced.
 - **Apartments**: floors are capped at a floor-area ratio of about 3, so a small plot is not turned into a thin tower of one flat a floor; the plan says how many of the requested flats fit.
 - **Front elevation styles (apartments and rentals)**: ten looks — glass curtain wall, wooden fins, box frames, brick and glass, stone luxe, staggered balconies, green balconies, monochrome grid, aluminium louvers, modern Odia jaali — drawn in the 2D elevation and the 3D building, with a style gallery. Each comes with its exterior finishes (ACP, HPL, stone, brick tiles, WPC fins, glass, texture paint, exterior tiles, louvers, planters, jaali, glass railings); the owner can switch any of them and the estimate follows. Different plots get different default looks.
-- **Find your plot on the map (GIS)**, on the Plot step: search a village or landmark, or use your location, then tap the plot's 4 corners on a satellite view (Esri World Imagery; OpenStreetMap street view on a switch). The app measures every side, the area and which side faces the road, and fills them in. Leaflet loads from cdnjs only when the map opens.
-- **Check your land papers**, on the Plot step: type the area from the RoR (khatiyan) or sale deed, in decimal, acre, guntha, sq ft or sq m. The app compares it with the land on the map (or the sides you typed): within 5% it matches, 5–15% needs a survey, and over 15% means do not pay an advance. Below it is a 6-point checklist against land fraud, with links to Bhulekh Odisha and IGR Odisha. This is a comparison aid, not a legal title check.
+- **Find your plot on the map (GIS)**, on the Plot step:
+  - Search a village, landmark or "lat, lng", or use your location. Satellite view (Esri World Imagery), with OpenStreetMap street view on a switch.
+  - Tap 4 to 12 corners going round the plot, road side first. Corners can be dragged to fine-tune them.
+  - Or use **Enter coordinates** to paste a surveyor's or DGPS corners: "lat, lng" lines, GeoJSON or KML.
+  - Sides and area are true ground values. Corners are projected to UTM (WGS84, Snyder series) and corrected by the point scale factor; a 100 × 100 m test plot measures within 0.1 sq ft.
+  - Every corner carries its uncertainty:
+    - a tap is about 3 screen pixels at the zoom it was placed
+    - surveyor or DGPS about 0.1 m
+    - Google Earth about 2 m
+    - phone GPS about 5 m
+
+    The area is shown with its 95% range (±2σ, error propagated exactly through the shoelace formula).
+  - Plots with more than 4 corners go to the planner as the box around them, square to the road.
+- **Check your land papers and run GIS checks**, on the Plot step:
+  - Enter the RoR and sale deed details (owner, khata, plot, village, area, kisam, road side, chauhaddi), or paste the JSON from BhuChain AI.
+  - **Run GIS checks** asks OpenStreetMap (Overpass, about 80 m around the plot) and Nominatim (place name), then builds an **evidence report**. Each row gives what the papers say, what the map says, the source, a result (match, mismatch, check, not sure, by hand), a confidence and what to do by hand.
+  - The checks:
+    - RoR vs deed: khata, plot, owner, village, area
+    - area of the papers vs the land, within the measuring error plus 2%
+    - corner coordinates in the papers vs the marked plot
+    - road side
+    - chauhaddi on each side vs what is mapped 2–12 m outside that side
+    - water, buildings, forest, burial or defence land inside the plot (by grid sampling)
+    - roads, railways and drains cutting through it
+    - railway within 30 m, or drain or canal within 15 m
+    - kisam (agricultural land needs OLR Act Section 8-A conversion)
+    - village name
+  - Cadastral map, encumbrance and flood or zoning checks are listed as manual: that data is not openly available.
+  - The report prints or saves as PDF, and downloads as JSON.
+- **For BhuChain AI:** `window.BhuGIS` exposes the engine without the screens:
+  - `measure(corners, sigmas)`
+  - `analyse(corners, overpassJSON)`
+  - `checks(docs, geo, analysis, place)`
+  - `fromAI(json)`
+  - `setDocs(json)`
+  - `setPlot(corners, 'survey' | 'earth' | 'gps')`
+  - `run()`
+  - `report()`
+
+  `fromAI` / `setDocs` take `{ ror: {...}, deed: {...} }`, an array of documents with a `type`, or one document. Field names are flexible:
+  - `owner` / `owner_name`
+  - `khata` / `khata_no`
+  - `plot` / `plot_no`
+  - `village` / `mouza`
+  - `kisam`
+  - `area: { value, unit }` or `area_decimal` / `area_acre`
+  - `boundaries` / `chauhaddi: { north, east, south, west }`
+  - `road_side`
+  - `coordinates`: `[[lat, lng], ...]` or GeoJSON
 - **Budget** step: one grid shows all three packages in all three ranges, nine prices at once; tap one to choose both. The packages are:
   - **Core house:** the starter shell, with walls, roof, doors, windows, flooring, paint, concealed wiring, toilet and taps, and a kitchen counter and sink.
   - **Semi-furnished:** adds fans, tube lights and exhaust, fitted bathrooms, a modular kitchen with chimney, wardrobes and a false ceiling.

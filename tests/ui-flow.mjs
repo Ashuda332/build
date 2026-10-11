@@ -89,18 +89,40 @@ assert.equal(bg.cells, 9, 'three packages × three budgets'); assert.equal(bg.ro
 // every material on the budget step is a dropdown, and changing one changes the price
 const dd = await p.evaluate(() => { ST.step = flow().indexOf('budget'); ST.pick = {}; render(); const sels = document.querySelectorAll('.bmat select.bm-sel'), chips = document.querySelectorAll('.bmat .rq-c').length, before = tierEstimate('mid').total; const w = document.querySelector('select[data-pick="walling"]'); const ten = [...w.options].find(o => /10×5/.test(o.text)); w.value = ten.value; w.dispatchEvent(new Event('change', { bubbles: true })); const r = { sels: sels.length, chips, picked: ST.pick.walling === +ten.value, steel: !!document.querySelector('select[data-steel]'), lab: !!document.querySelector('select[data-pick="labour"]') }; ST.pick = {}; return r; });
 assert.ok(dd.sels > 20 && dd.chips === 0 && dd.picked && dd.steel && dd.lab, 'budget materials are dropdowns: ' + JSON.stringify(dd));
-// GIS: 4 corners on the map give the sides, area and road side; the papers check flags a gap
+// GIS: corners → true ground sides and area (UTM, WGS84), the error band, AI papers, OpenStreetMap checks and the evidence report
 const gis = await p.evaluate(() => {
-  const la = 20.30, lo = 85.82, dLa = ft => ft * 0.3048 / 110574, dLo = ft => ft * 0.3048 / (111320 * Math.cos(la * Math.PI / 180));
-  const P = [[la, lo], [la + dLa(30), lo], [la + dLa(30), lo - dLo(40)], [la, lo - dLo(40)]]; // road along the east edge
-  const M = geoMeasure(P), crossed = geoMeasure([P[0], P[2], P[1], P[3]]);
-  ST.step = flow().indexOf('plot'); render(); gisApply(P, M); render();
-  const card = /Marked at/.test(document.querySelector('.gisc').textContent);
-  ST.plot.doc = { area: (1200 / 435.6).toFixed(2), unit: 'dec' }; const ok = docCheckHTML(); ST.plot.doc = { area: '4', unit: 'dec' }; const bad = docCheckHTML(); ST.plot.doc = null; ST.plot.geo = null;
-  return { f: M.f, b: M.b, l: M.l, r: M.r, area: M.area, facing: M.facing, crossed: !!(crossed && crossed.bad), card, sides: ST.plot.sides.f + 'x' + ST.plot.sides.l, ok: /dc-ok/.test(ok), bad: /dc-bad/.test(bad), papers: !!document.querySelector('[data-f="doc.area"]') };
+  const la = 20.30, lo = 85.82, R = Math.PI / 180, mLa = 111132.954 - 559.822 * Math.cos(2 * la * R) + 1.175 * Math.cos(4 * la * R), mLo = 111412.84 * Math.cos(la * R) - 93.5 * Math.cos(3 * la * R);
+  const at = (e, n) => [la + n / mLa, lo + e / mLo]; // metres east / north → [lat, lng]
+  const ft = v => v * 0.3048;
+  const P = [at(0, 0), at(0, ft(30)), at(-ft(40), ft(30)), at(-ft(40), 0)]; // 30 ft road side along the east edge, 40 ft deep
+  const M = geoMeasure(P, [1, 1, 1, 1]), crossed = geoMeasure([P[0], P[2], P[1], P[3]]);
+  const Lsh = geoMeasure([at(0, 0), at(0, 20), at(-10, 20), at(-10, 10), at(-20, 10), at(-20, 0)], [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]); // L shape, 300 m²
+  // a 30 × 30 m plot, road on its east side; a pond over its west half; a building in the north-east corner
+  const Q = [at(0, 0), at(0, 30), at(-30, 30), at(-30, 0)], g = q => q.map(([a, b]) => ({ lat: a, lon: b }));
+  const osm = { elements: [
+    { type: 'way', tags: { natural: 'water', name: 'Bada Pokhari' }, geometry: g([at(-40, -10), at(-15, -10), at(-15, 40), at(-40, 40), at(-40, -10)]) },
+    { type: 'way', tags: { highway: 'residential', name: 'Lane 3' }, geometry: g([at(5, -30), at(5, 60)]) },
+    { type: 'way', tags: { building: 'yes' }, geometry: g([at(-8, 22), at(-2, 22), at(-2, 28), at(-8, 28), at(-8, 22)]) }] };
+  const A = osmAnalyse(Q, osm);
+  const D = docsFromAI({ ror: { khata_no: '0123', plot_no: '456/7', owner_name: 'R. Das', mouza: 'Patia', kisam: 'Sarad', area: { value: 22, unit: 'decimal' }, chauhaddi: { east: '20 ft road', west: 'Pokhari', north: 'Land of S. Sahu' } }, deed: { type: 'sale deed', khata: '123', plot: '456/8', seller: 'R Das', area_decimal: 22 } });
+  const Mq = geoMeasure(Q, [0.5, 0.5, 0.5, 0.5]), geoQ = { pts: Q, sig: [0.5, 0.5, 0.5, 0.5], src: 'map', area: Mq.area, areaSig: Mq.areaSig, facing: Mq.facing };
+  const rows = verifyChecks(D, geoQ, A, { village: 'Patia', state_district: 'Khordha' }), row = n => (rows.find(r => r.check.startsWith(n)) || {}).res;
+  // the screen: papers from AI, a stored check, the report
+  ST.step = flow().indexOf('plot'); render(); BhuGIS.setDocs(D); gisApply(Q, Mq, geoQ.sig, 'map'); ST.plot.ver = { key: geoKey(ST.plot.geo), A, place: { village: 'Patia' }, t: Date.now() }; render();
+  const ui = { form: document.querySelector('[data-f="docs.ror.khata"]').value, rows: document.querySelectorAll('#vreport .ev tbody tr').length, verdict: !!document.querySelector('.ev-sum.ev-stop'), json: reportJSON().checks.length };
+  ST.plot.docs = null; ST.plot.ver = null; ST.plot.geo = null;
+  return { f: M.f, b: M.b, l: M.l, r: M.r, area: M.area, sig: M.areaSig, facing: M.facing, crossed: !!(crossed && crossed.bad), L: Lsh.area, Ln: Lsh.n, Lsig: Lsh.areaSig,
+    water: A.over.water && A.over.water.pct, bld: A.over.building && A.over.building.pct, roadE: A.roadSides.includes('E'), westWater: !!A.sides.W.water, D,
+    res: { khata: row('Khata'), plot: row('Plot number'), owner: row('Owner'), areaRD: row('Area: RoR vs deed'), area: row('Area: papers vs land'), road: row('Road side'), east: row('Chauhaddi: east'), west: row('Chauhaddi: west'), north: row('Chauhaddi: north'), water: row('Water inside'), kisam: row('Land class'), village: row('Village / area') }, ui };
 });
-assert.ok(Math.abs(gis.f - 30) <= 0.5 && Math.abs(gis.b - 30) <= 0.5 && Math.abs(gis.l - 40) <= 0.5 && Math.abs(gis.r - 40) <= 0.5, 'map sides ' + JSON.stringify(gis));
-assert.ok(Math.abs(gis.area - 1200) <= 15 && gis.facing === 'E' && gis.crossed && gis.card && gis.ok && gis.bad && gis.papers, 'GIS ' + JSON.stringify(gis));
+assert.ok(Math.abs(gis.area - 1200) <= 1.5, 'UTM area is true to ground: ' + gis.area);
+assert.ok(gis.f === 30 && gis.b === 30 && gis.l === 40 && gis.r === 40 && gis.facing === 'E' && gis.crossed, 'sides ' + JSON.stringify(gis));
+assert.ok(Math.abs(gis.sig - 164) <= 3, 'area error from 1 m corners: ' + gis.sig);
+assert.ok(Math.abs(gis.L - 3229) <= 4 && gis.Ln === 6 && gis.Lsig < 30, 'L-shaped plot: ' + gis.L);
+assert.ok(Math.abs(gis.water - 50) <= 3 && gis.bld > 2 && gis.bld < 6 && gis.roadE && gis.westWater, 'OSM overlap ' + JSON.stringify([gis.water, gis.bld, gis.roadE, gis.westWater]));
+assert.deepEqual([gis.D.ror.khata, gis.D.ror.plot, gis.D.ror.village, gis.D.ror.area.unit, gis.D.ror.bound.E, gis.D.deed.area.value], ['0123', '456/7', 'Patia', 'dec', '20 ft road', 22]);
+assert.deepEqual(gis.res, { khata: 'match', plot: 'mismatch', owner: 'match', areaRD: 'match', area: 'match', road: 'match', east: 'match', west: 'match', north: 'mismatch', water: 'mismatch', kisam: 'warn', village: 'match' });
+assert.ok(gis.ui.form === '0123' && gis.ui.rows >= 12 && gis.ui.verdict && gis.ui.json === gis.ui.rows, 'report on screen ' + JSON.stringify(gis.ui));
 assert.deepEqual(errs, []);
 // no structure step; toilets never open off the living room, dining or kitchen; every opening is labelled; furniture moves by hand but never in front of a door
 const pv = await p.evaluate(() => {
