@@ -927,6 +927,8 @@ html[data-theme="dark"] .facts>div,html[data-theme="dark"] .rows{background:#161
 html[data-theme="dark"] .pcmp li.add{color:#6BCB8F}
 @media (max-width:600px){.pm{grid-template-columns:repeat(var(--n),minmax(0,1fr))}.pm>.pm-h:first-child{display:none}.pm-r{grid-column:1/-1;padding:8px 0 0}.pcmp{min-width:640px}}
 .aiplot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;margin:0 0 18px;border-left:4px solid #2F6B4F}.aiplot>div:first-child{flex:1 1 260px;display:flex;flex-direction:column;gap:2px}.aiplot-b{display:flex;gap:8px;flex-wrap:wrap}.aiplot b{font-size:15px}.aiplot span{font-size:13.5px;color:var(--mute)}
+main.plotw{max-width:1080px}main.plotw>*:not(.plot2){max-width:636px;margin-left:auto;margin-right:auto}
+@media (min-width:900px){main.plotw .plot2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:28px;align-items:start;margin-top:8px}main.plotw .plot2>#plotsk{position:sticky;top:76px}main.plotw .plot2 .plotsk{margin-top:0}main.plotw .plot2 #sbui>h3.q2:first-child{margin-top:0}}
 </style>
 </head>
 <body>
@@ -6520,8 +6522,8 @@ SCR.plot = () => {
   return aiPlotNote() + '<h2 class="q">How big is your land?</h2><p class="sub">Measure all four sides — plots are rarely a perfect rectangle. The road side is the front. Or type the area and the sides follow.</p>' +
     '<div class="card plotin"><div class="fields four">' + fld('f', 'Front (road side)') + fld('b', 'Back') + fld('l', 'Left side') + fld('r', 'Right side') + '</div>' +
     '<div class="fields one parea"><label><span>Area</span><div class="inp"><input type="number" inputmode="decimal" min="300" max="50000" id="parea" data-f="plot.area" value="' + p.area + '"><i>sq ft</i></div></label><p class="hint">1 decimal = 435.6 sq ft. Typing the area scales all four sides and keeps the shape.</p></div></div>' +
-    '<div id="plotsk">' + plotSketch(S) + '</div>' +
-    ((ST.home.use || 'family') !== 'villa' ? setbackUI() : '') +
+    '<div class="plot2"><div id="plotsk">' + plotSketch(S) + '</div>' +
+    ((ST.home.use || 'family') !== 'villa' ? setbackUI() : '') + '</div>' +
     '<h3 class="q2">Road side</h3><div class="compass">' + [['N', 'North'], ['E', 'East'], ['S', 'South'], ['W', 'West']].map(d => '<button class="' + (p.facing === d[0] ? 'on' : '') + '" data-a="facing" data-v="' + d[0] + '"><b>' + d[0] + '</b><span>' + d[1] + '</span></button>').join('') + '</div>';
 };
 // type the plot area: scale the four sides by the same factor so the shape stays and the area matches
@@ -9379,7 +9381,7 @@ function render() {
   const c = cur(), F = flow(), wide = ['purpose', 'layout', 'structure', 'materials', 'quote', 'budget'].includes(c), homeW = c === 'home' && !isProj() && ST.home.use !== 'rent';
   $('#prog').style.width = (ST.step / (F.length - 1) * 100) + '%';
   $('#stepl').textContent = ST.step ? 'Step ' + ST.step + ' of ' + (F.length - 1) + ' · ' + STEP_TITLE[c] : '';
-  $('#main').className = (wide ? 'wide' : '') + (homeW ? ' homew' : '') + (c === 'layout' && !isProj() && ST.home.use !== 'rent' ? ' studiom' : '');
+  $('#main').className = (wide ? 'wide' : '') + (homeW ? ' homew' : '') + (c === 'plot' ? ' plotw' : '') + (c === 'layout' && !isProj() && ST.home.use !== 'rent' ? ' studiom' : '');
   $('#main').innerHTML = SCR[c]();
   { const m = $('#main'); if (render._last !== c) { m.classList.remove('enter'); void m.offsetWidth; m.classList.add('enter'); render._last = c; } }
   const last = ST.step === F.length - 1;
