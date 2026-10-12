@@ -926,7 +926,7 @@ html[data-theme="dark"] .facts>div,html[data-theme="dark"] .rows{background:#161
 .pcmp ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}.pcmp li b{font-weight:600}.pc-brick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}.pc-brick>b{font-size:14px;margin-right:4px}.pcmp li.add{color:#1E7A46}.pcmp li.add::before{content:'+ '}.pcmp .no{color:var(--faint)}
 html[data-theme="dark"] .pcmp li.add{color:#6BCB8F}
 @media (max-width:600px){.pm{grid-template-columns:repeat(var(--n),minmax(0,1fr))}.pm>.pm-h:first-child{display:none}.pm-r{grid-column:1/-1;padding:8px 0 0}.pcmp{min-width:640px}}
-.aiplot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;margin:0 0 18px;border-left:4px solid #2F6B4F}.aiplot div{flex:1 1 260px;display:flex;flex-direction:column;gap:2px}.aiplot b{font-size:15px}.aiplot span{font-size:13.5px;color:var(--mute)}
+.aiplot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;margin:0 0 18px;border-left:4px solid #2F6B4F}.aiplot>div:first-child{flex:1 1 260px;display:flex;flex-direction:column;gap:2px}.aiplot-b{display:flex;gap:8px;flex-wrap:wrap}.aiplot b{font-size:15px}.aiplot span{font-size:13.5px;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -6444,11 +6444,25 @@ SCR.purpose = () => '<section class="bx-hero"><div><span class="bx-lab"><img src
 function useCards() { const use = ST.home.use || 'family'; return '<div class="opts two use">' + [['family', 'Home for my family', 'One house for you to live in. Big land gets a lawn, garden and more.'], ['villa', 'Ultra luxury estate', 'A signature villa, a garden bungalow or a farmhouse estate — designed together with its grounds.'], ['rent', 'Rental units', 'Many self-contained units — each with its own kitchen and attached bath.'], ['apartment', 'Apartment building', 'Flats of 1, 2, 3 or 4 BHK on many floors, with lifts, parking and amenities.'], ['commercial', 'Commercial building', 'Shops and offices, with lifts and open, ground-floor or basement parking.']].map(u => '<button class="opt' + (use === u[0] ? ' on' : '') + '" data-a="use" data-v="' + u[0] + '"><b>' + u[1] + '</b><span>' + u[2] + '</span></button>').join('') + '</div>'; }
 /* ---------- a plot sent from Bhu AI: the land was checked against the papers and the map ---------- */
 function bhuHandoff() { try { const H = JSON.parse(localStorage.getItem('bhu_plot_handoff') || 'null'); if (!H || H.v !== 1 || !H.sides || !(+H.sides.f > 0) || Date.now() - Date.parse(H.at) > 7 * 864e5) return null; return H; } catch (e) { return null; } }
-function applyHandoff(H) { const p = ST.plot; p.mode = 'sides'; p.sides = { f: +H.sides.f, b: +H.sides.b, l: +H.sides.l, r: +H.sides.r }; if ('NESW'.includes(H.facing)) p.facing = H.facing; applySides(); p.fromAI = Object.assign({}, H, { edited: false }); ST.purpose = ST.purpose || 'build'; S.design = null; ST.grid = null; }
+// a side measured on the satellite map is good to ± its margin (95%): design on the safe size (each side less its margin)
+// so the house never comes out bigger than the land; a surveyor's measure has almost no margin and is used as it is
+const aiMargin = H => { const m = H.margin || {}; return { f: Math.max(0, +m.f || 0), b: Math.max(0, +m.b || 0), l: Math.max(0, +m.l || 0), r: Math.max(0, +m.r || 0) }; };
+const aiHasMargin = H => { const m = aiMargin(H); return Math.max(m.f, m.b, m.l, m.r) >= 0.25; };
+// a margin over 15% of a side (phone GPS, a far zoom) is too rough to design on: ask for a tape or survey measure
+const aiTooRough = H => { const M = aiMargin(H); return ['f', 'b', 'l', 'r'].some(k => M[k] > 0.15 * (+H.sides[k] || 1)); };
+const aiSafe = H => { const M = aiMargin(H), d = v => Math.floor(v * 2) / 2; return { f: d(H.sides.f - M.f), b: d(H.sides.b - M.b), l: d(H.sides.l - M.l), r: d(H.sides.r - M.r) }; };
+function aiUseSize(H, safe) { const p = ST.plot, z = safe ? aiSafe(H) : H.sides; p.mode = 'sides'; p.sides = { f: +z.f, b: +z.b, l: +z.l, r: +z.r }; applySides(); H.useSafe = !!safe; H.edited = false; S.design = null; ST.grid = null; }
+function applyHandoff(H) { const p = ST.plot; if ('NESW'.includes(H.facing)) p.facing = H.facing; p.fromAI = Object.assign({}, H, { edited: false }); aiUseSize(p.fromAI, aiHasMargin(H) && !aiTooRough(H)); ST.purpose = ST.purpose || 'build'; }
 function aiPlotNote() {
   const H = ST.plot.fromAI; if (!H) return '';
   const id = [H.khata ? 'Khata ' + esc(H.khata) : '', H.plot ? 'Plot ' + esc(H.plot) : '', H.village ? esc(H.village) : ''].filter(Boolean).join(' · ');
-  return '<div class="card aiplot"><div><b>Plot from Bhu AI</b><span>' + (id ? id + ' — ' : '') + 'checked against the papers and the map. ' + ftIn(H.sides.f) + ' × ' + ftIn(H.sides.l) + ', ' + Math.round(H.area_sqft || 0).toLocaleString('en-IN') + ' sq ft, road on the ' + ({ N: 'north', E: 'east', S: 'south', W: 'west' })[H.facing] + '.' + (H.approx ? ' The plot has more than 4 corners, so these are the sides of the box around it.' : '') + (H.edited ? ' You have changed the sides since.' : '') + '</span></div><button class="rq-c" data-a="aiplotoff">Use a different plot</button></div>';
+  const M = aiMargin(H), mm = Math.max(M.f, M.b, M.l, M.r), sf = aiSafe(H), SRC = { map: 'the satellite map', earth: 'Google Earth / map coordinates', gps: 'phone GPS', survey: 'a surveyor / DGPS' }[H.src] || 'the map';
+  const size = z => ftIn(z.f) + ' × ' + ftIn(z.l);
+  const how = !aiHasMargin(H) ? ' Measured by ' + SRC + ', good to a few inches.'
+    : aiTooRough(H) && !H.useSafe ? ' <b>Too rough to design on:</b> measured ' + size(H.sides) + ' on ' + SRC + ', but each side may be off by ±' + ftIn(mm) + '. Measure the four sides on the ground with a tape, or get a survey, and type them below.'
+    : H.useSafe ? ' Designed on the <b>safe size ' + size(sf) + '</b>: measured ' + size(H.sides) + ' on ' + SRC + ', each side good to about ±' + ftIn(mm) + ', so every side is taken that much shorter and the house never comes out bigger than the land.'
+    : ' Designed on the measured size ' + size(H.sides) + ' (each side ±' + ftIn(mm) + ' on ' + SRC + '). The house may need to shrink a little once the boundary is surveyed.';
+  return '<div class="card aiplot"><div><b>Plot from Bhu AI</b><span>' + (id ? id + ' — ' : '') + 'checked against the papers and the map. ' + Math.round(H.area_sqft || 0).toLocaleString('en-IN') + ' sq ft, road on the ' + ({ N: 'north', E: 'east', S: 'south', W: 'west' })[H.facing] + '.' + how + (aiHasMargin(H) ? ' Before the foundation, get the boundary marked by a government amin or licensed surveyor and type the surveyed sides below.' : '') + (H.approx ? ' The plot has more than 4 corners, so these are the sides of the box around it.' : '') + (H.edited ? ' You have changed the sides since.' : '') + '</span></div><div class="aiplot-b">' + (aiHasMargin(H) ? '<button class="rq-c" data-a="aisize" data-v="' + (H.useSafe ? '0' : '1') + '">' + (H.useSafe ? 'Use the measured size' : 'Use the safe size') + '</button>' : '') + '<button class="rq-c" data-a="aiplotoff">Use a different plot</button></div></div>';
 }
 SCR.use = () => aiPlotNote() + '<h2 class="q">What will you build?</h2><p class="sub">Pick one. Next, tell us how big the land is.</p>' + useCards();
 SCR.city = () => '<h2 class="q">Where will you build?</h2><p class="sub">Prices follow the local market.</p><div class="opts two">' + CITIES.map(c => '<button class="opt row' + (ST.city === c.id ? ' on' : '') + '" data-a="city" data-v="' + c.id + '"><b>' + c.name + '</b><span>' + c.note + '</span></button>').join('') + '</div>';
@@ -7032,6 +7046,7 @@ SCR.layout = () => {
   d += row('sizes', 'Wall, slab, beam and pillar sizes', '', sizeTable(D, o));
   d += row('arch', 'For your architect', 'CAD · schedules', architectPanel(D, o));
   h += '<h3 class="lh">Details</h3><div class="rows">' + d + '</div>';
+  { const H = ST.plot.fromAI; if (H && aiHasMargin(H) && !H.edited) h += '<p class="fine">Plot size from Bhu AI, measured on ' + ({ map: 'the satellite map', earth: 'Google Earth / map coordinates', gps: 'phone GPS' }[H.src] || 'the map') + ' (each side ±' + ftIn(Math.max(...Object.values(aiMargin(H)))) + '). ' + (H.useSafe ? 'The design uses the safe size, each side that much shorter. ' : 'The design uses the measured size. ') + 'Get the boundary surveyed before construction.</p>'; }
   h += '<p class="fine">Concept design. A licensed architect prepares the approval drawings. Columns, beams, footings and steel are not designed here: meet an architect or a structural engineer / contractor — they design and sign the structure after a soil test.</p></div></div>';
   return h;
 };
@@ -9411,6 +9426,7 @@ const ACT = {
   city: el => keepY(() => { ST.city = el.dataset.v; }),
   pmode: el => keepY(() => { ST.plot.mode = el.dataset.v; if (el.dataset.v !== 'sides') ST.plot.shape = null; if (el.dataset.v === 'area') { ST.plot.area = Math.round(ST.plot.w * ST.plot.d); } if (el.dataset.v === 'sides') { ST.plot.sides = ST.plot.sides || { f: ST.plot.w, b: ST.plot.w, l: ST.plot.d, r: ST.plot.d }; applySides(); } S.design = null; ST.grid = null; }),
   facing: el => keepY(() => { ST.plot.facing = el.dataset.v; if (ST.plot.fromAI) ST.plot.fromAI.edited = true; }),
+  aisize: el => keepY(() => { const H = ST.plot.fromAI; if (H) aiUseSize(H, el.dataset.v === '1'); }),
   aiplotoff: () => keepY(() => { const H = ST.plot.fromAI; try { if (H) localStorage.setItem('bhu_plot_dismissed', H.id); } catch (e) {} ST.plot.fromAI = null; rectPlot(); }),
   pbyf: el => keepY(() => { const P = projState(); P.byFloor = el.dataset.v === '1'; if (P.byFloor && (!P.plan || !P.plan.length)) P.plan = [{ k: 'b1', n: 0 }, { k: 'b2', n: 0 }]; }),
   pfk: el => keepY(() => { projState().plan[+el.dataset.i].k = el.dataset.v; }),
