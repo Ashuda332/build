@@ -34,6 +34,17 @@ The site then lives at `https://<owner>.github.io/<repo>/`.
 - **Parking for rentals and apartments**: car bays 9 × 18 ft and bike stalls 2′6″ × 6′, each with its size on the plan; a drive aisle kept free to take vehicles out (12 ft for rentals, 20 ft between apartment bay rows), or for rentals “back out to the road” through wide gates when that fits more units. A 4 ft entry path runs from a walk-in gate to the building door and is never parked on. The entry gate type (sliding, swing, telescopic, automatic, folding) is a choice and is priced.
 - **Apartments**: floors are capped at a floor-area ratio of about 3, so a small plot is not turned into a thin tower of one flat a floor; the plan says how many of the requested flats fit.
 - **Front elevation styles (apartments and rentals)**: ten looks — glass curtain wall, wooden fins, box frames, brick and glass, stone luxe, staggered balconies, green balconies, monochrome grid, aluminium louvers, modern Odia jaali — drawn in the 2D elevation and the 3D building, with a style gallery. Each comes with its exterior finishes (ACP, HPL, stone, brick tiles, WPC fins, glass, texture paint, exterior tiles, louvers, planters, jaali, glass railings); the owner can switch any of them and the estimate follows. Different plots get different default looks.
+- **Core house = bare shell.** What it includes:
+  - structure: RCC foundation, columns, beams and slab; brick walls; cement plaster inside and out
+  - door and window openings only
+  - plumbing: concealed water and drain pipes with capped points, plus septic or drainage
+  - electrical: conduits, concealed boxes, DB box and earthing
+  - kitchen and floors: PCC base floor and an RCC kitchen counter slab
+
+  Labour is civil work and plaster only (70% of the full rate). Doors, windows, grills, tiles, putty, paint, wiring, switches, bathroom and kitchen fittings, tank, pump, gate, railings, cladding and garden move to Semi-furnished.
+
+  In 3D, the core house shows as the shell by default: grey cement plaster, PCC floor, empty openings, and no frames, glass, railings, cladding, lights, tank or furniture. "Finished" shows the full design.
+- **Materials** on the budget step: three dropdowns a row on a wide screen, two on a tablet, one on a phone.
 - **Budget** step: one grid shows all three packages in all three ranges, nine prices at once; tap one to choose both. The packages are:
   - **Core house:** the starter shell, with walls, roof, doors, windows, flooring, paint, concealed wiring, toilet and taps, and a kitchen counter and sink.
   - **Semi-furnished:** adds fans, tube lights and exhaust, fitted bathrooms, a modular kitchen with chimney, wardrobes and a false ceiling.
