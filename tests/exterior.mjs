@@ -14,7 +14,7 @@ const houses = [[30, 40, 2, 3], [20, 40, 2, 2], [40, 60, 2, 4], [30, 50, 1, 2], 
 const res = await p.evaluate(houses => {
   const rep = [];
   for (const [w, d, floors, bhk] of houses) {
-    ST.purpose = 'build'; ST.tier = 'high'; ST.seed = 3; ST.plot = Object.assign({}, ST.plot, { w, d, mode: 'sides', sides: { f: w, b: w, l: d, r: d }, area: w * d }); Object.assign(ST.home, { floors, bhk }); S.design = null; ST.step = flow().indexOf('layout'); render();
+    ST.purpose = 'build'; ST.pkg = 'full'; ST.tier = 'high'; ST.seed = 3; ST.plot = Object.assign({}, ST.plot, { w, d, mode: 'sides', sides: { f: w, b: w, l: d, r: d }, area: w * d }); Object.assign(ST.home, { floors, bhk }); S.design = null; ST.step = flow().indexOf('layout'); render();
     const D = S.design.D, o = D.options[0], plan0 = JSON.stringify(o.floors.map(F => F.rooms.map(r => [r.type, r.rect]))), bb = D.brief;
     for (const B of BUNGALOW) {
       const P = bungalowApply(D, o, B.id), prims = facadePrims(D, o).p3, bad = prims.filter(q => q.x < -0.6 || q.x + q.w > bb.w + 0.6 || q.h0 < -0.6);
