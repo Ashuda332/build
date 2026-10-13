@@ -386,7 +386,7 @@ svg.splan,svg.ssec{width:100%;height:auto;display:block;max-height:76vh}
 /* ===== BhuChain Build skin — drafting table: blueprint grid, ink, one safety-orange accent ===== */
 :root{
   --bg:#F2F4F6; --ink:#111C24; --ink2:#34424D; --mute:#5E6B75; --faint:#8A959E; --line:#D3D9DF; --line2:#E2E7EB; --soft:#FFFFFF;
-  --site:#F06A2A; --site-soft:#FDE9DF; --grid:rgba(17,28,36,.045);
+  --site:#F06A2A; --site-soft:#FDE9DF; --hedge:#2A3945; --hw1:#E6EBEF; --hw2:#D0D8DF; --hw3:#BAC4CC; --hw4:#F7F8FA; --grid:rgba(17,28,36,.045);
   --display:"Archivo",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,Arial,sans-serif;
   --ease:cubic-bezier(.2,.8,.2,1);
 }
@@ -417,12 +417,25 @@ h1,h2,h3,.q,.q2{font-family:var(--display);font-stretch:112%;letter-spacing:-.02
 .bx-hero .lead{text-align:left;margin:18px 0 0;font-size:19px;color:var(--ink2);max-width:440px}
 .bx-hero .bx-facts{display:flex;gap:22px;margin-top:22px;font-size:14px;color:var(--mute)}
 .bx-hero .bx-facts b{display:block;font-family:var(--display);font-stretch:115%;font-size:22px;color:var(--ink)}
+.hp-act{margin-top:24px}.hp-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 28px;font-size:17px}.hp-cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hp-sec{padding:40px 0;border-top:1px solid var(--line2)}.hp-sec h2{font-family:var(--display);font-stretch:115%;font-size:28px;letter-spacing:-.02em;margin-bottom:18px}
+.hp-steps,.hp-feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.hp-card,.hp-feat{background:var(--soft);border:1px solid var(--line2);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:6px}.hp-card b,.hp-feat b{font-size:17px}.hp-card span,.hp-feat span{font-size:14.5px;color:var(--mute);line-height:1.45}
+.hp-card i{font-style:normal;font-family:var(--display);font-size:22px;color:var(--site);margin-bottom:4px}
+.hp-split{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center}.hp-split p{color:var(--ink2);font-size:17px;line-height:1.5;max-width:420px}
+.hp-lv{display:flex;flex-direction:column;gap:10px}.hp-lv>div{display:grid;grid-template-columns:96px repeat(3,1fr);gap:8px;align-items:center}.hp-lv em{font-style:normal;font-weight:600;font-size:14px}.hp-lv span{background:var(--soft);border:1px solid var(--line2);border-radius:12px;padding:12px 6px;text-align:center;font-size:14px}
+.hp-end{text-align:center;padding:48px 0 24px;border-top:1px solid var(--line2)}.hp-end h2{font-family:var(--display);font-stretch:115%;font-size:30px;letter-spacing:-.02em;margin-bottom:18px}
+@media (max-width:820px){.hp-steps,.hp-feats{grid-template-columns:1fr}.hp-split{grid-template-columns:1fr}.hp-sec h2{font-size:24px}}
 .bx-art{position:relative;aspect-ratio:420/340}
 .bx-art svg{width:100%;height:100%;overflow:visible}
 .bx-art .ln{fill:none;stroke:var(--ink);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:bxdraw 1.1s var(--ease) forwards}
 .bx-art .ln.th{stroke-width:2.2}.bx-art .ln.dash{stroke:var(--faint);stroke-width:1;stroke-dasharray:none;stroke-dashoffset:0;opacity:0;animation:bxfade .8s ease forwards}
-.bx-art .fill{opacity:0;animation:bxfade .9s ease forwards}
+.bx-art .fill{opacity:0;animation:bxfade .7s ease forwards;stroke:var(--hedge);stroke-width:1;stroke-linejoin:round}
+.bx-art .ln:not(.dash):not(.pad){animation:bxdraw 1.1s var(--ease) forwards,bxgone .5s ease 2.1s forwards}
+.bx-art .ln.pad{stroke-width:1;opacity:.7}
+.bx-art .w1{fill:var(--hw1)}.bx-art .w2{fill:var(--hw2)}.bx-art .w3{fill:var(--hw3)}.bx-art .w4{fill:var(--hw4)}.bx-art .gl{fill:#9FB6C7}
 .bx-art .acc{fill:var(--site)}
+@keyframes bxgone{to{opacity:0}}
 .bx-art .dimt{font:600 13px var(--font);fill:var(--mute)}
 @keyframes bxdraw{to{stroke-dashoffset:0}}
 @keyframes bxfade{to{opacity:1}}
@@ -435,7 +448,7 @@ main.enter>*:nth-child(2){animation-delay:.05s}main.enter>*:nth-child(3){animati
 #vsheet{transform-origin:85% 100%;transition:opacity .28s var(--ease),transform .38s var(--ease);opacity:0;transform:translateX(-50%) translateY(16px) scale(.96);display:block!important;pointer-events:none;visibility:hidden}
 #vsheet.open{opacity:1;transform:translateX(-50%) translateY(0) scale(1);pointer-events:auto;visibility:visible}
 #vfab{background:var(--ink);transition:transform .2s var(--ease),background .2s}#vfab:hover{transform:scale(1.06)}#vfab.live{background:var(--site)}
-@media (prefers-reduced-motion:reduce){main.enter>*,.bx-art .ln,.bx-art .fill{animation:none!important;opacity:1!important;stroke-dashoffset:0!important}#vsheet{transition:none}}
+@media (prefers-reduced-motion:reduce){main.enter>*,.bx-art .ln,.bx-art .fill{animation:none!important;opacity:1!important;stroke-dashoffset:0!important}.bx-art .ln:not(.dash):not(.pad){opacity:0!important}#vsheet{transition:none}}
 @media print{body{background:#fff!important}}
 
 /* ===== dark mode ===== */
@@ -475,8 +488,8 @@ html[data-theme="dark"] .btn.ghost{background:#161E25;color:#E8EDF2;border-color
 html[data-theme="dark"] .btn.link{background:none;color:#7FB2FF}
 html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] .inp{background:#10171D;color:#E8EDF2;border-color:#2A353F}
 html[data-theme="dark"] .bx-hero h1 em{-webkit-text-stroke-color:#E8EDF2}
-html[data-theme="dark"] .bx-art .ln{stroke:#E8EDF2}html[data-theme="dark"] .bx-art .fill:not(.acc){opacity:.12}
-html[data-theme="dark"] .bx-art .fill{filter:none}
+html[data-theme="dark"] .bx-art .ln{stroke:#E8EDF2}
+html[data-theme="dark"]{--hedge:#4B5966;--hw1:#E3E8ED;--hw2:#B4BFC9;--hw3:#8E9AA5;--hw4:#F4F6F8}
 
 html[data-theme="dark"] svg.plan,html[data-theme="dark"] svg.elev,html[data-theme="dark"] svg.splan,html[data-theme="dark"] svg.ssec{background:#F4F6F8;border-radius:14px;color-scheme:light}
 html[data-theme="dark"] #vsheet{background:#131B22;color:#E8EDF2;box-shadow:0 18px 50px rgba(0,0,0,.6)}
@@ -587,6 +600,8 @@ html[data-theme="dark"] .ptitle .pt1{fill:#E8EDF2}
 .tier.off{opacity:.45;cursor:not-allowed}
 
 .v3{position:relative}
+.v3more{margin-top:10px;border-top:1px solid var(--line2);padding-top:6px}.v3more>summary{cursor:pointer;font-size:13px;color:var(--mute);list-style:none;padding:6px 0}.v3more>summary::-webkit-details-marker{display:none}.v3more>summary::after{content:' ▾'}.v3more[open]>summary::after{content:' ▴'}
+.v3more .fskin{margin-top:8px}.panel>.fskin{margin-top:10px}
 .look3d{position:absolute;top:10px;left:10px;display:flex;background:rgba(255,255,255,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:10px;padding:3px;gap:2px;box-shadow:0 2px 10px rgba(0,0,0,.08);z-index:2}
 .look3d button{border:0;background:none;border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;color:#424245}
 .look3d button.on{background:#0E2233;color:#fff;font-weight:600}.look3d .psave{background:#C9963C;color:#fff;font-weight:600;margin-left:4px}
@@ -716,11 +731,15 @@ main.homew{max-width:1180px}
 .lab{padding:14px 16px}.lab-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.lab-top b{display:block;font-size:15px}.lab-top span{font-size:13px;color:var(--mute)}.lab-top em{font-style:normal;font-weight:700;font-size:18px;white-space:nowrap}
 .wages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:8px 0 6px}.wages span{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--bg);border:1px solid var(--line2);border-radius:12px;padding:7px 10px}.wages b{font-weight:600;font-variant-numeric:tabular-nums}
 @media (max-width:760px){.opts.three.pkgs,.tiers.t3{grid-template-columns:1fr}.wages{grid-template-columns:1fr}}
-.hm{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;margin-top:26px;align-items:start}
-.hm-plan{position:sticky;top:72px}
+.hm-inc{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.hm-inc li{display:grid;grid-template-columns:20px 1fr auto auto;gap:10px;align-items:center;background:var(--soft);border:1px solid var(--line2);border-radius:14px;padding:10px 12px;font-size:14px}.hm-inc .ok{color:#1E7A46;font-weight:700}.hm-inc small{color:var(--mute)}.hm-inc em{font-style:normal;font-weight:600;font-variant-numeric:tabular-nums;min-width:70px;text-align:right}
+.hm-free{display:flex;flex-direction:column;gap:2px;border-radius:14px;padding:12px 14px;margin-bottom:10px}.hm-free.ok{background:rgba(30,122,70,.1)}.hm-free.no{background:rgba(200,120,30,.12)}.hm-free b{font-size:15px}.hm-free span{font-size:13px;color:var(--mute)}
+.hm-empty{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;text-align:center;min-height:320px;color:var(--mute)}.hm-empty b{font-size:18px;color:var(--ink)}
+.hm-head{display:flex;align-items:baseline;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:-6px}.hm-head .q{font-size:28px}.hm-head .sub{margin:0;font-size:15px}
+.hm{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;margin-top:14px;align-items:start}
+.hm-plan{position:sticky;top:68px;max-height:calc(100vh - 160px)}.hm-plan .hm-card{max-height:inherit;overflow:hidden}.hm-plan .hm-3d{display:none}
 .hm-card{background:var(--soft);border:1px solid var(--line2);border-radius:22px;padding:14px}
 .hm-tabs{margin:0 auto 10px}
-.hm-plan #planbox svg{max-height:calc(100vh - 250px)}@media (max-width:860px){.hm-plan{position:static}.hm-plan #planbox svg{max-height:62vh}}.ar-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 10px}.ar-sum>div{background:var(--soft);border:1px solid var(--line2);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column}.ar-sum span{font-size:12px;color:#6B7680}.ar-sum b{font-size:16px}.ar-sum small{font-size:11.5px;color:#6B7680}.fit-g{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.fit-c{border:1.5px solid var(--line2);background:var(--soft);border-radius:12px;padding:9px 8px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit}.fit-c b{font-size:15px}.fit-c em{font-style:normal;font-size:12px;font-weight:600}.fit-c span,.fit-c small{font-size:11px;color:#6B7680}.fit-c.ok em{color:#1E7F4F}.fit-c.tight em{color:#A86A00}.fit-c.no em{color:#C0392B}.fit-c.no{opacity:.75}.fit-c.on{border-color:var(--ink,#1B2630);box-shadow:0 0 0 2px var(--ink,#1B2630) inset}.fit-c[disabled]{cursor:default}.hm-chk{border-radius:12px;padding:10px 12px;border:1.5px solid}.hm-chk b{font-size:15px}.hm-chk p{margin:4px 0}.hm-chk ul{margin:4px 0 4px 18px;padding:0;font-size:13px}.hm-chk.ok{border-color:#9ED3B5;background:#EEF9F2}.hm-chk.ok b{color:#1E7F4F}.hm-chk.tight{border-color:#F0CF8A;background:#FFF7E6}.hm-chk.tight b{color:#A86A00}.hm-chk.no{border-color:#EDA9A1;background:#FDEEEC}.hm-chk.no b{color:#C0392B}.hm-fx-l{font-size:13px;font-weight:600;margin-top:8px}.hm-fx i{font-style:normal;font-size:11px;margin-left:6px;opacity:.8}.hm-ph{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.hm-3d{margin-top:6px}html[data-theme="dark"] .hm-chk.ok{background:#12261C}html[data-theme="dark"] .hm-chk.tight{background:#2A2210}html[data-theme="dark"] .hm-chk.no{background:#2B1614}html[data-theme="dark"] .hm-chk p,html[data-theme="dark"] .hm-chk li{color:#DCE3E8}@media (max-width:860px){.ar-sum{grid-template-columns:repeat(2,1fr)}.fit-g{grid-template-columns:repeat(3,1fr)}}.rqplan{display:block;width:100%;height:auto;max-height:calc(100vh - 290px);background:#fff;border-radius:16px}.rqplan text{font-family:var(--font)}
+.hm-plan #planbox svg{max-height:calc(100vh - 290px)}@media (max-width:860px){.hm-plan{position:static}.hm-plan #planbox svg{max-height:62vh}}.ar-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 10px}.ar-sum>div{background:var(--soft);border:1px solid var(--line2);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column}.ar-sum span{font-size:12px;color:#6B7680}.ar-sum b{font-size:16px}.ar-sum small{font-size:11.5px;color:#6B7680}.fit-g{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.fit-c{border:1.5px solid var(--line2);background:var(--soft);border-radius:12px;padding:9px 8px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit}.fit-c b{font-size:15px}.fit-c em{font-style:normal;font-size:12px;font-weight:600}.fit-c span,.fit-c small{font-size:11px;color:#6B7680}.fit-c.ok em{color:#1E7F4F}.fit-c.tight em{color:#A86A00}.fit-c.no em{color:#C0392B}.fit-c.no{opacity:.75}.fit-c.on{border-color:var(--ink,#1B2630);box-shadow:0 0 0 2px var(--ink,#1B2630) inset}.fit-c[disabled]{cursor:default}.hm-chk{border-radius:12px;padding:10px 12px;border:1.5px solid}.hm-chk b{font-size:15px}.hm-chk p{margin:4px 0}.hm-chk ul{margin:4px 0 4px 18px;padding:0;font-size:13px}.hm-chk.ok{border-color:#9ED3B5;background:#EEF9F2}.hm-chk.ok b{color:#1E7F4F}.hm-chk.tight{border-color:#F0CF8A;background:#FFF7E6}.hm-chk.tight b{color:#A86A00}.hm-chk.no{border-color:#EDA9A1;background:#FDEEEC}.hm-chk.no b{color:#C0392B}.hm-fx-l{font-size:13px;font-weight:600;margin-top:8px}.hm-fx i{font-style:normal;font-size:11px;margin-left:6px;opacity:.8}.hm-ph{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.hm-3d{margin-top:6px}html[data-theme="dark"] .hm-chk.ok{background:#12261C}html[data-theme="dark"] .hm-chk.tight{background:#2A2210}html[data-theme="dark"] .hm-chk.no{background:#2B1614}html[data-theme="dark"] .hm-chk p,html[data-theme="dark"] .hm-chk li{color:#DCE3E8}@media (max-width:860px){.ar-sum{grid-template-columns:repeat(2,1fr)}.fit-g{grid-template-columns:repeat(3,1fr)}}.rqplan{display:block;width:100%;height:auto;max-height:calc(100vh - 290px);background:#fff;border-radius:16px}.rqplan text{font-family:var(--font)}
 .rqr rect{transition:fill .2s}
 .rq-bar{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;font-size:12.5px;color:var(--mute);margin-top:8px}
 .rq-bar div{height:6px;border-radius:99px;background:var(--line2);overflow:hidden}.rq-bar i{display:block;height:100%;border-radius:99px;background:var(--gold);transition:width .3s}
@@ -922,6 +941,8 @@ html[data-theme="dark"] .facts>div,html[data-theme="dark"] .rows{background:#161
 .pm-h{text-align:center;padding:4px 0;font-size:15px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px}.pm-h em{font-style:normal;font-size:11px;color:var(--mute)}.pm-h.on b{text-decoration:underline;text-underline-offset:4px}
 .pm-r{padding:10px 4px 10px 0;display:flex;flex-direction:column;gap:3px}.pm-r b{font-size:15px}.pm-r span{font-size:12.5px;color:var(--mute);line-height:1.35}
 .pm-c{background:var(--soft);border:2px solid transparent;border-radius:16px;padding:10px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink);font:inherit}.pm-c b{font-size:16px;font-variant-numeric:tabular-nums}.pm-c i{font-style:normal;font-size:12px;color:var(--mute)}.pm-c.on{border-color:var(--ink)}
+.pk-chips{margin:8px 0 12px;justify-content:center}.q2 small{font-weight:400;font-size:.7em;color:var(--mute)}
+.tot-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:18px 0 4px;padding:14px 18px;border-radius:16px;background:var(--ink);color:var(--bg);position:sticky;bottom:84px;z-index:5}.tot-bar span{display:block;font-size:12px;opacity:.7}.tot-bar b{font-size:16px}.tot-bar .tb-r{text-align:right}.tot-bar .tb-r b{font-size:20px}
 .pcmp-w{overflow-x:auto;border:1px solid var(--line2);border-radius:16px}.pcmp{width:100%;border-collapse:collapse;font-size:13.5px}.pcmp th,.pcmp td{text-align:left;vertical-align:top;padding:9px 10px;border-top:1px solid var(--line2)}.pcmp thead th{border-top:0;font-size:14px}.pcmp tbody th{font-weight:600;width:22%}.pcmp td.on,.pcmp th.on{background:var(--soft)}
 .pcmp ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}.pcmp li b{font-weight:600}.pc-brick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}.pc-brick>b{font-size:14px;margin-right:4px}.pcmp li.add{color:#1E7A46}.pcmp li.add::before{content:'+ '}.pcmp .no{color:var(--faint)}
 html[data-theme="dark"] .pcmp li.add{color:#6BCB8F}
@@ -1010,7 +1031,54 @@ function seedJit(seed, ...k) { let h = (seed >>> 0) ^ 0x9E3779B9; String(k.join(
 function designDefaults() {
   return { w: 30, d: 40, facing: 'E', floors: 2, bhk: 3, baths: 3, pooja: true, parking: true, vastu: true, style: 'modern', finish: 'standard', rate: null, setF: 5, setR: 3, setS: 3, budget: null, area: null };
 }
+// "only what you asked for": the home size gives bedrooms, bath, hall and kitchen; every other room comes only if the owner added it
+function blocksBare(b, nc, nr) {
+  const X = b.xr || {}, cells = nr * nc, warn = [], floors = [], pf = !!(b.perFloor && b.floors > 1), bedList = k => Array.from({ length: k }, (_, i) => i === 0 ? 'master' : 'bedroom');
+  let noPark = false, leftN = 0, extStair = false, diningMiss = false;
+  if (pf) {
+    for (let f = 0; f < b.floors; f++) {
+      const k = Math.max(1, Math.min(5, +(b.perFloor[f] || b.perFloor[b.perFloor.length - 1] || 1))), beds = bedList(k);
+      let fl = f === 0 ? (b.parking ? ['parking'] : []).concat(['living']).concat(X.dining ? ['dining'] : []).concat(['kitchen', 'stair']) : ['stair', 'lounge', 'kitchen'];
+      if (f === 0 && fl.length + beds.length > cells && fl.includes('parking')) { fl = fl.filter(t => t !== 'parking'); noPark = true; }
+      if (f === 0 && fl.length + beds.length > cells && fl.includes('dining')) { fl = fl.filter(t => t !== 'dining'); diningMiss = true; }
+      const put = beds.splice(0, Math.max(0, cells - fl.length)); leftN += beds.length; fl.push(...put); floors.push(fl);
+    }
+  } else {
+    let gf = []; if (b.parking) gf.push('parking'); gf.push('living'); if (X.dining) gf.push('dining'); gf.push('kitchen'); if (b.floors > 1) gf.push('stair');
+    const bedrooms = bedList(b.bhk), upperRoom = (b.floors - 1) * (cells - 1);
+    if (bedrooms.length > Math.max(0, cells - gf.length) + Math.max(0, upperRoom) && gf.includes('dining')) { gf = gf.filter(t => t !== 'dining'); diningMiss = true; }
+    if (gf.length > cells && gf.includes('parking')) { gf = gf.filter(t => t !== 'parking'); noPark = true; }
+    while (gf.length > cells) gf.pop();
+    const left = bedrooms.slice(), gfRoom = Math.max(0, cells - gf.length);
+    const onGF = b.floors === 1 ? Math.min(left.length, gfRoom) : Math.min(left.length > upperRoom ? 2 : 1, gfRoom, left.length);
+    gf.push(...left.splice(0, onGF));
+    if (b.floors === 1 && X.stairs) { if (gf.length < cells) gf.push('stair'); else extStair = true; }
+    floors.push(gf);
+    for (let f = 1; f < b.floors; f++) {
+      const fl = ['stair'];
+      if (X.lounge && f === 1 && cells - 1 - left.length >= 1) fl.push('lounge');
+      const room = cells - fl.length, take = f === b.floors - 1 ? left.length : Math.min(left.length, Math.ceil(left.length / (b.floors - f)));
+      fl.push(...left.splice(0, Math.min(take, room))); floors.push(fl);
+    }
+    leftN = left.length;
+  }
+  // the owner's extra rooms take a free cell: a study upstairs first, the others on the ground floor first
+  const spare = f => cells - floors[f].length, up = floors.map((x, i) => i).filter(i => i > 0), miss = [];
+  const put = (t, order) => { for (const f of order) if (spare(f) > 0) { floors[f].push(t); return true; } return false; };
+  if (diningMiss) miss.push('The dining room');
+  if (X.guest && !put('bedroom', [0])) miss.push('The guest bedroom');
+  if (X.study && !put('study', up.concat([0]))) miss.push('The study');
+  if (X.store && !put('store', [0].concat(up))) miss.push('The store room');
+  if (X.utility && !put('utility', [0].concat(up))) miss.push('The utility area');
+  if (X.helper && !put('helper', [0])) miss.push('The helper room');
+  if (X.lounge && b.floors > 1 && !pf && !floors.some(fl => fl.includes('lounge')) && !put('lounge', up)) miss.push('The family lounge');
+  if (miss.length) warn.push(miss.join(', ') + ' did not fit on the drawn plan. Add a floor, choose compact rooms or remove something.');
+  if (noPark) warn.push('Car parking does not fit inside the house on this plot — use the front open space or stilt parking.');
+  if (leftN) warn.push(leftN + ' bedroom' + (leftN === 1 ? ' does' : 's do') + ' not fit — add a floor or use a bigger plot.');
+  return { floors, warn, combo: false, extStair, perFloor: pf };
+}
 function blocksFor(b, nc, nr) {
+  if (b.bare) return blocksBare(b, nc, nr);
   if (b.perFloor && b.floors > 1) return blocksPerFloor(b, nc, nr);
   const cells = nr * nc, bedrooms = [];
   for (let i = 0; i < b.bhk; i++) bedrooms.push(i === 0 ? 'master' : 'bedroom');
@@ -1021,6 +1089,7 @@ function blocksFor(b, nc, nr) {
   if (b.floors > 1) gf.push('stair');
   let combo = false, noPark = false;
   if (b.space === 'spacious' && gf.includes('dining')) { gf = gf.filter(t => t !== 'dining'); combo = 'open'; }
+  else if (b.xr && b.bhk < 3 && !b.xr.dining && gf.includes('dining')) { gf = gf.filter(t => t !== 'dining'); combo = 'hall'; } // a small home: living and dining share one hall unless a dining room was asked for
   const upperRoom = (b.floors - 1) * (cells - 1);
   if (bedrooms.length > Math.max(0, cells - gf.length) + Math.max(0, upperRoom) || gf.length > cells) { gf = gf.filter(t => t !== 'dining'); combo = true; }
   if (gf.length > cells && gf.includes('parking')) { gf = gf.filter(t => t !== 'parking'); noPark = true; }
@@ -1040,8 +1109,17 @@ function blocksFor(b, nc, nr) {
     fl.push(...left.splice(0, Math.min(take, room)));
     floors.push(fl);
   }
+  // the owner's extra rooms take a free cell: a study upstairs first, a guest bedroom and a store on the ground floor first
+  if (b.xr) {
+    const spare = f => cells - floors[f].length, up = floors.map((x, i) => i).filter(i => i > 0), miss = [];
+    const put = (t, order) => { for (const f of order) if (spare(f) > 0) { floors[f].push(t); return true; } return false; };
+    if (b.xr.guest && !put('bedroom', [0])) miss.push('The guest bedroom');
+    if (b.xr.study && !put('study', up.concat([0]))) miss.push('The study');
+    if (b.xr.store && !put('store', [0].concat(up))) miss.push('The store room');
+    if (miss.length) warn.push(miss.join(', ') + ' did not fit on the drawn plan. Add a floor or choose compact rooms.');
+  }
   if (noPark) warn.push('Car parking does not fit inside the house on this plot — use the front open space or stilt parking.');
-  if (combo === 'open') warn.push('Spacious plan: living and dining are one big open hall.'); else if (combo) warn.push('Living and dining are combined into one hall to make space for the bedrooms.');
+  if (combo === 'hall') warn.push('Living and dining share one hall. Add a dining room to get a separate one.'); else if (combo === 'open') warn.push('Spacious plan: living and dining are one big open hall.'); else if (combo) warn.push('Living and dining are combined into one hall to make space for the bedrooms.');
   if (left.length) warn.push(left.length + ' bedroom' + (left.length === 1 ? ' does' : 's do') + ' not fit — add a floor or use a bigger plot.');
   return { floors, warn, combo, extStair };
 }
@@ -1258,9 +1336,11 @@ function makeDesign(input) {
 }
 function buildFloor(b, G, blocks, asg, fi, nr, nc) {
   const rooms = []; const taken = new Set();
-  blocks.forEach((t, i) => { if (!asg[i]) return; const [r, c] = asg[i]; taken.add(r + ',' + c); rooms.push({ type: t, r, c, rect: cellRect(G, b, r, c), subs: [] }); });
+  const ALIAS = { utility: ['store', 'Utility / wash area'], helper: ['store', 'Helper room'] };
+  blocks.forEach((t, i) => { if (!asg[i]) return; const [r, c] = asg[i]; taken.add(r + ',' + c); const al = ALIAS[t]; rooms.push(Object.assign({ type: al ? al[0] : t, r, c, rect: cellRect(G, b, r, c), subs: [] }, al ? { label: al[1] } : {})); });
   for (let r = 0; r < nr; r++) for (let c = 0; c < nc; c++) {
     if (taken.has(r + ',' + c)) continue;
+    if (b.bare) { const Rb = cellRect(G, b, r, c); rooms.push({ type: fi > 0 ? 'terrace' : (r === 1 && c > 0 && c < nc - 1) ? 'passage' : 'open', r, c, rect: Rb, subs: [] }); continue; }
     const R0 = cellRect(G, b, r, c), t = fi > 0 ? (b.space === 'compact' && b.roof !== 'multi' ? (R0.w * R0.h >= 90 ? 'study' : 'store') : 'terrace') : (r === 1 && c > 0 && c < nc - 1) ? 'passage' : r === 0 ? 'open' : R0.w * R0.h >= 100 && !rooms.some(x => x.type === 'study') ? 'study' : 'store';
     rooms.push({ type: t, r, c, rect: cellRect(G, b, r, c), subs: [] });
   }
@@ -1409,7 +1489,7 @@ function addSubRooms(b, floors, nr, nc) {
   }));
   // 3. common bath on each floor that has a bedroom without its own bath (ground floor always gets one)
   floors.forEach(F => {
-    const need = F.fi === 0 ? b.baths >= 1 : F.rooms.some(r => (r.type === 'bedroom' || r.type === 'master') && !r.subs.length);
+    const need = F.fi === 0 ? (!b.bare && b.baths >= 1) : F.rooms.some(r => (r.type === 'bedroom' || r.type === 'master') && !r.subs.length);
     if (!need) return;
     // privacy: a toilet opens off a passage, lounge, study or store — never off the living room, dining or kitchen
     const hosts = F.rooms.filter(r => !r.void && (['store', 'study', 'lounge'].includes(r.type) || (r.type === 'terrace' && r.covered) || (r.type === 'passage' && r.rect.w * r.rect.h >= 70)));
@@ -1601,6 +1681,8 @@ function vastuPanel(o, b) {
 /* ---------- drawing: plan, furniture, elevation ---------- */
 function ftIn(v) { const t = Math.round(v * 12), f = Math.floor(t / 12), i = t % 12; return f + '′' + (i ? i + '″' : ''); }
 function roomLabel(room, F, D) {
+  if (D.brief.bare && room.type === 'open') return 'Free space';
+  if (room.label && room.type !== 'bedroom') return room.label;
   if (room.type === 'bedroom') { const all = D.options[0] ? null : null; return room.label || 'Bedroom'; }
   if (room.type === 'living' && D.combo && F.fi === 0) return 'Living + dining';
   if (room.type === 'lounge' && D.brief.perFloor && D.brief.floors > 1) return F.rooms.some(r => r.type === 'dining' && !r.void) ? 'Living room' : 'Living + dining';
@@ -1611,7 +1693,10 @@ function roomLabel(room, F, D) {
   return ROOM[room.type].name;
 }
 function nameRooms(D) {
-  D.options.forEach(o => { let n = 2; o.floors.forEach(F => F.rooms.filter(r => r.type === 'bedroom').sort((a, b) => a.r - b.r || a.c - b.c).forEach(r => { r.label = 'Bedroom ' + n++; })); });
+  D.options.forEach(o => {
+    const guest = D.brief.xr && D.brief.xr.guest && o.floors[0] ? o.floors[0].rooms.filter(r => r.type === 'bedroom').sort((a, b) => b.r - a.r || b.c - a.c)[0] : null; // the ground-floor bedroom the owner asked for as a guest room
+    let n = 2; o.floors.forEach(F => F.rooms.filter(r => r.type === 'bedroom').sort((a, b) => a.r - b.r || a.c - b.c).forEach(r => { r.label = r === guest ? 'Guest bedroom' : 'Bedroom ' + n++; }));
+  });
 }
 function mainRect(room) {
   const R = room.rect; if (!room.subs.length) return R;
@@ -2131,7 +2216,7 @@ const FURN_PRICE = {
   counter: [2200, 4800, 9000, 18000], island: [18000, 38000, 85000, 220000], fridge: [18000, 32000, 65000, 160000], armchair: [6000, 12000, 32000, 78000], ottoman: [2500, 5000, 14000, 32000], plant: [600, 1500, 3500, 8000],
   wc: [4000, 9000, 24000, 72000], basin: [2500, 7000, 18000, 52000], shower: [3000, 9000, 28000, 85000], altar: [5000, 15000, 42000, 150000]
 };
-function furnSkinIx() { const v = typeof ST !== 'undefined' ? ST.furnSkin : null; if (v != null && FURN_SKIN[v]) return +v; return typeof ST !== 'undefined' ? (TI[ST.tier] ?? 1) : 1; }
+function furnSkinIx() { const v = typeof ST !== 'undefined' ? ST.furnSkin : null; if (v != null && FURN_SKIN[v]) return +v; return typeof ST !== 'undefined' ? (TI[finKey()] ?? 1) : 1; }
 function furnCost(D, o, ix) {
   let t = 0;
   o.floors.forEach(F => F.rooms.forEach(r => { if (r.void) return; furnOf(D, o, F, r).forEach(p => { const P = FURN_PRICE[p.role]; if (P) t += p.role === 'counter' ? P[ix] * Math.max(p.w, p.h) : P[ix]; }); }));
@@ -2145,16 +2230,18 @@ function furnSkinBar(D, o) {
   const BS = bungalowOf();
   h += '<label class="fsk-st">Exterior <select data-fbung aria-label="Bungalow exterior style">' + BUNGALOW.map(x => '<option value="' + x.id + '"' + (BS && BS.id === x.id ? ' selected' : '') + ' title="' + esc(x.d) + '">' + esc(x.n) + '</option>').join('') + '<option value="custom"' + (!BS ? ' selected' : '') + '>Custom (my own elements)</option></select></label>';
   const grp = [...new Set(TREND_EXT.map(x => x[1]))];
+  h += '<button class="btn mini ghost" data-a="fvary">Try another arrangement</button></div>';
+  const costLine = cost ? '<p class="fsk-p">' + esc(st.id === 'auto' ? FURN_SKIN[ix].what : st.d + ' · ' + FURN_SKIN[ix].n + ' budget') + ' · whole house ≈ <b>' + rup(cost) + '</b> <small>(BhuChain estimate)</small></p>' : '';
+  h += costLine + (FS.loadNote ? '<p class="fsk-p fsk-om">' + esc(FS.loadNote) + '</p>' : '') + (FS.saveNote ? '<p class="fsk-p">' + esc(FS.saveNote) + '</p>' : '');
+  h += '<details class="v3more"' + (ST.v3more ? ' open' : '') + '><summary>More options</summary><div class="fskin">';
   h += '<label class="fsk-st">Paint <select data-fpaint aria-label="Outside paint trend"><option value="">As the style</option>' + grp.map(g => '<optgroup label="' + esc(g) + '">' + TREND_EXT.filter(x => x[1] === g).map(x => '<option value="' + x[0] + '"' + (ST.extPaint === x[0] ? ' selected' : '') + '>' + esc(x[2]) + '</option>').join('') + '</optgroup>').join('') + '</select></label>';
   h += '<label class="fsk-st">Inside paint <select data-fipaint aria-label="Inside paint trend"><option value="">As the style</option>' + TREND_INT.map((x, i) => '<option value="' + i + '"' + (ST.intPaint === i ? ' selected' : '') + '>' + esc(x[0]) + '</option>').join('') + '</select></label>';
   if (!BS) h += '<label class="fsk-st">Walls <select data-fext aria-label="Wall finish">' + EXT_FINISH.map(x => '<option value="' + x.id + '"' + (x.id === extFinish().id ? ' selected' : '') + ' title="' + esc(x.d) + '">' + esc(x.n) + '</option>').join('') + '</select></label>';
   h += '<button class="tog vtog' + (ST.furnSizes ? ' on' : '') + '" data-a="fsizes"><span class="dot"></span>Sizes</button></div>';
-  h += '<div class="fskin fsk-acts"><button class="btn mini ghost" data-a="flib">Furniture library</button><button class="btn mini ghost" data-a="ftop">Top view</button><button class="btn mini ghost" data-a="bcmp">Compare exterior styles</button><span class="seg2 sm"><button class="' + (!S.design.night && (ST.sunHr == null || ST.sunHr < 16.5) ? 'on' : '') + '" data-a="flight" data-v="day">Day</button><button class="' + (!S.design.night && ST.sunHr >= 16.5 ? 'on' : '') + '" data-a="flight" data-v="golden">Golden hour</button><button class="' + (S.design.night ? 'on' : '') + '" data-a="flight" data-v="night">Evening</button></span><button class="btn mini ghost" data-a="fvary">Try another arrangement</button>' + (edits ? '<button class="btn mini ghost" data-a="freset">Reset furniture</button>' : '') + '<button class="btn mini ghost" data-a="fsave">Save design</button>' + (saved ? '<button class="btn mini ghost" data-a="fopen" title="Saved ' + esc(new Date(saved.savedAt).toLocaleString()) + '">Open saved</button>' : '') + '<button class="btn mini ghost" data-a="fexport">Export file</button><label class="btn mini ghost fimp">Import file<input type="file" id="fimport" accept="application/json,.json" hidden></label></div>';
-  h += '<p class="fsk-p">' + esc(st.id === 'auto' ? FURN_SKIN[ix].what : st.d + ' · ' + FURN_SKIN[ix].n + ' budget') + (cost ? ' · whole house ≈ <b>' + rup(cost) + '</b> <small>(BhuChain estimate)</small>' : '') + '</p>';
+  h += '<div class="fskin fsk-acts"><button class="btn mini ghost" data-a="flib">Furniture library</button><button class="btn mini ghost" data-a="ftop">Top view</button><button class="btn mini ghost" data-a="bcmp">Compare exterior styles</button><span class="seg2 sm"><button class="' + (!S.design.night && (ST.sunHr == null || ST.sunHr < 16.5) ? 'on' : '') + '" data-a="flight" data-v="day">Day</button><button class="' + (!S.design.night && ST.sunHr >= 16.5 ? 'on' : '') + '" data-a="flight" data-v="golden">Golden hour</button><button class="' + (S.design.night ? 'on' : '') + '" data-a="flight" data-v="night">Evening</button></span>' + (edits ? '<button class="btn mini ghost" data-a="freset">Reset furniture</button>' : '') + '<button class="btn mini ghost" data-a="fsave">Save design</button>' + (saved ? '<button class="btn mini ghost" data-a="fopen" title="Saved ' + esc(new Date(saved.savedAt).toLocaleString()) + '">Open saved</button>' : '') + '<button class="btn mini ghost" data-a="fexport">Export file</button><label class="btn mini ghost fimp">Import file<input type="file" id="fimport" accept="application/json,.json" hidden></label></div>';
   if (BS) { const fit = ST.extFit && ST.extFit.style === BS.id ? ST.extFit : null; h += '<p class="fsk-p">' + esc(BS.n) + ': ' + esc(BS.d) + (fit ? ' · ' + fit.placed.length + ' facade elements fit this house' + (fit.left.length ? ' (left out: ' + esc(fit.left.join(', ')) + ')' : '') : '') + '. Frames, canopies and cantilevers are shown for the look — have a structural engineer confirm them.</p>'; }
   if (omit.length) h += '<p class="fsk-p fsk-om">Left out so doors and the 2 ft walking path stay clear: ' + esc(omit.join('; ')) + '.</p>';
-  if (FS.loadNote) h += '<p class="fsk-p fsk-om">' + esc(FS.loadNote) + '</p>';
-  if (FS.saveNote) h += '<p class="fsk-p">' + esc(FS.saveNote) + '</p>';
+  h += '</details>';
   return h;
 }
 // a box with rounded edges (cushions, mattresses, pillows) — a box whose corners are pushed onto spheres
@@ -3473,7 +3560,7 @@ function planSvg(D, o, F, opts) {
     const M = mainRect(room), R = room.rect, nm = roomLabel(room, F, D);
     if (room.type === 'store' && !room.subs.length && R.w * R.h < 20) return;
     const lines = [[nm, 'rl', 1]];
-    if (!['open', 'terrace', 'passage'].includes(room.type)) lines.push([ftIn(R.w) + ' × ' + ftIn(R.h), 'rd', 0.78]);
+    if (!['open', 'terrace', 'passage'].includes(room.type) || (room.type === 'open' && b.bare)) lines.push([ftIn(R.w) + ' × ' + ftIn(R.h), 'rd', 0.78]);
     const fit = (M.w - 0.8) / (nm.length * TXT_K), fs = Math.max(0.5, Math.min(1.15, M.w / 9, fit));
     LB.push({ x: M.x + M.w / 2, y: M.y + M.h / 2, lines, fs, minFs: Math.min(fs, 0.5), pri: 10, area: { x: M.x + 0.25, y: M.y + 0.25, w: M.w - 0.5, h: M.h - 0.5 } });
     room.subs.forEach(s => { const t = ROOM[s.type].name.replace('Common bath', 'C. bath'), f = Math.max(0.42, Math.min(0.62, (s.w - 0.4) / (t.length * TXT_K))); LB.push({ x: s.x + s.w / 2, y: s.y + s.h / 2, lines: [[t, 'rs', 1]], fs: f, minFs: 0.4, pri: 8, area: { x: s.x + 0.15, y: s.y + 0.15, w: s.w - 0.3, h: s.h - 0.3 } }); });
@@ -6258,15 +6345,15 @@ function steelRate(brand, grade) { const B = STEEL_BRANDS.find(x => x.b === bran
 const ST = {
   step: 0, purpose: null, city: 'cuttack',
   plot: { w: 30, d: 40, facing: 'E', mode: 'sides', area: 1200, sides: { f: 30, b: 30, l: 40, r: 40 } },
-  home: { floors: 2, bhk: 3, parking: true, pooja: true, vastu: true, roof: 'single', park: { kind: '4w', loc: 'front', gali: 10, side: 'left' } },
+  home: { floors: 2, bhk: 3, split: 'floors', sized: false, extras: {}, parking: false, pooja: false, vastu: true, roof: 'single', park: { kind: 'none', loc: 'front', gali: 10, side: 'left' } },
   seed: (Math.random() * 1e9) >>> 0, vgrid: false,
-  tier: 'mid', pkg: 'core', style: null, interiors: null, pick: {}, steel: {}, cust: { name: '', phone: '' }, open: {}
+  tier: 'mid', tierF: null, pkg: 'core', style: null, interiors: null, pick: {}, steel: {}, cust: { name: '', phone: '' }, open: {}
 };
 const S = { design: null };
 const FLOWS = {
-  build: ['purpose', 'use', 'plot', 'home', 'budget', 'layout', 'materials', 'quote'],
+  build: ['purpose', 'use', 'plot', 'home', 'budget', 'layout', 'quote'],
   cost: ['purpose', 'use', 'plot', 'home', 'budget', 'quote'],
-  quote: ['purpose', 'use', 'plot', 'home', 'budget', 'materials', 'quote'],
+  quote: ['purpose', 'use', 'plot', 'home', 'budget', 'quote'],
 };
 const flow = () => { const f = FLOWS[ST.purpose] || FLOWS.build; return ST.home && (ST.home.use === 'rent' || isProj()) ? f.filter(x => x !== 'materials') : f; };
 const cur = () => flow()[ST.step];
@@ -6274,11 +6361,11 @@ const cur = () => flow()[ST.step];
 function seedStyle(seed, ti) { if (!seed) return ti >= 2 ? 'contemporary' : 'modern'; const L = ti >= 2 ? ['contemporary', 'modern', 'contemporary', 'odia'] : ['modern', 'contemporary', 'modern', 'odia']; return L[((seed >>> 0) % 9973) % L.length]; }
 function tierBrief(noGrid) {
   const ti = TI[ST.tier], h = ST.home;
-  const baths = h.bhk + 1; // every bedroom attached + one common bath
-  const B = { w: ST.plot.w, d: ST.plot.d, facing: ST.plot.facing, floors: h.floors, bhk: h.bhk, baths, parking: h.park.kind !== 'none', park: Object.assign({}, h.park), seed: ST.seed, tier: ti, pooja: h.pooja, vastu: h.vastu, roof: h.roof || 'single', paint: ST.paint && ST.paint !== 'auto' ? ST.paint : undefined, space: h.space || 'balanced', balc: ST.balc && BALC[ST.balc] ? (BALC[ST.balc].t <= ti ? ST.balc : 'cantilever') : 'none', style: ST.style || seedStyle(ST.seed, ti), finish: 'standard', setF: 5, setR: 3, setS: 3 };
+  const bare = !isVilla() && (h.use || 'family') === 'family', baths = Math.max(1, h.bhk) + (bare ? 0 : 1); // every bedroom attached (+ a common bath unless only the asked-for rooms are drawn)
+  const B = { w: ST.plot.w, d: ST.plot.d, facing: ST.plot.facing, floors: h.floors, bhk: Math.max(1, h.bhk), xr: xrOf(h), bare, baths, parking: h.park.kind !== 'none', park: Object.assign({}, h.park), seed: ST.seed, tier: ti, pooja: h.pooja, vastu: h.vastu, roof: h.roof || 'single', paint: ST.paint && ST.paint !== 'auto' ? ST.paint : undefined, space: h.space || 'balanced', balc: ST.balc && BALC[ST.balc] ? (BALC[ST.balc].t <= ti ? ST.balc : 'cantilever') : 'none', style: ST.style || seedStyle(ST.seed, ti), finish: 'standard', setF: 5, setR: 3, setS: 3 };
   if (!isVilla()) { const sb = setbackOf(); B.setF = sb.f; B.setR = sb.r; B.setS = sb.s; }
   if (isVilla()) { B.villa = true; B.villaV = villaLook(B.seed); if (!h.space || h.space === 'balanced') B.space = 'spacious'; if (!ST.style) B.style = ['mediterranean', 'heritage'].includes(B.villaV) ? 'odia' : 'contemporary'; if (!ST.balc) B.balc = B.villaV === 'resort' ? 'glass' : B.villaV === 'tropical' ? 'planter' : 'loggia'; }
-  if (h.split === 'floors' && h.floors > 1 && !isVilla()) { B.perFloor = (h.perFloor || []).slice(0, h.floors); while (B.perFloor.length < h.floors) B.perFloor.push(h.bhk); B.bhk = B.perFloor.reduce((a, v) => a + v, 0); B.baths = B.bhk + h.floors; }
+  if (h.split === 'floors' && h.floors > 1 && !isVilla()) { B.perFloor = (h.perFloor || []).slice(0, h.floors); while (B.perFloor.length < h.floors) B.perFloor.push(h.bhk); B.bhk = B.perFloor.reduce((a, v) => a + v, 0); B.baths = B.bhk + (bare ? 0 : h.floors); }
   if (isVilla()) B.vt = ESTATE[ST.vtype] ? ST.vtype : 'villa';
   const sf = ST.home.use === 'rent' ? null : isVilla() ? villaFit(B.w, B.d, B.bhk, B.vt) : siteFit(B.w, B.d, B.bhk, B.park.kind);
   const shp = ST.plot.mode === 'sides' && ST.plot.shape ? ST.plot.shape : null;
@@ -6354,32 +6441,60 @@ const PKG_K = { walling: 'Walls', cement: 'Cement', steel: 'Steel', waterproof: 
 const PKG_ROWS = [['Structural shell', ['walling', 'cement', 'steel', 'waterproof'], 'RCC foundation, columns, beams and roof slab; cement plaster inside and out'], ['Doors & windows', ['maindoor', 'doors', 'windows', 'grills'], null, 'Openings left for every door and window; no frames, shutters, sliders, grills or glass'], ['Flooring & paint', ['pcc', 'floor', 'paintint', 'ceiling'], null, 'No tiles, putty, primer or paint'], ['Plumbing & bathroom', ['plumb', 'septic', 'wc', 'cp', 'access', 'geyser'], null, 'Concealed water and drain pipes to bath and kitchen, capped points for taps, shower and WC; no fittings'], ['Electrical', ['conduit', 'db', 'wiring', 'fans', 'lights', 'exhaust', 'ac'], null, 'No wires, switches, sockets, lights or fans'], ['Kitchen', ['kslab', 'ktop', 'sink', 'modular', 'chimney']], ['Storage & wardrobes', ['wardrobe', 'units']], ['Furniture', ['furnish']], ['Electronics & appliances', ['appliances']], ['Decor & soft goods', ['decor']]];
 // every package at every budget level, from one design per level
 function pkgGrid(tiers) {
-  const keep = { tier: ST.tier, pkg: ST.pkg, interiors: ST.interiors, style: ST.style, design: S.design }, out = {};
+  const keep = { tier: ST.tier, tierF: ST.tierF, pkg: ST.pkg, interiors: ST.interiors, style: ST.style, design: S.design }, out = {}, fin = tiers.map(T => T.id), fcur = finKey();
   try {
-    tiers.forEach(T => { ST.tier = T.id; ST.interiors = null; ST.style = null; S.design = null; const ds = designNow(), o = ds.D.options[0]; out[T.id] = {}; PKGS.forEach(P => { ST.pkg = P.id; out[T.id][P.id] = o ? priceList(ds.D, o, T.id === keep.tier ? undefined : T.id) : { perSqft: 0, total: 0, lines: [] }; }); });
-  } finally { Object.assign(ST, { tier: keep.tier, pkg: keep.pkg, interiors: keep.interiors, style: keep.style }); S.design = keep.design; }
+    ST.tierF = fcur; // the finish level stays put while the core level is tried
+    tiers.forEach(T => {
+      ST.tier = T.id; ST.interiors = null; ST.style = null; S.design = null;
+      const ds = designNow(), o = ds.D.options[0], tid = T.id === keep.tier ? undefined : T.id, zero = { perSqft: 0, total: 0, lines: [] };
+      out[T.id] = { core: null, add: {} };
+      ST.pkg = 'core'; out[T.id].core = o ? priceList(ds.D, o, tid, 'cur') : zero;
+      ['semi', 'full'].forEach(p => { ST.pkg = p; out[T.id].add[p] = {}; fin.forEach(F => { const E = o ? priceList(ds.D, o, tid, F === fcur ? 'cur' : F) : zero; out[T.id].add[p][F] = { total: E.total, perSqft: E.perSqft, extra: E.total - out[T.id].core.total, lines: E.lines }; }); });
+    });
+  } finally { Object.assign(ST, { tier: keep.tier, tierF: keep.tierF, pkg: keep.pkg, interiors: keep.interiors, style: keep.style }); S.design = keep.design; }
   return out;
 }
+const lk = v => inr(v).replace(' lakh', ' L').replace(' crore', ' Cr');
+// step 1: the core house level (always chosen). step 2: interiors (none / semi / full) with their own level, shown as the extra cost on top of the core house.
 function pkgMatrix(tiers, G) {
-  const pk = ST.pkg || 'core';
-  return '<div class="pm" style="--n:' + tiers.length + '"><div class="pm-h"></div>' + tiers.map(T => '<div class="pm-h' + (ST.tier === T.id ? ' on' : '') + '"><b>' + T.short + '</b>' + (T.id === 'mid' ? '<em>Most chosen</em>' : '') + '</div>').join('') +
-    PKGS.map(P => '<div class="pm-r' + (pk === P.id ? ' on' : '') + '"><b>' + P.n + '</b><span>' + P.d + '</span></div>' + tiers.map(T => { const E = G[T.id][P.id]; return '<button class="pm-c' + (pk === P.id && ST.tier === T.id ? ' on' : '') + '" data-a="pt" data-p="' + P.id + '" data-v="' + T.id + '" aria-label="' + P.n + ', ' + T.short + ' budget"><b>' + inr(E.total).replace(' lakh', ' L').replace(' crore', ' Cr') + '</b><i>' + rup(E.perSqft) + '/sq ft</i></button>'; }).join('')).join('') + '</div>';
+  const pk = ST.pkg || 'core', fcur = finKey(), n = 'style="--n:' + tiers.length + '"';
+  const head = '<div class="pm-h"></div>' + tiers.map(T => '<div class="pm-h"><b>' + T.short + '</b>' + (T.id === 'mid' ? '<em>Most chosen</em>' : '') + '</div>').join('');
+  const core = '<div class="pm" ' + n + '>' + head + '<div class="pm-r on"><b>Core house</b><span>' + PKGS[0].d + '</span></div>' + tiers.map(T => { const E = G[T.id].core; return '<button class="pm-c' + (ST.tier === T.id ? ' on' : '') + '" data-a="ct" data-v="' + T.id + '" aria-label="Core house, ' + T.short + ' budget"><b>' + lk(E.total) + '</b><i>' + rup(E.perSqft) + '/sq ft</i></button>'; }).join('') + '</div>';
+  const chips = '<div class="rq-cats pk-chips">' + PKGS.map(P => '<button class="rq-c' + (pk === P.id ? ' on' : '') + '" data-a="pkg" data-v="' + P.id + '">' + (P.id === 'core' ? 'No interiors' : P.n) + '</button>').join('') + '</div>';
+  let fin = '';
+  if (pk === 'core') fin = '<p class="fine c">Only the core house. You can add interiors later; the price above is for the structure only.</p>';
+  else { const P = PKGS.find(x => x.id === pk); fin = '<p class="fine c">' + P.d + '</p><div class="pm" ' + n + '>' + head + '<div class="pm-r on"><b>' + P.n + '</b><span>Extra cost on top of your ' + TIERS[TI[ST.tier]].short + ' core house</span></div>' + tiers.map(T => { const E = G[ST.tier].add[pk][T.id]; return '<button class="pm-c' + (fcur === T.id ? ' on' : '') + '" data-a="ft" data-v="' + T.id + '" aria-label="' + P.n + ', ' + T.short + ' budget"><b>+ ' + lk(E.extra) + '</b><i>' + lk(E.total) + ' in all</i></button>'; }).join('') + '</div>'; }
+  return core + '<h3 class="q2">2 · Interiors <small>(optional)</small></h3><p class="fine c">Choose any budget level for the interiors, even if it is different from the core house.</p>' + chips + fin;
+}
+function totalBar(G, P) {
+  const pk = ST.pkg || 'core', core = G[ST.tier].core.total, tn = k => TIERS[TI[k]].short;
+  const L = pk === 'core' ? 'Core ' + tn(ST.tier) : 'Core ' + tn(ST.tier) + ' + ' + PKGS.find(x => x.id === pk).n + ' ' + tn(finKey());
+  const warn = pk !== 'core' && TI[ST.tier] < TI[finKey()] ? '<p class="fine">Interiors are at a higher level than the structure. This works, but check that the core house suits the interiors you want.</p>' : '';
+  return '<div class="tot-bar"><div><span>Your selection</span><b>' + esc(L) + '</b></div><div class="tb-r"><b>' + inr(P.total) + '</b><span>' + rup(P.perSqft) + '/sq ft</span></div></div>' + warn;
 }
 function pkgCompare(tiers, G) {
   const T = tiers.find(x => x.id === ST.tier) || tiers[0], pk = ST.pkg || 'core', has = {};
-  PKGS.forEach(P => { has[P.id] = {}; G[T.id][P.id].lines.forEach(L => { has[P.id][L.it.id] = L.c.l; }); });
+  const fcur = finKey();
+  PKGS.forEach(P => { has[P.id] = {}; (P.id === 'core' ? G[T.id].core : G[T.id].add[P.id][fcur]).lines.forEach(L => { has[P.id][L.it.id] = L.c.l; }); });
   const cell = (P, ids, all, coreNote) => { const L = (all ? ['<li class="all">' + esc(all) + '</li>'] : []).concat(ids.filter(id => has[P.id][id]).map(id => '<li' + (P.id !== 'core' && !has.core[id] ? ' class="add"' : '') + '>' + (PKG_K[id] ? '<b>' + PKG_K[id] + ':</b> ' : '') + esc(has[P.id][id]) + '</li>')); if (P.id === 'core' && coreNote) L.push('<li class="not">' + esc(coreNote) + '</li>'); return L.length ? '<ul>' + L.join('') + '</ul>' : '<span class="no">None</span>'; };
   const wi = ITEMS.find(it => it.id === 'walling'), wc = T.id === ST.tier ? itemChoice(wi) : null, bricks = wi.opts.map((o, i) => [o, i]).filter(([o]) => /^Red clay bricks/.test(o.l));
   const bsel = wc ? '<div class="pc-brick"><b>Brick size</b>' + bricks.map(([o, i]) => '<button class="rq-c' + (wc.ix === i ? ' on' : '') + '" data-a="pick" data-id="walling" data-v="' + i + '">' + (/10×5/.test(o.l) ? '10 inch' : '9 inch') + ' red brick<i>' + rup(o.r) + '/brick</i></button>').join('') + '</div>' : '';
-  return bsel + '<div class="pcmp-w"><table class="pcmp"><thead><tr><th>' + T.short + ' budget</th>' + PKGS.map(P => '<th' + (pk === P.id ? ' class="on"' : '') + '>' + P.n + '</th>').join('') + '</tr></thead><tbody>' +
-    PKG_ROWS.map(([n, ids, all, cn]) => '<tr><th>' + n + '</th>' + PKGS.map(P => '<td' + (pk === P.id ? ' class="on"' : '') + '>' + cell(P, ids, all, cn) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div><p class="fine c">Green lines are added on top of the core house. Tap Low, Mid or High above to compare that level.</p>';
+  return bsel + '<div class="pcmp-w"><table class="pcmp"><thead><tr><th>Core ' + T.short + (pk !== 'core' ? ' · Interiors ' + TIERS[TI[fcur]].short : '') + '</th>' + PKGS.map(P => '<th' + (pk === P.id ? ' class="on"' : '') + '>' + P.n + '</th>').join('') + '</tr></thead><tbody>' +
+    PKG_ROWS.map(([n, ids, all, cn]) => '<tr><th>' + n + '</th>' + PKGS.map(P => '<td' + (pk === P.id ? ' class="on"' : '') + '>' + cell(P, ids, all, cn) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div><p class="fine c">Green lines are added on top of the core house. Change the core or interior level above to compare.</p>';
 }
 // share of the full labour rate for a bare shell (no tiling, painting, fixing, fitting)
 const CORE_LABOUR = 0.7;
 const PKG_R = { core: 0, semi: 1, full: 2 }, pkgHas = p => PKG_R[ST.pkg || 'core'] >= PKG_R[p];
 function useInteriors() { return pkgHas('semi'); }
-function itemChoice(it, tierId) {
-  const ti = TI[tierId || ST.tier];
+// finish level: interiors (doors, tiles, paint, kitchen, furniture) can be a different budget level from the core house
+const isFinIt = it => !!(it.pkg || it.optional);
+function finKey(finId) { return finId || (ST.tier === 'ultra' ? 'ultra' : (ST.tierF || ST.tier)); }
+// a new core level clears the core picks; the finish picks stay unless the finish level is following the core level
+function dropPicks(fin) { Object.keys(ST.pick).forEach(id => { const it = ITEMS.find(x => x.id === id); if (!it || isFinIt(it) === fin) delete ST.pick[id]; }); }
+function setCoreTier(v) { if (ST.tier === v) return; ST.tier = v; dropPicks(false); if (!ST.tierF) dropPicks(true); ST.steel = {}; ST.interiors = null; ST.style = null; }
+function itemChoice(it, tierId, finId) {
+  const cur = finId === 'cur', fin = isFinIt(it), own = fin ? (!finId || cur) : !tierId, ti = TI[fin ? finKey(cur ? undefined : finId) : (tierId || ST.tier)];
+  tierId = own ? undefined : tierId;
   if (it.steel) {
     const grade = (!tierId && ST.steel.grade) || STEEL_DEF.grade[ti];
     let brand = (!tierId && ST.steel.brand) || STEEL_DEF.brand[ti];
@@ -6388,7 +6503,7 @@ function itemChoice(it, tierId) {
     if (!B || r == null) return null;
     return { l: B.p + ' ' + grade, brand: B.b, grade, r, s: B.s === 'IL' ? (grade === 'Fe500D' ? 'IL' : 'CM') : B.s, per: 1, u: 'kg' };
   }
-  let ix = !tierId && ST.pick[it.id] != null ? ST.pick[it.id] : it.def[ti];
+  let ix = own && ST.pick[it.id] != null ? ST.pick[it.id] : it.def[ti];
   if (it.vlook) { if (!isVilla()) return null; const vi = VILLA_KEYS.indexOf(villaLook(ST.seed)); return Object.assign({ ix: vi }, it.opts[vi]); }
   if (it.balc) { const k = (ST.balc || (isVilla() ? 'loggia' : null)) && BALC[ST.balc || 'loggia'] ? (BALC[ST.balc || 'loggia'].t <= ti ? (ST.balc || 'loggia') : 'cantilever') : 'none', bi = ['juliet', 'cantilever', 'stacked', 'recessed', 'glass', 'planter', 'loggia', 'wrap', 'sky'].indexOf(k); return bi < 0 ? null : Object.assign({ ix: bi }, it.opts[bi]); }
   if (it.pkg && !it.keepTier && pkgHas(it.pkg) && (ix == null || ix < 0)) ix = 0;
@@ -6402,12 +6517,14 @@ function lineFor(it, c, Q, ti, cf) {
   const rate = Math.round(c.r * (it.g === 'Labour & services' ? 1 : cf) * 100) / 100;
   return { it, c, spec: c.l, rate, src: c.s, buyUnit: unitWord, qty, units, amount: units * rate };
 }
-function priceList(D, o, tierId) {
-  const Q = quantities(D, o), cf = CITIES.find(c => c.id === ST.city).f, lines = [], ti = TI[tierId || ST.tier];
+// tierId = core level, finId = finish level ('cur' = the buyer's own finish level). Older callers pass only tierId: finish follows it.
+function priceList(D, o, tierId, finId) {
+  if (tierId && finId === undefined) finId = tierId;
+  const Q = quantities(D, o), cf = CITIES.find(c => c.id === ST.city).f, lines = [], ti = TI[tierId || ST.tier], fk = finKey(finId === 'cur' ? undefined : finId), fi = TI[fk];
   ITEMS.forEach(it => {
     if ((it.optional || it.pkg) && !pkgHas(it.pkg || 'semi')) return;
     if (it.coreOnly && pkgHas('semi')) return;
-    const L = lineFor(it, itemChoice(it, tierId), Q, ti, cf); if (L) lines.push(L);
+    const L = lineFor(it, itemChoice(it, tierId, finId), Q, isFinIt(it) ? fi : ti, cf); if (L) lines.push(L);
   });
   // the core house is a bare shell: no cladding, decorative tiles or garden, and the labour is civil work and plaster only
   if (pkgHas('semi')) {
@@ -6415,6 +6532,11 @@ function priceList(D, o, tierId) {
   try { tileLines(D, o).forEach(L => { L.rate = Math.round(L.rate * cf); L.amount = L.units * L.rate; lines.push(L); }); } catch (e) { }
   try { gardenLines(D, o).forEach(L => { L.rate = Math.round(L.rate * cf); L.amount = L.units * L.rate; lines.push(L); }); } catch (e) { }
   } else lines.forEach(L => { if (L.it.id === 'labour') { L.rate = Math.round(L.rate * CORE_LABOUR); L.amount = L.units * L.rate; L.spec += ' — civil work and plaster only'; } });
+  // labour: civil share at the core level, finishing share (tiling, painting, fitting) at the finish level
+  if (pkgHas('semi') && fi !== ti) lines.forEach(L => {
+    if (L.it.id !== 'labour') return;
+    const fr = L.it.opts[L.it.def[fi]].r; L.rate = Math.round(L.rate * CORE_LABOUR + fr * (1 - CORE_LABOUR)); L.amount = L.units * L.rate; L.spec += ' — civil at ' + TIERS[ti].short + ', finishing at ' + TIERS[fi].short;
+  });
   const sub = lines.reduce((a, x) => a + x.amount, 0), cont = sub * 0.05;
   return { lines, Q, sub, cont, total: sub + cont, perSqft: (sub + cont) / Math.max(1, Q.covered) };
 }
@@ -6435,35 +6557,41 @@ function bxArt() {
   const k = 19, P = (x, y, z) => [(205 + (x - y) * 0.866 * k).toFixed(1), (175 + (x + y) * 0.5 * k - z * k).toFixed(1)];
   const poly = (pts, cls, d, close) => '<path pathLength="1" class="' + cls + '" style="animation-delay:' + d + 's" d="M' + pts.map(p => P(...p).join(' ')).join(' L') + (close === false ? '' : ' Z') + '"/>';
   const box = (x0, y0, x1, y1, z) => [[x0, y0, z], [x1, y0, z], [x1, y1, z], [x0, y1, z]];
-  let h = '<svg viewBox="0 0 420 340" role="img" aria-label="A house drawn from its footing to the roof">';
-  // plot boundary and the front setback, dashed like a site plan
+  // a solid face: filled with the wall colour and edged, so the finished house reads as one clean solid
+  const face = (pts, cls, d) => '<path class="fill ' + cls + '" style="animation-delay:' + d + 's" d="M' + pts.map(p => P(...p).join(' ')).join(' L') + ' Z"/>';
+  let h = '<svg viewBox="0 0 420 340" role="img" aria-label="A house drawn from its footing to the roof, then filled in">';
+  // plot boundary, dashed like a site plan, and the footing pads stay on the ground
   h += poly(box(-2, -2, 12, 11, 0), 'ln dash', 0);
-  // footing pads, then the plinth outline
-  [[0, 0], [5, 0], [10, 0], [0, 8], [5, 8], [10, 8]].forEach(([x, y], i) => { h += poly(box(x - .6, y - .6, x + .6, y + .6, 0), 'ln', .15 + i * .05); });
+  [[0, 0], [5, 0], [10, 0], [0, 8], [5, 8], [10, 8]].forEach(([x, y], i) => { h += poly(box(x - .6, y - .6, x + .6, y + .6, 0), 'ln pad', .15 + i * .05); });
+  // the frame is drawn first (these lines are cleared once the walls close in)
   h += poly(box(0, 0, 10, 8, .5), 'ln th', .5);
-  // columns
   [[0, 0], [5, 0], [10, 0], [10, 8], [0, 8]].forEach(([x, y], i) => { h += poly([[x, y, .5], [x, y, 3.6]], 'ln', .8 + i * .07, false); });
-  // first slab
   h += poly(box(0, 0, 10, 8, 3.6), 'ln th', 1.2);
-  // upper floor on part of the slab, and the parapet of the open terrace
   [[0, 0], [6, 0], [6, 8], [0, 8]].forEach(([x, y], i) => { h += poly([[x, y, 3.6], [x, y, 6.8]], 'ln', 1.5 + i * .07, false); });
   h += poly(box(0, 0, 6, 8, 6.8), 'ln th', 1.8);
   h += poly([[6, 0, 3.6], [10, 0, 3.6], [10, 0, 4.4], [6, 0, 4.4]], 'ln', 1.9, false) + poly([[10, 0, 4.4], [10, 8, 4.4], [10, 8, 3.6]], 'ln', 2, false);
-  // faces, windows and the door fade in once the frame stands
-  const face = (pts, fill, d) => '<path class="fill" style="animation-delay:' + d + 's" fill="' + fill + '" d="M' + pts.map(p => P(...p).join(' ')).join(' L') + ' Z"/>';
-  h = h.replace('<svg viewBox="0 0 420 340" role="img" aria-label="A house drawn from its footing to the roof">', '<svg viewBox="0 0 420 340" role="img" aria-label="A house drawn from its footing to the roof">' +
-    face([[0, 8, .5], [10, 8, .5], [10, 8, 3.6], [0, 8, 3.6]], '#E6EBEF', 2.1) + face([[10, 0, .5], [10, 8, .5], [10, 8, 3.6], [10, 0, 3.6]], '#D6DDE3', 2.15) +
-    face([[0, 8, 3.6], [6, 8, 3.6], [6, 8, 6.8], [0, 8, 6.8]], '#EEF1F4', 2.2) + face([[6, 0, 3.6], [6, 8, 3.6], [6, 8, 6.8], [6, 0, 6.8]], '#DCE2E7', 2.25) + face(box(0, 0, 6, 8, 6.8), '#F6F7F9', 2.3));
-  h += face([[7, 8, .5], [8.6, 8, .5], [8.6, 8, 2.8], [7, 8, 2.8]], '#F06A2A', 2.5).replace('class="fill"', 'class="fill acc"');
-  [[1.2, 8, 1.4, 3.6, 2.6], [1.2, 8, 4.6, 3.8, 6], [10, 2, 1.4, 4.2, 2.6]].forEach(([x, y, z, x2, z2], i) => { const pts = y === 8 ? [[x, y, z], [x2, y, z], [x2, y, z2], [x, y, z2]] : [[x, 2, z], [x, 6.2, z], [x, 6.2, z2], [x, 2, z2]]; h += face(pts, '#9FB6C7', 2.6 + i * .08); });
-  // dimension
+  // walls close in, back to front: plinth, ground floor, terrace and its parapet, upper floor, roof
+  h += face([[0, 8, 0], [10, 8, 0], [10, 8, .5], [0, 8, .5]], 'w3', 2.05) + face([[10, 0, 0], [10, 8, 0], [10, 8, .5], [10, 0, .5]], 'w3', 2.05);
+  h += face([[10, 0, .5], [10, 8, .5], [10, 8, 3.6], [10, 0, 3.6]], 'w2', 2.15) + face([[0, 8, .5], [10, 8, .5], [10, 8, 3.6], [0, 8, 3.6]], 'w1', 2.2);
+  h += face(box(6, 0, 10, 8, 3.6), 'w4', 2.3) + face([[6, 0, 3.6], [10, 0, 3.6], [10, 0, 4.4], [6, 0, 4.4]], 'w1', 2.35) + face([[10, 0, 3.6], [10, 8, 3.6], [10, 8, 4.4], [10, 0, 4.4]], 'w2', 2.35);
+  h += face([[6, 0, 3.6], [6, 8, 3.6], [6, 8, 6.8], [6, 0, 6.8]], 'w2', 2.45) + face([[0, 8, 3.6], [6, 8, 3.6], [6, 8, 6.8], [0, 8, 6.8]], 'w1', 2.5) + face(box(0, 0, 6, 8, 6.8), 'w4', 2.6);
+  // door and windows, then the dimension
+  h += face([[7, 8, .5], [8.6, 8, .5], [8.6, 8, 2.8], [7, 8, 2.8]], 'acc', 2.9);
+  [[1.2, 8, 1.4, 3.6, 2.6], [1.2, 8, 4.6, 3.8, 6], [10, 2, 1.4, 4.2, 2.6]].forEach(([x, y, z, x2, z2], i) => { const pts = y === 8 ? [[x, y, z], [x2, y, z], [x2, y, z2], [x, y, z2]] : [[x, 2, z], [x, 6.2, z], [x, 6.2, z2], [x, 2, z2]]; h += face(pts, 'gl', 3 + i * .08); });
   const a = P(0, 9.4, 0), b = P(10, 9.4, 0);
-  h += '<g class="fill" style="animation-delay:2.8s"><line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="#8A959E" stroke-width="1"/><text class="dimt" x="' + ((+a[0] + +b[0]) / 2 - 18) + '" y="' + ((+a[1] + +b[1]) / 2 + 18) + '">30′ × 40′</text></g>';
+  h += '<g class="fill" style="animation-delay:3.3s"><line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="#8A959E" stroke-width="1"/><text class="dimt" x="' + ((+a[0] + +b[0]) / 2 - 18) + '" y="' + ((+a[1] + +b[1]) / 2 + 18) + '">30′ × 40′</text></g>';
   return h + '</svg>';
 }
-SCR.purpose = () => '<section class="bx-hero"><div><span class="bx-lab"><img src="' + BRAND_LOGO + '" alt="Shree BhuChain">Build · Odisha</span><h1>From plot<br><em>to keys.</em></h1><p class="lead">Plan, 3D design, structure and an itemised quotation for your home — in minutes. Speak in Odia, Hindi or English.</p><div class="bx-facts"><span><b>3</b>design options</span><span><b>2D + 3D</b>every floor</span><span><b>PDF</b>home pack</span></div></div><div class="bx-art">' + bxArt() + '</div></section>' +
-  '<h2 class="q">What would you like to do?</h2><div class="opts two">' +
-  [['build', 'Build a new home', 'Plan, 3D design, every material and a full quotation.'], ['cost', 'Know my building cost', 'A quick, honest cost per sq ft for your plot.'], ['quote', 'Get a material quotation', 'Every material — grade, brand, quantity and price.']].map(o => '<button class="opt' + (ST.purpose === o[0] ? ' on' : '') + '" data-a="purpose" data-v="' + o[0] + '"><span class="ic">' + ICON[o[0]] + '</span><b>' + o[1] + '</b><span>' + o[2] + '</span></button>').join('') + '</div>';
+SCR.purpose = () => {
+  const cta = '<button class="btn hp-cta" data-a="purpose" data-v="build">Build your home<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>';
+  const step = (n, t, d) => '<div class="hp-card"><i>' + n + '</i><b>' + t + '</b><span>' + d + '</span></div>';
+  const feat = (t, d) => '<div class="hp-feat"><b>' + t + '</b><span>' + d + '</span></div>';
+  return '<section class="bx-hero"><div><span class="bx-lab"><img src="' + BRAND_LOGO + '" alt="Shree BhuChain">Build · Odisha</span><h1>From plot<br><em>to keys.</em></h1><p class="lead">Plan, 3D design, structure and an itemised quotation for your home — in minutes. Speak in Odia, Hindi or English.</p><div class="hp-act">' + cta + '</div><div class="bx-facts"><span><b>3</b>design options</span><span><b>2D + 3D</b>every floor</span><span><b>PDF</b>home pack</span></div></div><div class="bx-art">' + bxArt() + '</div></section>' +
+    '<section class="hp-sec"><h2>How it works</h2><div class="hp-steps">' + step(1, 'Tell us about your plot', 'Size, facing, floors and bedrooms. Odd-shaped land works too.') + step(2, 'Pick your design', 'Three layouts with plan, 3D and a walk inside every floor, checked for Vastu.') + step(3, 'Get your quotation', 'Every material, brand, quantity and price, ready as a PDF.') + '</div></section>' +
+    '<section class="hp-sec hp-split"><div><h2>Your budget, your way</h2><p>Choose how strong the structure should be — Low, Mid or High. Then add interiors if you want them, at any level you like.</p></div><div class="hp-lv"><div><em>Core house</em><span>Low</span><span>Mid</span><span>High</span></div><div><em>Interiors</em><span>None</span><span>Semi</span><span>Full</span></div></div></section>' +
+    '<section class="hp-sec"><h2>Everything in one pack</h2><div class="hp-feats">' + feat('2D plans and 3D', 'Every floor, outside and inside.') + feat('Vastu check', 'A score for each design.') + feat('Structure', 'Column, beam and slab sizes for your architect.') + feat('Real brands', 'Cement, steel, tiles and fittings priced for your city.') + feat('Voice in your language', 'Odia, Hindi or English.') + feat('Print-ready PDF', 'Plan, quotation and materials in one file.') + '</div></section>' +
+    '<section class="hp-end"><h2>Ready to see your home?</h2>' + cta + '</section>';
+};
 function useCards() { const use = ST.home.use || 'family'; return '<div class="opts two use">' + [['family', 'Home for my family', 'One house for you to live in. Big land gets a lawn, garden and more.'], ['villa', 'Ultra luxury estate', 'A signature villa, a garden bungalow or a farmhouse estate — designed together with its grounds.'], ['rent', 'Rental units', 'Many self-contained units — each with its own kitchen and attached bath.'], ['apartment', 'Apartment building', 'Flats of 1, 2, 3 or 4 BHK on many floors, with lifts, parking and amenities.'], ['commercial', 'Commercial building', 'Shops and offices, with lifts and open, ground-floor or basement parking.']].map(u => '<button class="opt' + (use === u[0] ? ' on' : '') + '" data-a="use" data-v="' + u[0] + '"><b>' + u[1] + '</b><span>' + u[2] + '</span></button>').join('') + '</div>'; }
 SCR.use = () => '<h2 class="q">What will you build?</h2><p class="sub">Pick one. Next, tell us how big the land is.</p>' + useCards();
 SCR.city = () => '<h2 class="q">Where will you build?</h2><p class="sub">Prices follow the local market.</p><div class="opts two">' + CITIES.map(c => '<button class="opt row' + (ST.city === c.id ? ' on' : '') + '" data-a="city" data-v="' + c.id + '"><b>' + c.name + '</b><span>' + c.note + '</span></button>').join('') + '</div>';
@@ -6783,9 +6911,9 @@ const FIT_PROG = [
   { n: '1RK', bhk: 0, minW: 12, rooms: [['Room', 10, 12], ['Kitchenette', 6, 7], ['Toilet', 5, 7]] },
   { n: '1BHK', bhk: 1, minW: 15, rooms: [['Living', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 7, 8], ['Toilet', 5, 7]] },
   { n: '2BHK', bhk: 2, minW: 18, rooms: [['Living', 11, 12], ['Master bedroom', 11, 11], ['Bedroom', 10, 10], ['Kitchen', 8, 8], ['Toilet', 5, 7], ['Toilet', 5, 7]] },
-  { n: '3BHK', bhk: 3, minW: 20, rooms: [['Living', 12, 13], ['Dining', 8, 10], ['Master bedroom', 11, 12], ['Bedroom', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 8, 10], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7]] },
-  { n: '4BHK', bhk: 4, minW: 22, rooms: [['Living', 13, 14], ['Dining', 9, 10], ['Master bedroom', 12, 12], ['Bedroom', 11, 11], ['Bedroom', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 9, 10], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7]] },
-  { n: '5BHK', bhk: 5, minW: 24, rooms: [['Living', 14, 15], ['Dining', 10, 10], ['Master bedroom', 12, 13], ['Bedroom', 11, 12], ['Bedroom', 11, 11], ['Bedroom', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 9, 11], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7]] }
+  { n: '3BHK', bhk: 3, minW: 20, rooms: [['Living', 12, 13], ['Master bedroom', 11, 12], ['Bedroom', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 8, 10], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7]] },
+  { n: '4BHK', bhk: 4, minW: 22, rooms: [['Living', 13, 14], ['Master bedroom', 12, 12], ['Bedroom', 11, 11], ['Bedroom', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 9, 10], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7]] },
+  { n: '5BHK', bhk: 5, minW: 24, rooms: [['Living', 14, 15], ['Master bedroom', 12, 13], ['Bedroom', 11, 12], ['Bedroom', 11, 11], ['Bedroom', 10, 11], ['Bedroom', 10, 10], ['Kitchen', 9, 11], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7], ['Toilet', 5, 7]] }
 ];
 const FIT_SPACE = { compact: { k: 0.9, circ: 0.1, n: 'Compact' }, balanced: { k: 1, circ: 0.12, n: 'Balanced' }, spacious: { k: 1.25, circ: 0.15, n: 'Spacious' } };
 const FIT_WALL = 0.13, FIT_STAIR = 105, FIT_PARK = { none: 0, '2w': 42, '4w': 180, both: 252 };
@@ -6797,12 +6925,12 @@ function areaFacts() {
 // sq ft a home needs, built up, for a room program on this many floors
 function fitNeed(prog, o) {
   const S = FIT_SPACE[o.space] || FIT_SPACE.balanced, rooms = prog.rooms.reduce((a, r) => a + r[1] * r[2], 0) * S.k + (o.pooja ? 20 : 0);
-  const net = rooms * (1 + S.circ), built = net / (1 - FIT_WALL), stair = FIT_STAIR * o.floors, park = FIT_PARK[o.park] || 0;
+  const net = rooms * (1 + S.circ), built = net / (1 - FIT_WALL), stair = o.stairs === false ? 0 : FIT_STAIR * o.floors, park = FIT_PARK[o.park] || 0;
   const foot = o.foot, shaft = foot > 800 ? 0.03 * foot * o.floors : 0;
   // the ground floor holds the parking, the stair, living, kitchen and a toilet at least
   const gRooms = prog.rooms.filter(r => /Living|Room|Kitchen|Toilet/.test(r[0])).slice(0, 3).reduce((a, r) => a + r[1] * r[2], 0) * S.k;
-  const gNeed = park + FIT_STAIR + gRooms * (1 + S.circ) / (1 - FIT_WALL);
-  return { rooms: Math.round(rooms), need: Math.round(built + stair + park + shaft), gNeed: Math.round(gNeed) };
+  const gNeed = park + (o.stairs === false ? 0 : FIT_STAIR) + gRooms * (1 + S.circ) / (1 - FIT_WALL);
+  return { rooms: Math.round(rooms), need: Math.round(built + stair + park + shaft + (o.extra || 0)), gNeed: Math.round(gNeed) };
 }
 // one verdict: ok (comfortable), tight (fits at minimum sizes) or no (does not fit)
 function fitVerdict(prog, o) {
@@ -6813,7 +6941,16 @@ function fitVerdict(prog, o) {
   else if (st === 'no') why = 'it needs about ' + N.need.toLocaleString('en-IN') + ' sq ft built up; ' + (o.floors > 1 ? o.floors + ' floors give ' : 'the floor gives ') + avail.toLocaleString('en-IN');
   return { st, ratio, need: N.need, avail, why, prog };
 }
-const fitOpts = h => ({ floors: h.floors, space: h.space || 'balanced', park: h.park.kind, pooja: !!h.pooja });
+// optional rooms the owner can add after choosing the home size (sizes come from the room list above)
+// which extra rooms the plan can draw: dining (1 and 2 BHK), study, store and a guest bedroom on the ground floor
+const XDRAW = ['stairs', 'dining', 'study', 'store', 'guest', 'utility', 'helper', 'lounge', 'puja', 'balcony'];
+const stairOn = h => h.floors > 1 || !!(h.extras && h.extras.stairs);
+function xrOf(h) { if (isVilla()) return undefined; const e = h.extras || {}, on = k => !!(e[k] && xAvail(k, h)); return { dining: on('dining'), study: on('study') ? 1 : 0, store: on('store') ? 1 : 0, guest: on('guest') ? 1 : 0, utility: on('utility') ? 1 : 0, helper: on('helper') ? 1 : 0, lounge: on('lounge'), stairs: stairOn(h) }; }
+const XTRA = ['stairs', 'guest', 'dining', 'study', 'store', 'utility', 'helper', 'lounge', 'sitout', 'puja', 'dress', 'balcony', 'lift'];
+const xAvail = (k, h) => !(((k === 'balcony' || k === 'lift') && h.floors < 2) || (k === 'lounge' && (h.floors < 2 || pfOn(h))));
+function xArea(k, h) { if (k === 'stairs') return FIT_STAIR; if (k === 'balcony') return 0; const S = FIT_SPACE[h.space || 'balanced'] || FIT_SPACE.balanced, q = RQ_BY[k]; return Math.round(q.min[0] * q.min[1] * S.k * (1 + S.circ) / (1 - FIT_WALL)); }
+const extraArea = h => XTRA.filter(k => !['stairs', 'puja', 'balcony'].includes(k) && h.extras && h.extras[k] && xAvail(k, h)).reduce((a, k) => a + xArea(k, h), 0);
+const fitOpts = h => ({ floors: h.floors, space: h.space || 'balanced', park: h.park.kind, pooja: !!h.pooja, extra: extraArea(h), stairs: stairOn(h) });
 // a flat on every floor: each floor holds a whole home (living, kitchen, toilets, bedrooms) and the stair; the ground floor also the parking
 const pfOn = h => h.split === 'floors' && h.floors > 1 && !isVilla();
 const pfList = h => { const L = (h.perFloor || []).slice(0, h.floors); while (L.length < h.floors) L.push(Math.max(1, Math.min(4, h.bhk))); return L.map(v => Math.max(1, Math.min(4, v))); };
@@ -6821,7 +6958,7 @@ function fitFloors(list, o) {
   const A = areaFacts(), S = FIT_SPACE[o.space] || FIT_SPACE.balanced, rank = { ok: 0, tight: 1, no: 2 };
   let st = 'ok', why = '', need = 0, worst = -1;
   list.forEach((k, f) => { const P = FIT_PROG[k], rooms = P.rooms.reduce((a, r) => a + r[1] * r[2], 0) * S.k + (o.pooja && f === 0 ? 20 : 0);
-    const n = Math.round(rooms * (1 + S.circ) / (1 - FIT_WALL) + FIT_STAIR + (f === 0 ? FIT_PARK[o.park] || 0 : 0) + (A.foot > 800 ? 0.03 * A.foot : 0)); need += n;
+    const n = Math.round(rooms * (1 + S.circ) / (1 - FIT_WALL) + FIT_STAIR + (f === 0 ? (FIT_PARK[o.park] || 0) + (o.extra || 0) : 0) + (A.foot > 800 ? 0.03 * A.foot : 0)); need += n;
     const r = A.foot ? n / A.foot : 9; let s1 = r <= 0.85 ? 'ok' : r <= 1 ? 'tight' : 'no', w1 = '';
     if (A.W < P.minW) { s1 = 'no'; w1 = 'the house area is only ' + ftx(A.W) + ' ft wide; a ' + P.n + ' needs ' + P.minW + ' ft'; }
     else if (s1 === 'no') w1 = 'the ' + FLOOR_NAME[f].toLowerCase() + ' ' + P.n + ' needs about ' + n.toLocaleString('en-IN') + ' sq ft' + (f === 0 && o.park !== 'none' ? ' with the parking' : '') + '; a floor gives ' + A.foot.toLocaleString('en-IN');
@@ -6845,7 +6982,7 @@ function planShort(D, o) {
 }
 // the whole check for the current requirements: estimate, the drawn plan, and what to change
 function homeCheck(D, o) {
-  const h = ST.home, pf = pfOn(h), P = FIT_PROG[Math.min(5, Math.max(1, h.bhk))], V = pf ? fitFloors(pfList(h), fitOpts(h)) : fitVerdict(P, fitOpts(h)), short = o ? planShort(D, o) : ['No layout could be drawn.'];
+  const h = ST.home, pf = pfOn(h), P = FIT_PROG[Math.min(5, Math.max(0, h.bhk))], V = pf ? fitFloors(pfList(h), fitOpts(h)) : fitVerdict(P, fitOpts(h)), short = o ? planShort(D, o) : ['No layout could be drawn.'];
   const notes = (D ? D.warn : []).concat(o && o.walkNote ? [o.walkNote] : []);
   let st = V.st; if (short.length && st === 'ok') st = 'tight'; if (!o) st = 'no';
   // the smallest changes that make it fit: one change first, then two together
@@ -6853,15 +6990,15 @@ function homeCheck(D, o) {
   if (st !== 'ok') {
     const cur = { bhk: h.bhk, floors: h.floors, space: h.space || 'balanced', park: h.park.kind }, ch = [];
     if (pf) { const L = pfList(h), w = V.worst >= 0 ? V.worst : 0; if (L[w] > 1) { const a = L.slice(); a[w]--; ch.push({ perFloor: a }); } if (L.some(v => v > 1)) ch.push({ perFloor: L.map(v => Math.max(1, v - 1)) }); }
-    else { if (h.bhk > 1) ch.push({ bhk: h.bhk - 1 }); if (h.bhk > 2) ch.push({ bhk: h.bhk - 2 });
+    else { if (h.bhk > 0) ch.push({ bhk: h.bhk - 1 }); if (h.bhk > 1) ch.push({ bhk: h.bhk - 2 });
       if (h.floors < 3) ch.push({ floors: h.floors + 1 }); if (h.floors < 2) ch.push({ floors: 3 }); }
     if (cur.space !== 'compact') ch.push({ space: 'compact' });
     if (cur.park === '4w' || cur.park === 'both') ch.push({ park: '2w' }); if (cur.park !== 'none') ch.push({ park: 'none' });
-    const lab = c => Object.keys(c).map(k => k === 'perFloor' ? c.perFloor.map((v, f) => FLOOR_NAME[f].replace(' floor', '') + ' ' + v).join(', ') + ' BHK' : k === 'bhk' ? c.bhk + ' BHK instead' : k === 'floors' ? 'build ' + ['', 'ground only', 'G + 1', 'G + 2'][c.floors] : k === 'space' ? 'compact rooms' : c.park === 'none' ? 'no parking' : 'bike parking only').join(' and ');
+    const lab = c => Object.keys(c).map(k => k === 'perFloor' ? c.perFloor.map((v, f) => FLOOR_NAME[f].replace(' floor', '') + ' ' + v).join(', ') + ' BHK' : k === 'bhk' ? FIT_PROG[c.bhk].n + ' instead' : k === 'floors' ? 'build ' + ['', 'ground only', 'G + 1', 'G + 2'][c.floors] : k === 'space' ? 'compact rooms' : c.park === 'none' ? 'no parking' : 'bike parking only').join(' and ');
     // a bigger change than one already offered (fewer bedrooms, more floors) is not worth showing
     const same = (x, y) => JSON.stringify(x) === JSON.stringify(y);
     const worse = c => fixes.some(f => f.st === 'ok' && Object.keys(f.c).length < Object.keys(c).length && Object.keys(f.c).every(k => same(f.c[k], c[k]))) || fixes.some(f => { const a = f.c; if (Object.keys(a).sort().join() !== Object.keys(c).sort().join()) return false; return Object.keys(c).every(k => k === 'perFloor' ? a.perFloor.every((v, i) => v >= c.perFloor[i]) : k === 'bhk' ? a.bhk >= c.bhk : k === 'floors' ? a.floors <= c.floors : a[k] === c[k]); });
-    const test = c => { const o2 = Object.assign({}, cur, c), oo = { floors: o2.floors, space: o2.space, park: o2.park, pooja: !!h.pooja }; return pf ? fitFloors((c.perFloor || pfList(h)).slice(0, o2.floors), oo).st : fitVerdict(FIT_PROG[Math.min(5, Math.max(1, o2.bhk))], oo).st; };
+    const test = c => { const o2 = Object.assign({}, cur, c), oo = { floors: o2.floors, space: o2.space, park: o2.park, pooja: !!h.pooja }; return pf ? fitFloors((c.perFloor || pfList(h)).slice(0, o2.floors), oo).st : fitVerdict(FIT_PROG[Math.min(5, Math.max(0, o2.bhk))], oo).st; };
     const seen = new Set(), add = c => { const key = JSON.stringify(c); if (seen.has(key) || worse(c)) return; seen.add(key); const t = test(c); if (t === 'ok' || (t === 'tight' && st === 'no')) fixes.push({ lab: lab(c).replace(/^./, x => x.toUpperCase()), c, st: t }); };
     ch.forEach(add);
     if (fixes.filter(f => f.st === 'ok').length < 2) ch.forEach((a, x) => ch.forEach((b2, y) => { if (y <= x || Object.keys(a).some(k => k in b2)) return; add(Object.assign({}, a, b2)); }));
@@ -6871,8 +7008,8 @@ function homeCheck(D, o) {
 }
 function fitCards() {
   const h = ST.home, o = fitOpts(h), pf = pfOn(h), L = pf ? pfList(h) : null;
-  return '<div class="fit-g">' + FIT_PROG.slice(0, 5).map(P => { const V = pf && P.bhk ? fitFloors(L.map(() => P.bhk), o) : fitVerdict(P, o), on = P.bhk && (pf ? L.every(v => v === P.bhk) : h.bhk === P.bhk);
-    return '<button class="fit-c ' + V.st + (on ? ' on' : '') + '"' + (P.bhk ? ' data-a="' + (pf ? 'hpfall' : 'hbhk') + '" data-v="' + P.bhk + '"' : ' disabled') + ' title="' + esc(V.why || '') + '"><b>' + P.n + (pf && P.bhk ? ' <small>each floor</small>' : '') + '</b><em>' + FIT_LAB[V.st].replace(' — rooms at minimum size', '') + '</em><span>' + V.need.toLocaleString('en-IN') + ' of ' + V.avail.toLocaleString('en-IN') + ' sq ft</span>' + (P.bhk ? '' : '<small>For reference: plans start at 1 BHK</small>') + '</button>'; }).join('') + '</div>';
+  return '<div class="fit-g">' + FIT_PROG.slice(0, 5).map(P => { const V = pf && P.bhk ? fitFloors(L.map(() => P.bhk), o) : fitVerdict(P, o), on = h.sized && (pf ? (P.bhk && L.every(v => v === P.bhk)) : h.bhk === P.bhk);
+    return '<button class="fit-c ' + V.st + (on ? ' on' : '') + '"' + (P.bhk || !pf ? ' data-a="' + (pf ? 'hpfall' : 'hbhk') + '" data-v="' + P.bhk + '"' : ' disabled') + ' title="' + esc(V.why || '') + '"><b>' + P.n + (pf && P.bhk ? ' <small>each floor</small>' : '') + '</b><em>' + FIT_LAB[V.st].replace(' — rooms at minimum size', '') + '</em><span>' + V.need.toLocaleString('en-IN') + ' of ' + V.avail.toLocaleString('en-IN') + ' sq ft</span>' + (P.bhk ? '' : '<small>One room, kitchenette and toilet' + (pf ? ' (not for flats on every floor)' : '') + '</small>') + '</button>'; }).join('') + '</div>';
 }
 function areaSumHtml() {
   const A = areaFacts(), n = v => v.toLocaleString('en-IN');
@@ -6882,34 +7019,35 @@ SCR.home = () => {
   const h = ST.home, use = h.use || 'family';
   if (use === 'apartment' || use === 'commercial') return '<h2 class="q">' + (use === 'apartment' ? 'Your apartment building.' : 'Your commercial building.') + '</h2>' + projSetupUI();
   if (use === 'rent') return '<h2 class="q">Your rental units.</h2>' + rentSetupUI();
-  if (!h.split || isVilla()) h.split = 'house'; if (h.bhk > 5 && !pfOn(h)) h.bhk = 5;
+  if (isVilla()) h.split = 'house'; else if (!h.split) h.split = 'floors'; if (h.bhk > 5 && !pfOn(h)) h.bhk = 5;
   const ds = designNow(), D = ds.D, o = D.options[ds.opt] || null, nF = o ? o.floors.length : 1, isRoof = o && ds.floor >= nF, F = o ? o.floors[Math.min(ds.floor, nF - 1)] : null;
-  const C = homeCheck(D, o), A = areaFacts(), chip = (a, v, cur, lab, extra) => '<button class="rq-c' + (cur ? ' on' : '') + '" data-a="' + a + '" data-v="' + v + '"' + (extra || '') + '>' + lab + '</button>';
+  const sized = h.sized || use === 'villa', C = homeCheck(D, o), A = areaFacts(), chip = (a, v, cur, lab, extra) => '<button class="rq-c' + (cur ? ' on' : '') + '" data-a="' + a + '" data-v="' + v + '"' + (extra || '') + '>' + lab + '</button>';
   const vt = ESTATE[ST.vtype] ? ST.vtype : 'villa';
   // the plan: the same drawing the final design uses — resize rooms by dragging the gold lines, zoom, measure
   let plan = '<div class="hm-card"><div class="ph hm-ph"><div class="seg2 sm">' + (o ? o.floors.map((x, i) => '<button class="' + (!isRoof && i === ds.floor ? 'on' : '') + '" data-a="floor" data-v="' + i + '">' + esc(x.label.replace(' floor', '')) + '</button>').join('') + '<button class="' + (isRoof ? 'on' : '') + '" data-a="floor" data-v="' + nF + '">Roof</button>' : '') + '</div>' +
-    (o ? '<div class="seg2 sm">' + (o.custom ? '<button class="on">Yours</button><button data-a="gridreset">Reset</button>' : D.options.map((x, i) => '<button class="' + (i === ds.opt ? 'on' : '') + '" data-a="opt" data-v="' + i + '" title="Layout ' + x.id + '">' + x.id + '</button>').join('')) + '</div>' : '') +
+    (o && o.custom ? '<div class="seg2 sm"><button class="on">Yours</button><button data-a="gridreset">Reset</button></div>' : '') +
+    (o && !isRoof ? '<button class="tog vtog' + (h.vastu ? ' on' : '') + '" data-a="tog" data-v="vastu" title="Place the rooms by Vastu"><span class="dot"></span>Vastu</button>' : '') +
     (o && !isRoof ? '<button class="tog vtog' + (ds.edit ? ' on' : '') + '" data-a="gedit"><span class="dot"></span>Resize rooms</button><button class="tog vtog' + (ds.meas ? ' on' : '') + '" data-a="meas"><span class="dot"></span>Measure</button>' : '') + '</div>';
   if (o) plan += (ds.edit && !isRoof ? '<p class="edit-hint">Drag a gold line. The rooms on both sides change together, on every floor. Sizes update as you drag.</p>' : '') +
     '<div id="planbox" class="' + (ds.edit && !isRoof ? 'editing' : ds.meas && !isRoof ? 'measuring' : '') + '">' + (ds.meas && !isRoof ? '<p class="edit-hint">Click two points on the plan to measure between them.</p>' : '') + (isRoof ? roofPlanSvg(D, o) : planSvg(D, o, F, { furn: !ds.edit, edit: ds.edit })) + '<div id="gtip" hidden></div></div>';
   else plan += '<p class="warn">No layout fits these requirements on this plot. Try one of the changes on the right.</p>';
   plan += '<p class="hint hm-3d">This plan is the one you get: the 3D in the last step is built from it, with your changes.</p></div>';
   // 1 · what fits
-  const fit = '<section class="rq-sec"><h4>1 · What fits on your plot</h4>' + areaSumHtml() + '<p class="hint">' + (pfOn(h) ? 'Each card is one flat on every floor. ' : '') + 'For ' + ['', 'one floor', 'G + 1', 'G + 2'][h.floors] + (h.park.kind !== 'none' ? ' with ' + { '2w': 'bike', '4w': 'car', both: 'car and bike' }[h.park.kind] + ' parking' : '') + '. Needs count real minimum room sizes, walls, passages, the stair' + (h.floors > 1 ? 's' : '') + ' and light shafts. Tap one to plan it.</p>' + fitCards() + '</section>';
+  const fit = '<section class="rq-sec"><h4>1 · Choose your home size</h4>' + areaSumHtml() + '<p class="hint">' + (pfOn(h) ? 'Each card is one flat on every floor. ' : '') + 'For ' + ['', 'one floor', 'G + 1', 'G + 2'][h.floors] + (h.park.kind !== 'none' ? ' with ' + { '2w': 'bike', '4w': 'car', both: 'car and bike' }[h.park.kind] + ' parking' : '') + '. Needs count real minimum room sizes, walls, passages, the stair' + (h.floors > 1 ? 's' : '') + ' and light shafts. ' + (h.sized || use === 'villa' ? 'Tap another size to change it.' : 'Pick one to start your plan.') + '</p>' + fitCards() + '</section>';
   // 2 · your requirements
-  const req = '<section class="rq-sec"><h4>2 · Your requirements</h4>' +
+  const req = '<section class="rq-sec"><h4>' + (sized ? '4 · Other choices' : '2 · Floors and parking') + '</h4>' +
     '<div class="bm"><b>Floors</b><div class="rq-cats">' + ['Ground', 'G + 1', 'G + 2'].map((n, i) => chip('hfl', i + 1, h.floors === i + 1, n)).join('') + '</div></div>' +
-    (h.floors > 1 && use !== 'villa' ? '<div class="bm"><b>How is the building used?</b><div class="rq-cats">' + chip('hsplit', 'house', !pfOn(h), 'One home<i>bedrooms counted for the whole building</i>') + chip('hsplit', 'floors', pfOn(h), 'A flat on every floor<i>each floor its own BHK, kitchen and living</i>') + '</div></div>' : '') +
+    (h.floors > 1 && use !== 'villa' ? '<div class="bm"><b>How is the building used?</b><div class="rq-cats">' + chip('hsplit', 'floors', pfOn(h), 'One floor<i>set on one floor first: each floor gets its own BHK, kitchen and living</i>') + chip('hsplit', 'house', !pfOn(h), 'Whole building<i>bedrooms counted for the whole building</i>') + '</div></div>' : '') +
     (pfOn(h) ? pfList(h).map((v, f) => '<div class="bm"><b>' + FLOOR_NAME[f] + '</b><div class="rq-cats">' + [1, 2, 3, 4].map(k => '<button class="rq-c' + (v === k ? ' on' : '') + '" data-a="hpfl" data-i="' + f + '" data-v="' + k + '">' + k + ' BHK</button>').join('') + '</div></div>').join('')
-      : '<div class="bm"><b>Bedrooms' + (h.floors > 1 ? ' in the whole building' : '') + '</b><div class="rq-cats">' + [1, 2, 3, 4, 5].map(k => chip('hbhk', k, h.bhk === k, k + ' BHK')).join('') + '</div></div>') +
+      : '') +
     '<div class="bm"><b>Room sizes</b><div class="rq-cats">' + Object.keys(FIT_SPACE).map(k => { const S = FIT_SPACE[k], bd = Math.round(10 * Math.sqrt(S.k) * 2) / 2; return chip('hspace', k, (h.space || 'balanced') === k, S.n + '<i>bedroom ≈ ' + bd + ' × ' + bd + ' ft</i>'); }).join('') + '</div></div>' +
     '<div class="bm"><b>Parking</b><div class="rq-cats">' + [['none', 'None'], ['2w', 'Bike'], ['4w', 'Car'], ['both', 'Car + bike']].map(x => chip('pk', x[0], h.park.kind === x[0], x[1])).join('') + '</div></div>' +
-    '<div class="bm"><b>More</b><div class="rq-cats">' + chip('tog', 'pooja', h.pooja, 'Puja room') + chip('tog', 'vastu', h.vastu, 'Follow Vastu') + '</div></div>' +
-    (h.floors > 1 ? '<div class="bm"><b>Balcony</b><div class="rq-cats">' + Object.keys(BALC).filter(k => BALC[k].t <= TI[ST.tier]).map(k => chip('balc', k, (ST.balc || 'none') === k, esc(BALC[k].n))).join('') + '</div></div>' +
+    (use === 'villa' ? '<div class="bm"><b>More</b><div class="rq-cats">' + chip('tog', 'pooja', h.pooja, 'Puja room') + chip('tog', 'vastu', h.vastu, 'Follow Vastu') + '</div></div>' : '') +
+    (h.floors > 1 ? (use === 'villa' ? '<div class="bm"><b>Balcony</b><div class="rq-cats">' + Object.keys(BALC).filter(k => BALC[k].t <= TI[ST.tier]).map(k => chip('balc', k, (ST.balc || 'none') === k, esc(BALC[k].n))).join('') + '</div></div>' : '') +
       '<div class="bm"><b>Roof</b><div class="rq-cats">' + chip('roof', 'single', (h.roof || 'single') === 'single', 'One roof') + chip('roof', 'multi', h.roof === 'multi', 'Stepped terraces') + '</div></div>' : '') +
     (use === 'villa' ? '<div class="bm"><b>Estate</b><div class="rq-cats">' + Object.keys(ESTATE).map(k => chip('vtype', k, vt === k, esc(ESTATE[k].n))).join('') + '</div></div>' : '') + '</section>';
   // 3 · space check
-  const what = pfOn(h) ? pfList(h).join(' + ') + ' BHK (a flat on each floor)' : h.bhk + ' BHK';
+  const what = pfOn(h) ? pfList(h).join(' + ') + ' BHK (a flat on each floor)' : FIT_PROG[Math.max(0, Math.min(5, h.bhk))].n;
   const msg = C.st === 'ok' ? 'Your ' + what + ' needs about ' + C.V.need.toLocaleString('en-IN') + ' sq ft built up of the ' + C.V.avail.toLocaleString('en-IN') + ' sq ft you can build, so rooms keep a little extra room.'
     : C.st === 'tight' ? 'It fits, but rooms are at their minimum size' + (C.short.length ? '' : ' (' + C.V.need.toLocaleString('en-IN') + ' of ' + C.V.avail.toLocaleString('en-IN') + ' sq ft)') + '. It will not feel spacious.'
     : (C.V.st === 'no' ? 'This does not fit: ' + C.V.why + '.' : 'The drawn plan squeezes rooms below a livable size.') + ' Change something below.';
@@ -6917,8 +7055,34 @@ SCR.home = () => {
     (C.short.length ? '<ul>' + C.short.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '') + (C.notes.length ? '<ul class="hm-notes">' + C.notes.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '') +
     (!C.fixes.length && C.st === 'no' ? '<p class="hm-fx-l">Even the smallest home does not fit with this open space. Go back to the Plot step and leave less open space, if your authority allows it.</p>' : '') +
     (C.fixes.length ? '<p class="hm-fx-l">Better options for this plot:</p><div class="rq-cats">' + C.fixes.map(f => '<button class="rq-c hm-fx ' + f.st + '" data-a="hfix" data-v="' + esc(JSON.stringify(f.c)) + '">' + esc(f.lab) + '<i>' + FIT_LAB[f.st].replace(' — rooms at minimum size', '') + '</i></button>').join('') + '</div>' : '') + '</div></section>';
-  return '<h2 class="q">Your home.</h2><p class="sub">Plot ' + A.land.toLocaleString('en-IN') + ' sq ft · you can build ' + ftx(A.W) + ' × ' + ftx(A.D) + ' ft (' + A.foot.toLocaleString('en-IN') + ' sq ft) a floor after the open space. Pick what you need; the plan redraws as you go.</p>' +
-    '<div class="hm"><div class="hm-plan">' + plan + '</div><div class="hm-req">' + chk + fit + req + '</div></div>';
+  // 2 · what the chosen size always includes: bedroom(s), bathroom(s), hall and kitchen come first
+  let inc = '', xtra = '';
+  if (sized && use !== 'villa') {
+    const P = FIT_PROG[Math.max(0, Math.min(5, pfOn(h) ? pfList(h)[0] : h.bhk))], S = FIT_SPACE[h.space || 'balanced'] || FIT_SPACE.balanced, rows = [], grp = {};
+    const nm = r => /^Living$/.test(r) ? 'Hall / Living room' : r === 'Room' ? 'Room (bed + living)' : /^Toilet$/.test(r) ? 'Bathroom' : r;
+    P.rooms.forEach(r => { const key = nm(r[0]) + r[1] + 'x' + r[2]; (grp[key] = grp[key] || { n: nm(r[0]), w: r[1], d: r[2], c: 0 }).c++; });
+    Object.keys(grp).forEach(k => rows.push(grp[k]));
+    const li = (t, d, a) => '<li><span class="ok">✓</span><b>' + esc(t) + '</b><small>' + d + '</small><em>' + a + '</em></li>';
+    const bz = r => { const w = Math.round(r.w * Math.sqrt(S.k) * 2) / 2, d = Math.round(r.d * Math.sqrt(S.k) * 2) / 2; return [w, d]; };
+    inc = '<section class="rq-sec"><h4>2 · ' + (pfOn(h) ? 'Each floor (' + P.n + ') includes' : 'Your ' + P.n + ' includes') + '</h4><ul class="hm-inc">' + rows.map(r => { const [w, d] = bz(r); return li(r.n + (r.c > 1 ? ' × ' + r.c : ''), w + ' × ' + d + ' ft', Math.round(w * d * r.c) + ' sq ft'); }).join('') +
+      '</ul><p class="hint">Rooms are shown at the minimum size for ' + esc(S.n.toLowerCase()) + ' rooms. Walls and passages are added on top, so it needs about ' + C.V.need.toLocaleString('en-IN') + ' sq ft built up.</p></section>';
+    // 3 · optional rooms: only what the space left over can still hold
+    const free = Math.floor(C.V.avail * 0.85 - C.V.need), tightFree = C.V.avail - C.V.need, rm = Math.max(0, free);
+    const must = h.floors > 1, bOn = !!(ST.balc && ST.balc !== 'none');
+    const items = XTRA.filter(k => xAvail(k, h)).map(k => ({ k, n: k === 'stairs' ? 'Stairs' : k === 'puja' ? 'Puja room' : RQ_BY[k].n.replace(/ \/.*$/, ''), a: xArea(k, h), on: k === 'puja' ? !!h.pooja : k === 'balcony' ? bOn : k === 'stairs' ? stairOn(h) : !!(h.extras && h.extras[k]) }));
+    const drawn = x => XDRAW.includes(x.k), free0 = x => x.a === 0;
+    const can = x => x.on || free0(x) || x.a <= free, tight = x => !x.on && !can(x) && x.a <= tightFree;
+    const sub = x => x.k === 'stairs' && must ? 'needed · on plan' : x.on ? (drawn(x) ? 'on plan' : 'area only') : free0(x) ? 'no extra area' : '+' + x.a + ' sq ft' + (tight(x) ? ' · tight' : '') + (drawn(x) ? '' : ' · area only');
+    const chipx = x => '<button class="rq-c' + (x.on ? ' on' : '') + '" data-a="hx" data-v="' + x.k + '"' + ((x.k === 'stairs' && must) || !(can(x) || tight(x)) ? ' disabled' : '') + '>' + esc(x.n) + '<i>' + sub(x) + '</i></button>';
+    const fits = items.filter(can), tights = items.filter(tight), no = items.filter(x => !can(x) && !tight(x));
+    xtra = '<section class="rq-sec"><h4>3 · Add more rooms</h4>' + (C.st === 'no' ? '<p class="hint">There is no space for extra rooms yet. Use one of the better options above first.</p>'
+      : '<div class="hm-free ' + (free > 0 ? 'ok' : 'no') + '"><b>' + (free > 0 ? 'About ' + rm.toLocaleString('en-IN') + ' sq ft still free' : 'No comfortable space left') + '</b><span>' + (free > 0 ? 'Do you want any of these? Tap to add; the free space on the plan fills up.' : 'Add a floor, choose compact rooms or a smaller parking to make space.') + '</span></div>' +
+      (fits.length ? '<div class="rq-cats">' + fits.map(chipx).join('') + '</div>' : '') + (tights.length ? '<p class="hm-fx-l">Possible, but rooms get tighter:</p><div class="rq-cats">' + tights.map(chipx).join('') + '</div>' : '') + (no.length ? '<p class="hm-fx-l">Needs more space:</p><div class="rq-cats">' + no.map(chipx).join('') + '</div>' : '') +
+      '<p class="hint">The plan shows only the rooms of your home size. Whatever you add is drawn in a free space if one is left; if not, a note appears under Space check. “Area only” rooms count in the space check but are not drawn yet.</p>') + '</section>';
+  }
+  if (!sized) plan = '<div class="hm-card hm-empty"><b>Pick a home size</b><p>Choose 1RK, 1 BHK, 2 BHK or 3 BHK on the right. Your plan appears here.</p></div>';
+  return '<div class="hm-head"><h2 class="q">Your home.</h2><p class="sub">Plot ' + A.land.toLocaleString('en-IN') + ' sq ft · build up to ' + ftx(A.W) + ' × ' + ftx(A.D) + ' ft a floor</p></div>' +
+    '<div class="hm"><div class="hm-plan">' + plan + '</div><div class="hm-req">' + (sized ? fit + chk + inc + xtra + req : fit + req) + '</div></div>';
 };
 // brands that belong to one range: options between the neighbouring ranges' defaults
 function tierBand(it, ti) {
@@ -6932,7 +7096,7 @@ const MAT_GROUPS = ['Structure', 'Flooring & tiles', 'Paint & putty', 'Doors & w
 const WAGES = [['Mason (raj mistri)', '₹850–1,000'], ['Helper / coolie', '₹500–600'], ['Bar bender', '₹800–950'], ['Shuttering carpenter', '₹800–950'], ['Tile & marble mason', '₹900–1,100'], ['Plumber', '₹800–1,000'], ['Electrician', '₹800–1,000'], ['Painter', '₹700–900']];
 // one dropdown per item: the choices for this budget first, then every other option sold
 function pickSel(it, c, band) {
-  const ti = TI[ST.tier], inB = band && band.length ? band : it.opts.map((o, i) => i), opt = i => { const o = it.opts[i]; return '<option value="' + i + '"' + (c && c.ix === i ? ' selected' : '') + '>' + esc(o.l) + ' — ' + rup(o.r) + '/' + esc((o.u || it.u).replace(/ \(.*\)/, '')) + '</option>'; };
+  const ti = TI[isFinIt(it) ? finKey() : ST.tier], inB = band && band.length ? band : it.opts.map((o, i) => i), opt = i => { const o = it.opts[i]; return '<option value="' + i + '"' + (c && c.ix === i ? ' selected' : '') + '>' + esc(o.l) + ' — ' + rup(o.r) + '/' + esc((o.u || it.u).replace(/ \(.*\)/, '')) + '</option>'; };
   const rest = it.opts.map((o, i) => i).filter(i => !inB.includes(i));
   return '<select class="bm-sel" data-pick="' + it.id + '" aria-label="' + esc(it.n) + '">' + (rest.length ? '<optgroup label="' + TIERS[ti].short + ' budget">' + inB.map(opt).join('') + '</optgroup><optgroup label="Other options">' + rest.map(opt).join('') + '</optgroup>' : inB.map(opt).join('')) + '</select>';
 }
@@ -6948,19 +7112,20 @@ function budgetMaterials() {
   return MAT_GROUPS.filter(g => rows[g]).map(g => '<section class="rq-sec"><h4>' + esc(g) + '</h4><div class="bm-g">' + rows[g].join('') + '</div></section>').join('');
 }
 function budgetExtras() {
-  const ti = TI[ST.tier], L = ITEMS.filter(it => it.pkg && pkgHas(it.pkg));
+  const ti = TI[finKey()], L = ITEMS.filter(it => it.pkg && pkgHas(it.pkg));
   return '<div class="bm-g">' + L.map(it => '<label class="bm"><b>' + esc(it.n) + '</b>' + pickSel(it, itemChoice(it), tierBand(it, ti)) + '</label>').join('') + '</div>';
 }
 function homeBudget(ds, o) {
   if (!isVilla() && ST.tier === 'ultra') ST.tier = 'high';
+  if (!isVilla() && ST.tierF === 'ultra') ST.tierF = null;
   const tiers = isVilla() ? TIERS.filter(T => T.id === 'ultra') : TIERS.filter(T => T.id !== 'ultra'), Q = quantities(ds.D, o), area = Math.round(Q.covered);
-  const lab = ITEMS.find(it => it.id === 'labour'), lc = itemChoice(lab), pk = PKGS.find(x => x.id === (ST.pkg || 'core')), G = pkgGrid(tiers);
-  return '<h2 class="q">Choose your package and budget.</h2><p class="sub">For your ' + area.toLocaleString('en-IN') + ' sq ft home in ' + CITIES.find(c => c.id === ST.city).name + '. First the package, then the budget range — materials and labour follow.</p>' +
-    '<h3 class="q2">1 · Package and budget</h3><p class="fine c">Each package comes in a Low, Mid and High budget. Tap the one you want.</p>' + pkgMatrix(tiers, G) +
-    '<h3 class="q2">2 · What you get</h3>' + pkgCompare(tiers, G) +
-    '<h3 class="q2">3 · ' + (pk.id === 'core' ? 'Materials and brands' : 'Core materials and brands') + ' — ' + TIERS[TI[ST.tier]].short + ' budget</h3><p class="fine c">Every brand sold in this range. Tap one to use it; the price updates in the quotation.</p><div class="bmat">' + budgetMaterials() + '</div>' +
-    (pk.id !== 'core' ? '<h3 class="q2">Added for ' + pk.n.toLowerCase() + '</h3><div class="bmat">' + budgetExtras() + '</div>' : '') +
-    '<h3 class="q2">4 · Labour charge</h3><div class="card lab"><div class="lab-top"><div><b>' + esc(lc.l) + (pkgHas('semi') ? '' : ' — civil work and plaster only') + '</b><span>' + rup(pkgHas('semi') ? lc.r : Math.round(lc.r * CORE_LABOUR)) + ' / sq ft × ' + area.toLocaleString('en-IN') + ' sq ft built-up' + (pkgHas('semi') ? '' : ' (' + Math.round(CORE_LABOUR * 100) + '% of the full rate: no tiling, painting or fitting)') + '</span></div><em>' + inr((pkgHas('semi') ? lc.r : Math.round(lc.r * CORE_LABOUR)) * area) + '</em></div>' +
+  const lab = ITEMS.find(it => it.id === 'labour'), lc = itemChoice(lab), LP = priceList(ds.D, o).lines.find(x => x.it.id === 'labour') || { rate: lc.r }, split = pkgHas('semi') && finKey() !== ST.tier, pk = PKGS.find(x => x.id === (ST.pkg || 'core')), G = pkgGrid(tiers);
+  return '<h2 class="q">Choose your package and budget.</h2><p class="sub">For your ' + area.toLocaleString('en-IN') + ' sq ft home in ' + CITIES.find(c => c.id === ST.city).name + '. First the core house, then optional interiors. Each can have its own Low, Mid or High budget.</p>' +
+    '<h3 class="q2">1 · Core house <small>(required)</small></h3><p class="fine c">Choose how strong you want the structure: Low, Mid or High.</p>' + pkgMatrix(tiers, G) + totalBar(G, priceList(ds.D, o)) +
+    '<h3 class="q2">3 · What you get</h3>' + pkgCompare(tiers, G) +
+    '<h3 class="q2">4 · ' + (pk.id === 'core' ? 'Materials and brands' : 'Core materials and brands') + ' — ' + TIERS[TI[ST.tier]].short + ' budget</h3><p class="fine c">Every brand sold in this range. Tap one to use it; the price updates in the quotation.</p><div class="bmat">' + budgetMaterials() + '</div>' +
+    (pk.id !== 'core' ? '<h3 class="q2">Interiors — ' + pk.n.toLowerCase() + ', ' + TIERS[TI[finKey()]].short + ' budget</h3><div class="bmat">' + budgetExtras() + '</div>' : '') +
+    '<h3 class="q2">5 · Labour charge</h3><div class="card lab"><div class="lab-top"><div><b>' + esc(lc.l) + (pkgHas('semi') ? '' : ' — civil work and plaster only') + '</b><span>' + rup(LP.rate) + ' / sq ft × ' + area.toLocaleString('en-IN') + ' sq ft built-up' + (pkgHas('semi') ? (split ? ' (' + Math.round(CORE_LABOUR * 100) + '% civil at ' + TIERS[TI[ST.tier]].short + ' rate, ' + Math.round((1 - CORE_LABOUR) * 100) + '% finishing at ' + TIERS[TI[finKey()]].short + ' rate)' : '') : ' (' + Math.round(CORE_LABOUR * 100) + '% of the full rate: no tiling, painting or fitting)') + '</span></div><em>' + inr(LP.rate * area) + '</em></div>' +
     pickSel(lab, lc) +
     '<p class="hint">Contract rate for civil and finishing work: masonry, concrete, plaster, tiling, plumbing, wiring and painting. Daily wages in Cuttack–Bhubaneswar, 2026 (approx.):</p><div class="wages">' + WAGES.map(w => '<span>' + w[0] + '<b>' + w[1] + '</b></span>').join('') + '</div></div>' +
     '<p class="fine">Our rate comes from the material list for your design. “Market” is the published range for Bhubaneswar–Cuttack (' + srcA('BB') + ', ' + srcA('ILC') + '). Wages are estimates; confirm with your contractor. Land and approval fees are not included.</p>';
@@ -7017,7 +7182,7 @@ SCR.layout = () => {
   // one view at a time
   const VIEWS = (b.site ? [['land', b.site.villa ? 'Estate' : 'Land']] : []).concat([['plan', 'Plan'], ['rooms', 'Rooms'], ['3d', '3D'], ['front', 'Front'], ['lights', 'Lights']]);
   h += '<div class="seg2 vsw" role="tablist">' + VIEWS.map(v => '<button role="tab" class="' + (view === v[0] ? 'on' : '') + '" data-a="view" data-v="' + v[0] + '">' + v[1] + '</button>').join('') + '</div>';
-  h += '<div class="hero">' + (view === 'land' && b.site ? '<div class="panel"><div class="ph"><b>' + (b.site.villa ? ESTATE[vtOf(b)].n + ' — site plan' : 'Site plan') + ' — your whole land (' + b.site.W + ' × ' + b.site.D + ' ft)</b></div>' + sitePlanSvg(D, o) + gardenLegend(D, o) + '<p class="hint">The house takes ' + b.site.Wv + ' × ' + b.site.Dv + ' ft at the front. The rest is planned as lawn, garden' + (siteLayout(D).pool ? ', a swimming pool' : '') + (siteLayout(D).gazebo ? ', a gazebo' : '') + ' — not left empty. The floor plans below show the house part.' + (siteLayout(D).lawn > 20000 ? ' About ' + Math.round(siteLayout(D).lawn / 1000) + ',000 sq ft stays lawn — for income, choose “Rental units” on the home step to see how many units fit.' : '') + '</p></div>' : view === '3d' ? '<div class="panel"><div class="ph"><b>3D</b><button class="btn mini walkbtn' + (ds.walk ? ' on' : '') + '" data-a="walk">' + (ds.walk ? 'Back to 3D model' : 'Walk inside') + '</button>' + (ds.show3d && !ds.walk ? '<div class="seg2 sm">' + [['ext', 'Outside']].concat(o.floors.map((x, i) => ['f' + i, x.label])).map(m => '<button class="' + (ds.v3 === m[0] ? 'on' : '') + '" data-a="v3" data-v="' + m[0] + '">' + esc(m[1]) + '</button>').join('') + '</div><div class="seg2 sm"><button class="' + (ds.night ? '' : 'on') + '" data-a="night" data-v="0">Day</button><button class="' + (ds.night ? 'on' : '') + '" data-a="night" data-v="1">Night lights</button></div><div class="seg2 sm"><button class="' + (bare3d(ds) ? 'on' : '') + '" data-a="bare3d" data-v="1">Core shell</button><button class="' + (bare3d(ds) ? '' : 'on') + '" data-a="bare3d" data-v="0">Finished</button></div>' + (bare3d(ds) ? '' : furnSkinBar(D, o)) : '') + '</div>' + (ds.show3d && !ds.walk && bare3d(ds) ? '<p class="hint core3d">Core house as handed over: RCC frame, brick walls with cement plaster inside and out, PCC floor, door and window openings left empty. No frames, glass, grills, tiles, paint, fittings or furniture.</p>' : '') + '<div id="dz3d" class="v3">' + (ds.show3d ? '<p class="load">Loading 3D…</p>' : '<button class="btn" data-a="make3d">See it in 3D</button><p class="hint">Outside and inside every floor. Drag to turn.</p>') + '</div></div>' : view === 'front' ? '<div class="panel"><div class="ph"><b>Front elevation</b><div class="seg2 sm">' + Object.keys(STYLES).map(k => '<button class="' + (b.style === k ? 'on' : '') + '" data-a="style" data-v="' + k + '">' + esc(STYLES[k].name) + '</button>').join('') + '</div></div>' + elevationSvg(D, o) + '</div>' : view === 'lights' ? lightPanel(D, o, F) : view === 'rooms' ? roomStudioView(D, o) : '<div class="panel"><div class="ph"><div class="seg2 sm">' + o.floors.map((x, i) => '<button class="' + (i === ds.floor ? 'on' : '') + '" data-a="floor" data-v="' + i + '">' + esc(x.label) + '</button>').join('') + '<button class="' + (isRoof ? 'on' : '') + '" data-a="floor" data-v="' + nFl + '">Roof</button></div>' + (!isRoof && F.fi === 0 ? '<button class="tog vtog' + (ST.vgrid ? ' on' : '') + '" data-a="vgrid"><span class="dot"></span>Vastu Purush</button>' : '') + (!isRoof ? '<button class="tog vtog' + (ds.edit ? ' on' : '') + '" data-a="gedit"><span class="dot"></span>Resize rooms</button><button class="tog vtog' + (ds.meas ? ' on' : '') + '" data-a="meas"><span class="dot"></span>Measure</button><button class="tog vtog' + (ds.fmove ? ' on' : '') + '" data-a="fmove"><span class="dot"></span>Move furniture</button><button class="tog vtog" data-a="plan3d" data-v="' + F.fi + '"><span class="dot"></span>3D with furniture</button>' : '') + '</div>' + (ds.edit && !isRoof ? '<p class="edit-hint">Drag a gold line. The rooms on both sides change together — on every floor, because the columns run through the whole house.</p>' : '') + (ds.fmove && !isRoof && !ds.edit ? fmBar(ds) : '') + '<div id="planbox" class="' + (ds.edit && !isRoof ? 'editing' : ds.meas && !isRoof ? 'measuring' : ds.fmove && !isRoof ? 'fmoving' : '') + '">' + (ds.meas && !isRoof ? '<p class="edit-hint">Click two points on the plan to measure between them.</p>' : '') + (isRoof ? roofPlanSvg(D, o) : planSvg(D, o, F, { furn: !ds.edit, edit: ds.edit, fmove: ds.fmove && !ds.edit, vastu: !ds.edit && ST.vgrid && F.fi === 0 })) + '<div id="gtip" hidden></div></div></div>') + (view === 'plan' && !isRoof ? decorLegend(D, o, F) + sizeStrip(D, o) : '') + '</div>';
+  h += '<div class="hero">' + (view === 'land' && b.site ? '<div class="panel"><div class="ph"><b>' + (b.site.villa ? ESTATE[vtOf(b)].n + ' — site plan' : 'Site plan') + ' — your whole land (' + b.site.W + ' × ' + b.site.D + ' ft)</b></div>' + sitePlanSvg(D, o) + gardenLegend(D, o) + '<p class="hint">The house takes ' + b.site.Wv + ' × ' + b.site.Dv + ' ft at the front. The rest is planned as lawn, garden' + (siteLayout(D).pool ? ', a swimming pool' : '') + (siteLayout(D).gazebo ? ', a gazebo' : '') + ' — not left empty. The floor plans below show the house part.' + (siteLayout(D).lawn > 20000 ? ' About ' + Math.round(siteLayout(D).lawn / 1000) + ',000 sq ft stays lawn — for income, choose “Rental units” on the home step to see how many units fit.' : '') + '</p></div>' : view === '3d' ? '<div class="panel"><div class="ph"><b>3D</b><button class="btn mini walkbtn' + (ds.walk ? ' on' : '') + '" data-a="walk">' + (ds.walk ? 'Back to 3D model' : 'Walk inside') + '</button>' + (ds.show3d && !ds.walk ? '<div class="seg2 sm">' + [['ext', 'Outside']].concat(o.floors.map((x, i) => ['f' + i, x.label])).map(m => '<button class="' + (ds.v3 === m[0] ? 'on' : '') + '" data-a="v3" data-v="' + m[0] + '">' + esc(m[1]) + '</button>').join('') + '</div><div class="seg2 sm"><button class="' + (ds.night ? '' : 'on') + '" data-a="night" data-v="0">Day</button><button class="' + (ds.night ? 'on' : '') + '" data-a="night" data-v="1">Night lights</button></div><div class="seg2 sm"><button class="' + (bare3d(ds) ? 'on' : '') + '" data-a="bare3d" data-v="1">Core shell</button><button class="' + (bare3d(ds) ? '' : 'on') + '" data-a="bare3d" data-v="0">Finished</button></div>' : '') + '</div>' + (ds.show3d && !ds.walk && bare3d(ds) ? '<p class="hint core3d">Core house as handed over: RCC frame, brick walls with cement plaster inside and out, PCC floor, door and window openings left empty. No frames, glass, grills, tiles, paint, fittings or furniture.</p>' : '') + '<div id="dz3d" class="v3">' + (ds.show3d ? '<p class="load">Loading 3D…</p>' : '<button class="btn" data-a="make3d">See it in 3D</button><p class="hint">Outside and inside every floor. Drag to turn.</p>') + '</div>' + (ds.show3d && !ds.walk && !bare3d(ds) ? furnSkinBar(D, o) : '') + '</div>' : view === 'front' ? '<div class="panel"><div class="ph"><b>Front elevation</b><div class="seg2 sm">' + Object.keys(STYLES).map(k => '<button class="' + (b.style === k ? 'on' : '') + '" data-a="style" data-v="' + k + '">' + esc(STYLES[k].name) + '</button>').join('') + '</div></div>' + elevationSvg(D, o) + '</div>' : view === 'lights' ? lightPanel(D, o, F) : view === 'rooms' ? roomStudioView(D, o) : '<div class="panel"><div class="ph"><div class="seg2 sm">' + o.floors.map((x, i) => '<button class="' + (i === ds.floor ? 'on' : '') + '" data-a="floor" data-v="' + i + '">' + esc(x.label) + '</button>').join('') + '<button class="' + (isRoof ? 'on' : '') + '" data-a="floor" data-v="' + nFl + '">Roof</button></div>' + (!isRoof && F.fi === 0 ? '<button class="tog vtog' + (ST.vgrid ? ' on' : '') + '" data-a="vgrid"><span class="dot"></span>Vastu Purush</button>' : '') + (!isRoof ? '<button class="tog vtog' + (ds.edit ? ' on' : '') + '" data-a="gedit"><span class="dot"></span>Resize rooms</button><button class="tog vtog' + (ds.meas ? ' on' : '') + '" data-a="meas"><span class="dot"></span>Measure</button><button class="tog vtog' + (ds.fmove ? ' on' : '') + '" data-a="fmove"><span class="dot"></span>Move furniture</button><button class="tog vtog" data-a="plan3d" data-v="' + F.fi + '"><span class="dot"></span>3D with furniture</button>' : '') + '</div>' + (ds.edit && !isRoof ? '<p class="edit-hint">Drag a gold line. The rooms on both sides change together — on every floor, because the columns run through the whole house.</p>' : '') + (ds.fmove && !isRoof && !ds.edit ? fmBar(ds) : '') + '<div id="planbox" class="' + (ds.edit && !isRoof ? 'editing' : ds.meas && !isRoof ? 'measuring' : ds.fmove && !isRoof ? 'fmoving' : '') + '">' + (ds.meas && !isRoof ? '<p class="edit-hint">Click two points on the plan to measure between them.</p>' : '') + (isRoof ? roofPlanSvg(D, o) : planSvg(D, o, F, { furn: !ds.edit, edit: ds.edit, fmove: ds.fmove && !ds.edit, vastu: !ds.edit && ST.vgrid && F.fi === 0 })) + '<div id="gtip" hidden></div></div></div>') + (view === 'plan' && !isRoof ? decorLegend(D, o, F) + sizeStrip(D, o) : '') + '</div>';
   h += '</div><div class="st-side">';
   // three numbers
   let P = null; try { P = priceList(D, o); } catch (e) { }
@@ -7067,7 +7232,7 @@ SCR.materials = () => {
   return h;
 };
 function itemRow(x, Q) {
-  const it = x.it, ti = TI[ST.tier], cf = CITIES.find(c => c.id === ST.city).f;
+  const it = x.it, ti = TI[isFinIt(it) ? finKey() : ST.tier], cf = CITIES.find(c => c.id === ST.city).f;
   let pick = '';
   if (it.steel) {
     const G = STEEL_GRADES.find(g => g.id === x.c.grade);
@@ -7118,7 +7283,7 @@ SCR.quote = () => {
   h += '<article class="quote pack"><header class="qband"><img src="' + BRAND_LOGO + '" alt="Shree BhuChain"><div><b>Home pack &amp; quotation</b><span>' + qn + '</span><span>' + now.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) + ' · valid till ' + valid.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + '</span></div></header>';
   h += '<div class="qbody">';
   // at a glance
-  h += '<dl class="qmeta"><div><dt>For</dt><dd>' + esc(ST.cust.name || '—') + (ST.cust.phone ? ' · ' + esc(ST.cust.phone) : '') + '</dd></div><div><dt>Location</dt><dd>' + esc(CITIES.find(c => c.id === ST.city).name) + ', Odisha</dd></div><div><dt>Plot</dt><dd>' + b.w + ' × ' + b.d + ' ft · ' + DIR_NAME[b.facing] + ' facing</dd></div><div><dt>Home</dt><dd>' + b.bhk + ' BHK · ' + ['Ground', 'G + 1', 'G + 2'][b.floors - 1] + ' · ' + Math.round(P.Q.covered).toLocaleString('en-IN') + ' sq ft built-up</dd></div><div><dt>Parking</dt><dd>' + (pkName ? pkName + (b.rearPark ? ' at the back, by a side gali' : ' at the front, behind the main gate') : 'None') + '</dd></div><div><dt>Range</dt><dd>' + esc(TIERS[ti].name) + '</dd></div></dl>';
+  h += '<dl class="qmeta"><div><dt>For</dt><dd>' + esc(ST.cust.name || '—') + (ST.cust.phone ? ' · ' + esc(ST.cust.phone) : '') + '</dd></div><div><dt>Location</dt><dd>' + esc(CITIES.find(c => c.id === ST.city).name) + ', Odisha</dd></div><div><dt>Plot</dt><dd>' + b.w + ' × ' + b.d + ' ft · ' + DIR_NAME[b.facing] + ' facing</dd></div><div><dt>Home</dt><dd>' + b.bhk + ' BHK · ' + ['Ground', 'G + 1', 'G + 2'][b.floors - 1] + ' · ' + Math.round(P.Q.covered).toLocaleString('en-IN') + ' sq ft built-up</dd></div><div><dt>Parking</dt><dd>' + (pkName ? pkName + (b.rearPark ? ' at the back, by a side gali' : ' at the front, behind the main gate') : 'None') + '</dd></div><div><dt>Range</dt><dd>' + (pkgHas('semi') && finKey() !== ST.tier ? 'Core ' + esc(TIERS[ti].short) + ' · ' + esc(PKGS.find(x => x.id === ST.pkg).n) + ' ' + esc(TIERS[TI[finKey()]].short) : esc(TIERS[ti].name)) + '</dd></div></dl>';
   h += '<div class="qtot"><div><small>Estimated total</small><b>' + inr(P.total) + '</b></div><div><small>Per sq ft</small><b>' + rup(P.perSqft) + '</b></div></div>';
   h += '<div class="rows pk-rows">';
   // the look
@@ -7168,7 +7333,7 @@ SCR.quote = () => {
   h += sec('quote', 'Quotation', 'Every material with its brand, quantity and rate.', q, 'pk-break', inr(P.total));
   h += '</div>';
   h += '<div class="qterms"><b>Before you build</b><ul><li>Soil test, then structural drawings signed by a licensed structural engineer (IS 456, IS 1893, IS 13920).</li><li>Plan approval from your development authority or municipality.</li><li>Steel checked before every pour; concrete cubes tested at 7 and 28 days.</li></ul><b>Terms</b><ul><li>Rates are Bhubaneswar–Cuttack market rates (Aug–Oct 2026). Items marked “est.” are BhuChain estimates.</li><li>Quantities come from a concept design. The final quotation follows a site visit, soil check and structural design.</li><li>Transport, unloading and GST as applicable on the final invoice.</li><li>Not included: land, plan approval fees, electricity and water connections, furniture and appliances.</li><li>Valid for 15 days.</li></ul></div></div></article>';
-  h += '<div class="qacts no-print"><button class="btn" data-a="pdf">Download PDF</button><button class="btn ghost" data-a="share">Share</button>' + (ST.purpose !== 'build' ? '<button class="btn ghost" data-a="goto" data-v="materials">See all materials</button>' : '') + '<button class="btn link" data-a="restart">Start again</button></div>';
+  h += '<div class="qacts no-print"><button class="btn" data-a="pdf">Download PDF</button><button class="btn ghost" data-a="share">Share</button>' + '<button class="btn link" data-a="restart">Start again</button></div>';
   return h;
 };
 /* ---------- custom price list (BhuChain team) ---------- */
@@ -7206,7 +7371,7 @@ function canNext() {
   const c = cur();
   if (c === 'purpose') return !!ST.purpose;
   if (c === 'plot') return ST.plot.w >= 15 && ST.plot.d >= 20;
-  if (c === 'home' && !isProj() && ST.home.use !== 'rent') { const ds = designNow(), o = ds.D.options[ds.opt]; return !!o && homeCheck(ds.D, o).st !== 'no'; }
+  if (c === 'home' && !isProj() && ST.home.use !== 'rent') { if (ST.home.use === 'family' && !ST.home.sized) return false; const ds = designNow(), o = ds.D.options[ds.opt]; return !!o && homeCheck(ds.D, o).st !== 'no'; }
   if (c === 'budget' && isProj()) return projectLayout().ok;
   if (c === 'budget') { const ds = designNow(); return ds.D.options.length > 0; }
   return true;
@@ -9283,6 +9448,32 @@ function mountScene(host, buildFn, V) {
   cv.style.touchAction = 'none';
   { const zb = document.createElement('div'); zb.className = 'v3z'; zb.innerHTML = '<button data-v3z="in" aria-label="Zoom in">' + zIcon('plus') + '</button><button data-v3z="out" aria-label="Zoom out">' + zIcon('minus') + '</button><button data-v3z="fit" aria-label="Reset view">' + zIcon('fit') + '</button>'; const d0 = V3.dist, t0 = V3.th, p0 = V3.ph; const par = cv.parentElement; if (getComputedStyle(par).position === 'static') par.style.position = 'relative'; par.appendChild(zb); zb.addEventListener('click', e => { const b = e.target.closest('[data-v3z]'); if (!b) return; const k = b.dataset.v3z; if (k === 'fit') { V3.dist = d0; V3.th = t0; V3.ph = p0; } else V3.dist = Math.max(15, Math.min(V3.maxD || 400, V3.dist * (k === 'in' ? 0.75 : 1.33))); dirty = true; }); }
   V3.redraw = () => { dirty = true; };
+  // swing the camera to look at the part being edited (angles are for the house seen from its front: th 0 = straight on)
+  V3.ty0 = V.ty; V3.d0 = V3.dist; V3.interior = !!V.interior;
+  V3.aim = a => {
+    if (V3.interior) return; cancelAnimationFrame(V3.aimRaf);
+    const s0 = { th: V3.th, ph: V3.ph, dist: V3.dist, ty: V3.target.y }, TAU = Math.PI * 2, dth = ((a.th - s0.th + Math.PI) % TAU + TAU) % TAU - Math.PI, to = { ph: a.ph, dist: Math.max(15, Math.min(V3.maxD || 400, V3.d0 * a.k)), ty: V3.ty0 * (a.y == null ? 1 : a.y) }, t0 = performance.now();
+    const step = now => { const k = Math.min(1, (now - t0) / 650), e = k * k * (3 - 2 * k); V3.th = s0.th + dth * e; V3.ph = s0.ph + (to.ph - s0.ph) * e; V3.dist = s0.dist + (to.dist - s0.dist) * e; V3.target.y = s0.ty + (to.ty - s0.ty) * e; V3.redraw(); if (k < 1) V3.aimRaf = requestAnimationFrame(step); };
+    V3.aimRaf = requestAnimationFrame(step);
+  };
+  if (V3.pending) { const n = V3.pending; V3.pending = null; V3.aim(AIM[n]); }
+}
+// camera angle for each part of the house: th = turn (0 = straight at the front, π/2 = side, π = back), ph = height (small = from above), k = distance as a share of the full view, y = look-at height as a share of the house
+const AIM = {
+  front: { th: 0, ph: 1.38, k: 1.02, y: 0.95 },
+  front34: { th: 0.4, ph: 1.25, k: 1.0, y: 0.95 },
+  balcony: { th: 0.25, ph: 1.3, k: 0.9, y: 1.1 },
+  side: { th: Math.PI / 2, ph: 1.35, k: 0.95, y: 0.9 },
+  back: { th: Math.PI, ph: 1.3, k: 0.95, y: 0.9 },
+  top: { th: 0.55, ph: 0.35, k: 0.95, y: 1 },
+  all: { th: 0.55, ph: 1.15, k: 1, y: 1 },
+  site: { th: 0.55, ph: 0.95, k: 1, y: 1 }
+};
+// which camera angle goes with each "Make it yours" row
+const ROW_AIM = { facade: 'front', ops: 'front', balc: 'balcony', paint: 'front34', look: 'front34', roof: 'top', garden: 'site' };
+function aim3D(n) {
+  const ds = S.design; if (!n || !ds || ds.view !== '3d' || !AIM[n]) return;
+  if (V3.aim && V3.r && document.getElementById('dz3d') && !ds.walk && ds.v3 === 'ext' && ds.show3d) V3.aim(AIM[n]); else V3.pending = n;
 }
 // on the layout screen the 3D lives in its own view; open it before any 3D action
 function show3dView() { const ds = S.design; if (!ds || isProj() || ST.home.use === 'rent' || cur() !== 'layout' || ds.view === '3d' || (!ds.view && (ds.show3d || ds.walk))) return; ds.view = '3d'; keepY(() => {}); }
@@ -9296,7 +9487,12 @@ document.addEventListener('toggle', e => {
   if (!d.open || !d.closest('.st-side') || Date.now() - ROW_CLICK > 800) return; // a row drawn open by a re-render is not a new choice
   // one choice open at a time, and the picture shows what that choice changes
   d.closest('.rows').querySelectorAll('details.row[open]').forEach(x => { if (x !== d) { x.open = false; ST.rows[x.dataset.row] = false; } });
-  const ds = S.design, v = ROW_VIEW[d.dataset.row];
+  const ds = S.design, v = ROW_VIEW[d.dataset.row], aimN = ROW_AIM[d.dataset.row];
+  if (ds && ds.view === '3d' && aimN) { // stay in 3D and turn the house to face what is being edited
+    const redo = ds.walk || ds.v3 !== 'ext' || !ds.show3d; ds.walk = false; ds.v3 = 'ext';
+    if (redo) setTimeout(() => { V3.pending = aimN; keepY(() => {}); if (!ds.show3d) ACT.make3d(); }, 0); else setTimeout(() => aim3D(aimN), 0);
+    return;
+  }
   if (ds && v && ds.view !== v && !(v === 'land' && !(ds.D && ds.D.brief.site))) { setTimeout(() => { const top = d.getBoundingClientRect().top; ds.view = v; if (ds.walk && v !== '3d') ds.walk = false; render(); const d2 = document.querySelector('details.row[data-row="' + d.dataset.row + '"]'); if (d2) window.scrollBy(0, d2.getBoundingClientRect().top - top); if (v === '3d' && !ds.show3d) ACT.make3d(); }, 0); }
 }, true);
 function mount3D() {
@@ -9385,14 +9581,18 @@ function render() {
   { const m = $('#main'); if (render._last !== c) { m.classList.remove('enter'); void m.offsetWidth; m.classList.add('enter'); render._last = c; } }
   const last = ST.step === F.length - 1;
   $('#bar').innerHTML = (ST.step ? '<button class="btn ghost" data-a="back">Back</button>' : '<span></span>') + (last ? '' : '<button class="btn" data-a="next"' + (canNext() ? '' : ' disabled') + '>' + (c === 'purpose' ? 'Get started' : c === 'materials' || (c === 'budget' && ST.purpose === 'cost') ? 'See quotation' : 'Continue') + '</button>');
-  $('#bar').style.display = last && !ST.step ? 'none' : '';
+  $('#bar').style.display = (last || c === 'purpose') && !ST.step ? 'none' : '';
   zoomKit($('#main'));
   if (c === 'layout' && S.design && S.design.view === 'land') try { gardenWire(S.design.D, S.design.D.options[S.design.opt]); } catch (e) { console.warn(e); }
   if (c === 'layout' && S.design && S.design.show3d && window.THREE) setTimeout(mount3D, 0);
   if (c === 'structure' && ST.sv && ST.sv.show3d && window.THREE) setTimeout(mountStruct, 0);
 }
 function go(i) { ST.step = Math.max(0, Math.min(flow().length - 1, i)); render(); try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch (e) { window.scrollTo(0, 0); } }
-const keepY = fn => { const y = window.scrollY; fn(); render(); try { window.scrollTo(0, y); } catch (e) {} };
+// keep the 3D picture where it was on screen (not the page offset), so changing a control never pushes the model down
+const keepY = fn => { const y = window.scrollY, h0 = document.getElementById('dz3d'), t = h0 ? h0.getBoundingClientRect().top : null; fn(); render(); try { const h1 = document.getElementById('dz3d'); window.scrollTo(0, t != null && h1 ? Math.max(0, y + h1.getBoundingClientRect().top - t) : y); } catch (e) {} };
+// bring the 3D picture to the top of the screen when it was opened or loaded below the fold
+function see3dTop() { const h = document.getElementById('dz3d'); if (!h) return; const r = h.getBoundingClientRect(); if (r.top < 60 || r.top > innerHeight * 0.45) window.scrollTo({ top: Math.max(0, window.scrollY + r.top - 70), behavior: 'instant' }); }
+document.addEventListener('toggle', e => { const d = e.target; if (d && d.matches && d.matches('details.v3more')) ST.v3more = d.open; }, true);
 const ACT = {
   vtype: el => keepY(() => { ST.vtype = el.dataset.v; S.design = null; }),
   use: el => keepY(() => { ST.home.use = el.dataset.v; S.design = null; if (el.dataset.v === 'villa') { ST.tier = 'ultra'; if (ST.home.floors < 2) ST.home.floors = 2; if (ST.home.bhk < 4) ST.home.bhk = 4; } }),
@@ -9419,7 +9619,7 @@ const ACT = {
   pgarden: el => keepY(() => { projState().garden = el.dataset.v; }),
   pcut: el => { S.design.cut3d = el.dataset.v === '1'; if (S.design.cut3d) S.design.night = false; if (!S.design.show3d || !window.THREE) ACT.make3d(); else keepY(() => {}); },
   pmode2: el => keepY(() => { projState().mode = el.dataset.v; }),
-  purpose: el => { ST.purpose = el.dataset.v; render(); },
+  purpose: el => { ST.purpose = el.dataset.v; go(1); },
   next: () => { if (canNext()) go(ST.step + 1); },
   back: () => go(ST.step - 1),
   goto: el => { const i = flow().indexOf(el.dataset.v); if (i >= 0) go(i); else { ST.purpose = 'quote'; go(FLOWS.quote.indexOf(el.dataset.v)); } },
@@ -9437,21 +9637,24 @@ const ACT = {
   inc: el => keepY(() => { const k = el.dataset.v; ST.home[k] = Math.min(+el.dataset.max, ST.home[k] + 1); }),
   dec: el => keepY(() => { const k = el.dataset.v; ST.home[k] = Math.max(1, ST.home[k] - 1); }),
   tog: el => keepY(() => { const k = el.dataset.v; ST.home[k] = !ST.home[k]; }),
-  tier: el => keepY(() => { ST.tier = el.dataset.v; ST.pick = {}; ST.steel = {}; ST.interiors = null; ST.style = null; }),
+  tier: el => keepY(() => { setCoreTier(el.dataset.v); }),
+  ct: el => keepY(() => { setCoreTier(el.dataset.v); }),
+  ft: el => keepY(() => { ST.tierF = el.dataset.v; dropPicks(true); ST.interiors = null; ST.style = null; }),
   opt: el => keepY(() => { S.design.opt = +el.dataset.v; S.design.floor = 0; }),
   floor: el => keepY(() => { S.design.floor = +el.dataset.v; }),
-  view: el => { const ds = S.design, v = el.dataset.v; if (ds.walk && v !== '3d') ds.walk = false; ds.view = v; keepY(() => {}); if (v === '3d' && !ds.show3d) ACT.make3d(); },
+  view: el => { const ds = S.design, v = el.dataset.v; if (ds.walk && v !== '3d') ds.walk = false; ds.view = v; keepY(() => {}); if (v === '3d') { if (!ds.show3d) ACT.make3d(); setTimeout(see3dTop, 60); } },
   style: el => keepY(() => { ST.style = el.dataset.v; }),
   roof: el => keepY(() => { ST.home.roof = el.dataset.v; }),
   rq: el => keepY(() => { const R = reqState(), q = RQ_BY[el.dataset.k], r = R[q.k]; r.n = Math.max(0, Math.min(q.max, r.n + +el.dataset.d)); if (['master', 'bed', 'guest'].includes(q.k) && rqBeds(R) > RQ_MAXBED) r.n -= rqBeds(R) - RQ_MAXBED; if (q.k === 'parking' && !r.c) r.c = '4w'; reqSync(); }),
   rqc: el => keepY(() => { const R = reqState(); R[el.dataset.k][el.dataset.g] = el.dataset.v; reqSync(); }),
   hfloors: el => keepY(() => { ST.home.floors = +el.dataset.v; const R = reqState(); if (ST.home.floors > 1 && !R.balcony.n && R._bal == null) { R.balcony.n = 1; R._bal = 1; } reqSync(); if (ST.home.view !== 'roof' && ST.home.view >= ST.home.floors) ST.home.view = 0; }),
   hfl: el => keepY(() => { ST.home.floors = +el.dataset.v; if (S.design) S.design.floor = 0; if (ST.home.floors > 1 && (!ST.balc || ST.balc === 'none') && ST.home._balAuto == null) { ST.balc = 'cantilever'; ST.home._balAuto = 1; } }),
-  hbhk: el => keepY(() => { ST.home.bhk = +el.dataset.v; }),
+  hbhk: el => keepY(() => { ST.home.bhk = +el.dataset.v; ST.home.sized = true; }),
+  hx: el => keepY(() => { const h = ST.home, k = el.dataset.v; if (k === 'puja') h.pooja = !h.pooja; else if (k === 'balcony') ST.balc = ST.balc && ST.balc !== 'none' ? 'none' : 'cantilever'; else { h.extras = h.extras || {}; h.extras[k] = !h.extras[k]; } }),
   hpfl: el => keepY(() => { const h = ST.home; h.perFloor = pfList(Object.assign({}, h, { floors: 3 })); h.perFloor[+el.dataset.i] = +el.dataset.v; }),
-  hpfall: el => keepY(() => { const h = ST.home; h.perFloor = [1, 2, 3].map(() => +el.dataset.v); }),
+  hpfall: el => keepY(() => { const h = ST.home; h.perFloor = [1, 2, 3].map(() => +el.dataset.v); h.sized = true; }),
   hspace: el => keepY(() => { ST.home.space = el.dataset.v; }),
-  hfix: el => keepY(() => { const h = ST.home, c = JSON.parse(el.dataset.v); if (c.perFloor) h.perFloor = c.perFloor.concat((h.perFloor || []).slice(c.perFloor.length)); if (c.bhk) h.bhk = c.bhk; if (c.floors) { h.floors = c.floors; if (S.design) S.design.floor = 0; } if (c.space) h.space = c.space; if (c.park) h.park.kind = c.park; }),
+  hfix: el => keepY(() => { const h = ST.home, c = JSON.parse(el.dataset.v); h.sized = true; if (c.perFloor) h.perFloor = c.perFloor.concat((h.perFloor || []).slice(c.perFloor.length)); if (c.bhk) h.bhk = c.bhk; if (c.floors) { h.floors = c.floors; if (S.design) S.design.floor = 0; } if (c.space) h.space = c.space; if (c.park) h.park.kind = c.park; }),
   hview: el => keepY(() => { ST.home.view = el.dataset.v === 'roof' ? 'roof' : +el.dataset.v; }),
   balc: el => keepY(() => { ST.balc = el.dataset.v; }),
   pk: el => keepY(() => { const p = ST.home.park; p.kind = el.dataset.v; if (p.loc === 'rear') p.gali = Math.max(p.gali, p.kind === '2w' ? 4 : 10); }),
@@ -9504,7 +9707,7 @@ const ACT = {
   svf: el => keepY(() => { const sv = structState(); sv.floors = Math.max(1, Math.min(4, sv.floors + (+el.dataset.v))); }),
   st3d: async () => { ST.rows = ST.rows || {}; ST.rows.s3d = true; const host = $('#st3d'); host.innerHTML = '<p class="load">Loading 3D… (needs internet the first time)</p>'; try { if (!window.THREE) await loadThree(); } catch (e) { host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } structState().show3d = true; keepY(() => {}); },
   stprint: () => { const t = document.title; document.title = 'BhuChain-Structure-Plan'; const back = () => { document.title = t; window.removeEventListener('afterprint', back); }; window.addEventListener('afterprint', back); window.print(); },
-  make3d: async () => { show3dView(); const host = $('#dz3d'); if (!host) return; host.innerHTML = '<p class="load">Loading 3D… (needs internet the first time)</p>'; try { if (!window.THREE) await loadThree(); } catch (e) { host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } S.design.show3d = true; keepY(() => {}); },
+  make3d: async () => { show3dView(); const host = $('#dz3d'); if (!host) return; host.innerHTML = '<p class="load">Loading 3D… (needs internet the first time)</p>'; try { if (!window.THREE) await loadThree(); } catch (e) { host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } S.design.show3d = true; keepY(() => {}); setTimeout(see3dTop, 60); },
   bare3d: el => { show3dView(); S.design.bare = el.dataset.v === '1'; if (S.design.bare) S.design.night = false; if (!S.design.show3d || !window.THREE) ACT.make3d(); else keepY(() => {}); },
   night: el => { show3dView(); S.design.night = el.dataset.v === '1'; if (!S.design.show3d || !window.THREE) { ACT.make3d(); } else keepY(() => {}); if (S.design.night) setTimeout(() => { const el2 = document.getElementById('dz3d'); if (el2) el2.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300); },
   fskin: el => { ST.furnSkin = +el.dataset.v; keepY(() => {}); },
@@ -9532,7 +9735,7 @@ const ACT = {
   fmreset: () => { const ds = S.design, sel = ds.fsel; if (!sel) return; const o = ds.D.options[ds.opt], F = o.floors[sel.f]; furnEditSet(o, F, F.rooms[sel.r], E => { E.frozen = false; E.pins = []; E.removed = []; E.vari = 0; }); ds.fsel = null; ds.fmMsg = ''; keepY(() => {}); },
   interiors: () => keepY(() => { ST.pkg = useInteriors() ? 'core' : 'semi'; }),
   pkg: el => keepY(() => { ST.pkg = el.dataset.v; }),
-  pt: el => keepY(() => { if (ST.tier !== el.dataset.v) { ST.tier = el.dataset.v; ST.pick = {}; ST.steel = {}; ST.interiors = null; ST.style = null; } ST.pkg = el.dataset.p; }),
+  pt: el => keepY(() => { setCoreTier(el.dataset.v); ST.pkg = el.dataset.p; }),
   pdf: async () => {
     const ds = S.design || (S.design = { v3: 'ext', show3d: false });
     try { if (!window.THREE) await loadThree(); } catch (e) {}
@@ -9549,7 +9752,7 @@ const ACT = {
   share: () => {
     if (isProj()) { const C = projectCost(), PL = C.PL, text = 'BhuChain ' + ST.home.use + ' plan: ' + PL.totalUnits + ' units, G+' + (PL.totalFloors - 1) + ', ' + PL.W + 'x' + PL.D + ' ft land — est. ' + inr(C.total); if (navigator.share) navigator.share({ title: 'BhuChain', text }).catch(() => {}); else window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener'); return; }
     const ds = S.design, o = ds.D.options[ds.opt], P = priceList(ds.D, o), b = ds.D.brief;
-    const text = 'BhuChain quotation: ' + b.bhk + ' BHK, ' + ['Ground', 'G+1', 'G+2'][b.floors - 1] + ', ' + b.w + 'x' + b.d + ' ft plot in ' + CITIES.find(c => c.id === ST.city).name + ' — ' + TIERS[TI[ST.tier]].name + ': ' + inr(P.total) + ' (' + rup(P.perSqft) + '/sq ft).';
+    const text = 'BhuChain quotation: ' + b.bhk + ' BHK, ' + ['Ground', 'G+1', 'G+2'][b.floors - 1] + ', ' + b.w + 'x' + b.d + ' ft plot in ' + CITIES.find(c => c.id === ST.city).name + ' — ' + (pkgHas('semi') && finKey() !== ST.tier ? 'Core ' + TIERS[TI[ST.tier]].short + ' + ' + PKGS.find(x => x.id === ST.pkg).n + ' ' + TIERS[TI[finKey()]].short : TIERS[TI[ST.tier]].name) + ': ' + inr(P.total) + ' (' + rup(P.perSqft) + '/sq ft).';
     if (navigator.share) navigator.share({ title: 'BhuChain quotation', text }).catch(() => {}); else window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
   },
   csvdl: () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csvOut()], { type: 'text/csv' })); a.download = 'bhuchain-build-price-list.csv'; document.body.appendChild(a); a.click(); a.remove(); },
@@ -9840,7 +10043,7 @@ function vCostOf() {
 }
 // pick the home that fits the money: the user's plot if given, else the biggest small plot that fits
 function vPlanForBudget(budget, o) {
-  ST.purpose = 'build'; ST.home.floors = o.floors || 1; ST.home.use = 'family'; ST.home.bhk = o.bhk || 1; if (!o.tier) ST.tier = 'low';
+  ST.purpose = 'build'; ST.home.floors = o.floors || 1; ST.home.use = 'family'; ST.home.bhk = o.bhk || 1; ST.home.sized = true; if (!o.tier) ST.tier = 'low';
   if (!o.park) ST.home.park = { kind: 'none', loc: 'front', gali: 10, side: 'left' };
   const plots = o.w ? [[o.w, o.d]] : o.area ? [[ST.plot.w, ST.plot.d]] : [[15, 20], [15, 25], [18, 25], [20, 25], [20, 30], [22, 30], [25, 30], [25, 35], [25, 40], [30, 40], [30, 50], [40, 60]];
   let fit = null, core = null, small = null;
@@ -9964,7 +10167,7 @@ window.VOICE_ADAPTER = {
     if (o.w) { ST.plot.w = Math.max(15, Math.min(200, o.w)); ST.plot.d = Math.max(20, Math.min(300, o.d)); rectPlot(); VOICE.gotPlot = true; }
     if (o.area) { const a = Math.max(300, Math.min(50000, o.area)), w = Math.max(15, Math.round(Math.sqrt(a * 0.75))); ST.plot.w = w; ST.plot.d = Math.max(20, Math.round(a / w)); rectPlot(); VOICE.gotPlot = true; }
     if (o.facing) ST.plot.facing = o.facing;
-    if (o.bhk) ST.home.bhk = o.bhk; if (o.floors) ST.home.floors = o.floors; if (o.bhk && isProj()) ST.home.use = 'family';
+    if (o.bhk) { ST.home.bhk = o.bhk; ST.home.sized = true; } if (o.floors) ST.home.floors = o.floors; if (o.bhk && isProj()) ST.home.use = 'family';
     if (o.park) Object.assign(ST.home.park, { loc: 'front' }, o.park);
     ['pooja', 'vastu', 'roof'].forEach(k => { if (o[k] != null) ST.home[k] = o[k]; });
     if (o.style) ST.style = o.style; if (o.city) ST.city = o.city; if (o.tier) ST.tier = o.tier;
