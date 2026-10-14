@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14202B">
+<title>BhuChain Site Integrity</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#F3F5F7;--card:#fff;--ink:#14202B;--mut:#5F6B76;--line:#DCE1E6;--gold:#C9963C;--red:#C0392B;--redbg:#FDEDEB;--amb:#A86A00;--ambbg:#FFF5E0;--ok:#1E7F4F;--okbg:#E9F7EF;--blue:#1F5D99}
+@media (prefers-color-scheme:dark){:root{--bg:#0F161D;--card:#18222C;--ink:#E8EDF2;--mut:#9AA6B2;--line:#2A3642;--redbg:#3A1A17;--ambbg:#352A12;--okbg:#14301F}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Noto Sans","Noto Sans Devanagari","Noto Sans Oriya",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px}
+header b{font-size:17px}header .sp{flex:1}header button{background:transparent;border:1px solid #ffffff55;color:#fff;border-radius:10px;padding:6px 10px}
+header .who{font-size:13px;opacity:.85;text-align:right;line-height:1.2}
+main{max-width:760px;margin:0 auto;padding:14px 14px 90px}
+h2{margin:6px 0 12px;font-size:22px}h3{margin:18px 0 8px;font-size:17px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 12px;text-align:left;cursor:pointer;min-height:96px;display:flex;flex-direction:column;gap:4px}
+.tile .ic{font-size:28px}.tile b{font-size:16px}.tile small{color:var(--mut);font-size:12.5px}
+.tile.hot{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}.stats b{display:block;font-size:24px}.stats span{font-size:12px;color:var(--mut)}
+label.f{display:block;margin:12px 0 4px;font-weight:600;font-size:14.5px}
+input[type=text],input[type=number],input[type=tel],input[type=date],input[type=password],textarea,select{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);font-size:17px}
+textarea{min-height:80px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{border:1.5px solid var(--line);background:var(--card);border-radius:22px;padding:9px 14px;cursor:pointer;font-size:15px}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:14px 18px;font-weight:700;font-size:17px;cursor:pointer;background:var(--ink);color:var(--bg);min-height:52px}
+.btn.wide{width:100%}.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}.btn.ok{background:var(--ok);color:#fff}.btn.no{background:var(--red);color:#fff}.btn.sm{min-height:40px;padding:8px 12px;font-size:14.5px}
+.btn:disabled{opacity:.45}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center;z-index:6}
+.bar .btn{flex:1;max-width:360px}
+.ph{display:flex;flex-wrap:wrap;gap:10px}.phb{width:110px;height:110px;border:2px dashed var(--line);border-radius:14px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;cursor:pointer;text-align:center;padding:6px;overflow:hidden;position:relative}
+.phb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.phb.done{border-style:solid;border-color:var(--ok)}
+.phb .ic{font-size:30px}
+.gps{font-size:13px;color:var(--mut);margin-top:8px}.gps.bad{color:var(--red);font-weight:600}
+.list .it{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.list .it:last-child{border-bottom:0}
+.list .it img{width:52px;height:52px;border-radius:10px;object-fit:cover;background:var(--line)}
+.list .it .t{flex:1;min-width:0}.list .it .t small{display:block;color:var(--mut);font-size:12.5px}
+.tag{font-size:12px;font-weight:700;border-radius:10px;padding:3px 8px;white-space:nowrap}
+.tag.approved{background:var(--okbg);color:var(--ok)}.tag.pending{background:var(--ambbg);color:var(--amb)}.tag.unverified,.tag.rejected,.tag.void{background:var(--redbg);color:var(--red)}
+.flag{border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14.5px}.flag.red{background:var(--redbg);border-left:5px solid var(--red)}.flag.amber{background:var(--ambbg);border-left:5px solid var(--amb)}.flag small{display:block;color:var(--mut);margin-top:3px}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}.wk{border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:6px;text-align:center;cursor:pointer;font-size:13px}.wk img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:var(--line)}.wk.in{border-color:var(--ok)}.wk.done{opacity:.45}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cmp img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;background:var(--line)}.cmp span{font-size:12px;color:var(--mut)}
+.pin{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:12px auto}.pin button{font-size:26px;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--card)}
+.dots{text-align:center;font-size:30px;letter-spacing:10px;min-height:40px}
+.chk{list-style:none;padding:0;margin:0}.chk li{padding:6px 0;font-size:14.5px}.chk li::before{content:'✔ ';color:var(--ok);font-weight:700}.chk li.bad::before{content:'✖ ';color:var(--red)}.chk li.amb::before{content:'! ';color:var(--amb)}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left}th{font-size:12.5px;color:var(--mut)}
+.note{font-size:13.5px;color:var(--mut)}.big{font-size:20px;font-weight:700}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;z-index:20;max-width:90vw;font-weight:600}
+.toast.err{background:var(--red);color:#fff}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
+.idc{display:inline-block;width:320px;border:2px solid #14202B;border-radius:12px;padding:10px;margin:6px;vertical-align:top;background:#fff;color:#14202B;page-break-inside:avoid}.idc img{width:84px;height:84px;object-fit:cover;border-radius:8px;float:left;margin-right:8px}.idc .q{float:right}.idc b{font-size:15px}.idc small{display:block;font-size:11.5px}
+@media print{header,.bar,.noprint{display:none!important}main{padding:0;max-width:none}body{background:#fff}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lang{display:flex;gap:6px}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header><b>BhuChain · Site Integrity</b><span class="sp"></span><span class="who" id="who"></span><button id="langBtn" aria-label="Language">अ/A</button></header>
+<main id="app"><p>Loading…</p></main>
+<input type="file" id="cam" accept="image/*" capture="environment" class="hide">
+<input type="file" id="camf" accept="image/*" capture="user" class="hide">
+<input type="file" id="imp" accept="application/json" class="hide">
+<script src="vendor/qrcode.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

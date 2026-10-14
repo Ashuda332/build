@@ -27,6 +27,7 @@ jobs:
           mkdir -p _site
           cp index.html _site/
           mkdir -p _site/assets && cp -r assets/models assets/thumbs assets/hdri assets/catalog.json _site/assets/
+          mkdir -p _site/integrity && cp -r integrity/index.html integrity/app.js integrity/core.js integrity/sw.js integrity/manifest.webmanifest integrity/icon.svg integrity/vendor _site/integrity/
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

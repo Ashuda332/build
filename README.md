@@ -61,3 +61,6 @@ The furniture library is loaded over HTTP, so open the app through a server rath
 node tools/serve.mjs 8080   # then open http://127.0.0.1:8080
 npm ci && npm test          # catalog validation + placement tests (needs Playwright's Chromium)
 ```
+
+## Site Integrity (construction tracking)
+[`integrity/`](integrity/README.md) is a separate offline phone app for daily site tracking: attendance with selfie + GPS, material in/out and stock, work progress, two-person approvals, payment checks, red flags, reports and a hash-chained ledger that syncs to Google Sheets/Drive. Live at https://ashuda332.github.io/build/integrity/. Manual: [integrity/docs/MANUAL.md](integrity/docs/MANUAL.md).

@@ -16,6 +16,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Site Integrity — rules, hash chain, payments, flags
+        run: node tests/integrity-core.mjs
+      - name: Site Integrity — app flow on a phone-sized screen
+        run: node tests/integrity-ui.mjs
       - name: Furniture library — licences, hashes, sizes, pivots
         run: node tools/validate-catalog.mjs
       - name: Placement rules over generated houses
