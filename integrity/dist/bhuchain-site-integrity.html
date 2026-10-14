@@ -1,0 +1,3258 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14202B">
+<title>BhuChain Site Integrity</title>
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9Ijk2IiBmaWxsPSIjMTQyMDJCIi8+PHBhdGggZD0iTTI1NiA4NmwxNTAgNjB2MTA0YzAgOTItNjIgMTU0LTE1MCAxNzYtODgtMjItMTUwLTg0LTE1MC0xNzZWMTQ2eiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzk5NjNDIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTE5MCAyNjJsNDYgNDYgOTItMTA0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMzIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPgo=" type="image/svg+xml">
+<style>
+:root{--bg:#F3F5F7;--card:#fff;--ink:#14202B;--mut:#5F6B76;--line:#DCE1E6;--gold:#C9963C;--red:#C0392B;--redbg:#FDEDEB;--amb:#A86A00;--ambbg:#FFF5E0;--ok:#1E7F4F;--okbg:#E9F7EF;--blue:#1F5D99}
+@media (prefers-color-scheme:dark){:root{--bg:#0F161D;--card:#18222C;--ink:#E8EDF2;--mut:#9AA6B2;--line:#2A3642;--redbg:#3A1A17;--ambbg:#352A12;--okbg:#14301F}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Noto Sans","Noto Sans Devanagari","Noto Sans Oriya",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px}
+header b{font-size:17px}header .sp{flex:1}header button{background:transparent;border:1px solid #ffffff55;color:#fff;border-radius:10px;padding:6px 10px}
+header .who{font-size:13px;opacity:.85;text-align:right;line-height:1.2}
+main{max-width:760px;margin:0 auto;padding:14px 14px 90px}
+h2{margin:6px 0 12px;font-size:22px}h3{margin:18px 0 8px;font-size:17px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 12px;text-align:left;cursor:pointer;min-height:96px;display:flex;flex-direction:column;gap:4px}
+.tile .ic{font-size:28px}.tile b{font-size:16px}.tile small{color:var(--mut);font-size:12.5px}
+.tile.hot{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}.stats b{display:block;font-size:24px}.stats span{font-size:12px;color:var(--mut)}
+label.f{display:block;margin:12px 0 4px;font-weight:600;font-size:14.5px}
+input[type=text],input[type=number],input[type=tel],input[type=date],input[type=password],textarea,select{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);font-size:17px}
+textarea{min-height:80px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{border:1.5px solid var(--line);background:var(--card);border-radius:22px;padding:9px 14px;cursor:pointer;font-size:15px}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:14px 18px;font-weight:700;font-size:17px;cursor:pointer;background:var(--ink);color:var(--bg);min-height:52px}
+.btn.wide{width:100%}.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}.btn.ok{background:var(--ok);color:#fff}.btn.no{background:var(--red);color:#fff}.btn.sm{min-height:40px;padding:8px 12px;font-size:14.5px}
+.btn:disabled{opacity:.45}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center;z-index:6}
+.bar .btn{flex:1;max-width:360px}
+.ph{display:flex;flex-wrap:wrap;gap:10px}.phb{width:110px;height:110px;border:2px dashed var(--line);border-radius:14px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;cursor:pointer;text-align:center;padding:6px;overflow:hidden;position:relative}
+.phb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.phb.done{border-style:solid;border-color:var(--ok)}
+.phb .ic{font-size:30px}
+.gps{font-size:13px;color:var(--mut);margin-top:8px}.gps.bad{color:var(--red);font-weight:600}
+.list .it{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.list .it:last-child{border-bottom:0}
+.list .it img{width:52px;height:52px;border-radius:10px;object-fit:cover;background:var(--line)}
+.list .it .t{flex:1;min-width:0}.list .it .t small{display:block;color:var(--mut);font-size:12.5px}
+.tag{font-size:12px;font-weight:700;border-radius:10px;padding:3px 8px;white-space:nowrap}
+.tag.approved{background:var(--okbg);color:var(--ok)}.tag.pending{background:var(--ambbg);color:var(--amb)}.tag.unverified,.tag.rejected,.tag.void{background:var(--redbg);color:var(--red)}
+.flag{border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14.5px}.flag.red{background:var(--redbg);border-left:5px solid var(--red)}.flag.amber{background:var(--ambbg);border-left:5px solid var(--amb)}.flag small{display:block;color:var(--mut);margin-top:3px}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}.wk{border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:6px;text-align:center;cursor:pointer;font-size:13px}.wk img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:var(--line)}.wk.in{border-color:var(--ok)}.wk.done{opacity:.45}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cmp img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;background:var(--line)}.cmp span{font-size:12px;color:var(--mut)}
+.pin{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:12px auto}.pin button{font-size:26px;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--card)}
+.dots{text-align:center;font-size:30px;letter-spacing:10px;min-height:40px}
+.chk{list-style:none;padding:0;margin:0}.chk li{padding:6px 0;font-size:14.5px}.chk li::before{content:'✔ ';color:var(--ok);font-weight:700}.chk li.bad::before{content:'✖ ';color:var(--red)}.chk li.amb::before{content:'! ';color:var(--amb)}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left}th{font-size:12.5px;color:var(--mut)}
+.note{font-size:13.5px;color:var(--mut)}.big{font-size:20px;font-weight:700}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;z-index:20;max-width:90vw;font-weight:600}
+.toast.err{background:var(--red);color:#fff}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
+.idc{display:inline-block;width:320px;border:2px solid #14202B;border-radius:12px;padding:10px;margin:6px;vertical-align:top;background:#fff;color:#14202B;page-break-inside:avoid}.idc img{width:84px;height:84px;object-fit:cover;border-radius:8px;float:left;margin-right:8px}.idc .q{float:right}.idc b{font-size:15px}.idc small{display:block;font-size:11.5px}
+@media print{header,.bar,.noprint{display:none!important}main{padding:0;max-width:none}body{background:#fff}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lang{display:flex;gap:6px}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header><b>BhuChain · Site Integrity</b><span class="sp"></span><span class="who" id="who"></span><button id="langBtn" aria-label="Language">अ/A</button></header>
+<main id="app"><p>Loading…</p></main>
+<input type="file" id="cam" accept="image/*" capture="environment" class="hide">
+<input type="file" id="camf" accept="image/*" capture="user" class="hide">
+<input type="file" id="imp" accept="application/json" class="hide">
+<script>
+//---------------------------------------------------------------------
+//
+// QR Code Generator for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//  http://www.opensource.org/licenses/mit-license.php
+//
+// The word 'QR Code' is registered trademark of
+// DENSO WAVE INCORPORATED
+//  http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+
+var qrcode = function() {
+
+  //---------------------------------------------------------------------
+  // qrcode
+  //---------------------------------------------------------------------
+
+  /**
+   * qrcode
+   * @param typeNumber 1 to 40
+   * @param errorCorrectionLevel 'L','M','Q','H'
+   */
+  var qrcode = function(typeNumber, errorCorrectionLevel) {
+
+    var PAD0 = 0xEC;
+    var PAD1 = 0x11;
+
+    var _typeNumber = typeNumber;
+    var _errorCorrectionLevel = QRErrorCorrectionLevel[errorCorrectionLevel];
+    var _modules = null;
+    var _moduleCount = 0;
+    var _dataCache = null;
+    var _dataList = [];
+
+    var _this = {};
+
+    var makeImpl = function(test, maskPattern) {
+
+      _moduleCount = _typeNumber * 4 + 17;
+      _modules = function(moduleCount) {
+        var modules = new Array(moduleCount);
+        for (var row = 0; row < moduleCount; row += 1) {
+          modules[row] = new Array(moduleCount);
+          for (var col = 0; col < moduleCount; col += 1) {
+            modules[row][col] = null;
+          }
+        }
+        return modules;
+      }(_moduleCount);
+
+      setupPositionProbePattern(0, 0);
+      setupPositionProbePattern(_moduleCount - 7, 0);
+      setupPositionProbePattern(0, _moduleCount - 7);
+      setupPositionAdjustPattern();
+      setupTimingPattern();
+      setupTypeInfo(test, maskPattern);
+
+      if (_typeNumber >= 7) {
+        setupTypeNumber(test);
+      }
+
+      if (_dataCache == null) {
+        _dataCache = createData(_typeNumber, _errorCorrectionLevel, _dataList);
+      }
+
+      mapData(_dataCache, maskPattern);
+    };
+
+    var setupPositionProbePattern = function(row, col) {
+
+      for (var r = -1; r <= 7; r += 1) {
+
+        if (row + r <= -1 || _moduleCount <= row + r) continue;
+
+        for (var c = -1; c <= 7; c += 1) {
+
+          if (col + c <= -1 || _moduleCount <= col + c) continue;
+
+          if ( (0 <= r && r <= 6 && (c == 0 || c == 6) )
+              || (0 <= c && c <= 6 && (r == 0 || r == 6) )
+              || (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+            _modules[row + r][col + c] = true;
+          } else {
+            _modules[row + r][col + c] = false;
+          }
+        }
+      }
+    };
+
+    var getBestMaskPattern = function() {
+
+      var minLostPoint = 0;
+      var pattern = 0;
+
+      for (var i = 0; i < 8; i += 1) {
+
+        makeImpl(true, i);
+
+        var lostPoint = QRUtil.getLostPoint(_this);
+
+        if (i == 0 || minLostPoint > lostPoint) {
+          minLostPoint = lostPoint;
+          pattern = i;
+        }
+      }
+
+      return pattern;
+    };
+
+    var setupTimingPattern = function() {
+
+      for (var r = 8; r < _moduleCount - 8; r += 1) {
+        if (_modules[r][6] != null) {
+          continue;
+        }
+        _modules[r][6] = (r % 2 == 0);
+      }
+
+      for (var c = 8; c < _moduleCount - 8; c += 1) {
+        if (_modules[6][c] != null) {
+          continue;
+        }
+        _modules[6][c] = (c % 2 == 0);
+      }
+    };
+
+    var setupPositionAdjustPattern = function() {
+
+      var pos = QRUtil.getPatternPosition(_typeNumber);
+
+      for (var i = 0; i < pos.length; i += 1) {
+
+        for (var j = 0; j < pos.length; j += 1) {
+
+          var row = pos[i];
+          var col = pos[j];
+
+          if (_modules[row][col] != null) {
+            continue;
+          }
+
+          for (var r = -2; r <= 2; r += 1) {
+
+            for (var c = -2; c <= 2; c += 1) {
+
+              if (r == -2 || r == 2 || c == -2 || c == 2
+                  || (r == 0 && c == 0) ) {
+                _modules[row + r][col + c] = true;
+              } else {
+                _modules[row + r][col + c] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+
+    var setupTypeNumber = function(test) {
+
+      var bits = QRUtil.getBCHTypeNumber(_typeNumber);
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[Math.floor(i / 3)][i % 3 + _moduleCount - 8 - 3] = mod;
+      }
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[i % 3 + _moduleCount - 8 - 3][Math.floor(i / 3)] = mod;
+      }
+    };
+
+    var setupTypeInfo = function(test, maskPattern) {
+
+      var data = (_errorCorrectionLevel << 3) | maskPattern;
+      var bits = QRUtil.getBCHTypeInfo(data);
+
+      // vertical
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 6) {
+          _modules[i][8] = mod;
+        } else if (i < 8) {
+          _modules[i + 1][8] = mod;
+        } else {
+          _modules[_moduleCount - 15 + i][8] = mod;
+        }
+      }
+
+      // horizontal
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 8) {
+          _modules[8][_moduleCount - i - 1] = mod;
+        } else if (i < 9) {
+          _modules[8][15 - i - 1 + 1] = mod;
+        } else {
+          _modules[8][15 - i - 1] = mod;
+        }
+      }
+
+      // fixed module
+      _modules[_moduleCount - 8][8] = (!test);
+    };
+
+    var mapData = function(data, maskPattern) {
+
+      var inc = -1;
+      var row = _moduleCount - 1;
+      var bitIndex = 7;
+      var byteIndex = 0;
+      var maskFunc = QRUtil.getMaskFunction(maskPattern);
+
+      for (var col = _moduleCount - 1; col > 0; col -= 2) {
+
+        if (col == 6) col -= 1;
+
+        while (true) {
+
+          for (var c = 0; c < 2; c += 1) {
+
+            if (_modules[row][col - c] == null) {
+
+              var dark = false;
+
+              if (byteIndex < data.length) {
+                dark = ( ( (data[byteIndex] >>> bitIndex) & 1) == 1);
+              }
+
+              var mask = maskFunc(row, col - c);
+
+              if (mask) {
+                dark = !dark;
+              }
+
+              _modules[row][col - c] = dark;
+              bitIndex -= 1;
+
+              if (bitIndex == -1) {
+                byteIndex += 1;
+                bitIndex = 7;
+              }
+            }
+          }
+
+          row += inc;
+
+          if (row < 0 || _moduleCount <= row) {
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    };
+
+    var createBytes = function(buffer, rsBlocks) {
+
+      var offset = 0;
+
+      var maxDcCount = 0;
+      var maxEcCount = 0;
+
+      var dcdata = new Array(rsBlocks.length);
+      var ecdata = new Array(rsBlocks.length);
+
+      for (var r = 0; r < rsBlocks.length; r += 1) {
+
+        var dcCount = rsBlocks[r].dataCount;
+        var ecCount = rsBlocks[r].totalCount - dcCount;
+
+        maxDcCount = Math.max(maxDcCount, dcCount);
+        maxEcCount = Math.max(maxEcCount, ecCount);
+
+        dcdata[r] = new Array(dcCount);
+
+        for (var i = 0; i < dcdata[r].length; i += 1) {
+          dcdata[r][i] = 0xff & buffer.getBuffer()[i + offset];
+        }
+        offset += dcCount;
+
+        var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+        var rawPoly = qrPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+        var modPoly = rawPoly.mod(rsPoly);
+        ecdata[r] = new Array(rsPoly.getLength() - 1);
+        for (var i = 0; i < ecdata[r].length; i += 1) {
+          var modIndex = i + modPoly.getLength() - ecdata[r].length;
+          ecdata[r][i] = (modIndex >= 0)? modPoly.getAt(modIndex) : 0;
+        }
+      }
+
+      var totalCodeCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalCodeCount += rsBlocks[i].totalCount;
+      }
+
+      var data = new Array(totalCodeCount);
+      var index = 0;
+
+      for (var i = 0; i < maxDcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < dcdata[r].length) {
+            data[index] = dcdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      for (var i = 0; i < maxEcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < ecdata[r].length) {
+            data[index] = ecdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      return data;
+    };
+
+    var createData = function(typeNumber, errorCorrectionLevel, dataList) {
+
+      var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectionLevel);
+
+      var buffer = qrBitBuffer();
+
+      for (var i = 0; i < dataList.length; i += 1) {
+        var data = dataList[i];
+        buffer.put(data.getMode(), 4);
+        buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+        data.write(buffer);
+      }
+
+      // calc num max data.
+      var totalDataCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalDataCount += rsBlocks[i].dataCount;
+      }
+
+      if (buffer.getLengthInBits() > totalDataCount * 8) {
+        throw 'code length overflow. ('
+          + buffer.getLengthInBits()
+          + '>'
+          + totalDataCount * 8
+          + ')';
+      }
+
+      // end code
+      if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+        buffer.put(0, 4);
+      }
+
+      // padding
+      while (buffer.getLengthInBits() % 8 != 0) {
+        buffer.putBit(false);
+      }
+
+      // padding
+      while (true) {
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD0, 8);
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD1, 8);
+      }
+
+      return createBytes(buffer, rsBlocks);
+    };
+
+    _this.addData = function(data, mode) {
+
+      mode = mode || 'Byte';
+
+      var newData = null;
+
+      switch(mode) {
+      case 'Numeric' :
+        newData = qrNumber(data);
+        break;
+      case 'Alphanumeric' :
+        newData = qrAlphaNum(data);
+        break;
+      case 'Byte' :
+        newData = qr8BitByte(data);
+        break;
+      case 'Kanji' :
+        newData = qrKanji(data);
+        break;
+      default :
+        throw 'mode:' + mode;
+      }
+
+      _dataList.push(newData);
+      _dataCache = null;
+    };
+
+    _this.isDark = function(row, col) {
+      if (row < 0 || _moduleCount <= row || col < 0 || _moduleCount <= col) {
+        throw row + ',' + col;
+      }
+      return _modules[row][col];
+    };
+
+    _this.getModuleCount = function() {
+      return _moduleCount;
+    };
+
+    _this.make = function() {
+      if (_typeNumber < 1) {
+        var typeNumber = 1;
+
+        for (; typeNumber < 40; typeNumber++) {
+          var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, _errorCorrectionLevel);
+          var buffer = qrBitBuffer();
+
+          for (var i = 0; i < _dataList.length; i++) {
+            var data = _dataList[i];
+            buffer.put(data.getMode(), 4);
+            buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+            data.write(buffer);
+          }
+
+          var totalDataCount = 0;
+          for (var i = 0; i < rsBlocks.length; i++) {
+            totalDataCount += rsBlocks[i].dataCount;
+          }
+
+          if (buffer.getLengthInBits() <= totalDataCount * 8) {
+            break;
+          }
+        }
+
+        _typeNumber = typeNumber;
+      }
+
+      makeImpl(false, getBestMaskPattern() );
+    };
+
+    _this.createTableTag = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var qrHtml = '';
+
+      qrHtml += '<table style="';
+      qrHtml += ' border-width: 0px; border-style: none;';
+      qrHtml += ' border-collapse: collapse;';
+      qrHtml += ' padding: 0px; margin: ' + margin + 'px;';
+      qrHtml += '">';
+      qrHtml += '<tbody>';
+
+      for (var r = 0; r < _this.getModuleCount(); r += 1) {
+
+        qrHtml += '<tr>';
+
+        for (var c = 0; c < _this.getModuleCount(); c += 1) {
+          qrHtml += '<td style="';
+          qrHtml += ' border-width: 0px; border-style: none;';
+          qrHtml += ' border-collapse: collapse;';
+          qrHtml += ' padding: 0px; margin: 0px;';
+          qrHtml += ' width: ' + cellSize + 'px;';
+          qrHtml += ' height: ' + cellSize + 'px;';
+          qrHtml += ' background-color: ';
+          qrHtml += _this.isDark(r, c)? '#000000' : '#ffffff';
+          qrHtml += ';';
+          qrHtml += '"/>';
+        }
+
+        qrHtml += '</tr>';
+      }
+
+      qrHtml += '</tbody>';
+      qrHtml += '</table>';
+
+      return qrHtml;
+    };
+
+    _this.createSvgTag = function(cellSize, margin, alt, title) {
+
+      var opts = {};
+      if (typeof arguments[0] == 'object') {
+        // Called by options.
+        opts = arguments[0];
+        // overwrite cellSize and margin.
+        cellSize = opts.cellSize;
+        margin = opts.margin;
+        alt = opts.alt;
+        title = opts.title;
+      }
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      // Compose alt property surrogate
+      alt = (typeof alt === 'string') ? {text: alt} : alt || {};
+      alt.text = alt.text || null;
+      alt.id = (alt.text) ? alt.id || 'qrcode-description' : null;
+
+      // Compose title property surrogate
+      title = (typeof title === 'string') ? {text: title} : title || {};
+      title.text = title.text || null;
+      title.id = (title.text) ? title.id || 'qrcode-title' : null;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var c, mc, r, mr, qrSvg='', rect;
+
+      rect = 'l' + cellSize + ',0 0,' + cellSize +
+        ' -' + cellSize + ',0 0,-' + cellSize + 'z ';
+
+      qrSvg += '<svg version="1.1" xmlns="http://www.w3.org/2000/svg"';
+      qrSvg += !opts.scalable ? ' width="' + size + 'px" height="' + size + 'px"' : '';
+      qrSvg += ' viewBox="0 0 ' + size + ' ' + size + '" ';
+      qrSvg += ' preserveAspectRatio="xMinYMin meet"';
+      qrSvg += (title.text || alt.text) ? ' role="img" aria-labelledby="' +
+          escapeXml([title.id, alt.id].join(' ').trim() ) + '"' : '';
+      qrSvg += '>';
+      qrSvg += (title.text) ? '<title id="' + escapeXml(title.id) + '">' +
+          escapeXml(title.text) + '</title>' : '';
+      qrSvg += (alt.text) ? '<description id="' + escapeXml(alt.id) + '">' +
+          escapeXml(alt.text) + '</description>' : '';
+      qrSvg += '<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>';
+      qrSvg += '<path d="';
+
+      for (r = 0; r < _this.getModuleCount(); r += 1) {
+        mr = r * cellSize + margin;
+        for (c = 0; c < _this.getModuleCount(); c += 1) {
+          if (_this.isDark(r, c) ) {
+            mc = c*cellSize+margin;
+            qrSvg += 'M' + mc + ',' + mr + rect;
+          }
+        }
+      }
+
+      qrSvg += '" stroke="transparent" fill="black"/>';
+      qrSvg += '</svg>';
+
+      return qrSvg;
+    };
+
+    _this.createDataURL = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      return createDataURL(size, size, function(x, y) {
+        if (min <= x && x < max && min <= y && y < max) {
+          var c = Math.floor( (x - min) / cellSize);
+          var r = Math.floor( (y - min) / cellSize);
+          return _this.isDark(r, c)? 0 : 1;
+        } else {
+          return 1;
+        }
+      } );
+    };
+
+    _this.createImgTag = function(cellSize, margin, alt) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+
+      var img = '';
+      img += '<img';
+      img += '\u0020src="';
+      img += _this.createDataURL(cellSize, margin);
+      img += '"';
+      img += '\u0020width="';
+      img += size;
+      img += '"';
+      img += '\u0020height="';
+      img += size;
+      img += '"';
+      if (alt) {
+        img += '\u0020alt="';
+        img += escapeXml(alt);
+        img += '"';
+      }
+      img += '/>';
+
+      return img;
+    };
+
+    var escapeXml = function(s) {
+      var escaped = '';
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charAt(i);
+        switch(c) {
+        case '<': escaped += '&lt;'; break;
+        case '>': escaped += '&gt;'; break;
+        case '&': escaped += '&amp;'; break;
+        case '"': escaped += '&quot;'; break;
+        default : escaped += c; break;
+        }
+      }
+      return escaped;
+    };
+
+    var _createHalfASCII = function(margin) {
+      var cellSize = 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r1, r2, p;
+
+      var blocks = {
+        '██': '█',
+        '█ ': '▀',
+        ' █': '▄',
+        '  ': ' '
+      };
+
+      var blocksLastLineNoMargin = {
+        '██': '▀',
+        '█ ': '▀',
+        ' █': ' ',
+        '  ': ' '
+      };
+
+      var ascii = '';
+      for (y = 0; y < size; y += 2) {
+        r1 = Math.floor((y - min) / cellSize);
+        r2 = Math.floor((y + 1 - min) / cellSize);
+        for (x = 0; x < size; x += 1) {
+          p = '█';
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r1, Math.floor((x - min) / cellSize))) {
+            p = ' ';
+          }
+
+          if (min <= x && x < max && min <= y+1 && y+1 < max && _this.isDark(r2, Math.floor((x - min) / cellSize))) {
+            p += ' ';
+          }
+          else {
+            p += '█';
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          ascii += (margin < 1 && y+1 >= max) ? blocksLastLineNoMargin[p] : blocks[p];
+        }
+
+        ascii += '\n';
+      }
+
+      if (size % 2 && margin > 0) {
+        return ascii.substring(0, ascii.length - size - 1) + Array(size+1).join('▀');
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.createASCII = function(cellSize, margin) {
+      cellSize = cellSize || 1;
+
+      if (cellSize < 2) {
+        return _createHalfASCII(margin);
+      }
+
+      cellSize -= 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r, p;
+
+      var white = Array(cellSize+1).join('██');
+      var black = Array(cellSize+1).join('  ');
+
+      var ascii = '';
+      var line = '';
+      for (y = 0; y < size; y += 1) {
+        r = Math.floor( (y - min) / cellSize);
+        line = '';
+        for (x = 0; x < size; x += 1) {
+          p = 1;
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r, Math.floor((x - min) / cellSize))) {
+            p = 0;
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          line += p ? white : black;
+        }
+
+        for (r = 0; r < cellSize; r += 1) {
+          ascii += line + '\n';
+        }
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.renderTo2dContext = function(context, cellSize) {
+      cellSize = cellSize || 2;
+      var length = _this.getModuleCount();
+      for (var row = 0; row < length; row++) {
+        for (var col = 0; col < length; col++) {
+          context.fillStyle = _this.isDark(row, col) ? 'black' : 'white';
+          context.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrcode.stringToBytes
+  //---------------------------------------------------------------------
+
+  qrcode.stringToBytesFuncs = {
+    'default' : function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        bytes.push(c & 0xff);
+      }
+      return bytes;
+    }
+  };
+
+  qrcode.stringToBytes = qrcode.stringToBytesFuncs['default'];
+
+  //---------------------------------------------------------------------
+  // qrcode.createStringToBytes
+  //---------------------------------------------------------------------
+
+  /**
+   * @param unicodeData base64 string of byte array.
+   * [16bit Unicode],[16bit Bytes], ...
+   * @param numChars
+   */
+  qrcode.createStringToBytes = function(unicodeData, numChars) {
+
+    // create conversion map.
+
+    var unicodeMap = function() {
+
+      var bin = base64DecodeInputStream(unicodeData);
+      var read = function() {
+        var b = bin.read();
+        if (b == -1) throw 'eof';
+        return b;
+      };
+
+      var count = 0;
+      var unicodeMap = {};
+      while (true) {
+        var b0 = bin.read();
+        if (b0 == -1) break;
+        var b1 = read();
+        var b2 = read();
+        var b3 = read();
+        var k = String.fromCharCode( (b0 << 8) | b1);
+        var v = (b2 << 8) | b3;
+        unicodeMap[k] = v;
+        count += 1;
+      }
+      if (count != numChars) {
+        throw count + ' != ' + numChars;
+      }
+
+      return unicodeMap;
+    }();
+
+    var unknownChar = '?'.charCodeAt(0);
+
+    return function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        if (c < 128) {
+          bytes.push(c);
+        } else {
+          var b = unicodeMap[s.charAt(i)];
+          if (typeof b == 'number') {
+            if ( (b & 0xff) == b) {
+              // 1byte
+              bytes.push(b);
+            } else {
+              // 2bytes
+              bytes.push(b >>> 8);
+              bytes.push(b & 0xff);
+            }
+          } else {
+            bytes.push(unknownChar);
+          }
+        }
+      }
+      return bytes;
+    };
+  };
+
+  //---------------------------------------------------------------------
+  // QRMode
+  //---------------------------------------------------------------------
+
+  var QRMode = {
+    MODE_NUMBER :    1 << 0,
+    MODE_ALPHA_NUM : 1 << 1,
+    MODE_8BIT_BYTE : 1 << 2,
+    MODE_KANJI :     1 << 3
+  };
+
+  //---------------------------------------------------------------------
+  // QRErrorCorrectionLevel
+  //---------------------------------------------------------------------
+
+  var QRErrorCorrectionLevel = {
+    L : 1,
+    M : 0,
+    Q : 3,
+    H : 2
+  };
+
+  //---------------------------------------------------------------------
+  // QRMaskPattern
+  //---------------------------------------------------------------------
+
+  var QRMaskPattern = {
+    PATTERN000 : 0,
+    PATTERN001 : 1,
+    PATTERN010 : 2,
+    PATTERN011 : 3,
+    PATTERN100 : 4,
+    PATTERN101 : 5,
+    PATTERN110 : 6,
+    PATTERN111 : 7
+  };
+
+  //---------------------------------------------------------------------
+  // QRUtil
+  //---------------------------------------------------------------------
+
+  var QRUtil = function() {
+
+    var PATTERN_POSITION_TABLE = [
+      [],
+      [6, 18],
+      [6, 22],
+      [6, 26],
+      [6, 30],
+      [6, 34],
+      [6, 22, 38],
+      [6, 24, 42],
+      [6, 26, 46],
+      [6, 28, 50],
+      [6, 30, 54],
+      [6, 32, 58],
+      [6, 34, 62],
+      [6, 26, 46, 66],
+      [6, 26, 48, 70],
+      [6, 26, 50, 74],
+      [6, 30, 54, 78],
+      [6, 30, 56, 82],
+      [6, 30, 58, 86],
+      [6, 34, 62, 90],
+      [6, 28, 50, 72, 94],
+      [6, 26, 50, 74, 98],
+      [6, 30, 54, 78, 102],
+      [6, 28, 54, 80, 106],
+      [6, 32, 58, 84, 110],
+      [6, 30, 58, 86, 114],
+      [6, 34, 62, 90, 118],
+      [6, 26, 50, 74, 98, 122],
+      [6, 30, 54, 78, 102, 126],
+      [6, 26, 52, 78, 104, 130],
+      [6, 30, 56, 82, 108, 134],
+      [6, 34, 60, 86, 112, 138],
+      [6, 30, 58, 86, 114, 142],
+      [6, 34, 62, 90, 118, 146],
+      [6, 30, 54, 78, 102, 126, 150],
+      [6, 24, 50, 76, 102, 128, 154],
+      [6, 28, 54, 80, 106, 132, 158],
+      [6, 32, 58, 84, 110, 136, 162],
+      [6, 26, 54, 82, 110, 138, 166],
+      [6, 30, 58, 86, 114, 142, 170]
+    ];
+    var G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0);
+    var G18 = (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
+    var G15_MASK = (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1);
+
+    var _this = {};
+
+    var getBCHDigit = function(data) {
+      var digit = 0;
+      while (data != 0) {
+        digit += 1;
+        data >>>= 1;
+      }
+      return digit;
+    };
+
+    _this.getBCHTypeInfo = function(data) {
+      var d = data << 10;
+      while (getBCHDigit(d) - getBCHDigit(G15) >= 0) {
+        d ^= (G15 << (getBCHDigit(d) - getBCHDigit(G15) ) );
+      }
+      return ( (data << 10) | d) ^ G15_MASK;
+    };
+
+    _this.getBCHTypeNumber = function(data) {
+      var d = data << 12;
+      while (getBCHDigit(d) - getBCHDigit(G18) >= 0) {
+        d ^= (G18 << (getBCHDigit(d) - getBCHDigit(G18) ) );
+      }
+      return (data << 12) | d;
+    };
+
+    _this.getPatternPosition = function(typeNumber) {
+      return PATTERN_POSITION_TABLE[typeNumber - 1];
+    };
+
+    _this.getMaskFunction = function(maskPattern) {
+
+      switch (maskPattern) {
+
+      case QRMaskPattern.PATTERN000 :
+        return function(i, j) { return (i + j) % 2 == 0; };
+      case QRMaskPattern.PATTERN001 :
+        return function(i, j) { return i % 2 == 0; };
+      case QRMaskPattern.PATTERN010 :
+        return function(i, j) { return j % 3 == 0; };
+      case QRMaskPattern.PATTERN011 :
+        return function(i, j) { return (i + j) % 3 == 0; };
+      case QRMaskPattern.PATTERN100 :
+        return function(i, j) { return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 == 0; };
+      case QRMaskPattern.PATTERN101 :
+        return function(i, j) { return (i * j) % 2 + (i * j) % 3 == 0; };
+      case QRMaskPattern.PATTERN110 :
+        return function(i, j) { return ( (i * j) % 2 + (i * j) % 3) % 2 == 0; };
+      case QRMaskPattern.PATTERN111 :
+        return function(i, j) { return ( (i * j) % 3 + (i + j) % 2) % 2 == 0; };
+
+      default :
+        throw 'bad maskPattern:' + maskPattern;
+      }
+    };
+
+    _this.getErrorCorrectPolynomial = function(errorCorrectLength) {
+      var a = qrPolynomial([1], 0);
+      for (var i = 0; i < errorCorrectLength; i += 1) {
+        a = a.multiply(qrPolynomial([1, QRMath.gexp(i)], 0) );
+      }
+      return a;
+    };
+
+    _this.getLengthInBits = function(mode, type) {
+
+      if (1 <= type && type < 10) {
+
+        // 1 - 9
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 10;
+        case QRMode.MODE_ALPHA_NUM : return 9;
+        case QRMode.MODE_8BIT_BYTE : return 8;
+        case QRMode.MODE_KANJI     : return 8;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 27) {
+
+        // 10 - 26
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 12;
+        case QRMode.MODE_ALPHA_NUM : return 11;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 10;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 41) {
+
+        // 27 - 40
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 14;
+        case QRMode.MODE_ALPHA_NUM : return 13;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 12;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else {
+        throw 'type:' + type;
+      }
+    };
+
+    _this.getLostPoint = function(qrcode) {
+
+      var moduleCount = qrcode.getModuleCount();
+
+      var lostPoint = 0;
+
+      // LEVEL1
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount; col += 1) {
+
+          var sameCount = 0;
+          var dark = qrcode.isDark(row, col);
+
+          for (var r = -1; r <= 1; r += 1) {
+
+            if (row + r < 0 || moduleCount <= row + r) {
+              continue;
+            }
+
+            for (var c = -1; c <= 1; c += 1) {
+
+              if (col + c < 0 || moduleCount <= col + c) {
+                continue;
+              }
+
+              if (r == 0 && c == 0) {
+                continue;
+              }
+
+              if (dark == qrcode.isDark(row + r, col + c) ) {
+                sameCount += 1;
+              }
+            }
+          }
+
+          if (sameCount > 5) {
+            lostPoint += (3 + sameCount - 5);
+          }
+        }
+      };
+
+      // LEVEL2
+
+      for (var row = 0; row < moduleCount - 1; row += 1) {
+        for (var col = 0; col < moduleCount - 1; col += 1) {
+          var count = 0;
+          if (qrcode.isDark(row, col) ) count += 1;
+          if (qrcode.isDark(row + 1, col) ) count += 1;
+          if (qrcode.isDark(row, col + 1) ) count += 1;
+          if (qrcode.isDark(row + 1, col + 1) ) count += 1;
+          if (count == 0 || count == 4) {
+            lostPoint += 3;
+          }
+        }
+      }
+
+      // LEVEL3
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount - 6; col += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row, col + 1)
+              &&  qrcode.isDark(row, col + 2)
+              &&  qrcode.isDark(row, col + 3)
+              &&  qrcode.isDark(row, col + 4)
+              && !qrcode.isDark(row, col + 5)
+              &&  qrcode.isDark(row, col + 6) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount - 6; row += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row + 1, col)
+              &&  qrcode.isDark(row + 2, col)
+              &&  qrcode.isDark(row + 3, col)
+              &&  qrcode.isDark(row + 4, col)
+              && !qrcode.isDark(row + 5, col)
+              &&  qrcode.isDark(row + 6, col) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      // LEVEL4
+
+      var darkCount = 0;
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount; row += 1) {
+          if (qrcode.isDark(row, col) ) {
+            darkCount += 1;
+          }
+        }
+      }
+
+      var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+      lostPoint += ratio * 10;
+
+      return lostPoint;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // QRMath
+  //---------------------------------------------------------------------
+
+  var QRMath = function() {
+
+    var EXP_TABLE = new Array(256);
+    var LOG_TABLE = new Array(256);
+
+    // initialize tables
+    for (var i = 0; i < 8; i += 1) {
+      EXP_TABLE[i] = 1 << i;
+    }
+    for (var i = 8; i < 256; i += 1) {
+      EXP_TABLE[i] = EXP_TABLE[i - 4]
+        ^ EXP_TABLE[i - 5]
+        ^ EXP_TABLE[i - 6]
+        ^ EXP_TABLE[i - 8];
+    }
+    for (var i = 0; i < 255; i += 1) {
+      LOG_TABLE[EXP_TABLE[i] ] = i;
+    }
+
+    var _this = {};
+
+    _this.glog = function(n) {
+
+      if (n < 1) {
+        throw 'glog(' + n + ')';
+      }
+
+      return LOG_TABLE[n];
+    };
+
+    _this.gexp = function(n) {
+
+      while (n < 0) {
+        n += 255;
+      }
+
+      while (n >= 256) {
+        n -= 255;
+      }
+
+      return EXP_TABLE[n];
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrPolynomial
+  //---------------------------------------------------------------------
+
+  function qrPolynomial(num, shift) {
+
+    if (typeof num.length == 'undefined') {
+      throw num.length + '/' + shift;
+    }
+
+    var _num = function() {
+      var offset = 0;
+      while (offset < num.length && num[offset] == 0) {
+        offset += 1;
+      }
+      var _num = new Array(num.length - offset + shift);
+      for (var i = 0; i < num.length - offset; i += 1) {
+        _num[i] = num[i + offset];
+      }
+      return _num;
+    }();
+
+    var _this = {};
+
+    _this.getAt = function(index) {
+      return _num[index];
+    };
+
+    _this.getLength = function() {
+      return _num.length;
+    };
+
+    _this.multiply = function(e) {
+
+      var num = new Array(_this.getLength() + e.getLength() - 1);
+
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        for (var j = 0; j < e.getLength(); j += 1) {
+          num[i + j] ^= QRMath.gexp(QRMath.glog(_this.getAt(i) ) + QRMath.glog(e.getAt(j) ) );
+        }
+      }
+
+      return qrPolynomial(num, 0);
+    };
+
+    _this.mod = function(e) {
+
+      if (_this.getLength() - e.getLength() < 0) {
+        return _this;
+      }
+
+      var ratio = QRMath.glog(_this.getAt(0) ) - QRMath.glog(e.getAt(0) );
+
+      var num = new Array(_this.getLength() );
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        num[i] = _this.getAt(i);
+      }
+
+      for (var i = 0; i < e.getLength(); i += 1) {
+        num[i] ^= QRMath.gexp(QRMath.glog(e.getAt(i) ) + ratio);
+      }
+
+      // recursive call
+      return qrPolynomial(num, 0).mod(e);
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // QRRSBlock
+  //---------------------------------------------------------------------
+
+  var QRRSBlock = function() {
+
+    var RS_BLOCK_TABLE = [
+
+      // L
+      // M
+      // Q
+      // H
+
+      // 1
+      [1, 26, 19],
+      [1, 26, 16],
+      [1, 26, 13],
+      [1, 26, 9],
+
+      // 2
+      [1, 44, 34],
+      [1, 44, 28],
+      [1, 44, 22],
+      [1, 44, 16],
+
+      // 3
+      [1, 70, 55],
+      [1, 70, 44],
+      [2, 35, 17],
+      [2, 35, 13],
+
+      // 4
+      [1, 100, 80],
+      [2, 50, 32],
+      [2, 50, 24],
+      [4, 25, 9],
+
+      // 5
+      [1, 134, 108],
+      [2, 67, 43],
+      [2, 33, 15, 2, 34, 16],
+      [2, 33, 11, 2, 34, 12],
+
+      // 6
+      [2, 86, 68],
+      [4, 43, 27],
+      [4, 43, 19],
+      [4, 43, 15],
+
+      // 7
+      [2, 98, 78],
+      [4, 49, 31],
+      [2, 32, 14, 4, 33, 15],
+      [4, 39, 13, 1, 40, 14],
+
+      // 8
+      [2, 121, 97],
+      [2, 60, 38, 2, 61, 39],
+      [4, 40, 18, 2, 41, 19],
+      [4, 40, 14, 2, 41, 15],
+
+      // 9
+      [2, 146, 116],
+      [3, 58, 36, 2, 59, 37],
+      [4, 36, 16, 4, 37, 17],
+      [4, 36, 12, 4, 37, 13],
+
+      // 10
+      [2, 86, 68, 2, 87, 69],
+      [4, 69, 43, 1, 70, 44],
+      [6, 43, 19, 2, 44, 20],
+      [6, 43, 15, 2, 44, 16],
+
+      // 11
+      [4, 101, 81],
+      [1, 80, 50, 4, 81, 51],
+      [4, 50, 22, 4, 51, 23],
+      [3, 36, 12, 8, 37, 13],
+
+      // 12
+      [2, 116, 92, 2, 117, 93],
+      [6, 58, 36, 2, 59, 37],
+      [4, 46, 20, 6, 47, 21],
+      [7, 42, 14, 4, 43, 15],
+
+      // 13
+      [4, 133, 107],
+      [8, 59, 37, 1, 60, 38],
+      [8, 44, 20, 4, 45, 21],
+      [12, 33, 11, 4, 34, 12],
+
+      // 14
+      [3, 145, 115, 1, 146, 116],
+      [4, 64, 40, 5, 65, 41],
+      [11, 36, 16, 5, 37, 17],
+      [11, 36, 12, 5, 37, 13],
+
+      // 15
+      [5, 109, 87, 1, 110, 88],
+      [5, 65, 41, 5, 66, 42],
+      [5, 54, 24, 7, 55, 25],
+      [11, 36, 12, 7, 37, 13],
+
+      // 16
+      [5, 122, 98, 1, 123, 99],
+      [7, 73, 45, 3, 74, 46],
+      [15, 43, 19, 2, 44, 20],
+      [3, 45, 15, 13, 46, 16],
+
+      // 17
+      [1, 135, 107, 5, 136, 108],
+      [10, 74, 46, 1, 75, 47],
+      [1, 50, 22, 15, 51, 23],
+      [2, 42, 14, 17, 43, 15],
+
+      // 18
+      [5, 150, 120, 1, 151, 121],
+      [9, 69, 43, 4, 70, 44],
+      [17, 50, 22, 1, 51, 23],
+      [2, 42, 14, 19, 43, 15],
+
+      // 19
+      [3, 141, 113, 4, 142, 114],
+      [3, 70, 44, 11, 71, 45],
+      [17, 47, 21, 4, 48, 22],
+      [9, 39, 13, 16, 40, 14],
+
+      // 20
+      [3, 135, 107, 5, 136, 108],
+      [3, 67, 41, 13, 68, 42],
+      [15, 54, 24, 5, 55, 25],
+      [15, 43, 15, 10, 44, 16],
+
+      // 21
+      [4, 144, 116, 4, 145, 117],
+      [17, 68, 42],
+      [17, 50, 22, 6, 51, 23],
+      [19, 46, 16, 6, 47, 17],
+
+      // 22
+      [2, 139, 111, 7, 140, 112],
+      [17, 74, 46],
+      [7, 54, 24, 16, 55, 25],
+      [34, 37, 13],
+
+      // 23
+      [4, 151, 121, 5, 152, 122],
+      [4, 75, 47, 14, 76, 48],
+      [11, 54, 24, 14, 55, 25],
+      [16, 45, 15, 14, 46, 16],
+
+      // 24
+      [6, 147, 117, 4, 148, 118],
+      [6, 73, 45, 14, 74, 46],
+      [11, 54, 24, 16, 55, 25],
+      [30, 46, 16, 2, 47, 17],
+
+      // 25
+      [8, 132, 106, 4, 133, 107],
+      [8, 75, 47, 13, 76, 48],
+      [7, 54, 24, 22, 55, 25],
+      [22, 45, 15, 13, 46, 16],
+
+      // 26
+      [10, 142, 114, 2, 143, 115],
+      [19, 74, 46, 4, 75, 47],
+      [28, 50, 22, 6, 51, 23],
+      [33, 46, 16, 4, 47, 17],
+
+      // 27
+      [8, 152, 122, 4, 153, 123],
+      [22, 73, 45, 3, 74, 46],
+      [8, 53, 23, 26, 54, 24],
+      [12, 45, 15, 28, 46, 16],
+
+      // 28
+      [3, 147, 117, 10, 148, 118],
+      [3, 73, 45, 23, 74, 46],
+      [4, 54, 24, 31, 55, 25],
+      [11, 45, 15, 31, 46, 16],
+
+      // 29
+      [7, 146, 116, 7, 147, 117],
+      [21, 73, 45, 7, 74, 46],
+      [1, 53, 23, 37, 54, 24],
+      [19, 45, 15, 26, 46, 16],
+
+      // 30
+      [5, 145, 115, 10, 146, 116],
+      [19, 75, 47, 10, 76, 48],
+      [15, 54, 24, 25, 55, 25],
+      [23, 45, 15, 25, 46, 16],
+
+      // 31
+      [13, 145, 115, 3, 146, 116],
+      [2, 74, 46, 29, 75, 47],
+      [42, 54, 24, 1, 55, 25],
+      [23, 45, 15, 28, 46, 16],
+
+      // 32
+      [17, 145, 115],
+      [10, 74, 46, 23, 75, 47],
+      [10, 54, 24, 35, 55, 25],
+      [19, 45, 15, 35, 46, 16],
+
+      // 33
+      [17, 145, 115, 1, 146, 116],
+      [14, 74, 46, 21, 75, 47],
+      [29, 54, 24, 19, 55, 25],
+      [11, 45, 15, 46, 46, 16],
+
+      // 34
+      [13, 145, 115, 6, 146, 116],
+      [14, 74, 46, 23, 75, 47],
+      [44, 54, 24, 7, 55, 25],
+      [59, 46, 16, 1, 47, 17],
+
+      // 35
+      [12, 151, 121, 7, 152, 122],
+      [12, 75, 47, 26, 76, 48],
+      [39, 54, 24, 14, 55, 25],
+      [22, 45, 15, 41, 46, 16],
+
+      // 36
+      [6, 151, 121, 14, 152, 122],
+      [6, 75, 47, 34, 76, 48],
+      [46, 54, 24, 10, 55, 25],
+      [2, 45, 15, 64, 46, 16],
+
+      // 37
+      [17, 152, 122, 4, 153, 123],
+      [29, 74, 46, 14, 75, 47],
+      [49, 54, 24, 10, 55, 25],
+      [24, 45, 15, 46, 46, 16],
+
+      // 38
+      [4, 152, 122, 18, 153, 123],
+      [13, 74, 46, 32, 75, 47],
+      [48, 54, 24, 14, 55, 25],
+      [42, 45, 15, 32, 46, 16],
+
+      // 39
+      [20, 147, 117, 4, 148, 118],
+      [40, 75, 47, 7, 76, 48],
+      [43, 54, 24, 22, 55, 25],
+      [10, 45, 15, 67, 46, 16],
+
+      // 40
+      [19, 148, 118, 6, 149, 119],
+      [18, 75, 47, 31, 76, 48],
+      [34, 54, 24, 34, 55, 25],
+      [20, 45, 15, 61, 46, 16]
+    ];
+
+    var qrRSBlock = function(totalCount, dataCount) {
+      var _this = {};
+      _this.totalCount = totalCount;
+      _this.dataCount = dataCount;
+      return _this;
+    };
+
+    var _this = {};
+
+    var getRsBlockTable = function(typeNumber, errorCorrectionLevel) {
+
+      switch(errorCorrectionLevel) {
+      case QRErrorCorrectionLevel.L :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+      case QRErrorCorrectionLevel.M :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+      case QRErrorCorrectionLevel.Q :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+      case QRErrorCorrectionLevel.H :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+      default :
+        return undefined;
+      }
+    };
+
+    _this.getRSBlocks = function(typeNumber, errorCorrectionLevel) {
+
+      var rsBlock = getRsBlockTable(typeNumber, errorCorrectionLevel);
+
+      if (typeof rsBlock == 'undefined') {
+        throw 'bad rs block @ typeNumber:' + typeNumber +
+            '/errorCorrectionLevel:' + errorCorrectionLevel;
+      }
+
+      var length = rsBlock.length / 3;
+
+      var list = [];
+
+      for (var i = 0; i < length; i += 1) {
+
+        var count = rsBlock[i * 3 + 0];
+        var totalCount = rsBlock[i * 3 + 1];
+        var dataCount = rsBlock[i * 3 + 2];
+
+        for (var j = 0; j < count; j += 1) {
+          list.push(qrRSBlock(totalCount, dataCount) );
+        }
+      }
+
+      return list;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrBitBuffer
+  //---------------------------------------------------------------------
+
+  var qrBitBuffer = function() {
+
+    var _buffer = [];
+    var _length = 0;
+
+    var _this = {};
+
+    _this.getBuffer = function() {
+      return _buffer;
+    };
+
+    _this.getAt = function(index) {
+      var bufIndex = Math.floor(index / 8);
+      return ( (_buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+    };
+
+    _this.put = function(num, length) {
+      for (var i = 0; i < length; i += 1) {
+        _this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+      }
+    };
+
+    _this.getLengthInBits = function() {
+      return _length;
+    };
+
+    _this.putBit = function(bit) {
+
+      var bufIndex = Math.floor(_length / 8);
+      if (_buffer.length <= bufIndex) {
+        _buffer.push(0);
+      }
+
+      if (bit) {
+        _buffer[bufIndex] |= (0x80 >>> (_length % 8) );
+      }
+
+      _length += 1;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrNumber
+  //---------------------------------------------------------------------
+
+  var qrNumber = function(data) {
+
+    var _mode = QRMode.MODE_NUMBER;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _data;
+
+      var i = 0;
+
+      while (i + 2 < data.length) {
+        buffer.put(strToNum(data.substring(i, i + 3) ), 10);
+        i += 3;
+      }
+
+      if (i < data.length) {
+        if (data.length - i == 1) {
+          buffer.put(strToNum(data.substring(i, i + 1) ), 4);
+        } else if (data.length - i == 2) {
+          buffer.put(strToNum(data.substring(i, i + 2) ), 7);
+        }
+      }
+    };
+
+    var strToNum = function(s) {
+      var num = 0;
+      for (var i = 0; i < s.length; i += 1) {
+        num = num * 10 + chatToNum(s.charAt(i) );
+      }
+      return num;
+    };
+
+    var chatToNum = function(c) {
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      }
+      throw 'illegal char :' + c;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrAlphaNum
+  //---------------------------------------------------------------------
+
+  var qrAlphaNum = function(data) {
+
+    var _mode = QRMode.MODE_ALPHA_NUM;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var s = _data;
+
+      var i = 0;
+
+      while (i + 1 < s.length) {
+        buffer.put(
+          getCode(s.charAt(i) ) * 45 +
+          getCode(s.charAt(i + 1) ), 11);
+        i += 2;
+      }
+
+      if (i < s.length) {
+        buffer.put(getCode(s.charAt(i) ), 6);
+      }
+    };
+
+    var getCode = function(c) {
+
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      } else if ('A' <= c && c <= 'Z') {
+        return c.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+      } else {
+        switch (c) {
+        case ' ' : return 36;
+        case '$' : return 37;
+        case '%' : return 38;
+        case '*' : return 39;
+        case '+' : return 40;
+        case '-' : return 41;
+        case '.' : return 42;
+        case '/' : return 43;
+        case ':' : return 44;
+        default :
+          throw 'illegal char :' + c;
+        }
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qr8BitByte
+  //---------------------------------------------------------------------
+
+  var qr8BitByte = function(data) {
+
+    var _mode = QRMode.MODE_8BIT_BYTE;
+    var _data = data;
+    var _bytes = qrcode.stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _bytes.length;
+    };
+
+    _this.write = function(buffer) {
+      for (var i = 0; i < _bytes.length; i += 1) {
+        buffer.put(_bytes[i], 8);
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrKanji
+  //---------------------------------------------------------------------
+
+  var qrKanji = function(data) {
+
+    var _mode = QRMode.MODE_KANJI;
+    var _data = data;
+
+    var stringToBytes = qrcode.stringToBytesFuncs['SJIS'];
+    if (!stringToBytes) {
+      throw 'sjis not supported.';
+    }
+    !function(c, code) {
+      // self test for sjis support.
+      var test = stringToBytes(c);
+      if (test.length != 2 || ( (test[0] << 8) | test[1]) != code) {
+        throw 'sjis not supported.';
+      }
+    }('\u53cb', 0x9746);
+
+    var _bytes = stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return ~~(_bytes.length / 2);
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _bytes;
+
+      var i = 0;
+
+      while (i + 1 < data.length) {
+
+        var c = ( (0xff & data[i]) << 8) | (0xff & data[i + 1]);
+
+        if (0x8140 <= c && c <= 0x9FFC) {
+          c -= 0x8140;
+        } else if (0xE040 <= c && c <= 0xEBBF) {
+          c -= 0xC140;
+        } else {
+          throw 'illegal char at ' + (i + 1) + '/' + c;
+        }
+
+        c = ( (c >>> 8) & 0xff) * 0xC0 + (c & 0xff);
+
+        buffer.put(c, 13);
+
+        i += 2;
+      }
+
+      if (i < data.length) {
+        throw 'illegal char at ' + (i + 1);
+      }
+    };
+
+    return _this;
+  };
+
+  //=====================================================================
+  // GIF Support etc.
+  //
+
+  //---------------------------------------------------------------------
+  // byteArrayOutputStream
+  //---------------------------------------------------------------------
+
+  var byteArrayOutputStream = function() {
+
+    var _bytes = [];
+
+    var _this = {};
+
+    _this.writeByte = function(b) {
+      _bytes.push(b & 0xff);
+    };
+
+    _this.writeShort = function(i) {
+      _this.writeByte(i);
+      _this.writeByte(i >>> 8);
+    };
+
+    _this.writeBytes = function(b, off, len) {
+      off = off || 0;
+      len = len || b.length;
+      for (var i = 0; i < len; i += 1) {
+        _this.writeByte(b[i + off]);
+      }
+    };
+
+    _this.writeString = function(s) {
+      for (var i = 0; i < s.length; i += 1) {
+        _this.writeByte(s.charCodeAt(i) );
+      }
+    };
+
+    _this.toByteArray = function() {
+      return _bytes;
+    };
+
+    _this.toString = function() {
+      var s = '';
+      s += '[';
+      for (var i = 0; i < _bytes.length; i += 1) {
+        if (i > 0) {
+          s += ',';
+        }
+        s += _bytes[i];
+      }
+      s += ']';
+      return s;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64EncodeOutputStream
+  //---------------------------------------------------------------------
+
+  var base64EncodeOutputStream = function() {
+
+    var _buffer = 0;
+    var _buflen = 0;
+    var _length = 0;
+    var _base64 = '';
+
+    var _this = {};
+
+    var writeEncoded = function(b) {
+      _base64 += String.fromCharCode(encode(b & 0x3f) );
+    };
+
+    var encode = function(n) {
+      if (n < 0) {
+        // error.
+      } else if (n < 26) {
+        return 0x41 + n;
+      } else if (n < 52) {
+        return 0x61 + (n - 26);
+      } else if (n < 62) {
+        return 0x30 + (n - 52);
+      } else if (n == 62) {
+        return 0x2b;
+      } else if (n == 63) {
+        return 0x2f;
+      }
+      throw 'n:' + n;
+    };
+
+    _this.writeByte = function(n) {
+
+      _buffer = (_buffer << 8) | (n & 0xff);
+      _buflen += 8;
+      _length += 1;
+
+      while (_buflen >= 6) {
+        writeEncoded(_buffer >>> (_buflen - 6) );
+        _buflen -= 6;
+      }
+    };
+
+    _this.flush = function() {
+
+      if (_buflen > 0) {
+        writeEncoded(_buffer << (6 - _buflen) );
+        _buffer = 0;
+        _buflen = 0;
+      }
+
+      if (_length % 3 != 0) {
+        // padding
+        var padlen = 3 - _length % 3;
+        for (var i = 0; i < padlen; i += 1) {
+          _base64 += '=';
+        }
+      }
+    };
+
+    _this.toString = function() {
+      return _base64;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64DecodeInputStream
+  //---------------------------------------------------------------------
+
+  var base64DecodeInputStream = function(str) {
+
+    var _str = str;
+    var _pos = 0;
+    var _buffer = 0;
+    var _buflen = 0;
+
+    var _this = {};
+
+    _this.read = function() {
+
+      while (_buflen < 8) {
+
+        if (_pos >= _str.length) {
+          if (_buflen == 0) {
+            return -1;
+          }
+          throw 'unexpected end of file./' + _buflen;
+        }
+
+        var c = _str.charAt(_pos);
+        _pos += 1;
+
+        if (c == '=') {
+          _buflen = 0;
+          return -1;
+        } else if (c.match(/^\s$/) ) {
+          // ignore if whitespace.
+          continue;
+        }
+
+        _buffer = (_buffer << 6) | decode(c.charCodeAt(0) );
+        _buflen += 6;
+      }
+
+      var n = (_buffer >>> (_buflen - 8) ) & 0xff;
+      _buflen -= 8;
+      return n;
+    };
+
+    var decode = function(c) {
+      if (0x41 <= c && c <= 0x5a) {
+        return c - 0x41;
+      } else if (0x61 <= c && c <= 0x7a) {
+        return c - 0x61 + 26;
+      } else if (0x30 <= c && c <= 0x39) {
+        return c - 0x30 + 52;
+      } else if (c == 0x2b) {
+        return 62;
+      } else if (c == 0x2f) {
+        return 63;
+      } else {
+        throw 'c:' + c;
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // gifImage (B/W)
+  //---------------------------------------------------------------------
+
+  var gifImage = function(width, height) {
+
+    var _width = width;
+    var _height = height;
+    var _data = new Array(width * height);
+
+    var _this = {};
+
+    _this.setPixel = function(x, y, pixel) {
+      _data[y * _width + x] = pixel;
+    };
+
+    _this.write = function(out) {
+
+      //---------------------------------
+      // GIF Signature
+
+      out.writeString('GIF87a');
+
+      //---------------------------------
+      // Screen Descriptor
+
+      out.writeShort(_width);
+      out.writeShort(_height);
+
+      out.writeByte(0x80); // 2bit
+      out.writeByte(0);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Global Color Map
+
+      // black
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+
+      // white
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+
+      //---------------------------------
+      // Image Descriptor
+
+      out.writeString(',');
+      out.writeShort(0);
+      out.writeShort(0);
+      out.writeShort(_width);
+      out.writeShort(_height);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Local Color Map
+
+      //---------------------------------
+      // Raster Data
+
+      var lzwMinCodeSize = 2;
+      var raster = getLZWRaster(lzwMinCodeSize);
+
+      out.writeByte(lzwMinCodeSize);
+
+      var offset = 0;
+
+      while (raster.length - offset > 255) {
+        out.writeByte(255);
+        out.writeBytes(raster, offset, 255);
+        offset += 255;
+      }
+
+      out.writeByte(raster.length - offset);
+      out.writeBytes(raster, offset, raster.length - offset);
+      out.writeByte(0x00);
+
+      //---------------------------------
+      // GIF Terminator
+      out.writeString(';');
+    };
+
+    var bitOutputStream = function(out) {
+
+      var _out = out;
+      var _bitLength = 0;
+      var _bitBuffer = 0;
+
+      var _this = {};
+
+      _this.write = function(data, length) {
+
+        if ( (data >>> length) != 0) {
+          throw 'length over';
+        }
+
+        while (_bitLength + length >= 8) {
+          _out.writeByte(0xff & ( (data << _bitLength) | _bitBuffer) );
+          length -= (8 - _bitLength);
+          data >>>= (8 - _bitLength);
+          _bitBuffer = 0;
+          _bitLength = 0;
+        }
+
+        _bitBuffer = (data << _bitLength) | _bitBuffer;
+        _bitLength = _bitLength + length;
+      };
+
+      _this.flush = function() {
+        if (_bitLength > 0) {
+          _out.writeByte(_bitBuffer);
+        }
+      };
+
+      return _this;
+    };
+
+    var getLZWRaster = function(lzwMinCodeSize) {
+
+      var clearCode = 1 << lzwMinCodeSize;
+      var endCode = (1 << lzwMinCodeSize) + 1;
+      var bitLength = lzwMinCodeSize + 1;
+
+      // Setup LZWTable
+      var table = lzwTable();
+
+      for (var i = 0; i < clearCode; i += 1) {
+        table.add(String.fromCharCode(i) );
+      }
+      table.add(String.fromCharCode(clearCode) );
+      table.add(String.fromCharCode(endCode) );
+
+      var byteOut = byteArrayOutputStream();
+      var bitOut = bitOutputStream(byteOut);
+
+      // clear code
+      bitOut.write(clearCode, bitLength);
+
+      var dataIndex = 0;
+
+      var s = String.fromCharCode(_data[dataIndex]);
+      dataIndex += 1;
+
+      while (dataIndex < _data.length) {
+
+        var c = String.fromCharCode(_data[dataIndex]);
+        dataIndex += 1;
+
+        if (table.contains(s + c) ) {
+
+          s = s + c;
+
+        } else {
+
+          bitOut.write(table.indexOf(s), bitLength);
+
+          if (table.size() < 0xfff) {
+
+            if (table.size() == (1 << bitLength) ) {
+              bitLength += 1;
+            }
+
+            table.add(s + c);
+          }
+
+          s = c;
+        }
+      }
+
+      bitOut.write(table.indexOf(s), bitLength);
+
+      // end code
+      bitOut.write(endCode, bitLength);
+
+      bitOut.flush();
+
+      return byteOut.toByteArray();
+    };
+
+    var lzwTable = function() {
+
+      var _map = {};
+      var _size = 0;
+
+      var _this = {};
+
+      _this.add = function(key) {
+        if (_this.contains(key) ) {
+          throw 'dup key:' + key;
+        }
+        _map[key] = _size;
+        _size += 1;
+      };
+
+      _this.size = function() {
+        return _size;
+      };
+
+      _this.indexOf = function(key) {
+        return _map[key];
+      };
+
+      _this.contains = function(key) {
+        return typeof _map[key] != 'undefined';
+      };
+
+      return _this;
+    };
+
+    return _this;
+  };
+
+  var createDataURL = function(width, height, getPixel) {
+    var gif = gifImage(width, height);
+    for (var y = 0; y < height; y += 1) {
+      for (var x = 0; x < width; x += 1) {
+        gif.setPixel(x, y, getPixel(x, y) );
+      }
+    }
+
+    var b = byteArrayOutputStream();
+    gif.write(b);
+
+    var base64 = base64EncodeOutputStream();
+    var bytes = b.toByteArray();
+    for (var i = 0; i < bytes.length; i += 1) {
+      base64.writeByte(bytes[i]);
+    }
+    base64.flush();
+
+    return 'data:image/gif;base64,' + base64;
+  };
+
+  //---------------------------------------------------------------------
+  // returns qrcode function.
+
+  return qrcode;
+}();
+
+// multibyte support
+!function() {
+
+  qrcode.stringToBytesFuncs['UTF-8'] = function(s) {
+    // http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
+    function toUTF8Array(str) {
+      var utf8 = [];
+      for (var i=0; i < str.length; i++) {
+        var charcode = str.charCodeAt(i);
+        if (charcode < 0x80) utf8.push(charcode);
+        else if (charcode < 0x800) {
+          utf8.push(0xc0 | (charcode >> 6),
+              0x80 | (charcode & 0x3f));
+        }
+        else if (charcode < 0xd800 || charcode >= 0xe000) {
+          utf8.push(0xe0 | (charcode >> 12),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+        // surrogate pair
+        else {
+          i++;
+          // UTF-16 encodes 0x10000-0x10FFFF by
+          // subtracting 0x10000 and splitting the
+          // 20 bits of 0x0-0xFFFFF into two halves
+          charcode = 0x10000 + (((charcode & 0x3ff)<<10)
+            | (str.charCodeAt(i) & 0x3ff));
+          utf8.push(0xf0 | (charcode >>18),
+              0x80 | ((charcode>>12) & 0x3f),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+      }
+      return utf8;
+    }
+    return toUTF8Array(s);
+  };
+
+}();
+
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+      define([], factory);
+  } else if (typeof exports === 'object') {
+      module.exports = factory();
+  }
+}(function () {
+    return qrcode;
+}));
+
+</script>
+<script type="module">
+const C = (() => {
+/* BhuChain Site Integrity — core rules. Pure functions, no DOM: the app and the tests both use this file.
+   Every record is an append-only ledger entry. Nothing is edited or deleted: a correction is a new entry that
+   only takes effect once a second person approves it. Each device chains its entries with SHA-256, so a changed
+   or removed entry breaks the chain and shows as a red flag. */
+
+const VERSION = 1;
+
+/* ---------- roles and who may do what (separation of duties) ---------- */
+const ROLES = {
+  owner: 'Owner / Founder',
+  engineer: 'Site engineer',
+  supervisor: 'Supervisor',
+  store: 'Storekeeper',
+  gate: 'Attendance (gate)',
+  accounts: 'Accounts',
+  auditor: 'Auditor'
+};
+// who may create each entry type
+const CAN_CREATE = {
+  site: ['owner'], person: ['owner'], contractor: ['owner'], vendor: ['owner'], rate: ['owner'], coi: ['owner', 'engineer', 'supervisor', 'store', 'gate', 'accounts', 'auditor'],
+  worker: ['owner', 'engineer', 'supervisor'],
+  att: ['gate', 'supervisor', 'engineer'],
+  matIn: ['store'], matOut: ['store'], stockCount: ['store', 'auditor', 'engineer'],
+  work: ['engineer', 'supervisor'], visit: ['engineer', 'supervisor', 'owner', 'auditor'], recheck: ['engineer', 'auditor', 'owner'],
+  pay: ['accounts'], paid: ['accounts'],
+  headcount: ['auditor', 'owner', 'engineer'], auditPick: ['auditor', 'owner'], audit: ['auditor', 'owner'],
+  correction: ['owner', 'engineer', 'supervisor', 'store', 'gate', 'accounts', 'auditor'],
+  plan: ['owner', 'engineer', 'supervisor'], tip: ['*'], approve: ['owner', 'engineer', 'supervisor', 'auditor'], reject: ['owner', 'engineer', 'supervisor', 'auditor']
+};
+// who may approve each type (never the person who made it)
+const CAN_APPROVE = {
+  worker: ['owner', 'engineer'], att: ['supervisor', 'engineer'], matIn: ['engineer', 'supervisor'], matOut: ['engineer', 'supervisor'],
+  stockCount: ['engineer', 'owner', 'auditor'], work: ['engineer', 'owner'], pay: ['engineer', 'owner'], correction: ['owner', 'engineer'],
+  headcount: ['owner', 'engineer'], audit: ['owner']
+};
+// approvals needed; payments need two different approvers and one of them the owner
+const NEEDS = { pay: 2 };
+// entries that must carry a photo and GPS to count as verified (Evidence Rule)
+const PROOF = { worker: 'photo', att: 'both', matIn: 'both', matOut: 'photo', work: 'both', visit: 'both', recheck: 'both', stockCount: 'photo', headcount: 'both', audit: 'both', paid: 'photo' };
+
+/* ---------- materials and standard consumption (IS 456 / common Odia site practice) ---------- */
+const MATERIALS = {
+  cement: { n: 'Cement', u: 'bag', waste: 0.03, rate: 400 },
+  steel: { n: 'Steel (TMT)', u: 'kg', waste: 0.03, rate: 68 },
+  sand: { n: 'Sand', u: 'cft', waste: 0.08, rate: 55 },
+  agg: { n: 'Aggregate (stone chips)', u: 'cft', waste: 0.08, rate: 60 },
+  bricks: { n: 'Bricks / fly-ash bricks', u: 'nos', waste: 0.05, rate: 8 }
+};
+const CFT = 35.315; // cft in a cubic metre
+// material needed for one unit of each work (cement in 50 kg bags; dry volume 1.54 × wet for concrete, 1.27 for mortar)
+const WORKS = {
+  pcc148: { n: 'PCC 1:4:8 (base concrete)', u: 'm3', use: { cement: 3.4, sand: 0.47 * CFT, agg: 0.95 * CFT } },
+  rccSlab: { n: 'RCC M20 slab', u: 'm3', use: { cement: 8.06, sand: 0.42 * CFT, agg: 0.84 * CFT, steel: 80 } },
+  rccBeam: { n: 'RCC M20 beam', u: 'm3', use: { cement: 8.06, sand: 0.42 * CFT, agg: 0.84 * CFT, steel: 150 } },
+  rccCol: { n: 'RCC M20 column', u: 'm3', use: { cement: 8.06, sand: 0.42 * CFT, agg: 0.84 * CFT, steel: 180 } },
+  rccFoot: { n: 'RCC M20 footing', u: 'm3', use: { cement: 8.06, sand: 0.42 * CFT, agg: 0.84 * CFT, steel: 90 } },
+  brick230: { n: 'Brick wall 9 in (1:6)', u: 'm3', use: { bricks: 500, cement: 1.24, sand: 0.26 * CFT } },
+  brick115: { n: 'Brick wall 4.5 in (1:4)', u: 'm2', use: { bricks: 57, cement: 0.21, sand: 0.028 * CFT } },
+  plaster12: { n: 'Plaster 12 mm (1:6)', u: 'm2', use: { cement: 0.063, sand: 0.0131 * CFT } },
+  plaster20: { n: 'Plaster 20 mm (1:6)', u: 'm2', use: { cement: 0.104, sand: 0.0218 * CFT } }
+};
+const SQFT_PER_M2 = 10.764;
+
+/* ---------- canonical JSON and hashing ---------- */
+function canon(v) {
+  if (v === null || typeof v !== 'object') return JSON.stringify(v === undefined ? null : v);
+  if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']';
+  return '{' + Object.keys(v).filter(k => v[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + canon(v[k])).join(',') + '}';
+}
+async function sha256(text) {
+  const buf = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+// what the hash covers: everything except the hash itself and photo thumbnails (the photo's own hash is covered)
+function hashBody(e) {
+  return canon({ id: e.id, dev: e.dev, seq: e.seq, type: e.type, at: e.at, by: e.by, gps: e.gps || null, d: e.d, prev: e.prev,
+    photos: (e.photos || []).map(p => ({ h: p.h, kind: p.kind, ts: p.ts, ah: p.ah, old: !!p.old })) });
+}
+// make the next entry on this device's chain
+async function makeEntry(chain, x) {
+  const last = chain.length ? chain[chain.length - 1] : null;
+  const e = { id: x.id || (x.dev + '-' + ((last ? last.seq : 0) + 1)), dev: x.dev, seq: (last ? last.seq : 0) + 1, type: x.type, at: x.at || new Date().toISOString(), by: x.by, gps: x.gps || null, photos: x.photos || [], d: x.d || {}, prev: last ? last.hash : 'GENESIS' };
+  e.hash = await sha256(hashBody(e));
+  return e;
+}
+// check every device chain: each entry's hash and its link to the one before
+async function verifyChains(entries) {
+  const byDev = {}, bad = [];
+  entries.forEach(e => (byDev[e.dev] = byDev[e.dev] || []).push(e));
+  for (const dev of Object.keys(byDev)) {
+    const L = byDev[dev].sort((a, b) => a.seq - b.seq);
+    for (let i = 0; i < L.length; i++) {
+      const e = L[i], want = i === 0 ? 'GENESIS' : L[i - 1].hash;
+      if (e.seq !== i + 1) { bad.push({ id: e.id, why: 'entry ' + (i + 1) + ' of device ' + dev + ' is missing' }); break; }
+      if (e.prev !== want) { bad.push({ id: e.id, why: 'link to the previous entry is broken' }); continue; }
+      if (await sha256(hashBody(e)) !== e.hash) bad.push({ id: e.id, why: 'entry was changed after it was saved' });
+    }
+  }
+  return bad;
+}
+
+/* ---------- small helpers ---------- */
+// days and hours are counted in India time (IST, UTC+5:30) whatever the phone's clock zone
+const TZ_MIN = 330;
+const ist = iso => new Date(Date.parse(iso) + TZ_MIN * 6e4);
+const day = iso => iso ? ist(iso).toISOString().slice(0, 10) : '';
+const hourOf = iso => { const d = ist(iso); return d.getUTCHours() + d.getUTCMinutes() / 60; };
+const timeOf = iso => iso ? ist(iso).toISOString().slice(11, 16) : '';
+function distM(a, b) { // metres between two GPS points
+  if (!a || !b) return null; const R = 6371000, r = x => x * Math.PI / 180, dLat = r(b.lat - a.lat), dLng = r(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLng / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h));
+}
+function hamming(a, b) { if (!a || !b || a.length !== b.length) return 99; let n = 0; for (let i = 0; i < a.length; i++) { let x = parseInt(a[i], 16) ^ parseInt(b[i], 16); while (x) { n += x & 1; x >>= 1; } } return n; }
+const round2 = v => Math.round(v * 100) / 100;
+const inRange = (iso, from, to) => { const d = day(iso); return (!from || d >= from) && (!to || d <= to); };
+function addDays(ymd, n) { const d = new Date(ymd + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+
+/* ---------- state: everything is derived from the ledger ---------- */
+function build(entries) {
+  const S = { all: [], byId: {}, persons: {}, workers: {}, contractors: {}, vendors: {}, rates: {}, site: null, coi: [], approvals: {}, rejections: {}, corrections: {}, tips: [] };
+  const list = entries.slice().sort((a, b) => a.at < b.at ? -1 : a.at > b.at ? 1 : a.id < b.id ? -1 : 1);
+  list.forEach(e => { S.all.push(e); S.byId[e.id] = e; });
+  list.forEach(e => {
+    if (e.type === 'approve') (S.approvals[e.d.target] = S.approvals[e.d.target] || []).push(e);
+    if (e.type === 'reject') (S.rejections[e.d.target] = S.rejections[e.d.target] || []).push(e);
+    if (e.type === 'correction') (S.corrections[e.d.target] = S.corrections[e.d.target] || []).push(e);
+  });
+  // only approvals that obey the rules count: a different person, an allowed role, no conflict of interest
+  S.validApprovals = id => {
+    const e = S.byId[id]; if (!e) return [];
+    const seen = new Set(), out = [];
+    (S.approvals[id] || []).forEach(a => { const p = S.persons[a.by]; if (!p || a.by === e.by || seen.has(a.by)) return; if (!(CAN_APPROVE[e.type] || []).includes(p.role)) return; seen.add(a.by); out.push(a); });
+    return out;
+  };
+  list.forEach(e => {
+    const d = effective(S, e);
+    if (e.type === 'site') S.site = Object.assign({ id: e.id }, d);
+    if (e.type === 'person') S.persons[e.id] = Object.assign({ id: e.id }, d);
+    if (e.type === 'contractor') S.contractors[e.id] = Object.assign({ id: e.id }, d);
+    if (e.type === 'vendor') S.vendors[e.id] = Object.assign({ id: e.id }, d);
+    if (e.type === 'rate') S.rates[(d.vendor || '*') + ':' + d.material] = Object.assign({ id: e.id }, d);
+    if (e.type === 'worker') S.workers[e.id] = Object.assign({ id: e.id, photo: e.photos[0] || null }, d);
+    if (e.type === 'coi') S.coi.push(Object.assign({ id: e.id, by: e.by }, d));
+    if (e.type === 'tip') S.tips.push(e);
+  });
+  // the first person on a fresh ledger is the owner who set it up
+  return S;
+}
+// an entry's data with its approved corrections applied; a void correction removes it from every count
+function effective(S, e) {
+  let d = Object.assign({}, e.d);
+  (S.corrections[e.id] || []).forEach(c => { if (statusOf(S, c).state !== 'approved') return; if (c.d.void) d.__void = true; Object.assign(d, c.d.fix || {}); });
+  return d;
+}
+function proofOk(e) {
+  const need = PROOF[e.type]; if (!need) return true;
+  const photo = (e.photos || []).length > 0, gps = !!(e.gps && isFinite(e.gps.lat));
+  return need === 'photo' ? photo : need === 'gps' ? gps : photo && gps;
+}
+// pending / approved / rejected / unverified (no proof) / void
+function statusOf(S, e) {
+  if (!e) return { state: 'missing' };
+  const corr = (S.corrections[e.id] || []).find(c => c.d.void && (S.validApprovals ? S.validApprovals(c.id).length : 0) >= 1);
+  if (corr) return { state: 'void' };
+  const rej = (S.rejections[e.id] || []).filter(r => r.by !== e.by && S.persons[r.by]);
+  if (rej.length) return { state: 'rejected', by: rej[0].by, why: rej[0].d.reason };
+  const need = CAN_APPROVE[e.type] ? (NEEDS[e.type] || 1) : 0, got = S.validApprovals ? S.validApprovals(e.id) : [];
+  const ownerOk = e.type !== 'pay' || got.some(a => (S.persons[a.by] || {}).role === 'owner');
+  if (!proofOk(e)) return { state: 'unverified', got: got.length, need };
+  if (got.length >= need && ownerOk) return { state: 'approved', got: got.length, need };
+  return { state: 'pending', got: got.length, need, ownerNeeded: !ownerOk && got.length >= need };
+}
+const live = (S, e) => !effective(S, e).__void && statusOf(S, e).state !== 'rejected' && statusOf(S, e).state !== 'void';
+const counted = (S, e) => live(S, e) && statusOf(S, e).state === 'approved';
+const ofType = (S, t) => S.all.filter(e => e.type === t && live(S, e));
+
+/* ---------- may this person do this? (enforced before saving) ---------- */
+function canCreate(S, personId, type) {
+  if (type === 'tip') return true;
+  if (!S.site && ['site', 'person'].includes(type)) return true; // first setup on a fresh ledger
+  const p = S.persons[personId]; if (!p) return false;
+  return (CAN_CREATE[type] || []).includes(p.role);
+}
+function canApprove(S, personId, target) {
+  const e = S.byId[target], p = S.persons[personId];
+  if (!e || !p) return { ok: false, why: 'Unknown entry or person' };
+  if (e.by === personId) return { ok: false, why: 'Do-Person Rule: you made this entry, someone else must approve it' };
+  if (!(CAN_APPROVE[e.type] || []).includes(p.role)) return { ok: false, why: ROLES[p.role] + ' cannot approve ' + e.type };
+  if ((S.approvals[target] || []).some(a => a.by === personId)) return { ok: false, why: 'You already approved this' };
+  if (e.type === 'pay') {
+    const pd = effective(S, e), conf = S.coi.find(c => c.person === personId && (c.party === pd.payee));
+    if (conf) return { ok: false, why: 'Conflict of interest declared with this payee: ' + conf.relation };
+    // separation of duties: whoever took the attendance or received the material for this bill cannot approve its payment
+    const src = paySources(S, e);
+    if (src.some(x => x.by === personId)) return { ok: false, why: 'Separation of duties: you recorded entries this bill is based on' };
+  }
+  return { ok: true };
+}
+
+/* ---------- attendance ---------- */
+// man-days for one worker on one day: in and out both approved; 7 h or more = 1, 4–7 h = 0.5
+function manDays(S, from, to, filter) {
+  const by = {};
+  ofType(S, 'att').forEach(e => { if (!inRange(e.at, from, to)) return; const d = effective(S, e); if (filter && !filter(d)) return; const k = d.worker + '|' + day(e.at); (by[k] = by[k] || []).push(e); });
+  const out = {};
+  Object.keys(by).forEach(k => {
+    const L = by[k], ins = L.filter(e => effective(S, e).dir === 'in' && counted(S, e)), outs = L.filter(e => effective(S, e).dir === 'out' && counted(S, e));
+    if (!ins.length || !outs.length) { out[k] = 0; return; }
+    const h = (new Date(outs[outs.length - 1].at) - new Date(ins[0].at)) / 3.6e6; out[k] = h >= 7 ? 1 : h >= 4 ? 0.5 : 0;
+  });
+  return out;
+}
+function workerDays(S, from, to) { const md = manDays(S, from, to), w = {}; Object.keys(md).forEach(k => { const id = k.split('|')[0]; w[id] = (w[id] || 0) + md[k]; }); return w; }
+function presentNow(S, ymd) { // in today without an out
+  const st = {}; ofType(S, 'att').filter(e => day(e.at) === ymd).forEach(e => { st[effective(S, e).worker] = effective(S, e).dir; });
+  return Object.keys(st).filter(w => st[w] === 'in');
+}
+
+/* ---------- materials ---------- */
+function stock(S, upto) {
+  const m = {}; Object.keys(MATERIALS).forEach(k => m[k] = { opening: 0, inQty: 0, pendingIn: 0, outQty: 0, closing: 0, lastCount: null });
+  if (S.site && S.site.opening) Object.keys(S.site.opening).forEach(k => { if (m[k]) m[k].opening = +S.site.opening[k] || 0; });
+  ofType(S, 'matIn').forEach(e => { if (upto && day(e.at) > upto) return; const d = effective(S, e); if (!m[d.material]) return; if (counted(S, e)) m[d.material].inQty += +d.recvQty || 0; else m[d.material].pendingIn += +d.recvQty || 0; });
+  ofType(S, 'matOut').forEach(e => { if (upto && day(e.at) > upto) return; const d = effective(S, e); if (m[d.material]) m[d.material].outQty += +d.qty || 0; });
+  Object.keys(m).forEach(k => { m[k].closing = round2(m[k].opening + m[k].inQty - m[k].outQty); });
+  ofType(S, 'stockCount').forEach(e => { if (upto && day(e.at) > upto) return; const d = effective(S, e); if (!m[d.material]) return; m[d.material].lastCount = { at: e.at, qty: +d.qty, id: e.id }; });
+  return m;
+}
+// work done (approved) → material it should have used
+function theoretical(S, from, to) {
+  const need = {}; Object.keys(MATERIALS).forEach(k => need[k] = 0);
+  ofType(S, 'work').forEach(e => { if (!inRange(e.at, from, to) || !counted(S, e)) return; const d = effective(S, e), W = WORKS[d.work]; if (!W) return; Object.keys(W.use).forEach(k => need[k] += W.use[k] * (+d.qty || 0)); });
+  return need;
+}
+function issued(S, from, to) { const u = {}; Object.keys(MATERIALS).forEach(k => u[k] = 0); ofType(S, 'matOut').forEach(e => { if (!inRange(e.at, from, to)) return; const d = effective(S, e); if (u[d.material] != null) u[d.material] += +d.qty || 0; }); return u; }
+function usageCheck(S, from, to) {
+  const T = theoretical(S, from, to), A = issued(S, from, to);
+  return Object.keys(MATERIALS).map(k => { const t = T[k], a = A[k], M = MATERIALS[k]; if (!t && !a) return null;
+    const gap = t ? (a - t) / t : 1, sev = !t ? (a > 0 ? 'amber' : 'ok') : gap > M.waste + 0.05 ? 'red' : gap > M.waste ? 'amber' : gap < -0.15 ? 'amber' : 'ok';
+    return { material: k, theoretical: round2(t), issued: round2(a), gapPct: Math.round(gap * 1000) / 10, allowedPct: M.waste * 100, sev, excess: Math.max(0, a - t * (1 + M.waste)) };
+  }).filter(Boolean);
+}
+// short supply: challan says more than was measured or weighed on site
+function shortSupply(e) { const d = e.d; const c = +d.challanQty || 0, r = +d.recvQty || 0; return c ? (c - r) / c : 0; }
+
+/* ---------- payments ---------- */
+function paySources(S, e) {
+  const d = effective(S, e);
+  if (d.kind === 'wages' || d.kind === 'contractor') return ofType(S, 'att').filter(a => inRange(a.at, d.from, d.to) && (!d.payee || (S.workers[effective(S, a).worker] || {}).contractor === d.payee));
+  if (d.kind === 'vendor') return ofType(S, 'matIn').filter(m => inRange(m.at, d.from, d.to) && effective(S, m).vendor === d.payee);
+  return [];
+}
+function payChecks(S, e) {
+  const d = effective(S, e), out = [], add = (ok, label, sev) => out.push({ ok, label, sev: ok ? 'ok' : sev || 'red' });
+  const st = statusOf(S, e);
+  add(st.got >= 2 && !st.ownerNeeded, 'Two approvals, one by the owner (' + (st.got || 0) + ' of 2)', 'amber');
+  add((e.photos || []).length > 0, 'Bill / invoice photo attached', 'amber');
+  // duplicates: same payee and bill number, or same payee and amount within 30 days
+  const dup = ofType(S, 'pay').filter(p => p.id !== e.id && effective(S, p).payee === d.payee && ((d.billNo && effective(S, p).billNo === d.billNo) || (+effective(S, p).amount === +d.amount && Math.abs(new Date(p.at) - new Date(e.at)) < 30 * 864e5)));
+  add(!dup.length, dup.length ? 'Possible duplicate of ' + dup.map(x => x.id).join(', ') : 'Not a duplicate bill');
+  if (d.kind === 'wages' || d.kind === 'contractor') {
+    const md = manDays(S, d.from, d.to, a => !d.payee || (S.workers[a.worker] || {}).contractor === d.payee), got = Object.values(md).reduce((a, v) => a + v, 0);
+    if (+d.claimedDays) add(+d.claimedDays <= got + 1e-9, 'Man-days claimed ' + d.claimedDays + ' vs attendance ' + got);
+    if (d.kind === 'wages') { const exp = Object.keys(md).reduce((a, k) => a + md[k] * (+(S.workers[k.split('|')[0]] || {}).wage || 0), 0); add(+d.amount <= exp + 1, 'Wage amount ₹' + d.amount + ' vs attendance × wage ₹' + Math.round(exp)); }
+  }
+  if (d.kind === 'contractor' && (d.workRefs || []).length) {
+    const bad = d.workRefs.filter(id => { const w = S.byId[id]; return !w || !counted(S, w) || recheckFailed(S, id); });
+    add(!bad.length, bad.length ? 'Work not certified or failed re-check: ' + bad.join(', ') : 'Billed work is certified');
+  }
+  if (d.kind === 'vendor' && (d.items || []).length) {
+    const rec = {}; paySources(S, e).filter(m => counted(S, m)).forEach(m => { const x = effective(S, m); rec[x.material] = (rec[x.material] || 0) + (+x.recvQty || 0); });
+    d.items.forEach(it => {
+      add((+it.qty || 0) <= (rec[it.material] || 0) + 1e-9, MATERIALS[it.material].n + ': billed ' + it.qty + ' ' + MATERIALS[it.material].u + ' vs received and verified ' + round2(rec[it.material] || 0));
+      const r = S.rates[d.payee + ':' + it.material] || S.rates['*:' + it.material], ref = r ? +r.rate : MATERIALS[it.material].rate, over = ref ? (+it.rate - ref) / ref : 0;
+      add(over <= 0, MATERIALS[it.material].n + ': rate ₹' + it.rate + ' vs approved ₹' + ref, over > 0.05 ? 'red' : 'amber');
+    });
+  }
+  if (d.kind === 'advance') {
+    const P = S.contractors[d.payee] || S.vendors[d.payee] || {}, limit = +P.advanceLimit || 0;
+    const open = ofType(S, 'pay').filter(p => effective(S, p).kind === 'advance' && effective(S, p).payee === d.payee && p.id !== e.id).reduce((a, p) => a + (+effective(S, p).amount || 0), 0) - ofType(S, 'pay').filter(p => effective(S, p).payee === d.payee).reduce((a, p) => a + (+effective(S, p).advanceAdjusted || 0), 0);
+    add(!limit || open + (+d.amount) <= limit, 'Advance outstanding ₹' + Math.round(open + (+d.amount)) + (limit ? ' vs limit ₹' + limit : ' (no limit set)'), 'red');
+  }
+  add(!roundNumber(d.amount), roundNumber(d.amount) ? 'Round amount ₹' + d.amount + ' — ask for the working' : 'Amount is not a suspicious round number', 'amber');
+  return out;
+}
+const roundNumber = a => +a >= 10000 && +a % 1000 === 0;
+function payReady(S, e) { return payChecks(S, e).every(c => c.ok || c.sev !== 'red') && statusOf(S, e).state === 'approved'; }
+function recheckFailed(S, workId) { return ofType(S, 'recheck').some(r => r.d.target === workId && !recheckOk(S, r)); }
+function recheckOk(S, r) { const w = S.byId[r.d.target]; if (!w) return false; const q = +effective(S, w).qty || 0, m = +r.d.measuredQty || 0; return r.d.ok !== false && (!q || Math.abs(m - q) / q <= 0.05); }
+
+/* ---------- surprise audit: random picks, recorded before anyone goes to check ---------- */
+function pickAudit(S, rand, ymd, nWorkers) {
+  const present = presentNow(S, ymd), pool = present.length ? present : Object.keys(S.workers);
+  const pick = (arr, n) => { const a = arr.slice(), out = []; while (a.length && out.length < n) out.push(a.splice(Math.floor(rand() * a.length), 1)[0]); return out; };
+  return { workers: pick(pool, nWorkers || Math.min(5, Math.max(2, Math.ceil(pool.length * 0.1)))), materials: pick(Object.keys(MATERIALS), 2), work: pick(ofType(S, 'work').filter(w => counted(S, w)).map(w => w.id).slice(-30), 1) };
+}
+
+/* ---------- red flags ---------- */
+const FLAG_ACTION = { red: 'Stop: hold the payment or the work until it is explained', amber: 'Explain within 24 hours', green: 'Keep watching' };
+function flags(S, opt) {
+  opt = opt || {}; const F = [], add = (sev, rule, text, ref) => F.push({ sev, rule, text, ref, action: FLAG_ACTION[sev] });
+  const site = S.site || {}, radius = +site.radius || 150, center = site.lat ? { lat: +site.lat, lng: +site.lng } : null, now = opt.now ? new Date(opt.now) : new Date();
+  // photos used twice (same file, or a near-identical picture)
+  const seen = {}, ahs = [];
+  S.all.forEach(e => (e.photos || []).forEach(p => { if (seen[p.h] && seen[p.h] !== e.id) add('red', 'R1', 'Same photo used in two entries (' + seen[p.h] + ' and ' + e.id + ')', e.id); else seen[p.h] = e.id; if (p.ah && e.type !== 'worker') ahs.push({ e, p }); }));
+  for (let i = 0; i < ahs.length; i++) for (let j = i + 1; j < ahs.length; j++) { const a = ahs[i], b = ahs[j]; if (a.e.id !== b.e.id && a.p.h !== b.p.h && hamming(a.p.ah, b.p.ah) <= 2 && a.e.type === b.e.type && a.e.type !== 'att') add('amber', 'R1b', 'Near-identical photos in ' + a.e.id + ' and ' + b.e.id, b.e.id); }
+  S.all.forEach(e => (e.photos || []).forEach(p => { if (p.old) add('amber', 'R6b', 'Old photo (picked from the gallery?) in ' + e.id, e.id); }));
+  // attendance: outside the site, at night, the same selfie twice, the same worker at two places
+  ofType(S, 'att').forEach(e => {
+    const d = effective(S, e);
+    if (center && e.gps) { const m = distM(center, e.gps); if (m > radius) add('red', 'R2', 'Attendance ' + e.id + ' taken ' + Math.round(m) + ' m from the site', e.id); }
+    const h = hourOf(e.at); if (h < 5.5 || h > 20.5) add('amber', 'R3', 'Attendance at an odd hour (' + timeOf(e.at) + ') — ' + e.id, e.id);
+    if (!proofOk(e)) add('amber', 'R6', 'Attendance without selfie or GPS — counts as unverified: ' + e.id, e.id);
+  });
+  { const sel = {}; ofType(S, 'att').forEach(e => { const w = effective(S, e).worker; (e.photos || []).forEach(p => { (sel[w] = sel[w] || []).forEach(q => { if (q.ah && p.ah && hamming(q.ah, p.ah) === 0 && q.day !== day(e.at)) add('red', 'R1c', 'Same selfie reused for ' + ((S.workers[w] || {}).name || w) + ' on ' + q.day + ' and ' + day(e.at), e.id); }); (sel[w] = sel[w] || []).push({ ah: p.ah, day: day(e.at) }); }); }); }
+  // ghost workers: the same face photo or the same Aadhaar digits + name under two IDs
+  const W = Object.values(S.workers);
+  for (let i = 0; i < W.length; i++) for (let j = i + 1; j < W.length; j++) {
+    const a = W[i], b = W[j], samePhoto = a.photo && b.photo && (a.photo.h === b.photo.h || hamming(a.photo.ah, b.photo.ah) <= 4), sameId = a.aadhaar4 && a.aadhaar4 === b.aadhaar4 && (a.name || '').trim().toLowerCase().split(' ')[0] === (b.name || '').trim().toLowerCase().split(' ')[0];
+    if (samePhoto || sameId) add('red', 'R4', 'Possible ghost / double worker: ' + a.name + ' (' + a.id + ') and ' + b.name + ' (' + b.id + ')' + (a.contractor !== b.contractor ? ' under two contractors' : ''), b.id);
+  }
+  // payments
+  ofType(S, 'pay').forEach(e => { payChecks(S, e).forEach(c => { if (!c.ok && !/Two approvals|photo attached/.test(c.label)) add(c.sev, 'R7', 'Payment ' + e.id + ': ' + c.label, e.id); }); });
+  ofType(S, 'paid').forEach(e => { const p = S.byId[e.d.target]; if (!p || !payReady(S, p)) add('red', 'R8', 'Money paid on ' + e.d.target + ' before all checks and approvals passed', e.id); });
+  // materials
+  ofType(S, 'matIn').forEach(e => { const s = shortSupply(e); if (s > 0.02) add('red', 'R10', 'Short supply ' + Math.round(s * 1000) / 10 + '% on ' + e.id + ' (challan ' + e.d.challanQty + ', received ' + e.d.recvQty + ')', e.id); else if (s > 0.01) add('amber', 'R10', 'Short supply ' + Math.round(s * 1000) / 10 + '% on ' + e.id, e.id); });
+  usageCheck(S, opt.from, opt.to).forEach(u => { if (u.sev === 'red' || u.sev === 'amber') add(u.sev, 'R9', MATERIALS[u.material].n + ': used ' + u.issued + ' vs ' + u.theoretical + ' ' + MATERIALS[u.material].u + ' for the work done (' + (u.gapPct > 0 ? '+' : '') + u.gapPct + '%, allowed ' + u.allowedPct + '%)', null); });
+  const stk = stock(S); Object.keys(stk).forEach(k => { const s = stk[k]; if (!s.lastCount) return; const book = stock(S, day(s.lastCount.at)); const b = book[k].closing, v = b ? (s.lastCount.qty - b) / b : 0; if (Math.abs(v) > 0.02) add('red', 'R11', MATERIALS[k].n + ': physical count ' + s.lastCount.qty + ' vs book ' + b + ' ' + MATERIALS[k].u + ' (' + Math.round(v * 1000) / 10 + '%)', s.lastCount.id); });
+  // work: failed re-checks, certified without a site visit that day
+  ofType(S, 'recheck').forEach(r => { if (!recheckOk(S, r)) add('red', 'R16', 'Re-check failed on work ' + r.d.target + ' (certified ' + (S.byId[r.d.target] ? effective(S, S.byId[r.d.target]).qty : '?') + ', measured ' + r.d.measuredQty + ')', r.id); });
+  ofType(S, 'work').forEach(w => { (S.validApprovals(w.id) || []).forEach(a => { const visited = S.all.some(v => (v.type === 'visit' || v.type === 'work' || v.type === 'recheck') && v.by === a.by && day(v.at) === day(a.at) && v.gps); if (!visited) add('amber', 'R22', 'Work ' + w.id + ' certified by ' + ((S.persons[a.by] || {}).name || a.by) + ' with no site visit proof that day', w.id); }); });
+  // conflict of interest
+  S.coi.forEach(c => { const P = S.contractors[c.party] || S.vendors[c.party]; if (P) add('amber', 'R17', ((S.persons[c.person] || {}).name || c.person) + ' declared a relation with ' + P.name + ' (' + c.relation + ') — they cannot approve its bills', c.id); });
+  // headcount surprise vs the app
+  ofType(S, 'headcount').forEach(h => { if (+h.d.counted !== +h.d.expected) add('red', 'R19', 'Surprise headcount ' + h.d.counted + ' vs ' + h.d.expected + ' marked present (' + day(h.at) + ')', h.id); });
+  // audits
+  ofType(S, 'audit').forEach(a => { const bad = (a.d.results || []).filter(r => r.ok === false); if (bad.length) add('red', 'R20', 'Surprise audit ' + a.id + ': ' + bad.length + ' item(s) did not match', a.id); });
+  { const A = ofType(S, 'audit'); for (let i = 2; i < A.length; i++) if (A[i].by === A[i - 1].by && A[i].by === A[i - 2].by) add('amber', 'R21', 'Same auditor three times in a row — rotate', A[i].id); }
+  // waiting too long, one person approving everything, many corrections
+  S.all.filter(e => CAN_APPROVE[e.type] && live(S, e) && statusOf(S, e).state === 'pending').forEach(e => { if ((now - new Date(e.at)) / 3.6e6 > 24) add('amber', 'R18', ROLES_T[e.type] + ' ' + e.id + ' waiting for approval more than 24 hours', e.id); });
+  { const n = {}, tot = {}; S.all.filter(e => e.type === 'approve').forEach(a => { const t = (S.byId[a.d.target] || {}).type; if (!t) return; tot[t] = (tot[t] || 0) + 1; n[t + '|' + a.by] = (n[t + '|' + a.by] || 0) + 1; }); Object.keys(n).forEach(k => { const [t, by] = k.split('|'); if (tot[t] >= 10 && n[k] / tot[t] > 0.9) add('amber', 'R5', ((S.persons[by] || {}).name || by) + ' approved ' + Math.round(n[k] / tot[t] * 100) + '% of all ' + (ROLES_T[t] || t) + ' — share the approvals', null); }); }
+  { const c = {}; ofType(S, 'correction').forEach(e => { const k = e.by + '|' + day(e.at).slice(0, 7); c[k] = (c[k] || 0) + 1; }); Object.keys(c).forEach(k => { if (c[k] > 5) add('amber', 'R21b', ((S.persons[k.split('|')[0]] || {}).name || k) + ' made ' + c[k] + ' corrections this month', null); }); }
+  // separation of duties broken in practice: same person took the attendance and approved the wages
+  ofType(S, 'pay').forEach(e => { const src = paySources(S, e), bys = new Set(src.map(x => x.by)); S.validApprovals(e.id).forEach(a => { if (bys.has(a.by)) add('red', 'R12', 'Separation of duties: ' + ((S.persons[a.by] || {}).name || a.by) + ' recorded entries for ' + e.id + ' and approved its payment', e.id); }); });
+  (opt.chainBad || []).forEach(b => add('red', 'R23', 'Tampering: ' + b.why + ' (' + b.id + ')', b.id));
+  const rank = { red: 0, amber: 1, green: 2 };
+  return F.sort((a, b) => rank[a.sev] - rank[b.sev]);
+}
+const ROLES_T = { worker: 'Worker', att: 'Attendance', matIn: 'Material in', matOut: 'Material out', stockCount: 'Stock count', work: 'Work', pay: 'Payment', correction: 'Correction', headcount: 'Headcount', audit: 'Audit' };
+
+/* ---------- reports ---------- */
+function dailyReport(S, ymd, opt) {
+  const att = ofType(S, 'att').filter(e => day(e.at) === ymd), workersIn = new Set(att.filter(e => effective(S, e).dir === 'in').map(e => effective(S, e).worker));
+  const md = manDays(S, ymd, ymd), days = Object.values(md).reduce((a, v) => a + v, 0);
+  const byC = {}; workersIn.forEach(w => { const c = (S.contractors[(S.workers[w] || {}).contractor] || {}).name || 'Direct'; byC[c] = (byC[c] || 0) + 1; });
+  const work = ofType(S, 'work').filter(e => day(e.at) === ymd).map(e => { const d = effective(S, e); return { id: e.id, work: (WORKS[d.work] || {}).n || d.work, qty: d.qty, unit: (WORKS[d.work] || {}).u || d.unit, loc: d.location, state: statusOf(S, e).state }; });
+  const site = S.site || {}, plan = site.plan || {}, doneTo = theoreticalProgress(S, ymd), pct = plan.total ? Math.min(100, Math.round(doneTo / plan.total * 100)) : null;
+  const pend = S.all.filter(e => CAN_APPROVE[e.type] && live(S, e) && statusOf(S, e).state === 'pending').length;
+  const F = flags(S, Object.assign({ now: ymd + 'T23:59:00' }, opt || {})), today = F.filter(f => !f.ref || day((S.byId[f.ref] || {}).at || ymd) === ymd);
+  const plans = ofType(S, 'plan').filter(e => day(e.at) === ymd).map(e => e.d.text);
+  return { date: ymd, site: site.name || 'Site', workers: workersIn.size, manDays: days, byContractor: byC, stock: stock(S, ymd), work, progressPct: pct, pending: pend, flags: today, redCount: today.filter(f => f.sev === 'red').length, amberCount: today.filter(f => f.sev === 'amber').length, plan: plans, visits: ofType(S, 'visit').filter(e => day(e.at) === ymd).map(e => ({ by: (S.persons[e.by] || {}).name, at: timeOf(e.at) })) };
+}
+function theoreticalProgress(S, upto) { let n = 0; ofType(S, 'work').forEach(e => { if (day(e.at) <= upto && counted(S, e)) n += +effective(S, e).weight || 0; }); return n; }
+function dailyText(R) {
+  const L = ['*BhuChain daily report* — ' + R.site + ' — ' + R.date, '', '👷 Workers present: ' + R.workers + ' (man-days ' + R.manDays + ')'];
+  Object.keys(R.byContractor).forEach(c => L.push('   • ' + c + ': ' + R.byContractor[c]));
+  L.push('', '🧱 Stock (closing):'); Object.keys(R.stock).forEach(k => { const s = R.stock[k]; if (s.opening || s.inQty || s.outQty) L.push('   • ' + MATERIALS[k].n + ': ' + s.closing + ' ' + MATERIALS[k].u + ' (in ' + round2(s.inQty) + ', used ' + round2(s.outQty) + (s.pendingIn ? ', not yet verified ' + round2(s.pendingIn) : '') + ')'); });
+  L.push('', '🏗️ Work today:'); if (!R.work.length) L.push('   • none recorded'); R.work.forEach(w => L.push('   • ' + w.work + ' ' + w.qty + ' ' + w.unit + (w.loc ? ' @ ' + w.loc : '') + ' [' + w.state + ']'));
+  if (R.progressPct != null) L.push('   Progress: ' + R.progressPct + '%');
+  L.push('', (R.redCount ? '🔴 ' : '🟢 ') + 'Red flags: ' + R.redCount + ' · 🟠 Amber: ' + R.amberCount); R.flags.slice(0, 8).forEach(f => L.push('   ' + (f.sev === 'red' ? '🔴' : '🟠') + ' ' + f.text));
+  L.push('', '⏳ Waiting for approval: ' + R.pending);
+  if (R.plan.length) { L.push('', '📅 Tomorrow:'); R.plan.forEach(p => L.push('   • ' + p)); }
+  return L.join('\n');
+}
+function weeklyReport(S, from, to) {
+  const md = manDays(S, from, to), byC = {};
+  Object.keys(md).forEach(k => { const w = S.workers[k.split('|')[0]] || {}, c = w.contractor || 'direct'; byC[c] = byC[c] || { days: 0, wageDue: 0, billedDays: 0, paid: 0 }; byC[c].days += md[k]; byC[c].wageDue += md[k] * (+w.wage || 0); });
+  ofType(S, 'pay').forEach(p => { const d = effective(S, p); if (!inRange(p.at, from, to) || !['wages', 'contractor'].includes(d.kind)) return; const c = d.payee || 'direct'; byC[c] = byC[c] || { days: 0, wageDue: 0, billedDays: 0, paid: 0 }; byC[c].billedDays += +d.claimedDays || 0; byC[c].paid += +d.amount || 0; });
+  const audits = ofType(S, 'audit').filter(a => inRange(a.at, from, to)).map(a => ({ id: a.id, by: (S.persons[a.by] || {}).name, ok: (a.d.results || []).every(r => r.ok !== false), n: (a.d.results || []).length }));
+  return { from, to, labour: Object.keys(byC).map(c => Object.assign({ contractor: (S.contractors[c] || {}).name || (c === 'direct' ? 'Direct' : c) }, byC[c], { gapDays: round2(byC[c].billedDays - byC[c].days) })), materials: usageCheck(S, from, to), audits, flags: flags(S, { from, to, now: to + 'T23:59:00' }) };
+}
+function monthlyReport(S, ym) {
+  const from = ym + '-01', to = addDays(addDays(from, 32).slice(0, 8) + '01', -1), F = flags(S, { from, to, now: to + 'T23:59:00' });
+  const score = {}, bump = (id, n, why) => { if (!id) return; score[id] = score[id] || { pts: 100, why: [] }; score[id].pts -= n; score[id].why.push(why); };
+  ofType(S, 'matIn').filter(e => inRange(e.at, from, to)).forEach(e => { const s = shortSupply(e); if (s > 0.01) bump(e.d.vendor, s > 0.02 ? 10 : 4, 'short supply ' + e.id); });
+  ofType(S, 'pay').filter(e => inRange(e.at, from, to)).forEach(e => payChecks(S, e).forEach(c => { if (!c.ok && c.sev === 'red') bump(effective(S, e).payee, 10, c.label); }));
+  ofType(S, 'recheck').filter(r => inRange(r.at, from, to) && !recheckOk(S, r)).forEach(r => { const w = S.byId[r.d.target]; if (w) bump(effective(S, w).contractor, 15, 're-check failed ' + w.id); });
+  const parties = Object.values(S.contractors).concat(Object.values(S.vendors)).map(p => ({ id: p.id, name: p.name, kind: S.contractors[p.id] ? 'Contractor' : 'Vendor', score: Math.max(0, (score[p.id] || { pts: 100 }).pts), notes: (score[p.id] || { why: [] }).why }));
+  // money at risk: material used over the allowance, short supply, man-days billed over attendance
+  let leak = 0; usageCheck(S, from, to).forEach(u => leak += u.excess * MATERIALS[u.material].rate);
+  ofType(S, 'matIn').filter(e => inRange(e.at, from, to)).forEach(e => { const m = MATERIALS[e.d.material]; if (m) leak += Math.max(0, (+e.d.challanQty || 0) - (+e.d.recvQty || 0)) * (+e.d.rate || m.rate); });
+  const W = weeklyReport(S, from, to); W.labour.forEach(l => { if (l.gapDays > 0) leak += l.gapDays * 600; });
+  return { month: ym, parties, leakage: Math.round(leak), red: F.filter(f => f.sev === 'red').length, amber: F.filter(f => f.sev === 'amber').length, byRule: F.reduce((a, f) => (a[f.rule] = (a[f.rule] || 0) + 1, a), {}) };
+}
+// a fingerprint of the whole ledger for a day: the hash that would be anchored on the BhuChain chain
+async function dayRoot(entries, ymd) {
+  const L = entries.filter(e => day(e.at) === ymd).map(e => e.hash).sort();
+  if (!L.length) return null;
+  let level = L; while (level.length > 1) { const next = []; for (let i = 0; i < level.length; i += 2) next.push(await sha256(level[i] + (level[i + 1] || level[i]))); level = next; }
+  return { date: ymd, count: L.length, root: level[0] };
+}
+
+return { VERSION, ROLES, CAN_CREATE, CAN_APPROVE, NEEDS, PROOF, MATERIALS, WORKS, SQFT_PER_M2, canon, sha256, hashBody, makeEntry, verifyChains, TZ_MIN, day, hourOf, timeOf, distM, hamming, round2, addDays, build, effective, proofOk, statusOf, ofType, canCreate, canApprove, manDays, workerDays, presentNow, stock, theoretical, issued, usageCheck, shortSupply, payChecks, roundNumber, payReady, recheckFailed, recheckOk, pickAudit, FLAG_ACTION, flags, ROLES_T, dailyReport, dailyText, weeklyReport, monthlyReport, dayRoot };
+})();
+/* BhuChain Site Integrity — the phone app. Works offline; every save is a signed (hash-chained) ledger entry in the
+   phone's own database, sent to Google Sheets / Drive when the internet is there. */
+
+
+/* ---------- language: Hinglish, Hindi, Odia ---------- */
+const TX = {
+  hl: { home: 'Home', att: 'Hazri (Attendance)', attS: 'Subah IN · Shaam OUT selfie', matIn: 'Material aaya', matInS: 'Challan + truck photo', matOut: 'Material diya', matOutS: 'Kis kaam ke liye', stock: 'Stock check', stockS: 'Gin ke likho', work: 'Aaj ka kaam', workS: 'Kitna kaam, photo', visit: 'Site visit', visitS: 'Engineer ki hazri', recheck: 'Re-check', recheckS: 'Doosra engineer naape', approve: 'Approve karo', approveS: 'Doosre ki entry check', pay: 'Payment maango', payS: 'Bill + checks', paid: 'Payment ho gaya', paidS: 'UTR + receipt', workers: 'Workers', workersS: 'Register + ID card', flags: 'Red flags', flagsS: 'Gadbad ki list', reports: 'Reports', reportsS: 'Daily · weekly · monthly', audit: 'Surprise audit', auditS: 'Random check', plan: 'Kal ka plan', planS: 'Kal kya hoga', people: 'Log aur parties', peopleS: 'Staff, thekedar, vendor', sync: 'Sync / backup', syncS: 'Google Sheet, file', guide: 'Guide', guideS: 'Kaise use karein', tip: 'Gupt shikayat', tipS: 'Bina naam ke batao', save: 'Save karo', back: 'Wapas', photo: 'Photo lo', logout: 'Logout', pin: 'PIN daalo', in: 'IN (aaye)', out: 'OUT (gaye)', next: 'Agla' },
+  hi: { home: 'होम', att: 'हाज़िरी', attS: 'सुबह IN · शाम OUT सेल्फ़ी', matIn: 'माल आया', matInS: 'चालान + ट्रक फ़ोटो', matOut: 'माल दिया', matOutS: 'किस काम के लिए', stock: 'स्टॉक गिनती', stockS: 'गिन के लिखो', work: 'आज का काम', workS: 'कितना काम, फ़ोटो', visit: 'साइट विज़िट', visitS: 'इंजीनियर की हाज़िरी', recheck: 'दोबारा जाँच', recheckS: 'दूसरा इंजीनियर नापे', approve: 'मंज़ूरी दो', approveS: 'दूसरे की एंट्री जाँचो', pay: 'भुगतान माँगो', payS: 'बिल + जाँच', paid: 'भुगतान हो गया', paidS: 'UTR + रसीद', workers: 'मज़दूर', workersS: 'रजिस्टर + ID कार्ड', flags: 'लाल झंडे', flagsS: 'गड़बड़ की सूची', reports: 'रिपोर्ट', reportsS: 'रोज़ · हफ़्ता · महीना', audit: 'अचानक जाँच', auditS: 'रैंडम जाँच', plan: 'कल का प्लान', planS: 'कल क्या होगा', people: 'लोग और पार्टी', peopleS: 'स्टाफ़, ठेकेदार, वेंडर', sync: 'सिंक / बैकअप', syncS: 'Google Sheet, फ़ाइल', guide: 'गाइड', guideS: 'कैसे इस्तेमाल करें', tip: 'गुप्त शिकायत', tipS: 'बिना नाम के बताओ', save: 'सेव करो', back: 'वापस', photo: 'फ़ोटो लो', logout: 'लॉगआउट', pin: 'PIN डालो', in: 'IN (आए)', out: 'OUT (गए)', next: 'अगला' },
+  or: { home: 'ହୋମ', att: 'ହାଜିରା', attS: 'ସକାଳ IN · ସନ୍ଧ୍ୟା OUT ସେଲଫି', matIn: 'ମାଲ ଆସିଲା', matInS: 'ଚାଲାଣ + ଟ୍ରକ ଫଟୋ', matOut: 'ମାଲ ଦିଆଗଲା', matOutS: 'କେଉଁ କାମ ପାଇଁ', stock: 'ଷ୍ଟକ ଗଣନା', stockS: 'ଗଣି ଲେଖ', work: 'ଆଜିର କାମ', workS: 'କେତେ କାମ, ଫଟୋ', visit: 'ସାଇଟ ଭିଜିଟ', visitS: 'ଇଞ୍ଜିନିୟରଙ୍କ ହାଜିରା', recheck: 'ପୁଣି ଯାଞ୍ଚ', recheckS: 'ଅନ୍ୟ ଇଞ୍ଜିନିୟର ମାପନ୍ତୁ', approve: 'ମଞ୍ଜୁରି ଦିଅ', approveS: 'ଅନ୍ୟଙ୍କ ଏଣ୍ଟ୍ରି ଯାଞ୍ଚ', pay: 'ପେମେଣ୍ଟ ମାଗ', payS: 'ବିଲ + ଯାଞ୍ଚ', paid: 'ପେମେଣ୍ଟ ହୋଇଗଲା', paidS: 'UTR + ରସିଦ', workers: 'ଶ୍ରମିକ', workersS: 'ରେଜିଷ୍ଟର + ID କାର୍ଡ', flags: 'ନାଲି ପତାକା', flagsS: 'ଗଡବଡର ତାଲିକା', reports: 'ରିପୋର୍ଟ', reportsS: 'ଦୈନିକ · ସାପ୍ତାହିକ · ମାସିକ', audit: 'ହଠାତ ଯାଞ୍ଚ', auditS: 'ରାଣ୍ଡମ ଯାଞ୍ଚ', plan: 'କାଲିର ଯୋଜନା', planS: 'କାଲି କଣ ହେବ', people: 'ଲୋକ ଓ ପାର୍ଟି', peopleS: 'ଷ୍ଟାଫ, ଠିକାଦାର, ଭେଣ୍ଡର', sync: 'ସିଙ୍କ / ବ୍ୟାକଅପ', syncS: 'Google Sheet, ଫାଇଲ', guide: 'ଗାଇଡ', guideS: 'କିପରି ବ୍ୟବହାର କରିବେ', tip: 'ଗୁପ୍ତ ଅଭିଯୋଗ', tipS: 'ନାମ ବିନା କୁହନ୍ତୁ', save: 'ସେଭ କର', back: 'ପଛକୁ', photo: 'ଫଟୋ ନିଅ', logout: 'ଲଗଆଉଟ', pin: 'PIN ଦିଅ', in: 'IN (ଆସିଲେ)', out: 'OUT (ଗଲେ)', next: 'ପରବର୍ତ୍ତୀ' }
+};
+let LANG = (() => { try { return localStorage.getItem('bsi_lang') || 'hl'; } catch (e) { return 'hl'; } })();
+const t = k => (TX[LANG] && TX[LANG][k]) || TX.hl[k] || k;
+const esc = s => s == null ? '' : String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = s => document.querySelector(s);
+const inr = v => '₹' + Math.round(+v || 0).toLocaleString('en-IN');
+const today = () => C.day(new Date().toISOString());
+
+/* ---------- storage: IndexedDB (entries, full photos, settings) ---------- */
+let DB;
+function idb() {
+  return new Promise((res, rej) => { const r = indexedDB.open('bhuchain-integrity', 1); r.onupgradeneeded = () => { const d = r.result; d.createObjectStore('entries', { keyPath: 'id' }); d.createObjectStore('photos'); d.createObjectStore('meta'); }; r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+}
+const tx = (store, mode, fn) => new Promise((res, rej) => { const T = DB.transaction(store, mode), s = T.objectStore(store), out = fn(s); T.oncomplete = () => res(out && out.result !== undefined ? out.result : out); T.onerror = () => rej(T.error); });
+const getAll = store => new Promise((res, rej) => { const r = DB.transaction(store).objectStore(store).getAll(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const getKey = (store, k) => new Promise((res, rej) => { const r = DB.transaction(store).objectStore(store).get(k); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const putKey = (store, v, k) => tx(store, 'readwrite', s => s.put(v, k));
+const meta = async (k, v) => v === undefined ? getKey('meta', k) : putKey('meta', v, k);
+
+/* ---------- app state ---------- */
+let E = [], S = C.build([]), DEV = null, ME = null, CHAIN_BAD = [], FL = [];
+function chain() { return E.filter(e => e.dev === DEV).sort((a, b) => a.seq - b.seq); }
+async function reload() { E = await getAll('entries'); S = C.build(E); CHAIN_BAD = await C.verifyChains(E); FL = C.flags(S, { chainBad: CHAIN_BAD }); }
+const meP = () => S.persons[ME] || null;
+const role = () => (meP() || {}).role;
+const can = type => C.canCreate(S, ME, type);
+
+function toast(msg, err) { const d = document.createElement('div'); d.className = 'toast' + (err ? ' err' : ''); d.textContent = msg; document.body.appendChild(d); setTimeout(() => d.remove(), err ? 4200 : 2200); }
+
+/* ---------- proof: GPS and photos ---------- */
+function getGPS() {
+  return new Promise(res => { if (!navigator.geolocation) return res(null); let done = false; const fin = v => { if (!done) { done = true; res(v); } };
+    navigator.geolocation.getCurrentPosition(p => fin({ lat: +p.coords.latitude.toFixed(6), lng: +p.coords.longitude.toFixed(6), acc: Math.round(p.coords.accuracy) }), () => fin(null), { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }); setTimeout(() => fin(null), 13000); });
+}
+function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+function aHash(img) { const c = document.createElement('canvas'); c.width = c.height = 8; const g = c.getContext('2d'); g.drawImage(img, 0, 0, 8, 8); const d = g.getImageData(0, 0, 8, 8).data, L = []; for (let i = 0; i < 64; i++) L.push(d[i * 4] * 0.3 + d[i * 4 + 1] * 0.59 + d[i * 4 + 2] * 0.11); const m = L.reduce((a, v) => a + v, 0) / 64; let hex = ''; for (let i = 0; i < 64; i += 4) hex += (((L[i] > m) << 3) | ((L[i + 1] > m) << 2) | ((L[i + 2] > m) << 1) | (L[i + 3] > m)).toString(16); return hex; }
+// take a photo with the phone camera, stamp date, time, GPS and name on it, keep a full copy and a thumbnail
+function takePhoto(kind, front, gps) {
+  return new Promise(resolve => {
+    const inp = front ? $('#camf') : $('#cam'); inp.value = '';
+    inp.onchange = async () => {
+      const f = inp.files[0]; if (!f) return resolve(null);
+      const url = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(f); });
+      const img = await loadImg(url), ah = aHash(img), max = 1280, k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); const g = c.getContext('2d'); g.drawImage(img, 0, 0, c.width, c.height);
+      const now = new Date(), stamp = [(S.site || {}).name || 'BhuChain', C.day(now.toISOString()) + ' ' + C.timeOf(now.toISOString()) + ' IST', gps ? gps.lat + ', ' + gps.lng + ' ±' + gps.acc + 'm' : 'NO GPS', (meP() || { name: 'Anonymous' }).name + ' · ' + kind];
+      const fs = Math.max(14, Math.round(c.width / 40)); g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, c.height - fs * 4.6, c.width, fs * 4.6); g.fillStyle = '#fff'; g.font = 'bold ' + fs + 'px sans-serif'; stamp.forEach((s, i) => g.fillText(s, fs * 0.6, c.height - fs * (3.6 - i * 1.1)));
+      const full = c.toDataURL('image/jpeg', 0.72), tc = document.createElement('canvas'), tk = 240 / Math.max(c.width, c.height); tc.width = Math.round(c.width * tk); tc.height = Math.round(c.height * tk); tc.getContext('2d').drawImage(c, 0, 0, tc.width, tc.height);
+      const h = await C.sha256(full), old = Date.now() - (f.lastModified || Date.now()) > 10 * 60000;
+      await putKey('photos', full, h);
+      resolve({ h, kind, ts: now.toISOString(), ah, old, t: tc.toDataURL('image/jpeg', 0.6) });
+    };
+    inp.click();
+  });
+}
+
+/* ---------- saving: permission checks, then an append-only entry ---------- */
+async function save(type, d, x = {}) {
+  if (!C.canCreate(S, type === 'tip' ? null : ME, type) && !(x.setup)) { toast('Aapka role ye entry nahi bana sakta', true); return null; }
+  const e = await C.makeEntry(chain(), { dev: DEV, type, by: type === 'tip' ? 'anon' : (x.by !== undefined ? x.by : ME), d, gps: x.gps || null, photos: x.photos || [] });
+  await tx('entries', 'readwrite', s => s.put(e)); await reload(); toast('✔ Saved · ' + e.id); syncSoon(); return e;
+}
+async function approve(id, ok, reason) {
+  const chk = C.canApprove(S, ME, id); if (!chk.ok) { toast(chk.why, true); return; }
+  await save(ok ? 'approve' : 'reject', ok ? { target: id } : { target: id, reason }, { gps: await getGPS() });
+}
+
+/* ---------- router ---------- */
+const V = {}; let ROUTE = 'home', ARG = null;
+function go(r, a) { ROUTE = r; ARG = a == null ? null : a; location.hash = '#/' + r + (a != null ? '/' + encodeURIComponent(a) : ''); }
+window.addEventListener('hashchange', () => { const [r, a] = location.hash.replace(/^#\//, '').split('/'); ROUTE = r || 'home'; ARG = a ? decodeURIComponent(a) : null; render(); });
+async function render() {
+  const app = $('#app'), who = $('#who');
+  who.innerHTML = meP() ? esc(meP().name) + '<br>' + esc(C.ROLES[meP().role]) : '';
+  if (!S.site && ROUTE !== 'tip' && ROUTE !== 'guide' && ROUTE !== 'sync') return V.setup(app);
+  if (!meP() && !['tip', 'guide', 'sync'].includes(ROUTE)) return V.login(app);
+  (V[ROUTE] || V.home)(app, ARG);
+  window.scrollTo(0, 0);
+}
+const head = (title, sub) => '<p class="noprint"><button class="btn ghost sm" data-go="home">← ' + t('back') + '</button></p><h2>' + title + '</h2>' + (sub ? '<p class="note">' + sub + '</p>' : '');
+const bar = (label, act, extra) => '<div class="bar">' + (extra || '') + '<button class="btn" id="saveBtn" data-do="' + act + '">' + label + '</button></div>';
+const tag = st => '<span class="tag ' + st + '">' + ({ approved: '✔ verified', pending: '⏳ pending', unverified: '✖ no proof', rejected: '✖ rejected', void: '✖ void' }[st] || st) + '</span>';
+const thumb = p => p && p.t ? '<img src="' + p.t + '" alt="">' : '<img alt="">';
+const personName = id => id === 'anon' ? 'Anonymous' : (S.persons[id] || {}).name || id || 'Setup';
+const party = id => (S.contractors[id] || S.vendors[id] || {}).name || (id ? id : 'Direct');
+
+/* ---------- form kit: chips, numbers, photos, GPS ---------- */
+let FORM = {};
+function chips(k, opts, multi) { return '<div class="chips" data-chips="' + k + '"' + (multi ? ' data-multi="1"' : '') + '>' + opts.map(([v, l]) => '<button type="button" class="chip' + ((multi ? (FORM[k] || []).includes(v) : FORM[k] === v) ? ' on' : '') + '" data-v="' + esc(v) + '">' + esc(l) + '</button>').join('') + '</div>'; }
+function num(k, ph) { return '<input type="number" inputmode="decimal" data-k="' + k + '" value="' + esc(FORM[k] ?? '') + '" placeholder="' + esc(ph || '') + '">'; }
+function txt(k, ph, type) { return '<input type="' + (type || 'text') + '" data-k="' + k + '" value="' + esc(FORM[k] ?? '') + '" placeholder="' + esc(ph || '') + '">'; }
+function area(k, ph) { return '<textarea data-k="' + k + '" placeholder="' + esc(ph || '') + '">' + esc(FORM[k] ?? '') + '</textarea>'; }
+function photos(slots) { FORM._photos = FORM._photos || {}; return '<div class="ph">' + slots.map(([k, l, front]) => { const p = FORM._photos[k]; return '<button type="button" class="phb' + (p ? ' done' : '') + '" data-photo="' + k + '"' + (front ? ' data-front="1"' : '') + '>' + (p ? '<img src="' + p.t + '" alt="">' : '<span class="ic">📷</span>' + esc(l)) + '</button>'; }).join('') + '</div>'; }
+function gpsLine() { const g = FORM._gps; return '<p class="gps' + (g ? '' : ' bad') + '" id="gpsl">' + (g === undefined ? '📍 Location le rahe hain…' : g ? '📍 ' + g.lat + ', ' + g.lng + ' (±' + g.acc + ' m)' + siteDist(g) : '📍 Location nahi mili — GPS on karo. Bina GPS entry "unverified" rahegi. <button class="btn ghost sm" data-do="regps">Retry</button>') + '</p>'; }
+function siteDist(g) { if (!S.site || !S.site.lat) return ''; const m = C.distM({ lat: +S.site.lat, lng: +S.site.lng }, g); return m > (+S.site.radius || 150) ? ' · ⚠ site se ' + Math.round(m) + ' m door' : ' · site par ✔'; }
+function startGPS() { FORM._gps = undefined; getGPS().then(g => { FORM._gps = g; const el = $('#gpsl'); if (el) el.outerHTML = gpsLine(); }); }
+const shot = keys => keys.map(k => FORM._photos && FORM._photos[k]).filter(Boolean).map(p => Object.assign({}, p));
+const need = (cond, msg) => { if (!cond) { toast(msg, true); throw new Error('stop'); } };
+
+/* ---------- screens ---------- */
+V.setup = app => {
+  FORM = FORM._setup ? FORM : { _setup: 1, radius: 150 };
+  app.innerHTML = '<h2>Naya site setup</h2><p class="note">Ye ek baar owner karega. Site par khade ho kar location lo.</p><div class="card">' +
+    '<label class="f">Site ka naam</label>' + txt('name', 'jaise Patia G+2, Bhubaneswar') + '<label class="f">Site location</label><button class="btn ghost sm" data-do="siteGps">📍 Abhi ki location lo</button> <span class="note" id="sloc">' + (FORM.lat ? FORM.lat + ', ' + FORM.lng : '') + '</span>' +
+    '<label class="f">Site ka radius (meter) — isse bahar ki entry red flag</label>' + num('radius', '150') +
+    '<label class="f">Shuru ka stock (agar site par pehle se maal hai)</label><div class="row2">' + Object.keys(C.MATERIALS).map(k => '<div><span class="note">' + C.MATERIALS[k].n + ' (' + C.MATERIALS[k].u + ')</span>' + num('op_' + k, '0') + '</div>').join('') + '</div>' +
+    '<label class="f">Owner ka naam</label>' + txt('owner', 'aapka naam') + '<label class="f">Owner PIN (4 ank)</label>' + txt('pin', '••••', 'password') + '</div>' + bar('Site banao', 'setup');
+};
+V.login = app => {
+  FORM = { pin: '' }; const P = Object.values(S.persons).filter(p => !p.inactive);
+  app.innerHTML = '<h2>' + esc((S.site || {}).name || '') + '</h2><p class="note">Apna naam chuno, phir PIN.</p><div class="wgrid">' + P.map(p => '<button class="wk" data-who="' + p.id + '"><b>' + esc(p.name) + '</b><br><small>' + esc(C.ROLES[p.role]) + '</small></button>').join('') + '</div>' +
+    '<div id="pinbox" class="hide"><p class="dots" id="dots"></p><div class="pin">' + [1, 2, 3, 4, 5, 6, 7, 8, 9, '⌫', 0, '✔'].map(k => '<button data-pin="' + k + '">' + k + '</button>').join('') + '</div></div>' +
+    '<div class="card"><button class="btn ghost wide" data-go="tip">🤫 ' + t('tip') + ' — ' + t('tipS') + '</button></div><p class="note">' + langPick() + '</p>';
+};
+function langPick() { return '<span class="lang">' + [['hl', 'Hinglish'], ['hi', 'हिंदी'], ['or', 'ଓଡ଼ିଆ']].map(([k, l]) => '<button class="chip' + (LANG === k ? ' on' : '') + '" data-lang="' + k + '">' + l + '</button>').join('') + '</span>'; }
+V.home = app => {
+  const r = role(), ymd = today(), present = C.presentNow(S, ymd).length, pend = pendingForMe().length, red = FL.filter(f => f.sev === 'red').length;
+  const T = [['att', '🕗'], ['matIn', '🚚'], ['matOut', '📦'], ['stockCount', '🧮', 'stock'], ['work', '🏗️'], ['visit', '👷', 'visit'], ['recheck', '📏'], ['approve', '✅'], ['pay', '🧾'], ['paid', '💸'], ['worker', '🪪', 'workers'], ['flags', '🚩'], ['reports', '📊'], ['audit', '🎲'], ['plan', '📅'], ['people', '👥'], ['sync', '☁️'], ['guide', '📘'], ['tip', '🤫']];
+  const show = ([k]) => k === 'approve' ? Object.values(C.CAN_APPROVE).some(L => L.includes(r)) : k === 'audit' ? can('auditPick') || can('headcount') : k === 'people' ? r === 'owner' : ['flags', 'reports', 'sync', 'guide', 'tip'].includes(k) ? true : k === 'worker' ? true : can(k);
+  app.innerHTML = '<div class="stats"><div><b>' + present + '</b><span>abhi site par</span></div><div><b>' + pend + '</b><span>aapki approval baaki</span></div><div><b style="color:' + (red ? 'var(--red)' : 'var(--ok)') + '">' + red + '</b><span>red flags</span></div></div>' +
+    (CHAIN_BAD.length ? '<div class="flag red"><b>⚠ Record se chhed-chhaad:</b> ' + CHAIN_BAD.length + ' entry ka hash match nahi karta. Owner ko turant batao.</div>' : '') +
+    '<div class="tiles" style="margin-top:12px">' + T.filter(show).map(([k, ic, key]) => { const lk = key || k; return '<button class="tile' + ((k === 'approve' && pend) || (k === 'flags' && red) ? ' hot' : '') + '" data-go="' + (k === 'stockCount' ? 'stock' : k === 'worker' ? 'workers' : k) + '"><span class="ic">' + ic + '</span><b>' + esc(t(lk === 'stockCount' ? 'stock' : lk)) + '</b><small>' + esc(t((lk === 'stockCount' ? 'stock' : lk) + 'S')) + '</small></button>'; }).join('') + '</div>' +
+    '<p style="margin-top:18px" class="noprint">' + langPick() + ' <button class="btn ghost sm" data-do="logout">' + t('logout') + '</button></p>';
+};
+function pendingForMe() { return S.all.filter(e => C.CAN_APPROVE[e.type] && e.by !== ME && ['pending', 'unverified'].includes(C.statusOf(S, e).state) && C.canApprove(S, ME, e.id).ok); }
+
+/* attendance: pick IN/OUT, tap the worker (or scan the ID card QR), selfie, saved — about 20 seconds a worker */
+V.att = app => {
+  if (!FORM._att) { FORM = { _att: 1, dir: new Date().getHours() < 13 ? 'in' : 'out' }; startGPS(); }
+  const ymd = today(), st = {}; C.ofType(S, 'att').filter(e => C.day(e.at) === ymd).forEach(e => { st[C.effective(S, e).worker] = C.effective(S, e).dir; });
+  const W = Object.values(S.workers).filter(w => !w.inactive && C.statusOf(S, S.byId[w.id]).state !== 'rejected'), q = (FORM.q || '').toLowerCase();
+  const list = W.filter(w => !q || (w.name || '').toLowerCase().includes(q) || (w.aadhaar4 || '').includes(q));
+  app.innerHTML = head('🕗 ' + t('att'), 'Worker chuno ya ID card ka QR scan karo → selfie lo. Selfie mein worker ka chehra saaf ho.') +
+    chips('dir', [['in', t('in')], ['out', t('out')]]) + gpsLine() +
+    '<p><button class="btn ghost sm" data-do="scan">📷 QR scan</button> ' + txt('q', 'naam / Aadhaar ke last 4') + '</p>' +
+    '<div class="wgrid">' + list.map(w => { const s = st[w.id], done = FORM.dir === 'in' ? s === 'in' || s === 'out' : s === 'out' || !s; return '<button class="wk' + (s === 'in' ? ' in' : '') + (done ? ' done' : '') + '" data-attw="' + w.id + '">' + thumb(w.photo) + '<b>' + esc(w.name) + '</b><br><small>' + esc(w.trade || '') + (s ? ' · ' + s.toUpperCase() : '') + '</small></button>'; }).join('') + '</div>' +
+    (W.length ? '' : '<p class="note">Pehle workers register karo (Workers).</p>');
+};
+async function attFor(wid) {
+  const w = S.workers[wid]; if (!w) return;
+  const ymd = today(), mine = C.ofType(S, 'att').filter(e => C.day(e.at) === ymd && C.effective(S, e).worker === wid).map(e => C.effective(S, e).dir);
+  if (mine.includes(FORM.dir)) { toast(w.name + ' ka ' + FORM.dir.toUpperCase() + ' aaj ho chuka hai', true); return; }
+  if (FORM.dir === 'out' && !mine.includes('in')) { toast(w.name + ' ka IN nahi hua — pehle IN', true); return; }
+  toast(w.name + ': selfie lo'); const gps = FORM._gps || await getGPS(); FORM._gps = gps;
+  const p = await takePhoto('selfie-' + FORM.dir, true, gps); if (!p) return;
+  await save('att', { worker: wid, dir: FORM.dir }, { gps, photos: [p] }); render();
+}
+
+/* workers: register with photo, ID card with QR */
+V.workers = (app, id) => {
+  if (id === 'new') return V.workerNew(app);
+  if (id === 'cards') return V.cards(app);
+  const W = Object.values(S.workers), days = C.workerDays(S, C.addDays(today(), -30), today());
+  app.innerHTML = head('🪪 ' + t('workers'), W.length + ' registered · last 30 days attendance shown') + (can('worker') ? '<p><button class="btn" data-go="workers/new">+ Naya worker</button> <button class="btn ghost" data-go="workers/cards">🖨 ID cards</button></p>' : '') +
+    '<div class="card list">' + W.map(w => '<div class="it">' + thumb(w.photo) + '<div class="t"><b>' + esc(w.name) + '</b><small>' + esc(w.trade) + ' · ' + esc(party(w.contractor)) + ' · ' + inr(w.wage) + '/day · Aadhaar …' + esc(w.aadhaar4) + ' · ' + (days[w.id] || 0) + ' days</small></div>' + tag(C.statusOf(S, S.byId[w.id]).state) + '</div>').join('') + '</div>';
+};
+const TRADES = ['Mason', 'Helper', 'Carpenter', 'Bar bender', 'Electrician', 'Plumber', 'Painter', 'Tile mason', 'Welder', 'Other'];
+V.workerNew = app => {
+  if (!FORM._wn) { FORM = { _wn: 1, trade: 'Helper' }; startGPS(); }
+  const cons = Object.values(S.contractors).map(c => [c.id, c.name]).concat([['', 'Direct (no contractor)']]);
+  app.innerHTML = head('+ Naya worker', 'Worker ki saaf photo lo (chehra seedha). Aadhaar ke sirf last 4 ank.') + '<div class="card">' + photos([['face', 'Worker ki photo']]) +
+    '<label class="f">Naam</label>' + txt('name', 'poora naam') + '<label class="f">Aadhaar last 4</label>' + txt('aadhaar4', '1234', 'tel') + '<label class="f">Kaam</label>' + chips('trade', TRADES.map(x => [x, x])) +
+    '<label class="f">Thekedar</label>' + chips('contractor', cons) + '<label class="f">Roz ki mazdoori ₹</label>' + num('wage', '600') + '<label class="f">Emergency phone</label>' + txt('phone', '98xxxxxxxx', 'tel') + '</div>' + bar(t('save'), 'saveWorker');
+};
+V.cards = app => {
+  app.innerHTML = head('🖨 Worker ID cards', 'Print karke laminate karo. Hazri ke time QR scan karo.') + '<p class="noprint"><button class="btn" data-do="print">Print</button></p>' +
+    Object.values(S.workers).map(w => '<div class="idc"><div class="q">' + qrSvg(w.id) + '</div>' + (w.photo ? '<img src="' + w.photo.t + '">' : '') + '<b>' + esc(w.name) + '</b><small>' + esc(w.trade) + ' · ' + esc(party(w.contractor)) + '</small><small>ID ' + esc(w.id) + ' · Aadhaar …' + esc(w.aadhaar4) + '</small><small>' + esc((S.site || {}).name || '') + '</small><div style="clear:both"></div></div>').join('');
+};
+function qrSvg(text) { try { const q = window.qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 3, margin: 0 }); } catch (e) { return ''; } }
+
+/* material in / out / stock */
+const matOpts = () => Object.keys(C.MATERIALS).map(k => [k, C.MATERIALS[k].n + ' (' + C.MATERIALS[k].u + ')']);
+V.matIn = app => {
+  if (!FORM._mi) { FORM = { _mi: 1, material: 'cement' }; startGPS(); }
+  const u = C.MATERIALS[FORM.material].u;
+  app.innerHTML = head('🚚 ' + t('matIn'), 'Truck utarne se pehle photo lo. Maal gin / naap / tol ke "mila" likho — challan wala nahi.') + '<div class="card">' +
+    '<label class="f">Kaunsa maal</label>' + chips('material', matOpts()) + '<label class="f">Supplier</label>' + chips('vendor', Object.values(S.vendors).map(v => [v.id, v.name])) +
+    '<div class="row2"><div><label class="f">Challan / bill no.</label>' + txt('challanNo', 'CH-123') + '</div><div><label class="f">Truck no.</label>' + txt('truck', 'OD02 AB 1234') + '</div></div>' +
+    '<div class="row2"><div><label class="f">Challan par (' + u + ')</label>' + num('challanQty') + '</div><div><label class="f">Asal mein mila (' + u + ')</label>' + num('recvQty') + '</div></div>' +
+    '<div class="row2"><div><label class="f">Kata parchi no. (weighbridge)</label>' + txt('kata', 'optional') + '</div><div><label class="f">Rate ₹/' + u + ' (bill)</label>' + num('rate') + '</div></div>' +
+    (['cement', 'steel'].includes(FORM.material) ? '<label class="f">Brand + batch / heat no.</label>' + txt('batch', 'jaise UltraTech · batch 0912') : '') +
+    '<label class="f">Photo (challan, truck number plate, maal)</label>' + photos([['challan', 'Challan / bill'], ['truck', 'Truck plate'], ['goods', 'Maal / batch'], ['kata', 'Kata parchi']]) + gpsLine() + '</div>' + bar(t('save'), 'saveMatIn');
+};
+V.matOut = app => {
+  if (!FORM._mo) { FORM = { _mo: 1, material: 'cement' }; startGPS(); }
+  const s = C.stock(S)[FORM.material], works = C.ofType(S, 'work').filter(e => C.day(e.at) >= C.addDays(today(), -2)).map(e => [e.id, (C.WORKS[e.d.work] || {}).n || e.d.work]);
+  app.innerHTML = head('📦 ' + t('matOut'), 'Stock mein: ' + s.closing + ' ' + C.MATERIALS[FORM.material].u) + '<div class="card">' + '<label class="f">Kaunsa maal</label>' + chips('material', matOpts()) +
+    '<label class="f">Kitna (' + C.MATERIALS[FORM.material].u + ')</label>' + num('qty') + '<label class="f">Kis kaam ke liye</label>' + (works.length ? chips('workRef', works) : '') + txt('for', 'jaise GF slab, bay 2') +
+    '<label class="f">Kisko diya (mistri / thekedar)</label>' + txt('to', 'naam') + '<label class="f">Photo</label>' + photos([['issue', 'Maal dete hue']]) + gpsLine() + '</div>' + bar(t('save'), 'saveMatOut');
+};
+V.stock = app => {
+  if (!FORM._sc) { FORM = { _sc: 1, material: 'cement' }; startGPS(); }
+  const st = C.stock(S);
+  app.innerHTML = head('🧮 ' + t('stock'), 'Book stock = shuru + mila (verified) − diya. Asal mein gin ke likho; farq 2% se zyada = red flag.') +
+    '<div class="card"><table><tr><th>Maal</th><th>Shuru</th><th>Mila ✔</th><th>Pending</th><th>Diya</th><th>Book</th><th>Last count</th></tr>' + Object.keys(st).map(k => { const s = st[k]; return '<tr><td>' + C.MATERIALS[k].n + '</td><td>' + s.opening + '</td><td>' + C.round2(s.inQty) + '</td><td>' + C.round2(s.pendingIn) + '</td><td>' + C.round2(s.outQty) + '</td><td><b>' + s.closing + '</b></td><td>' + (s.lastCount ? s.lastCount.qty + ' (' + C.day(s.lastCount.at) + ')' : '—') + '</td></tr>'; }).join('') + '</table></div>' +
+    (can('stockCount') ? '<div class="card"><h3>Physical count</h3>' + chips('material', matOpts()) + '<label class="f">Gin ke mila (' + C.MATERIALS[FORM.material].u + ')</label>' + num('qty') + photos([['count', 'Stock ki photo']]) + gpsLine() + '</div>' + bar(t('save'), 'saveCount') : '');
+};
+
+/* work progress, site visit, re-check */
+const LOCS = ['Foundation', 'Plinth', 'Ground floor', 'First floor', 'Second floor', 'Roof', 'Outside'];
+V.work = app => {
+  if (!FORM._wk) { FORM = { _wk: 1, work: 'brick230', quality: 'ok', location: 'Ground floor' }; startGPS(); }
+  const W = C.WORKS[FORM.work];
+  app.innerHTML = head('🏗️ ' + t('work'), 'Naap ke likho. Isi se maal ka hisaab check hota hai (kitna cement/steel lagna chahiye tha).') + '<div class="card">' +
+    '<label class="f">Kaam</label>' + chips('work', Object.keys(C.WORKS).map(k => [k, C.WORKS[k].n]).concat([['other', 'Other']])) +
+    (FORM.work === 'other' ? '<label class="f">Kaam ka naam + unit</label>' + txt('workName', 'jaise tile laying sqft') : '') +
+    '<label class="f">Kitna (' + (W ? W.u + (W.u === 'm2' ? ' — sqft ÷ 10.76' : ' — cft ÷ 35.3') : 'unit') + ')</label>' + num('qty') +
+    (W ? '<p class="note" id="needs">' + needText(W, +FORM.qty || 0) + '</p>' : '') +
+    '<label class="f">Kahan</label>' + chips('location', LOCS.map(x => [x, x])) + txt('spot', 'jaise bay 2, north wall') +
+    '<label class="f">Quality</label>' + chips('quality', [['ok', '✔ Theek'], ['issue', '⚠ Problem']]) + area('notes', 'curing, level, honeycomb…') +
+    '<label class="f">Project ka kitna % (optional)</label>' + num('weight', 'jaise 2') + '<label class="f">Photo (do angle)</label>' + photos([['w1', 'Photo 1'], ['w2', 'Photo 2'], ['tape', 'Naap (tape)']]) + gpsLine() + '</div>' + bar(t('save'), 'saveWork');
+};
+function needText(W, q) { return 'Is kaam mein lagna chahiye: ' + Object.keys(W.use).map(k => C.round2(W.use[k] * q) + ' ' + C.MATERIALS[k].u + ' ' + C.MATERIALS[k].n.toLowerCase()).join(', '); }
+V.visit = app => {
+  if (!FORM._vs) { FORM = { _vs: 1, purpose: 'Inspection' }; startGPS(); }
+  app.innerHTML = head('👷 ' + t('visit'), 'Site par aate hi aur jaate time. Isi se pata chalta hai engineer kitna time site par tha.') + '<div class="card">' + chips('purpose', ['Arrival', 'Inspection', 'Concrete pour', 'Measurement', 'Leaving'].map(x => [x, x])) + area('notes', 'kya dekha') + photos([['visit', 'Site par selfie', 1]]) + gpsLine() + '</div>' + bar(t('save'), 'saveVisit');
+};
+V.recheck = app => {
+  if (!FORM._rc) { FORM = { _rc: 1, ok: 'yes' }; startGPS(); }
+  const L = C.ofType(S, 'work').filter(w => C.statusOf(S, w).state === 'approved' && w.by !== ME && !(S.validApprovals(w.id) || []).some(a => a.by === ME)).slice(-25).reverse();
+  app.innerHTML = head('📏 ' + t('recheck'), 'Kisi doosre ka certify kiya kaam khud naap ke dekho. 5% se zyada farq = red flag.') + '<div class="card list">' + (L.length ? L.map(w => '<div class="it">' + thumb(w.photos[0]) + '<div class="t"><b>' + esc((C.WORKS[w.d.work] || {}).n || w.d.workName) + ' — ' + esc(w.d.qty) + '</b><small>' + esc(w.d.location || '') + ' ' + esc(w.d.spot || '') + ' · ' + C.day(w.at) + ' · ' + esc(personName(w.by)) + '</small></div><button class="chip' + (FORM.target === w.id ? ' on' : '') + '" data-pickt="' + w.id + '">Chuno</button></div>').join('') : '<p class="note">Re-check ke liye koi certified kaam nahi.</p>') + '</div>' +
+    (FORM.target ? '<div class="card"><label class="f">Aapka naap</label>' + num('measuredQty') + '<label class="f">Quality theek?</label>' + chips('ok', [['yes', 'Haan'], ['no', 'Nahi']]) + area('notes') + photos([['rc', 'Naap ki photo']]) + gpsLine() + '</div>' + bar(t('save'), 'saveRecheck') : '');
+};
+
+/* approvals: side by side proof, one tap */
+V.approve = app => {
+  const L = pendingForMe();
+  app.innerHTML = head('✅ ' + t('approve'), 'Jo entry aapne nahi banayi, wahi yahan dikhegi. Photo dhyan se dekho, phir haan/naa.') + (L.length ? '' : '<div class="card"><p>Kuch baaki nahi 👍</p></div>') +
+    L.map(e => '<div class="card">' + entryView(e) + '<div class="row2" style="margin-top:10px"><button class="btn ok" data-ap="' + e.id + '">✔ Sahi hai</button><button class="btn no" data-rj="' + e.id + '">✖ Galat</button></div></div>').join('');
+};
+function entryView(e) {
+  const d = C.effective(S, e), st = C.statusOf(S, e), P = e.photos || [], W = d.worker ? S.workers[d.worker] : null;
+  let body = '';
+  if (e.type === 'att') body = '<div class="cmp"><div>' + thumb(W && W.photo) + '<span>Register photo</span></div><div>' + thumb(P[0]) + '<span>Aaj ki selfie ' + C.timeOf(e.at) + '</span></div></div><p><b>' + esc(W ? W.name : d.worker) + '</b> · ' + (d.dir || '').toUpperCase() + '</p>';
+  else if (e.type === 'matIn') body = '<p><b>' + C.MATERIALS[d.material].n + '</b>: challan ' + esc(d.challanQty) + ', mila ' + esc(d.recvQty) + ' ' + C.MATERIALS[d.material].u + ' · ' + esc(party(d.vendor)) + ' · truck ' + esc(d.truck) + ' · challan ' + esc(d.challanNo) + (d.batch ? ' · ' + esc(d.batch) : '') + '</p>';
+  else if (e.type === 'matOut') body = '<p><b>' + C.MATERIALS[d.material].n + '</b>: ' + esc(d.qty) + ' ' + C.MATERIALS[d.material].u + ' → ' + esc(d.to) + ' for ' + esc(d.for) + '</p>';
+  else if (e.type === 'work') body = '<p><b>' + esc((C.WORKS[d.work] || {}).n || d.workName) + '</b> ' + esc(d.qty) + ' ' + esc((C.WORKS[d.work] || {}).u || '') + ' @ ' + esc(d.location) + ' ' + esc(d.spot || '') + ' · quality ' + esc(d.quality) + '</p>' + (C.WORKS[d.work] ? '<p class="note">' + needText(C.WORKS[d.work], +d.qty || 0) + '</p>' : '');
+  else if (e.type === 'pay') body = '<p><b>' + esc(d.kind) + '</b> · ' + esc(party(d.payee)) + ' · bill ' + esc(d.billNo) + ' · <b>' + inr(d.amount) + '</b> · ' + esc(d.from) + ' → ' + esc(d.to) + '</p><ul class="chk">' + C.payChecks(S, e).map(c => '<li class="' + (c.ok ? '' : c.sev === 'red' ? 'bad' : 'amb') + '">' + esc(c.label) + '</li>').join('') + '</ul>';
+  else if (e.type === 'worker') body = '<p><b>' + esc(d.name) + '</b> · ' + esc(d.trade) + ' · ' + esc(party(d.contractor)) + ' · ' + inr(d.wage) + '/day · Aadhaar …' + esc(d.aadhaar4) + '</p>';
+  else if (e.type === 'correction') { const tg = S.byId[d.target]; body = '<p><b>Correction</b> of ' + esc(d.target) + ' (' + esc(tg ? tg.type : '?') + '): ' + (d.void ? 'VOID the entry' : esc(JSON.stringify(d.fix))) + '<br>Reason: ' + esc(d.reason) + '</p>'; }
+  else body = '<p class="mono">' + esc(JSON.stringify(d)) + '</p>';
+  const ph = e.type === 'att' ? '' : '<div class="ph">' + P.map(p => '<button class="phb done" data-full="' + p.h + '"><img src="' + p.t + '"></button>').join('') + '</div>';
+  return '<p class="note">' + esc(C.ROLES_T[e.type] || e.type) + ' · ' + esc(e.id) + ' · ' + C.day(e.at) + ' ' + C.timeOf(e.at) + ' · by ' + esc(personName(e.by)) + ' ' + tag(st.state) + (e.gps ? ' · 📍' + siteDist(e.gps) : ' · ⚠ no GPS') + (P.some(p => p.old) ? ' · ⚠ old photo' : '') + '</p>' + body + ph;
+}
+
+/* payments */
+V.pay = app => {
+  if (!FORM._py) { FORM = { _py: 1, kind: 'wages', from: C.addDays(today(), -6), to: today(), items: [] }; startGPS(); }
+  const kinds = [['wages', 'Mazdoori (wages)'], ['contractor', 'Thekedar bill'], ['vendor', 'Supplier bill'], ['advance', 'Advance']];
+  const payees = FORM.kind === 'vendor' ? Object.values(S.vendors) : FORM.kind === 'advance' ? Object.values(S.contractors).concat(Object.values(S.vendors)) : Object.values(S.contractors);
+  const works = C.ofType(S, 'work').filter(w => C.statusOf(S, w).state === 'approved' && C.day(w.at) >= FORM.from && C.day(w.at) <= FORM.to).map(w => [w.id, ((C.WORKS[w.d.work] || {}).n || w.d.workName) + ' ' + w.d.qty]);
+  app.innerHTML = head('🧾 ' + t('pay'), 'Payment sirf tab: kaam verified + maal verified + hazri match + 2 approval (ek owner).') + '<div class="card">' +
+    chips('kind', kinds) + '<label class="f">Kisko</label>' + chips('payee', payees.map(p => [p.id, p.name])) +
+    '<div class="row2"><div><label class="f">Bill no.</label>' + txt('billNo') + '</div><div><label class="f">Amount ₹</label>' + num('amount') + '</div></div>' +
+    '<div class="row2"><div><label class="f">Se (date)</label>' + txt('from', '', 'date') + '</div><div><label class="f">Tak</label>' + txt('to', '', 'date') + '</div></div>' +
+    (['wages', 'contractor'].includes(FORM.kind) ? '<label class="f">Bill mein kitne man-days likhe</label>' + num('claimedDays') : '') +
+    (FORM.kind === 'contractor' ? '<label class="f">Kis kaam ka bill (certified kaam)</label>' + (works.length ? chips('workRefs', works, true) : '<p class="note">Is period mein certified kaam nahi.</p>') : '') +
+    (FORM.kind === 'vendor' ? '<label class="f">Bill ke items</label>' + itemsUI() : '') +
+    (FORM.kind !== 'advance' ? '<label class="f">Advance adjust ₹</label>' + num('advanceAdjusted', '0') : '') +
+    '<label class="f">Bill ki photo</label>' + photos([['bill', 'Bill / invoice']]) + gpsLine() + '</div><div class="card"><h3>Automatic checks</h3><ul class="chk" id="paychk">' + payChecksHtml() + '</ul><p class="note">Red check ho to bhi request ban sakti hai, par payment tab tak "Paid" nahi hoga jab tak theek na ho.</p></div>' + bar(t('save'), 'savePay');
+};
+function payChecksHtml() {
+  const draft = { id: 'draft', dev: 'x', type: 'pay', at: new Date().toISOString(), by: ME, photos: FORM._photos && FORM._photos.bill ? [FORM._photos.bill] : [], d: payData() };
+  const S2 = C.build(E.concat([draft]));
+  return C.payChecks(S2, S2.byId.draft).filter(c => !/Two approvals/.test(c.label)).map(c => '<li class="' + (c.ok ? '' : c.sev === 'red' ? 'bad' : 'amb') + '">' + esc(c.label) + '</li>').join('');
+}
+function payData() { const d = { kind: FORM.kind, payee: FORM.payee, billNo: FORM.billNo, amount: +FORM.amount || 0, from: FORM.from, to: FORM.to }; if (FORM.claimedDays) d.claimedDays = +FORM.claimedDays; if (FORM.kind === 'contractor') d.workRefs = FORM.workRefs || []; if (FORM.kind === 'vendor') d.items = (FORM.items || []).filter(i => i.qty); if (+FORM.advanceAdjusted) d.advanceAdjusted = +FORM.advanceAdjusted; return d; }
+function itemsUI() { FORM.items = FORM.items && FORM.items.length ? FORM.items : [{ material: 'cement', qty: '', rate: '' }]; return FORM.items.map((it, i) => '<div class="row2" style="grid-template-columns:2fr 1fr 1fr"><select data-item="' + i + '" data-f="material">' + matOpts().map(([k, l]) => '<option value="' + k + '"' + (it.material === k ? ' selected' : '') + '>' + l + '</option>').join('') + '</select><input type="number" placeholder="qty" data-item="' + i + '" data-f="qty" value="' + esc(it.qty) + '"><input type="number" placeholder="rate ₹" data-item="' + i + '" data-f="rate" value="' + esc(it.rate) + '"></div>').join('') + '<button class="btn ghost sm" data-do="addItem">+ item</button>'; }
+V.paid = app => {
+  if (!FORM._pd) { FORM = { _pd: 1, mode: 'Bank transfer' }; startGPS(); }
+  const L = C.ofType(S, 'pay').filter(p => !C.ofType(S, 'paid').some(x => x.d.target === p.id));
+  app.innerHTML = head('💸 ' + t('paid'), 'Sirf wahi payment yahan "paid" hoga jiske saare checks green aur 2 approval ho.') + '<div class="card list">' + (L.length ? L.map(p => { const ok = C.payReady(S, p); return '<div class="it"><div class="t"><b>' + esc(party(p.d.payee)) + ' · ' + inr(p.d.amount) + '</b><small>' + esc(p.d.kind) + ' · bill ' + esc(p.d.billNo) + ' · ' + esc(p.id) + '</small></div>' + (ok ? '<button class="chip' + (FORM.target === p.id ? ' on' : '') + '" data-pickt="' + p.id + '">Chuno</button>' : '<span class="tag pending">' + (C.statusOf(S, p).state === 'approved' ? 'checks red' : 'approval baaki') + '</span>') + '</div>'; }).join('') : '<p class="note">Koi payment pending nahi.</p>') + '</div>' +
+    (FORM.target ? '<div class="card">' + chips('mode', [['Bank transfer', 'Bank'], ['UPI', 'UPI'], ['Cheque', 'Cheque'], ['Cash', 'Cash (avoid)']]) + '<label class="f">UTR / cheque no.</label>' + txt('utr') + photos([['receipt', 'Receipt / screenshot']]) + '</div>' + bar(t('save'), 'savePaid') : '');
+};
+
+/* flags, reports, audit, plan */
+V.flags = app => {
+  app.innerHTML = head('🚩 ' + t('flags'), '🔴 Red = kaam/payment roko, 🟠 Amber = 24 ghante mein jawab.') + (FL.length ? FL.map(f => '<div class="flag ' + f.sev + '"><b>' + (f.sev === 'red' ? '🔴' : '🟠') + ' ' + f.rule + '</b> ' + esc(f.text) + '<small>' + esc(f.action) + (f.ref ? ' · <a href="#/entry/' + encodeURIComponent(f.ref) + '">entry dekho</a>' : '') + '</small></div>').join('') : '<div class="card"><p>🟢 Koi flag nahi.</p></div>');
+};
+V.entry = (app, id) => {
+  const e = S.byId[id]; if (!e) { app.innerHTML = head('Entry') + '<p>Not found</p>'; return; }
+  const corr = (S.corrections[id] || []).map(c => '<li>' + esc(c.id) + ': ' + esc(c.d.reason) + ' — ' + C.statusOf(S, c).state + '</li>').join('');
+  app.innerHTML = head('Entry ' + esc(id)) + '<div class="card">' + entryView(e) + '<p class="mono">hash ' + e.hash + '<br>prev ' + e.prev + '</p>' + (corr ? '<h3>Corrections</h3><ul>' + corr + '</ul>' : '') + '</div>' +
+    (can('correction') && !['approve', 'reject', 'correction'].includes(e.type) ? '<div class="card"><h3>Galti hai? Correction entry</h3><p class="note">Purani entry nahi badlegi. Correction tabhi lagega jab owner/engineer approve kare.</p>' + chips('cmode', [['fix', 'Value theek karo'], ['void', 'Entry radd (void)']]) +
+      (FORM.cmode === 'fix' ? Object.keys(e.d).filter(k => typeof e.d[k] !== 'object').map(k => '<label class="f">' + esc(k) + ' (abhi: ' + esc(e.d[k]) + ')</label><input type="text" data-k="fix_' + k + '" placeholder="naya value — khali chhodo agar theek hai">').join('') : '') +
+      '<label class="f">Reason (zaroori)</label>' + area('reason') + '<button class="btn" data-do="saveCorr" data-t="' + esc(id) + '">Correction bhejo</button></div>' : '');
+};
+V.reports = (app, which) => {
+  which = which || 'daily'; FORM.rdate = FORM.rdate || today();
+  let body = '';
+  if (which === 'daily') { const R = C.dailyReport(S, FORM.rdate, { chainBad: CHAIN_BAD }); FORM._text = C.dailyText(R); body = '<label class="f">Date</label>' + txt('rdate', '', 'date') + '<pre class="card" style="white-space:pre-wrap;font:14px/1.45 system-ui">' + esc(FORM._text) + '</pre><p><button class="btn" data-do="wa">WhatsApp par bhejo</button> <button class="btn ghost" data-do="copy">Copy</button> <button class="btn ghost" data-do="print">Print</button></p>'; }
+  if (which === 'weekly') { const to = FORM.rdate, from = C.addDays(to, -6), R = C.weeklyReport(S, from, to); body = '<label class="f">Week ending</label>' + txt('rdate', '', 'date') + '<div class="card"><h3>Hazri vs bill vs payment (' + from + ' → ' + to + ')</h3><table><tr><th>Thekedar</th><th>Hazri days</th><th>Bill days</th><th>Gap</th><th>Wage due</th><th>Paid</th></tr>' + R.labour.map(l => '<tr><td>' + esc(l.contractor) + '</td><td>' + l.days + '</td><td>' + l.billedDays + '</td><td style="color:' + (l.gapDays > 0 ? 'var(--red)' : 'inherit') + '">' + l.gapDays + '</td><td>' + inr(l.wageDue) + '</td><td>' + inr(l.paid) + '</td></tr>').join('') + '</table></div><div class="card"><h3>Maal: kaam ke hisaab se vs diya</h3><table><tr><th>Maal</th><th>Lagna tha</th><th>Diya</th><th>Gap</th><th></th></tr>' + R.materials.map(u => '<tr><td>' + C.MATERIALS[u.material].n + '</td><td>' + u.theoretical + '</td><td>' + u.issued + '</td><td>' + u.gapPct + '% (allowed ' + u.allowedPct + '%)</td><td>' + (u.sev === 'red' ? '🔴' : u.sev === 'amber' ? '🟠' : '🟢') + '</td></tr>').join('') + '</table></div><div class="card"><h3>Surprise audits</h3>' + (R.audits.length ? R.audits.map(a => '<p>' + (a.ok ? '🟢' : '🔴') + ' ' + esc(a.id) + ' by ' + esc(a.by) + ' · ' + a.n + ' items</p>').join('') : '<p class="note">Is hafte koi audit nahi — kam se kam 1 karo.</p>') + '</div><div class="card"><h3>Flags</h3>' + R.flags.slice(0, 20).map(f => '<div class="flag ' + f.sev + '">' + esc(f.text) + '</div>').join('') + '</div>'; }
+  if (which === 'monthly') { const ym = FORM.rdate.slice(0, 7), R = C.monthlyReport(S, ym); body = '<label class="f">Month (koi bhi date)</label>' + txt('rdate', '', 'date') + '<div class="stats"><div><b>' + inr(R.leakage) + '</b><span>leakage estimate</span></div><div><b>' + R.red + '</b><span>red flags</span></div><div><b>' + R.amber + '</b><span>amber</span></div></div><div class="card"><h3>Scorecard (100 = saaf)</h3><table><tr><th>Party</th><th></th><th>Score</th><th>Kyun</th></tr>' + R.parties.map(p => '<tr><td>' + esc(p.name) + '</td><td>' + p.kind + '</td><td><b style="color:' + (p.score < 70 ? 'var(--red)' : p.score < 90 ? 'var(--amb)' : 'var(--ok)') + '">' + p.score + '</b></td><td class="note">' + esc(p.notes.slice(0, 3).join('; ')) + '</td></tr>').join('') + '</table></div><div class="card"><h3>Flags by rule</h3><p>' + Object.keys(R.byRule).map(k => k + ': ' + R.byRule[k]).join(' · ') + '</p></div>'; }
+  if (which === 'anchor') body = '<div class="card"><p class="note">Har din ki saari entries ka ek fingerprint (Merkle root). Isse BhuChain blockchain par daalenge — baad mein koi entry badli to root match nahi karega.</p><div id="roots">…</div></div>';
+  app.innerHTML = head('📊 ' + t('reports')) + '<div class="chips noprint">' + [['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly'], ['anchor', 'Day hash']].map(([k, l]) => '<a class="chip' + (which === k ? ' on' : '') + '" href="#/reports/' + k + '">' + l + '</a>').join('') + '</div>' + body;
+  if (which === 'anchor') { const days = [...new Set(E.map(e => C.day(e.at)))].sort().reverse().slice(0, 30); Promise.all(days.map(d => C.dayRoot(E, d))).then(R => { const el = $('#roots'); if (el) el.innerHTML = '<table><tr><th>Date</th><th>Entries</th><th>Root hash</th></tr>' + R.filter(Boolean).map(r => '<tr><td>' + r.date + '</td><td>' + r.count + '</td><td class="mono">' + r.root + '</td></tr>').join('') + '</table>'; }); }
+};
+V.audit = app => {
+  const ymd = today(), pick = C.ofType(S, 'auditPick').filter(e => C.day(e.at) === ymd).pop(), done = pick && C.ofType(S, 'audit').some(a => a.d.pick === pick.id);
+  if (!FORM._au) { FORM = { _au: 1 }; startGPS(); }
+  const last = C.ofType(S, 'audit').slice(-2).map(a => a.by);
+  let h = head('🎲 ' + t('audit'), 'Bina bataye. Pehle app random chunta hai (record ho jata hai), phir jaake check karo.');
+  if (can('headcount')) h += '<div class="card"><h3>Surprise headcount</h3><p>App ke hisaab se abhi site par: <b>' + C.presentNow(S, ymd).length + '</b></p><label class="f">Aapne gine</label>' + num('counted') + photos([['crowd', 'Sab workers ki photo']]) + gpsLine() + '<p><button class="btn" data-do="saveHead">Headcount save</button></p></div>';
+  if (can('auditPick')) {
+    if (last.length === 2 && last.every(b => b === ME)) h += '<div class="flag amber">Pichhle 2 audit aapne kiye — is baar kisi aur ko bhejo (rotation).</div>';
+    if (!pick) h += '<div class="card"><button class="btn wide" data-do="pick">🎲 Aaj ka random audit chuno</button></div>';
+    else {
+      const P = pick.d, st = C.stock(S);
+      h += '<div class="card"><h3>Aaj ka audit (' + esc(pick.id) + ')' + (done ? ' — ho gaya ✔' : '') + '</h3>' + (done ? '' :
+        P.workers.map((w, i) => '<label class="f">Worker: ' + esc((S.workers[w] || {}).name || w) + ' — site par hai aur chehra photo se milta hai?</label>' + chips('aw' + i, [['yes', 'Haan'], ['no', 'Nahi']])).join('') +
+        P.materials.map((m, i) => '<label class="f">' + C.MATERIALS[m].n + ' — book ' + st[m].closing + ' ' + C.MATERIALS[m].u + '. Gin ke likho:</label>' + num('am' + i)).join('') +
+        (P.work || []).map((w, i) => { const x = S.byId[w]; return x ? '<label class="f">Kaam ' + esc((C.WORKS[x.d.work] || {}).n || '') + ' ' + esc(x.d.qty) + ' @ ' + esc(x.d.location) + ' — naap ke likho:</label>' + num('aq' + i) : ''; }).join('') +
+        photos([['au1', 'Audit photo 1'], ['au2', 'Audit photo 2']]) + gpsLine() + '<p><button class="btn" data-do="saveAudit" data-t="' + pick.id + '">Audit save</button></p>') + '</div>';
+    }
+  }
+  app.innerHTML = h;
+};
+V.plan = app => { if (!FORM._pl) FORM = { _pl: 1 }; app.innerHTML = head('📅 ' + t('plan'), 'Har line ek kaam. Daily report mein jaata hai.') + '<div class="card">' + area('text', 'jaise\nFF slab shuttering\n20 bag cement chahiye') + '</div>' + bar(t('save'), 'savePlan'); };
+V.tip = app => { if (!FORM._tp) FORM = { _tp: 1 }; app.innerHTML = head('🤫 ' + t('tip'), 'Aapka naam save nahi hota. Sach batao: kya, kab, kahan. Photo ho to lagao.') + '<div class="card">' + area('text', 'kya galat ho raha hai') + photos([['tip', 'Photo (optional)']]) + ((S.site && S.site.tipUrl) ? '<p class="note">Ya bahar se bhejo: <a href="' + esc(S.site.tipUrl) + '" target="_blank" rel="noopener">anonymous Google Form</a></p>' : '') + '</div>' + bar('Bhejo', 'saveTip'); };
+
+/* people and parties (owner) */
+V.people = (app, sec) => {
+  sec = sec || 'staff'; if (!FORM._pp || FORM._pp !== sec) FORM = { _pp: sec, role: 'supervisor' };
+  const tabs = [['staff', 'Staff'], ['contractor', 'Thekedar'], ['vendor', 'Supplier'], ['rate', 'Rates'], ['coi', 'Rishte (COI)'], ['site', 'Site']];
+  let h = head('👥 ' + t('people')) + '<div class="chips">' + tabs.map(([k, l]) => '<a class="chip' + (sec === k ? ' on' : '') + '" href="#/people/' + k + '">' + l + '</a>').join('') + '</div>';
+  if (sec === 'staff') h += '<div class="card list">' + Object.values(S.persons).map(p => '<div class="it"><div class="t"><b>' + esc(p.name) + '</b><small>' + esc(C.ROLES[p.role]) + ' · ' + esc(p.phone || '') + '</small></div></div>').join('') + '</div><div class="card"><h3>+ Staff</h3><label class="f">Naam</label>' + txt('name') + '<label class="f">Role</label>' + chips('role', Object.keys(C.ROLES).filter(r => r !== 'owner').map(r => [r, C.ROLES[r]])) + '<label class="f">Phone</label>' + txt('phone', '', 'tel') + '<label class="f">PIN (4 ank)</label>' + txt('pin', '', 'password') + '<p class="note">Ek aadmi = ek role. Hazri lene wala, maal lene wala, payment wala aur approve karne wala alag hon.</p><button class="btn" data-do="savePerson">Add</button></div>';
+  if (sec === 'contractor') h += '<div class="card list">' + Object.values(S.contractors).map(c => '<div class="it"><div class="t"><b>' + esc(c.name) + '</b><small>Work order ' + inr(c.workOrder) + ' · advance limit ' + inr(c.advanceLimit) + '</small></div></div>').join('') + '</div><div class="card"><h3>+ Thekedar</h3><label class="f">Naam</label>' + txt('name') + '<label class="f">Phone</label>' + txt('phone', '', 'tel') + '<label class="f">Work order ₹</label>' + num('workOrder') + '<label class="f">Advance limit ₹ (jaise work order ka 10%)</label>' + num('advanceLimit') + '<button class="btn" data-do="saveParty" data-t="contractor">Add</button></div>';
+  if (sec === 'vendor') h += '<div class="card list">' + Object.values(S.vendors).map(c => '<div class="it"><div class="t"><b>' + esc(c.name) + '</b><small>' + esc(c.phone || '') + ' · GST ' + esc(c.gst || '—') + '</small></div></div>').join('') + '</div><div class="card"><h3>+ Supplier</h3><label class="f">Naam</label>' + txt('name') + '<label class="f">Phone</label>' + txt('phone', '', 'tel') + '<label class="f">GSTIN</label>' + txt('gst') + '<label class="f">Advance limit ₹</label>' + num('advanceLimit') + '<button class="btn" data-do="saveParty" data-t="vendor">Add</button></div>';
+  if (sec === 'rate') h += '<div class="card"><table><tr><th>Supplier</th><th>Maal</th><th>Approved rate</th></tr>' + Object.values(S.rates).map(r => '<tr><td>' + esc(r.vendor === '*' ? 'All' : party(r.vendor)) + '</td><td>' + C.MATERIALS[r.material].n + '</td><td>' + inr(r.rate) + '/' + C.MATERIALS[r.material].u + '</td></tr>').join('') + '</table><p class="note">Bina rate set kiye default market rate se check hota hai: ' + Object.keys(C.MATERIALS).map(k => C.MATERIALS[k].n + ' ' + inr(C.MATERIALS[k].rate)).join(', ') + '. Har mahine update karo.</p></div><div class="card"><h3>+ Approved rate</h3>' + chips('vendor', [['*', 'All suppliers']].concat(Object.values(S.vendors).map(v => [v.id, v.name]))) + chips('material', matOpts()) + '<label class="f">Rate ₹</label>' + num('rate') + '<button class="btn" data-do="saveRate">Add</button></div>';
+  if (sec === 'coi') h += '<div class="card list">' + S.coi.map(c => '<div class="it"><div class="t"><b>' + esc(personName(c.person)) + ' ↔ ' + esc(party(c.party)) + '</b><small>' + esc(c.relation) + '</small></div></div>').join('') + '</div><div class="card"><h3>+ Rishta / conflict of interest</h3><p class="note">Har staff se likhwa lo: kisi thekedar/supplier se rishtedari, partnership, commission. Aisa aadmi us party ka bill approve nahi kar payega.</p>' + chips('person', Object.values(S.persons).map(p => [p.id, p.name])) + chips('party', Object.values(S.contractors).concat(Object.values(S.vendors)).map(p => [p.id, p.name])) + '<label class="f">Rishta</label>' + txt('relation', 'jaise saala, partner') + '<button class="btn" data-do="saveCoi">Add</button></div>';
+  if (sec === 'site') h += '<div class="card"><p><b>' + esc(S.site.name) + '</b> · ' + esc(S.site.lat) + ', ' + esc(S.site.lng) + ' · radius ' + esc(S.site.radius) + ' m</p><label class="f">Anonymous complaint Google Form link (optional)</label>' + txt('tipUrl', 'https://forms.gle/…') + '<button class="btn" data-do="saveTipUrl">Save</button><p class="note">Site ki koi bhi setting correction entry se badalti hai — purani bhi record mein rehti hai.</p></div>';
+  app.innerHTML = h;
+};
+
+/* sync and backup */
+V.sync = async app => {
+  const url = (await meta('syncUrl')) || '', key = (await meta('syncKey')) || '', sent = (await meta('sent')) || {}, unsent = E.filter(e => !sent[e.id]).length;
+  app.innerHTML = head('☁️ ' + t('sync'), 'Sab data pehle phone mein save hota hai (internet na ho tab bhi). Internet aate hi Google Sheet + Drive mein chala jaata hai.') +
+    '<div class="card"><p>Is phone par entries: <b>' + E.length + '</b> · bhejna baaki: <b>' + unsent + '</b> · device ID <span class="mono">' + DEV + '</span></p><label class="f">Google Apps Script URL</label><input type="text" id="surl" value="' + esc(url) + '" placeholder="https://script.google.com/macros/s/…/exec"><label class="f">Site key (owner se lo)</label><input type="text" id="skey" value="' + esc(key) + '"><p><button class="btn" data-do="syncSave">Save + sync now</button></p><p class="note">Setup: docs/GOOGLE-SETUP.md. Doosre phones ki entries bhi yahin se aati hain.</p></div>' +
+    '<div class="card"><h3>Backup</h3><p><button class="btn ghost" data-do="export">⬇ Backup file (JSON)</button> <button class="btn ghost" data-do="csv">⬇ Sheets ke liye CSV</button> <button class="btn ghost" data-do="import">⬆ Backup / doosre phone ki file jodo</button></p><p class="note">File jodne par har entry ka hash check hota hai. Badli hui entry nahi judegi.</p></div>';
+};
+let syncT = 0; function syncSoon() { clearTimeout(syncT); syncT = setTimeout(() => syncNow(true), 1500); }
+async function syncNow(quiet) {
+  const url = await meta('syncUrl'), key = await meta('syncKey'); if (!url || !navigator.onLine) { if (!quiet) toast(url ? 'Internet nahi — baad mein' : 'Pehle URL daalo', true); return; }
+  try {
+    const sent = (await meta('sent')) || {}, todo = E.filter(e => !sent[e.id]).slice(0, 25);
+    if (todo.length) {
+      const photos = {}; for (const e of todo) for (const p of e.photos || []) photos[p.h] = await getKey('photos', p.h);
+      const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ key, site: (S.site || {}).name, entries: todo.map(e => Object.assign({}, e, { photos: (e.photos || []).map(p => ({ h: p.h, kind: p.kind, ts: p.ts, ah: p.ah, old: p.old })) })), photos }) });
+      const j = await r.json(); if (!j.ok) throw new Error(j.error || 'sync failed'); (j.saved || todo.map(e => e.id)).forEach(id => sent[id] = 1); await meta('sent', sent);
+      if (E.some(e => !sent[e.id])) return syncNow(quiet);
+    }
+    const since = (await meta('pulled')) || '', r2 = await fetch(url + '?key=' + encodeURIComponent(key) + '&since=' + encodeURIComponent(since)), j2 = await r2.json();
+    if (j2.ok && j2.entries) { const n = await mergeEntries(j2.entries, true); await meta('pulled', j2.now || new Date().toISOString()); if (n && !quiet) toast(n + ' nayi entries aayi'); }
+    if (!quiet) toast('☁️ Sync ho gaya'); await reload(); if (ROUTE === 'sync' || ROUTE === 'home') render();
+  } catch (err) { if (!quiet) toast('Sync nahi hua: ' + err.message, true); }
+}
+// add entries from another phone or a backup: each must hash correctly and fit its device chain
+async function mergeEntries(list, fromServer) {
+  const have = new Set(E.map(e => e.id)), add = [];
+  for (const e of list) { if (have.has(e.id) || !e.hash) continue; if (await C.sha256(C.hashBody(e)) !== e.hash) continue; add.push(e); }
+  for (const e of add) { await tx('entries', 'readwrite', s => s.put(e)); }
+  if (add.length) { const sent = (await meta('sent')) || {}; if (fromServer) add.forEach(e => sent[e.id] = 1); await meta('sent', sent); await reload(); }
+  return add.length;
+}
+function download(name, text, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+function toCSV() { const rows = [['id', 'device', 'seq', 'type', 'time_IST', 'by', 'lat', 'lng', 'gps_acc', 'photos', 'status', 'data', 'hash', 'prev']]; S.all.forEach(e => rows.push([e.id, e.dev, e.seq, e.type, C.day(e.at) + ' ' + C.timeOf(e.at), personName(e.by), e.gps ? e.gps.lat : '', e.gps ? e.gps.lng : '', e.gps ? e.gps.acc : '', (e.photos || []).map(p => p.h.slice(0, 12)).join(' '), C.statusOf(S, e).state, JSON.stringify(e.d), e.hash, e.prev])); return rows.map(r => r.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\n'); }
+
+/* guide */
+V.guide = app => {
+  app.innerHTML = head('📘 ' + t('guide')) + '<div class="card"><h3>6 niyam</h3><ol><li><b>Do-aadmi:</b> jo entry banata hai wo approve nahi kar sakta. Payment ko 2 approval chahiye, ek owner ka.</li><li><b>Saboot:</b> har entry ke saath photo + GPS + time. Bina saboot = "unverified", ginti mein nahi.</li><li><b>Milaan:</b> hazri ↔ mazdoori, maal aaya ↔ bill, kaam ↔ maal kharch — app khud milaata hai.</li><li><b>No edit:</b> koi entry delete/edit nahi. Galti = correction entry + reason + approval.</li><li><b>Achanak jaanch:</b> app random worker/maal chunta hai, auditor jaake gine.</li><li><b>Kaam ka bantwara:</b> hazri, maal, payment aur approval alag-alag log.</li></ol></div>' +
+    '<div class="card"><h3>Roz ka kaam (2–3 minute har step)</h3><table><tr><th>Time</th><th>Kaun</th><th>Kya</th></tr>' + [['8:00–8:30', 'Gate / supervisor', 'Hazri IN — har worker ki selfie'], ['8:30', 'Engineer', 'Site visit — Arrival selfie'], ['9:00', 'Supervisor', 'Hazri approve (photo milaao)'], ['Truck aaye tab', 'Storekeeper', 'Material aaya — challan, truck, kata parchi photo'], ['Truck ke baad', 'Engineer / supervisor', 'Material aaya approve'], ['Maal dete waqt', 'Storekeeper', 'Material diya — kis kaam ke liye'], ['Din bhar', 'Supervisor / engineer', 'Aaj ka kaam — naap + 2 photo'], ['5:00–5:30', 'Gate', 'Hazri OUT selfie'], ['5:30', 'Storekeeper', 'Stock check (ek maal roz)'], ['6:00', 'Engineer', 'Kaam certify + Kal ka plan'], ['6:15', 'Owner', 'Daily report WhatsApp, red flags dekho']].map(r => '<tr><td>' + r.join('</td><td>') + '</td></tr>').join('') + '</table></div><p class="note">Poora manual: integrity/docs/MANUAL.md · Hindi: docs/STAFF-GUIDE-HI.md · Odia: docs/STAFF-GUIDE-OR.md</p>';
+};
+
+/* ---------- events ---------- */
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[data-go],[data-do],[data-v],[data-photo],[data-who],[data-pin],[data-attw],[data-ap],[data-rj],[data-pickt],[data-lang],[data-full]'); if (!el) return;
+  if (el.dataset.go) { FORM = {}; return go(el.dataset.go.split('/')[0], el.dataset.go.split('/')[1]); }
+  if (el.dataset.lang) { LANG = el.dataset.lang; try { localStorage.setItem('bsi_lang', LANG); } catch (x) {} return render(); }
+  if (el.dataset.v != null && el.parentElement.dataset.chips) { const k = el.parentElement.dataset.chips; if (el.parentElement.dataset.multi) { const L = FORM[k] = FORM[k] || []; const i = L.indexOf(el.dataset.v); i < 0 ? L.push(el.dataset.v) : L.splice(i, 1); } else FORM[k] = el.dataset.v; return render(); }
+  if (el.dataset.photo) { const p = await takePhoto(el.dataset.photo, !!el.dataset.front, FORM._gps); if (p) { FORM._photos = FORM._photos || {}; FORM._photos[el.dataset.photo] = p; render(); } return; }
+  if (el.dataset.full) { const src = await getKey('photos', el.dataset.full); if (src) { const w = window.open(); if (w) w.document.write('<img src="' + src + '" style="max-width:100%">'); } return; }
+  if (el.dataset.who) { FORM.who = el.dataset.who; FORM.pin = ''; $('#pinbox').classList.remove('hide'); $('#dots').textContent = ''; return; }
+  if (el.dataset.pin != null) { const k = el.dataset.pin; if (k === '⌫') FORM.pin = FORM.pin.slice(0, -1); else if (k === '✔' || FORM.pin.length >= 3) { if (k !== '✔') FORM.pin += k; const p = S.persons[FORM.who], ok = p && p.pinHash === await C.sha256('bsi:' + p.id + ':' + FORM.pin); if (ok) { ME = p.id; sessionStorage.setItem('bsi_me', ME); FORM = {}; go('home'); render(); } else { toast('PIN galat', true); FORM.pin = ''; } } else FORM.pin += k; const d = $('#dots'); if (d) d.textContent = '•'.repeat(FORM.pin.length); return; }
+  if (el.dataset.attw) return attFor(el.dataset.attw);
+  if (el.dataset.ap) { await approve(el.dataset.ap, true); return render(); }
+  if (el.dataset.rj) { const why = prompt('Kyun galat hai? (zaroori)'); if (!why) return; await approve(el.dataset.rj, false, why); return render(); }
+  if (el.dataset.pickt) { FORM.target = el.dataset.pickt; return render(); }
+  const act = el.dataset.do; if (!act) return;
+  try { await (ACT[act] || (() => {}))(el); } catch (err) { if (err.message !== 'stop') toast(err.message, true); }
+});
+document.addEventListener('input', e => { const el = e.target; if (el.dataset.k) { FORM[el.dataset.k] = el.value; if (el.dataset.k === 'q' && ROUTE === 'att') { const pos = el.selectionStart; render(); const n = document.querySelector('[data-k="q"]'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } } if (el.dataset.k === 'qty' && ROUTE === 'work' && $('#needs') && C.WORKS[FORM.work]) $('#needs').textContent = needText(C.WORKS[FORM.work], +el.value || 0); } if (el.dataset.item != null) { FORM.items[+el.dataset.item][el.dataset.f] = el.dataset.f === 'material' ? el.value : el.value; } });
+document.addEventListener('change', e => { const el = e.target; if (el.dataset.k === 'rdate' || (ROUTE === 'pay' && ['from', 'to'].includes(el.dataset.k))) render(); });
+let payT = 0; document.addEventListener('input', () => { if (ROUTE !== 'pay') return; clearTimeout(payT); payT = setTimeout(() => { const el = $('#paychk'); if (el) el.innerHTML = payChecksHtml(); }, 250); });
+$('#langBtn').addEventListener('click', () => { LANG = LANG === 'hl' ? 'hi' : LANG === 'hi' ? 'or' : 'hl'; try { localStorage.setItem('bsi_lang', LANG); } catch (x) {} render(); });
+$('#imp').addEventListener('change', async () => { const f = $('#imp').files[0]; if (!f) return; try { const j = JSON.parse(await f.text()); for (const h of Object.keys(j.photos || {})) await putKey('photos', j.photos[h], h); const n = await mergeEntries(j.entries || []); toast(n + ' entries judi'); render(); } catch (err) { toast('File galat: ' + err.message, true); } });
+
+const ACT = {
+  regps: () => { startGPS(); render(); },
+  siteGps: async () => { const g = await getGPS(); if (!g) return toast('GPS nahi mila', true); FORM.lat = g.lat; FORM.lng = g.lng; $('#sloc').textContent = g.lat + ', ' + g.lng + ' (±' + g.acc + ' m)'; },
+  setup: async () => {
+    need(FORM.name && FORM.owner, 'Site aur owner ka naam likho'); need(/^\d{4}$/.test(FORM.pin || ''), 'PIN 4 ank ka ho'); need(FORM.lat, 'Site ki location lo');
+    const opening = {}; Object.keys(C.MATERIALS).forEach(k => { if (+FORM['op_' + k]) opening[k] = +FORM['op_' + k]; });
+    await save('site', { name: FORM.name, lat: FORM.lat, lng: FORM.lng, radius: +FORM.radius || 150, opening }, { setup: 1, by: null, gps: { lat: FORM.lat, lng: FORM.lng, acc: 0 } });
+    const id = DEV + '-' + (chain().length + 1), pinHash = await C.sha256('bsi:' + id + ':' + FORM.pin);
+    const p = await save('person', { name: FORM.owner, role: 'owner', pinHash }, { setup: 1, by: null }); ME = p.id; sessionStorage.setItem('bsi_me', ME); FORM = {}; go('home'); render();
+  },
+  logout: () => { ME = null; sessionStorage.removeItem('bsi_me'); FORM = {}; go('home'); render(); },
+  scan: async () => {
+    if (!('BarcodeDetector' in window)) return toast('Is phone par QR scan nahi — naam se chuno', true);
+    const p = await new Promise(r => { const inp = $('#cam'); inp.value = ''; inp.onchange = () => r(inp.files[0]); inp.click(); }); if (!p) return;
+    const bmp = await createImageBitmap(p), codes = await new window.BarcodeDetector({ formats: ['qr_code'] }).detect(bmp);
+    const id = codes[0] && codes[0].rawValue; if (!id || !S.workers[id]) return toast('QR pehchana nahi', true); attFor(id);
+  },
+  saveWorker: async () => {
+    need(FORM._photos && FORM._photos.face, 'Worker ki photo lo'); need(FORM.name, 'Naam likho'); need(/^\d{4}$/.test(FORM.aadhaar4 || ''), 'Aadhaar ke last 4 ank'); need(+FORM.wage > 0, 'Mazdoori likho');
+    await save('worker', { name: FORM.name.trim(), aadhaar4: FORM.aadhaar4, trade: FORM.trade, contractor: FORM.contractor || '', wage: +FORM.wage, phone: FORM.phone || '' }, { gps: await getGPS(), photos: shot(['face']) }); FORM = {}; go('workers');
+  },
+  saveMatIn: async () => {
+    need(FORM.vendor, 'Supplier chuno'); need(+FORM.challanQty > 0 && +FORM.recvQty >= 0 && FORM.recvQty !== undefined && FORM.recvQty !== '', 'Challan aur mila — dono likho'); need(FORM.challanNo, 'Challan no.'); need(FORM._photos && FORM._photos.challan && FORM._photos.truck, 'Challan aur truck plate ki photo zaroori');
+    await save('matIn', { material: FORM.material, vendor: FORM.vendor, challanNo: FORM.challanNo, truck: (FORM.truck || '').toUpperCase(), challanQty: +FORM.challanQty, recvQty: +FORM.recvQty, kata: FORM.kata || '', rate: +FORM.rate || 0, batch: FORM.batch || '' }, { gps: FORM._gps, photos: shot(['challan', 'truck', 'goods', 'kata']) }); FORM = {}; go('home');
+  },
+  saveMatOut: async () => {
+    need(+FORM.qty > 0, 'Kitna diya likho'); need(FORM.for || FORM.workRef, 'Kis kaam ke liye'); need(FORM.to, 'Kisko diya');
+    const st = C.stock(S)[FORM.material]; if (+FORM.qty > st.closing + st.pendingIn) toast('⚠ Stock se zyada diya — flag banega', true);
+    await save('matOut', { material: FORM.material, qty: +FORM.qty, for: FORM.for || '', workRef: FORM.workRef || '', to: FORM.to }, { gps: FORM._gps, photos: shot(['issue']) }); FORM = {}; go('home');
+  },
+  saveCount: async () => { need(FORM.qty !== undefined && FORM.qty !== '', 'Gin ke likho'); await save('stockCount', { material: FORM.material, qty: +FORM.qty }, { gps: FORM._gps, photos: shot(['count']) }); FORM = {}; render(); },
+  saveWork: async () => {
+    need(+FORM.qty > 0, 'Kitna kaam — likho'); need(FORM._photos && (FORM._photos.w1 || FORM._photos.w2), 'Kam se kam ek photo'); need(FORM.work !== 'other' || FORM.workName, 'Kaam ka naam');
+    await save('work', { work: FORM.work, workName: FORM.workName || '', qty: +FORM.qty, location: FORM.location, spot: FORM.spot || '', quality: FORM.quality, notes: FORM.notes || '', weight: +FORM.weight || 0 }, { gps: FORM._gps, photos: shot(['w1', 'w2', 'tape']) }); FORM = {}; go('home');
+  },
+  saveVisit: async () => { need(FORM._photos && FORM._photos.visit, 'Site par selfie lo'); await save('visit', { purpose: FORM.purpose, notes: FORM.notes || '' }, { gps: FORM._gps, photos: shot(['visit']) }); FORM = {}; go('home'); },
+  saveRecheck: async () => { need(FORM.measuredQty !== undefined && FORM.measuredQty !== '', 'Naap likho'); await save('recheck', { target: FORM.target, measuredQty: +FORM.measuredQty, ok: FORM.ok !== 'no', notes: FORM.notes || '' }, { gps: FORM._gps, photos: shot(['rc']) }); FORM = {}; go('flags'); },
+  savePay: async () => { need(FORM.payee, 'Kisko payment'); need(+FORM.amount > 0, 'Amount'); need(FORM.billNo || FORM.kind === 'advance', 'Bill no.'); await save('pay', payData(), { gps: await getGPS(), photos: shot(['bill']) }); FORM = {}; go('home'); },
+  addItem: () => { FORM.items.push({ material: 'cement', qty: '', rate: '' }); render(); },
+  savePaid: async () => { const p = S.byId[FORM.target]; need(p && C.payReady(S, p), 'Ye payment abhi ready nahi'); need(FORM.utr || FORM.mode === 'Cash', 'UTR / cheque no.'); need(FORM._photos && FORM._photos.receipt, 'Receipt ki photo'); await save('paid', { target: FORM.target, mode: FORM.mode, utr: FORM.utr || '' }, { gps: await getGPS(), photos: shot(['receipt']) }); FORM = {}; go('home'); },
+  saveCorr: async el => { need(FORM.reason, 'Reason likho'); const fix = {}; Object.keys(FORM).filter(k => k.startsWith('fix_') && FORM[k] !== '').forEach(k => { const key = k.slice(4), old = S.byId[el.dataset.t].d[key]; fix[key] = typeof old === 'number' ? +FORM[k] : FORM[k]; }); need(FORM.cmode === 'void' || Object.keys(fix).length, 'Kya badalna hai likho'); await save('correction', { target: el.dataset.t, reason: FORM.reason, fix: FORM.cmode === 'void' ? {} : fix, void: FORM.cmode === 'void' }); FORM = {}; render(); },
+  saveHead: async () => { need(FORM.counted !== undefined && FORM.counted !== '', 'Gin ke likho'); need(FORM._photos && FORM._photos.crowd, 'Photo lo'); await save('headcount', { counted: +FORM.counted, expected: C.presentNow(S, today()).length }, { gps: FORM._gps, photos: shot(['crowd']) }); FORM = { _au: 1, _gps: FORM._gps }; render(); },
+  pick: async () => { const rnd = () => crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296; const P = C.pickAudit(S, rnd, today()); await save('auditPick', P, { gps: FORM._gps }); render(); },
+  saveAudit: async el => {
+    const pick = S.byId[el.dataset.t], P = pick.d, st = C.stock(S), res = [];
+    P.workers.forEach((w, i) => res.push({ item: 'worker ' + ((S.workers[w] || {}).name || w), ok: FORM['aw' + i] === 'yes' }));
+    P.materials.forEach((m, i) => { const f = +FORM['am' + i], b = st[m].closing; res.push({ item: C.MATERIALS[m].n, expected: b, found: f, ok: b ? Math.abs(f - b) / b <= 0.02 : f === 0 }); });
+    (P.work || []).forEach((w, i) => { const x = S.byId[w]; if (!x) return; const f = +FORM['aq' + i], q = +x.d.qty; res.push({ item: 'work ' + w, expected: q, found: f, ok: q ? Math.abs(f - q) / q <= 0.05 : true }); });
+    need(FORM._photos && FORM._photos.au1, 'Audit photo lo'); await save('audit', { pick: pick.id, results: res }, { gps: FORM._gps, photos: shot(['au1', 'au2']) }); FORM = {}; go('flags');
+  },
+  savePlan: async () => { need(FORM.text, 'Plan likho'); for (const line of FORM.text.split('\n').map(s => s.trim()).filter(Boolean)) await save('plan', { text: line }); FORM = {}; go('home'); },
+  saveTip: async () => { need(FORM.text, 'Kya hua likho'); const keep = ME; ME = null; await save('tip', { text: FORM.text }, { photos: shot(['tip']), by: 'anon' }); ME = keep; FORM = {}; toast('Shukriya. Aapka naam save nahi hua.'); go('home'); },
+  savePerson: async () => { need(FORM.name, 'Naam'); need(/^\d{4}$/.test(FORM.pin || ''), 'PIN 4 ank'); const id = DEV + '-' + (chain().length + 1); await save('person', { name: FORM.name, role: FORM.role, phone: FORM.phone || '', pinHash: await C.sha256('bsi:' + id + ':' + FORM.pin) }); FORM = { _pp: 'staff', role: 'supervisor' }; render(); },
+  saveParty: async el => { need(FORM.name, 'Naam'); await save(el.dataset.t, { name: FORM.name, phone: FORM.phone || '', gst: FORM.gst || '', workOrder: +FORM.workOrder || 0, advanceLimit: +FORM.advanceLimit || 0 }); FORM = { _pp: el.dataset.t }; render(); },
+  saveRate: async () => { need(FORM.material && +FORM.rate > 0, 'Maal aur rate'); await save('rate', { vendor: FORM.vendor || '*', material: FORM.material, rate: +FORM.rate }); FORM = { _pp: 'rate' }; render(); },
+  saveCoi: async () => { need(FORM.person && FORM.party && FORM.relation, 'Sab bharo'); await save('coi', { person: FORM.person, party: FORM.party, relation: FORM.relation }); FORM = { _pp: 'coi' }; render(); },
+  saveTipUrl: async () => { await save('correction', { target: S.site.id, reason: 'complaint form link', fix: { tipUrl: FORM.tipUrl || '' } }); toast('Engineer/owner ki approval ke baad lagega'); render(); },
+  syncSave: async () => { await meta('syncUrl', $('#surl').value.trim()); await meta('syncKey', $('#skey').value.trim()); await syncNow(false); },
+  export: async () => { const photos = {}; for (const e of E) for (const p of e.photos || []) photos[p.h] = await getKey('photos', p.h); download('bhuchain-integrity-' + DEV + '-' + today() + '.json', JSON.stringify({ app: 'bhuchain-integrity', v: C.VERSION, exported: new Date().toISOString(), entries: E, photos }), 'application/json'); },
+  csv: () => download('bhuchain-ledger-' + today() + '.csv', toCSV(), 'text/csv'),
+  import: () => $('#imp').click(),
+  print: () => window.print(),
+  wa: () => window.open('https://wa.me/?text=' + encodeURIComponent(FORM._text || ''), '_blank'),
+  copy: async () => { try { await navigator.clipboard.writeText(FORM._text || ''); toast('Copied'); } catch (x) { toast('Copy nahi hua', true); } }
+};
+
+/* ---------- start ---------- */
+(async () => {
+  DB = await idb(); DEV = await meta('dev'); if (!DEV) { DEV = 'D' + Array.from(crypto.getRandomValues(new Uint8Array(3))).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase(); await meta('dev', DEV); }
+  await reload(); ME = sessionStorage.getItem('bsi_me'); if (ME && !S.persons[ME]) ME = null;
+  const [r, a] = location.hash.replace(/^#\//, '').split('/'); ROUTE = r || 'home'; ARG = a ? decodeURIComponent(a) : null; render();
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+  window.addEventListener('online', () => syncNow(true)); setInterval(() => syncNow(true), 5 * 60000);
+  window.BSI = { C, get S() { return S; }, get E() { return E; }, get ME() { return ME; }, set ME(v) { ME = v; }, save, approve, reload, render, go, mergeEntries };
+})();
+
+</script>
+</body>
+</html>

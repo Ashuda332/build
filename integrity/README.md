@@ -13,6 +13,9 @@ Daily tracking for BhuChain construction sites, so that no worker, engineer, sup
 | `docs/GOOGLE-SETUP.md` | Sheet, Apps Script, Drive, Forms (backup), conditional formatting, access |
 | `docs/STAFF-GUIDE-HI.md`, `docs/STAFF-GUIDE-OR.md` | One-page site staff guides in Hindi and Odia |
 
+## Single HTML file
+`dist/bhuchain-site-integrity.html` is the whole app in one file: no internet, no server. Copy it to a phone (WhatsApp, Drive or USB) and open it in Chrome. Data stays in that phone's browser storage, so always open the same copy in the same browser. Use Sync / backup to send the data to Google Sheets or to export a backup file. Rebuild it after any change with `node tools/bundle-integrity.mjs`.
+
 ## How data is stored
 - Every action is an **entry**: id, device, sequence number, type, time, person, GPS, photo hashes, data, the previous entry's hash, and its own SHA-256 hash.
 - Entries are saved first in the phone's IndexedDB, so they work without internet.
