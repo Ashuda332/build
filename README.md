@@ -53,6 +53,10 @@ The site then lives at `https://<owner>.github.io/<repo>/`.
   The ranges are **Low / Mid / High** (Ultra luxury for villas). Below the grid, a **What you get** table compares the three packages row by row for the chosen range, with the actual items. Every material has a dropdown: the brands for the chosen range come first, then every other option. A brick-size switch (9 inch or 10 inch red brick) sits above the What you get table. It also shows the labour charge per sq ft with approximate 2026 daily wages for Cuttack–Bhubaneswar. Prices use Cuttack–Bhubaneswar rates, so there is no separate location step. **Style** sets the look: 14 interior styles that change the models, finishes, materials and how full the rooms are.
 - **Furniture library** lets you browse, filter, choose models and finishes for the house. **Try another arrangement** rearranges every room. **Save design** keeps the whole design on this device, and **Export file** / **Import file** move it to another device.
 
+## OCR (English text only)
+
+`ocr.html` is a small standalone page: pick, drop or paste an image and tap **Extract text**. It reads the image in the browser with Tesseract.js (English model, nothing is uploaded) and keeps only English text — words made of A–Z letters, digits and common punctuation. Lines that are mostly another script (Odia, Hindi) are dropped whole, and **Min. confidence** drops unsure words. Copy the result or download it as a `.txt`. On the live site it is at `https://<owner>.github.io/<repo>/ocr.html`.
+
 ## Running locally
 
 The furniture library is loaded over HTTP, so open the app through a server rather than as a file:
