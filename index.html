@@ -1050,8 +1050,8 @@ function blocksBare(b, nc, nr) {
     if (gf.length > cells && gf.includes('parking')) { gf = gf.filter(t => t !== 'parking'); noPark = true; }
     while (gf.length > cells) gf.pop();
     const left = bedrooms.slice(), gfRoom = Math.max(0, cells - gf.length);
-    const onGF = b.floors === 1 ? Math.min(left.length, gfRoom) : Math.min(left.length > upperRoom ? 2 : 1, gfRoom, left.length);
-    gf.push(...left.splice(0, onGF));
+    // bedrooms fill the ground floor first while it has room; only the rest go upstairs
+    gf.push(...left.splice(0, Math.min(left.length, gfRoom)));
     if (b.floors === 1 && X.stairs) { if (gf.length < cells) gf.push('stair'); else extStair = true; }
     floors.push(gf);
     for (let f = 1; f < b.floors; f++) {
@@ -1061,6 +1061,7 @@ function blocksBare(b, nc, nr) {
       fl.push(...left.splice(0, Math.min(take, room))); floors.push(fl);
     }
     leftN = left.length;
+    if (b.floors > 1 && floors.slice(1).every(fl => fl.every(t => t === 'stair'))) warn.push('Every bedroom fits on the ground floor, so the floors above hold only the stair and free space. Choose “Each floor its own BHK” to put a home on every floor, or build the ground floor only.');
   }
   // the owner's extra rooms take a free cell: a study upstairs first, the others on the ground floor first
   const spare = f => cells - floors[f].length, up = floors.map((x, i) => i).filter(i => i > 0), miss = [];
@@ -1489,12 +1490,20 @@ function addSubRooms(b, floors, nr, nc) {
   }));
   // 3. common bath on each floor that has a bedroom without its own bath (ground floor always gets one)
   floors.forEach(F => {
-    const need = F.fi === 0 ? (!b.bare && b.baths >= 1) : F.rooms.some(r => (r.type === 'bedroom' || r.type === 'master') && !r.subs.length);
+    const homeHere = F.fi === 0 || (b.perFloor && b.floors > 1), cb = !!b.cbath && homeHere;
+    const need = F.fi === 0 ? (!b.bare && b.baths >= 1) || cb : cb || F.rooms.some(r => (r.type === 'bedroom' || r.type === 'master') && !r.subs.length);
     if (!need) return;
     // privacy: a toilet opens off a passage, lounge, study or store — never off the living room, dining or kitchen
     const hosts = F.rooms.filter(r => !r.void && (['store', 'study', 'lounge'].includes(r.type) || (r.type === 'terrace' && r.covered) || (r.type === 'passage' && r.rect.w * r.rect.h >= 70)));
-    const best = bestBath(b, floors, F, hosts, 'powder', 5, 7);
-    if (best && best.sc > -100) best.host.subs.push(best.s);
+    let best = bestBath(b, floors, F, hosts, 'powder', 5, 7);
+    // the owner asked for a common bathroom besides the attached ones: when no room takes it, a free cell next to the hall becomes a lobby that holds it
+    if (cb && !(best && best.sc > -100)) {
+      const hub = r => ['stair', 'lounge', 'passage', 'dining', 'living'].includes(r.type) && !r.void;
+      const free = F.rooms.filter(r => !r.void && (r.type === 'open' || (r.type === 'terrace' && r.covered)) && F.rooms.some(q => hub(q) && adjacent(q.rect, r.rect))).sort((a, z) => a.rect.w * a.rect.h - z.rect.w * z.rect.h)[0];
+      if (free) { const keep = { type: free.type, covered: free.covered, porch: free.porch }; Object.assign(free, { type: 'passage', label: 'Lobby' }); const b2 = bestBath(b, floors, F, [free], 'powder', 5, 7); if (b2 && b2.sc > -100) best = b2; else { delete free.label; Object.assign(free, keep); } }
+    }
+    // a common bath never sits in a sit-out: that cell becomes the lobby in front of it
+    if (best && best.sc > -100) { best.host.subs.push(best.s); if (best.host.type === 'terrace') { Object.assign(best.host, { type: 'passage', label: 'Lobby' }); delete best.host.covered; } }
     else if (F.fi === 0) F.noCommonBath = true;
   });
   // every home needs a toilet: in a very small home take the best spot that is still allowed (never North-East, centre or over the kitchen)
@@ -1681,7 +1690,7 @@ function vastuPanel(o, b) {
 /* ---------- drawing: plan, furniture, elevation ---------- */
 function ftIn(v) { const t = Math.round(v * 12), f = Math.floor(t / 12), i = t % 12; return f + '′' + (i ? i + '″' : ''); }
 function roomLabel(room, F, D) {
-  if (D.brief.bare && room.type === 'open') return 'Free space';
+  if (D.brief.bare && (room.type === 'open' || (room.type === 'terrace' && room.covered && F.fi > 0))) return 'Free space';
   if (room.label && room.type !== 'bedroom') return room.label;
   if (room.type === 'bedroom') { const all = D.options[0] ? null : null; return room.label || 'Bedroom'; }
   if (room.type === 'living' && D.combo && F.fi === 0) return 'Living + dining';
@@ -6362,10 +6371,10 @@ function seedStyle(seed, ti) { if (!seed) return ti >= 2 ? 'contemporary' : 'mod
 function tierBrief(noGrid) {
   const ti = TI[ST.tier], h = ST.home;
   const bare = !isVilla() && (h.use || 'family') === 'family', baths = Math.max(1, h.bhk) + (bare ? 0 : 1); // every bedroom attached (+ a common bath unless only the asked-for rooms are drawn)
-  const B = { w: ST.plot.w, d: ST.plot.d, facing: ST.plot.facing, floors: h.floors, bhk: Math.max(1, h.bhk), xr: xrOf(h), bare, baths, parking: h.park.kind !== 'none', park: Object.assign({}, h.park), seed: ST.seed, tier: ti, pooja: h.pooja, vastu: h.vastu, roof: h.roof || 'single', paint: ST.paint && ST.paint !== 'auto' ? ST.paint : undefined, space: h.space || 'balanced', balc: ST.balc && BALC[ST.balc] ? (BALC[ST.balc].t <= ti ? ST.balc : 'cantilever') : 'none', style: ST.style || seedStyle(ST.seed, ti), finish: 'standard', setF: 5, setR: 3, setS: 3 };
+  const B = { w: ST.plot.w, d: ST.plot.d, facing: ST.plot.facing, floors: h.floors, bhk: Math.max(1, h.bhk), xr: xrOf(h), bare, baths, cbath: !!h.cbath && !isVilla(), parking: h.park.kind !== 'none', park: Object.assign({}, h.park), seed: ST.seed, tier: ti, pooja: h.pooja, vastu: h.vastu, roof: h.roof || 'single', paint: ST.paint && ST.paint !== 'auto' ? ST.paint : undefined, space: h.space || 'balanced', balc: ST.balc && BALC[ST.balc] ? (BALC[ST.balc].t <= ti ? ST.balc : 'cantilever') : 'none', style: ST.style || seedStyle(ST.seed, ti), finish: 'standard', setF: 5, setR: 3, setS: 3 };
   if (!isVilla()) { const sb = setbackOf(); B.setF = sb.f; B.setR = sb.r; B.setS = sb.s; }
   if (isVilla()) { B.villa = true; B.villaV = villaLook(B.seed); if (!h.space || h.space === 'balanced') B.space = 'spacious'; if (!ST.style) B.style = ['mediterranean', 'heritage'].includes(B.villaV) ? 'odia' : 'contemporary'; if (!ST.balc) B.balc = B.villaV === 'resort' ? 'glass' : B.villaV === 'tropical' ? 'planter' : 'loggia'; }
-  if (h.split === 'floors' && h.floors > 1 && !isVilla()) { B.perFloor = (h.perFloor || []).slice(0, h.floors); while (B.perFloor.length < h.floors) B.perFloor.push(h.bhk); B.bhk = B.perFloor.reduce((a, v) => a + v, 0); B.baths = B.bhk + (bare ? 0 : h.floors); }
+  if (h.split === 'floors' && h.floors > 1 && !isVilla()) { B.perFloor = (h.perFloor || []).slice(0, h.floors); while (B.perFloor.length < h.floors) B.perFloor.push(1); B.bhk = B.perFloor.reduce((a, v) => a + v, 0); B.baths = B.bhk + (bare ? 0 : h.floors); }
   if (isVilla()) B.vt = ESTATE[ST.vtype] ? ST.vtype : 'villa';
   const sf = ST.home.use === 'rent' ? null : isVilla() ? villaFit(B.w, B.d, B.bhk, B.vt) : siteFit(B.w, B.d, B.bhk, B.park.kind);
   const shp = ST.plot.mode === 'sides' && ST.plot.shape ? ST.plot.shape : null;
@@ -6953,7 +6962,8 @@ const extraArea = h => XTRA.filter(k => !['stairs', 'puja', 'balcony'].includes(
 const fitOpts = h => ({ floors: h.floors, space: h.space || 'balanced', park: h.park.kind, pooja: !!h.pooja, extra: extraArea(h), stairs: stairOn(h) });
 // a flat on every floor: each floor holds a whole home (living, kitchen, toilets, bedrooms) and the stair; the ground floor also the parking
 const pfOn = h => h.split === 'floors' && h.floors > 1 && !isVilla();
-const pfList = h => { const L = (h.perFloor || []).slice(0, h.floors); while (L.length < h.floors) L.push(Math.max(1, Math.min(4, h.bhk))); return L.map(v => Math.max(1, Math.min(4, v))); };
+const pfList = h => { const L = (h.perFloor || []).slice(0, h.floors); while (L.length < h.floors) L.push(1); // a floor not chosen yet starts as a 1 BHK
+ return L.map(v => Math.max(1, Math.min(4, v))); };
 function fitFloors(list, o) {
   const A = areaFacts(), S = FIT_SPACE[o.space] || FIT_SPACE.balanced, rank = { ok: 0, tight: 1, no: 2 };
   let st = 'ok', why = '', need = 0, worst = -1;
@@ -7037,9 +7047,10 @@ SCR.home = () => {
   // 2 · your requirements
   const req = '<section class="rq-sec"><h4>' + (sized ? '4 · Other choices' : '2 · Floors and parking') + '</h4>' +
     '<div class="bm"><b>Floors</b><div class="rq-cats">' + ['Ground', 'G + 1', 'G + 2'].map((n, i) => chip('hfl', i + 1, h.floors === i + 1, n)).join('') + '</div></div>' +
-    (h.floors > 1 && use !== 'villa' ? '<div class="bm"><b>How is the building used?</b><div class="rq-cats">' + chip('hsplit', 'floors', pfOn(h), 'One floor<i>set on one floor first: each floor gets its own BHK, kitchen and living</i>') + chip('hsplit', 'house', !pfOn(h), 'Whole building<i>bedrooms counted for the whole building</i>') + '</div></div>' : '') +
+    (h.floors > 1 && use !== 'villa' ? '<div class="bm"><b>How is the building used?</b><div class="rq-cats">' + chip('hsplit', 'floors', pfOn(h), 'Each floor its own BHK<i>every floor gets its own 1–4 BHK with kitchen and living; 1 BHK to start</i>') + chip('hsplit', 'house', !pfOn(h), 'One home<i>bedrooms counted for the whole building, ground floor filled first</i>') + '</div></div>' : '') +
     (pfOn(h) ? pfList(h).map((v, f) => '<div class="bm"><b>' + FLOOR_NAME[f] + '</b><div class="rq-cats">' + [1, 2, 3, 4].map(k => '<button class="rq-c' + (v === k ? ' on' : '') + '" data-a="hpfl" data-i="' + f + '" data-v="' + k + '">' + k + ' BHK</button>').join('') + '</div></div>').join('')
       : '') +
+    (use !== 'villa' ? '<div class="bm"><b>Bathrooms</b><div class="rq-cats">' + chip('cbath', 0, !h.cbath, 'Attached only<i>every bedroom has its own toilet and bath</i>') + chip('cbath', 1, !!h.cbath, 'Attached + common<i>plus one separate bathroom for family and guests' + (pfOn(h) ? ' on every floor' : '') + '</i>') + '</div></div>' : '') +
     '<div class="bm"><b>Room sizes</b><div class="rq-cats">' + Object.keys(FIT_SPACE).map(k => { const S = FIT_SPACE[k], bd = Math.round(10 * Math.sqrt(S.k) * 2) / 2; return chip('hspace', k, (h.space || 'balanced') === k, S.n + '<i>bedroom ≈ ' + bd + ' × ' + bd + ' ft</i>'); }).join('') + '</div></div>' +
     '<div class="bm"><b>Parking</b><div class="rq-cats">' + [['none', 'None'], ['2w', 'Bike'], ['4w', 'Car'], ['both', 'Car + bike']].map(x => chip('pk', x[0], h.park.kind === x[0], x[1])).join('') + '</div></div>' +
     (use === 'villa' ? '<div class="bm"><b>More</b><div class="rq-cats">' + chip('tog', 'pooja', h.pooja, 'Puja room') + chip('tog', 'vastu', h.vastu, 'Follow Vastu') + '</div></div>' : '') +
@@ -9632,8 +9643,8 @@ const ACT = {
   pfn: el => keepY(() => { const x = projState().plan[+el.dataset.i]; x.n = Math.max(0, Math.min(20, (x.n || 0) + +el.dataset.d)); }),
   pfadd: () => keepY(() => { const P = projState(); if (P.plan.length < 15) P.plan.push(Object.assign({}, P.plan[P.plan.length - 1])); }),
   pfdel: el => keepY(() => { const P = projState(); if (P.plan.length > 1) P.plan.splice(+el.dataset.i, 1); }),
-  hsplit: el => keepY(() => { const h = ST.home; h.split = el.dataset.v; if (h.split === 'floors' && (!h.perFloor || !h.perFloor.length)) h.perFloor = Array.from({ length: 3 }, () => Math.max(1, Math.min(4, Math.round(h.bhk / Math.max(1, h.floors)) || 1))); S.design = null; ST.grid = null; }),
-  pfb: el => keepY(() => { const h = ST.home, i = +el.dataset.i; h.perFloor = h.perFloor || []; while (h.perFloor.length < 3) h.perFloor.push(h.bhk); h.perFloor[i] = Math.max(1, Math.min(4, h.perFloor[i] + +el.dataset.d)); S.design = null; ST.grid = null; }),
+  hsplit: el => keepY(() => { const h = ST.home; h.split = el.dataset.v; if (h.split === 'floors' && (!h.perFloor || !h.perFloor.length)) h.perFloor = [1, 1, 1]; S.design = null; ST.grid = null; }),
+  pfb: el => keepY(() => { const h = ST.home, i = +el.dataset.i; h.perFloor = h.perFloor || []; while (h.perFloor.length < 3) h.perFloor.push(1); h.perFloor[i] = Math.max(1, Math.min(4, h.perFloor[i] + +el.dataset.d)); S.design = null; ST.grid = null; }),
   inc: el => keepY(() => { const k = el.dataset.v; ST.home[k] = Math.min(+el.dataset.max, ST.home[k] + 1); }),
   dec: el => keepY(() => { const k = el.dataset.v; ST.home[k] = Math.max(1, ST.home[k] - 1); }),
   tog: el => keepY(() => { const k = el.dataset.v; ST.home[k] = !ST.home[k]; }),
@@ -9654,6 +9665,7 @@ const ACT = {
   hpfl: el => keepY(() => { const h = ST.home; h.perFloor = pfList(Object.assign({}, h, { floors: 3 })); h.perFloor[+el.dataset.i] = +el.dataset.v; }),
   hpfall: el => keepY(() => { const h = ST.home; h.perFloor = [1, 2, 3].map(() => +el.dataset.v); h.sized = true; }),
   hspace: el => keepY(() => { ST.home.space = el.dataset.v; }),
+  cbath: el => keepY(() => { ST.home.cbath = el.dataset.v === '1'; S.design = null; ST.grid = null; }),
   hfix: el => keepY(() => { const h = ST.home, c = JSON.parse(el.dataset.v); h.sized = true; if (c.perFloor) h.perFloor = c.perFloor.concat((h.perFloor || []).slice(c.perFloor.length)); if (c.bhk) h.bhk = c.bhk; if (c.floors) { h.floors = c.floors; if (S.design) S.design.floor = 0; } if (c.space) h.space = c.space; if (c.park) h.park.kind = c.park; }),
   hview: el => keepY(() => { ST.home.view = el.dataset.v === 'roof' ? 'roof' : +el.dataset.v; }),
   balc: el => keepY(() => { ST.balc = el.dataset.v; }),
