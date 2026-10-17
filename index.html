@@ -347,7 +347,7 @@ svg.splan,svg.ssec{width:100%;height:auto;display:block;max-height:76vh}
 
 .plan .rpark .gali{fill:#ECEAE5;stroke:#a9a397;stroke-width:.1;stroke-dasharray:.6 .4}
 .plan .rpark .pad{fill:#ECEAE5;stroke:#a9a397;stroke-width:.1}
-.plan .site .sump{fill:#DCEAF3;stroke:#3E6D8C;stroke-width:.12}.plan .site .sept{fill:#EEEEEC;stroke:#8C9399;stroke-width:.12}
+.plan .site .sump{fill:#DCEAF3;stroke:#3E6D8C;stroke-width:.12}.plan .site .sept{fill:#EEEEEC;stroke:#8C9399;stroke-width:.12}.plan .site .septl{fill:none;stroke:#8C9399;stroke-width:.08;stroke-dasharray:.3 .2}.plan .site .septm{fill:#D9DBDD;stroke:#6F767D;stroke-width:.06}
 .plan .st{font-size:.55px;fill:#424245;text-anchor:middle;font-family:var(--font)}
 .plan .vastu{pointer-events:none}
 .plan .vastu .vg{stroke:#B88A2E;stroke-width:.1;stroke-dasharray:.5 .35;opacity:.8}
@@ -461,6 +461,8 @@ html[data-theme="dark"] .compass button.on{background-color:#262B31}
 html[data-theme="dark"] .stepper button{background-color:#262B31}
 html[data-theme="dark"] .tog .dot{background-color:#22272D}
 html[data-theme="dark"] .tog .dot:after{background-color:#262B31}
+html[data-theme="dark"] .tog .dot{background-color:#4A535D}html[data-theme="dark"] .tog .dot:after{background-color:#D5DBE1}
+.tog.on .dot,html[data-theme="dark"] .tog.on .dot{background-color:#F5C518}html[data-theme="dark"] .tog.on .dot:after{background-color:#FFFFFF}
 html[data-theme="dark"] .tier.on{background-color:#262B31}
 html[data-theme="dark"] .panel{background-color:#262B31}
 html[data-theme="dark"] .pk2 select{background-color:#262B31}
@@ -492,6 +494,9 @@ html[data-theme="dark"] .bx-art .ln{stroke:#E8EDF2}
 html[data-theme="dark"]{--hedge:#4B5966;--hw1:#E3E8ED;--hw2:#B4BFC9;--hw3:#8E9AA5;--hw4:#F4F6F8}
 
 html[data-theme="dark"] svg.plan,html[data-theme="dark"] svg.elev,html[data-theme="dark"] svg.splan,html[data-theme="dark"] svg.ssec{background:#F4F6F8;border-radius:14px;color-scheme:light}
+/* dark plan: the 2D drawing turned dark, room colours kept (invert, then turn the hues back) */
+html[data-plandark] svg.plan,html[data-plandark] svg.splan{background:#F4F6F8;border-radius:14px;filter:invert(.9) hue-rotate(180deg)}
+html[data-plandark] #planbox{background:#1A2026;border-radius:14px}
 html[data-theme="dark"] #vsheet{background:#131B22;color:#E8EDF2;box-shadow:0 18px 50px rgba(0,0,0,.6)}
 html[data-theme="dark"] #vsheet .vu{background:#1F2A34}html[data-theme="dark"] #vsheet .va{background:#18303F}html[data-theme="dark"] #vsheet .vchips span{background:#131B22;border-color:#2C3B47}
 html[data-theme="dark"] #vsheet input{background:#0F161C;color:#E8EDF2;border-color:#2A353F}html[data-theme="dark"] #vsheet form button,html[data-theme="dark"] #vsheet .vx{background:#1F2A34;color:#E8EDF2}
@@ -1073,6 +1078,8 @@ function blocksBare(b, nc, nr) {
   if (X.store && !put('store', [0].concat(up))) miss.push('The store room');
   if (X.utility && !put('utility', [0].concat(up))) miss.push('The utility area');
   if (X.helper && !put('helper', [0])) miss.push('The helper room');
+  if (X.dress && !put('dress', [0].concat(up))) miss.push('The dressing area');
+  if (X.sitout && !put('sitout', [0])) miss.push('The sit-out');
   if (X.lounge && b.floors > 1 && !pf && !floors.some(fl => fl.includes('lounge')) && !put('lounge', up)) miss.push('The family lounge');
   if (miss.length) warn.push(miss.join(', ') + ' did not fit on the drawn plan. Add a floor, choose compact rooms or remove something.');
   if (noPark) warn.push('Car parking does not fit inside the house on this plot — use the front open space or stilt parking.');
@@ -1156,7 +1163,8 @@ function scoreAssign(asg, blocks, nr, nc, facing, vastu, floorIx, opt) {
     if (t === 'lounge') s += r === 0 ? 4 : r === 1 ? 2 : 0;
     if (floorIx > 0 && opt && opt.rowH && blocks.includes('kitchen')) { const m = opt.rowH.reduce((x, v) => x + v, 0) / opt.rowH.length; if (t === 'lounge') s += (opt.rowH[r] - m) * 1.2; if (t === 'kitchen') s -= (opt.rowH[r] - m) * 0.8; } // a flat upstairs: the hall takes the deep row, the kitchen a shallow one
   });
-  if (pos.kitchen && pos.dining) { const [a] = pos.kitchen, [d] = pos.dining; if (Math.abs(a[0] - d[0]) + Math.abs(a[1] - d[1]) === 1) s += 6; }
+  const nextTo = (p, q) => Math.abs(p[0] - q[0]) + Math.abs(p[1] - q[1]) === 1, hall = pos.dining || (floorIx === 0 ? pos.living : pos.lounge);
+  if (pos.kitchen && hall) s += hall.some(q => nextTo(pos.kitchen[0], q)) ? 40 : -40; // kitchen and dining always together
   if (pos.living && pos.dining) { const [a] = pos.living, [d] = pos.dining; if (Math.abs(a[0] - d[0]) + Math.abs(a[1] - d[1]) <= 1) s += 3; }
   if (nc >= 3 && blocks.length < nr * nc) { const used = asg.some(p => p && p[0] === 1 && p[1] === Math.floor(nc / 2)); if (!used && asg.filter(Boolean).length === blocks.length) s += 5; }
   { // every bedroom / kitchen / study must sit next to a hall, passage, dining, lounge or stair (or a still-free cell)
@@ -1339,12 +1347,17 @@ function makeDesign(input) {
   if (options[0]) options[0].G.warn.forEach(w => { if (!warn.includes(w)) warn.push(w); });
   if (BF.extStair && options[0]) warn.push(options[0].ext ? 'The stair to the roof is outside, along the side wall, and is narrow (' + ftIn(options[0].ext.w) + '). Keep a 4 ft side gap, or choose one bedroom less, for a comfortable 3 ft stair inside.' : 'There is no room for a stair to the roof. Choose one bedroom less, or keep a wider side gap.');
   const built = Wb * Db * b.floors;
-  return { brief: b, options, warn, built, Wb, Db, combo: BF.combo };
+  const out = { brief: b, options, warn, built, Wb, Db, combo: BF.combo };
+  // the septic tank as drawn: its real Vastu zone in the check
+  options.forEach(o => { const S = septicOf(out, o), it = o.vastu.find(v => v.label === 'Septic tank'); if (!it || !S) return;
+    if (S.mode === 'sewer') Object.assign(it, { zone: '—', ok: 'good', why: 'No tank: the drain joins the municipal sewer.' });
+    else if (S.zone) Object.assign(it, { zone: S.zone, ok: S.zoneOk, why: S.zoneOk === 'good' ? 'North-West, close to the road for cleaning, away from the sump.' : S.zoneOk === 'ok' ? 'West — acceptable; North-West is best.' : 'Not in the North-West or West on this plot — try another septic option.' }); });
+  return out;
 }
 function buildFloor(b, G, blocks, asg, fi, nr, nc) {
   const rooms = []; const taken = new Set();
-  const ALIAS = { utility: ['store', 'Utility / wash area'], helper: ['store', 'Helper room'] };
-  blocks.forEach((t, i) => { if (!asg[i]) return; const [r, c] = asg[i]; taken.add(r + ',' + c); const al = ALIAS[t]; rooms.push(Object.assign({ type: al ? al[0] : t, r, c, rect: cellRect(G, b, r, c), subs: [] }, al ? { label: al[1] } : {})); });
+  const ALIAS = { utility: ['store', 'Utility / wash area'], helper: ['store', 'Helper room'], dress: ['store', 'Dressing area'], sitout: ['open', 'Sit-out'] };
+  blocks.forEach((t, i) => { if (!asg[i]) return; const [r, c] = asg[i]; taken.add(r + ',' + c); const al = ALIAS[t]; rooms.push(Object.assign({ type: al ? al[0] : t, r, c, rect: cellRect(G, b, r, c), subs: [] }, al ? { label: al[1] } : {}, t === 'sitout' ? { porch: true } : {})); }); // a sit-out is a paved open cell
   for (let r = 0; r < nr; r++) for (let c = 0; c < nc; c++) {
     if (taken.has(r + ',' + c)) continue;
     if (b.bare) { const Rb = cellRect(G, b, r, c); rooms.push({ type: fi > 0 ? 'terrace' : (r === 1 && c > 0 && c < nc - 1) ? 'passage' : 'open', r, c, rect: Rb, subs: [] }); continue; }
@@ -1500,7 +1513,7 @@ function addSubRooms(b, floors, nr, nc) {
     const need = F.fi === 0 ? (!b.bare && b.baths >= 1) || cb : cb || F.rooms.some(r => (r.type === 'bedroom' || r.type === 'master') && !r.subs.length);
     if (!need) return;
     // privacy: a toilet opens off a passage, lounge, study or store — never off the living room, dining or kitchen
-    const hosts = F.rooms.filter(r => !r.void && (['store', 'study', 'lounge'].includes(r.type) || (r.type === 'terrace' && r.covered) || (r.type === 'passage' && r.rect.w * r.rect.h >= 70)));
+    const hosts = F.rooms.filter(r => !r.void && r.label !== 'Dressing area' && (['store', 'study', 'lounge'].includes(r.type) || (r.type === 'terrace' && r.covered) || (r.type === 'passage' && r.rect.w * r.rect.h >= 70))); // a dressing area belongs to its bedroom
     let best = bestBath(b, floors, F, hosts, 'powder', 5, 7);
     // the owner asked for a common bathroom besides the attached ones: when no room takes it, a free cell next to the hall becomes a lobby that holds it
     if (cb && !(best && best.sc > -100)) {
@@ -1550,20 +1563,74 @@ function vastuCheck(b, floors, nr, nc) {
   const cen = floors[0].rooms.filter(r => zr({ r }) === 'C' && (['kitchen', 'stair'].includes(r.type) || r.subs.some(s => s.type === 'bath' || s.type === 'powder')));
   items.push({ label: 'Centre (Brahmasthan) kept light', zone: 'C', ok: cen.length ? 'no' : 'good', why: cen.length ? 'Kitchen, stair or toilet in the centre.' : 'No kitchen, stair or toilet in the centre.' });
   items.push({ label: 'Underground sump / borewell', zone: 'NE', ok: 'good', why: 'Water storage in the North-East.' });
-  items.push({ label: 'Septic tank', zone: 'NW', ok: 'good', why: 'North-West, away from the sump.' });
+  items.push({ label: 'Septic tank', zone: 'NW', ok: 'good', why: 'North-West, away from the sump.' }); // set from the drawn tank in makeDesign
   return items;
 }
+/* ---------- septic tank: size, place and soak pit ----------
+   Size from IS 2470 (Part 1) for desludging every 2 years: users → inside length × breadth × liquid depth (m), plus 0.3 m free board.
+   Place: North-West first (Vastu), then West; never North-East, South-West, South-East or the centre. Close to the road so the cleaning tanker's hose
+   reaches; away from the sump; outside the house when it fits, else under the parking or an open cell — never under a kitchen, bedroom,
+   living room, puja or toilet. Indicative: the engineer confirms size and depth after the soil test. */
+const SEPTIC_IS = [[5, 1.5, 0.75, 1.0], [10, 2.0, 0.9, 1.0], [15, 2.0, 0.9, 1.3], [20, 2.3, 1.1, 1.3]];
+const SEPTIC_MODES = [['auto', 'Best spot', 'outside if it fits, else under the parking or an open area'], ['outside', 'Outside the house', 'in the open space around the house'], ['inside', 'Under the house', 'under the parking or an open area, never under rooms'], ['sewer', 'Sewer line', 'no tank: the drain joins the municipal sewer']];
+function septicOf(D, o) {
+  if (!o || !o.floors || !o.floors[0]) return null;
+  const b = D.brief, mode = b.septic || 'auto';
+  if (mode === 'sewer') return { mode, users: 0 };
+  const users = Math.max(5, 2 * (b.bhk || 1) + 1), row = SEPTIC_IS.find(r => r[0] >= users) || SEPTIC_IS[SEPTIC_IS.length - 1], k = users > 20 ? users / 20 : 1;
+  const Lm = +(row[1] * k).toFixed(2), Bm = row[2], Hm = +(row[3] + 0.3).toFixed(2), M = 3.281, wall = 0.5; // 150 mm RCC walls
+  const Lo = Lm * M + 2 * wall, Bo = Bm * M + 2 * wall, pitR = 2.2;
+  const by0 = b.setR, by1 = b.d - b.setF, bx0 = b.sL, bx1 = b.w - b.sR, [sx, sy] = sitePoint(b, 'N', 'E', 1.7);
+  let G = []; try { G = gatesOf(D, o); } catch (e) {}
+  const zs = { NW: 40, WN: 40, W: 25, NWW: 25 }, bad = ['NE', 'EN', 'SW', 'WS', 'SE', 'ES', 'C']; // never North-East (water), South-West (master) or South-East (fire), nor the centre
+  const score = (x, y, w, h, inside) => { const cx = x + w / 2, cy = y + h / 2, z = zoneAt(b, cx, cy); let sc = (zs[z] || 0) - (bad.includes(z) ? 100 : 0);
+    sc -= Math.hypot(0, b.d - cy) * 0.6; // near the road: the cleaning tanker's hose reaches
+    const ds = Math.hypot(cx - sx, cy - sy); if (ds < 10) sc -= 60; else sc += Math.min(10, ds - 10) * 0.5; // away from the sump
+    if (G.some(g => cy > by1 - 0.1 && x < g.x1 + 0.5 && x + w > g.x0 - 0.5)) sc -= 15; // not under the drive or the walk-in path
+    return sc - (inside ? 20 : 0); };
+  const cands = [], gap = 0.75; // 9 in off the house wall at least; more scores better
+  const tryStrip = (x0, x1, y0, y1, side) => [[Lo, Bo], [Bo, Lo]].forEach(([w, h]) => { if (x1 - x0 < w || y1 - y0 < h) return;
+    for (let x = x0; x <= x1 - w + 0.01; x += 0.5) for (let y = y0; y <= y1 - h + 0.01; y += 0.5) cands.push({ x, y, w, h, side, sc: score(x, y, w, h, false) }); });
+  if (mode !== 'inside') { tryStrip(0.5, b.w - 0.5, by1 + gap, b.d - 0.5, 'front'); tryStrip(0.5, b.w - 0.5, 0.5, by0 - gap, 'back'); tryStrip(0.5, bx0 - gap, 0.5, b.d - 0.5, 'side'); tryStrip(bx1 + gap, b.w - 0.5, 0.5, b.d - 0.5, 'side'); }
+  let host = null;
+  if (mode !== 'outside') o.floors[0].rooms.filter(r => !r.void && (r.type === 'parking' || (r.type === 'open' && (!r.label || r.label === 'Sit-out')) || (r.type === 'passage' && r.r >= 0 && !r.subs.length))).forEach(r => { const R = r.rect;
+    [[Lo, Bo], [Bo, Lo]].forEach(([w, h]) => { if (R.w < w + 0.6 || R.h < h + 0.6) return; for (const x of [R.x + 0.3, R.x + (R.w - w) / 2, R.x + R.w - w - 0.3]) for (const y of [R.y + 0.3, R.y + R.h - h - 0.3]) cands.push({ x, y, w, h, side: 'inside', host: r, sc: score(x, y, w, h, true) }); }); });
+  const out = { mode, users, Lm, Bm, Hm, Lo, Bo, pitR };
+  if (!cands.length) return Object.assign(out, { none: true });
+  const T = cands.sort((a, z) => z.sc - a.sc)[0]; Object.assign(out, T); host = T.host || null; out.host = host;
+  out.zone = zoneAt(b, T.x + T.w / 2, T.y + T.h / 2); out.zoneOk = zs[out.zone] ? (zs[out.zone] >= 40 ? 'good' : 'ok') : 'no';
+  // soak pit beside the tank, along its long side, if the open space holds it; the tank's outlet chamber faces it
+  const long = T.w >= T.h, px = long ? (T.x + T.w + 1 + pitR <= (T.side === 'inside' ? host.rect.x + host.rect.w : b.w - 0.5) ? T.x + T.w + 1 + pitR : T.x - 1 - pitR) : T.x + T.w / 2, py = long ? T.y + T.h / 2 : (T.y + T.h + 1 + pitR <= b.d - 0.5 ? T.y + T.h + 1 + pitR : T.y - 1 - pitR);
+  if (px - pitR >= 0.3 && px + pitR <= b.w - 0.3 && py - pitR >= 0.3 && py + pitR <= b.d - 0.3) out.pit = { x: px, y: py, r: pitR };
+  const dSump = Math.hypot(T.x + T.w / 2 - sx, T.y + T.h / 2 - sy), dHouse = T.side === 'inside' ? 0 : Math.max(0, Math.min(Math.abs(T.y - by1), Math.abs(by0 - T.y - T.h), Math.abs(T.x - bx1), Math.abs(bx0 - T.x - T.w)));
+  out.notes = [];
+  if (out.zoneOk === 'no') out.notes.push('The open space in the North-West and West is too narrow for the tank here; leave more open space at the back or the side on the Plot step to move it there.');
+  if (T.side === 'inside') out.notes.push('The tank sits under the ' + (host.type === 'parking' ? 'parking' : host.type === 'passage' ? 'passage' : 'open area') + ' — never under a room — where it scores best for Vastu and cleaning. Keep the manhole covers clear.');
+  else if (dHouse < 5) out.notes.push('Only ' + ftIn(dHouse) + ' from the house wall; 5 ft (1.5 m) is better for the foundation where the plot allows.');
+  if (dSump < 25) out.notes.push('It is ' + ftIn(dSump) + ' from the water sump. Keep the sump sealed (RCC, waterproofed) and the soak pit on the far side.');
+  if (!out.pit) out.notes.push('No room for a soak pit next to it — connect the outlet to the drain or a soak pit further away.');
+  return out;
+}
+function septicLabel(S) { return S && !S.none && S.mode !== 'sewer' ? 'Septic ' + ftIn(S.Lo) + ' × ' + ftIn(S.Bo) : 'Septic'; }
 // site points in drawing coordinates: sump in the North-East corner of the plot, septic tank in the North-West
 function sitePoint(b, d1, d2, inset) {
   const v = [dirVecOf(b, d1), dirVecOf(b, d2)].reduce((a, q) => [a[0] + q[0], a[1] + q[1]], [0, 0]);
   return [v[0] > 0 ? b.w - inset : v[0] < 0 ? inset : b.w / 2, v[1] > 0 ? b.d - inset : v[1] < 0 ? inset : b.d / 2];
 }
-function siteSvg(b, L, OB) {
-  const [sx, sy] = sitePoint(b, 'N', 'E', 1.7), [tx, ty] = sitePoint(b, 'N', 'W', 2.2);
-  let h = '<g class="site"><circle cx="' + sx + '" cy="' + sy + '" r="1.05" class="sump"/><rect x="' + (tx - 1.6) + '" y="' + (ty - 1) + '" width="3.2" height="2" rx="0.3" class="sept"/>';
-  if (OB) OB.push({ x: sx - 1.05, y: sy - 1.05, w: 2.1, h: 2.1 }, { x: tx - 1.6, y: ty - 1, w: 3.2, h: 2 });
-  if (L) { L.push({ x: sx, y: sy, lines: [['Sump', 'st', 1]], fs: 0.5, minFs: 0.4, pri: 5, drop: true, area: { x: sx - 1.6, y: sy - 1.6, w: 3.2, h: 3.2 } }, { x: tx, y: ty, lines: [['Septic', 'st', 1]], fs: 0.55, minFs: 0.4, pri: 5, drop: true, area: { x: tx - 1.6, y: ty - 1.6, w: 3.2, h: 3.2 } }); return h + '</g>'; }
-  return h + '<text x="' + sx + '" y="' + (sy + 0.25) + '" class="st">Sump</text><text x="' + tx + '" y="' + (ty + 0.25) + '" class="st">Septic</text></g>';
+function siteSvg(b, L, OB, S) {
+  const [sx, sy] = sitePoint(b, 'N', 'E', 1.7);
+  let h = '<g class="site"><circle cx="' + sx + '" cy="' + sy + '" r="1.05" class="sump"/>', tx = null, ty = null;
+  if (OB) OB.push({ x: sx - 1.05, y: sy - 1.05, w: 2.1, h: 2.1 });
+  if (S && S.w) { // the tank at its outer size: a 2 : 1 split into two chambers, a manhole over each, and the soak pit
+    const long = S.w >= S.h, sp = long ? S.x + S.w * 2 / 3 : S.y + S.h * 2 / 3;
+    h += '<rect x="' + S.x + '" y="' + S.y + '" width="' + S.w + '" height="' + S.h + '" rx="0.15" class="sept"/>' + (long ? '<line x1="' + sp + '" y1="' + S.y + '" x2="' + sp + '" y2="' + (S.y + S.h) + '" class="septl"/>' : '<line x1="' + S.x + '" y1="' + sp + '" x2="' + (S.x + S.w) + '" y2="' + sp + '" class="septl"/>') +
+      (long ? [S.x + S.w / 3, S.x + S.w * 5 / 6].map(x => '<rect x="' + (x - 0.75) + '" y="' + (S.y + S.h / 2 - 0.75) + '" width="1.5" height="1.5" class="septm"/>') : [S.y + S.h / 3, S.y + S.h * 5 / 6].map(y => '<rect x="' + (S.x + S.w / 2 - 0.75) + '" y="' + (y - 0.75) + '" width="1.5" height="1.5" class="septm"/>')).join('') +
+      (S.pit ? '<circle cx="' + S.pit.x + '" cy="' + S.pit.y + '" r="' + S.pit.r + '" class="sept"/><circle cx="' + S.pit.x + '" cy="' + S.pit.y + '" r="' + (S.pit.r * 0.55) + '" class="septl"/>' : '');
+    tx = S.x + S.w / 2; ty = S.y + S.h / 2; if (OB) OB.push({ x: S.x, y: S.y, w: S.w, h: S.h });
+  } else if (!S || S.mode !== 'sewer') { [tx, ty] = sitePoint(b, 'N', 'W', 2.2); h += '<rect x="' + (tx - 1.6) + '" y="' + (ty - 1) + '" width="3.2" height="2" rx="0.3" class="sept"/>'; if (OB) OB.push({ x: tx - 1.6, y: ty - 1, w: 3.2, h: 2 }); }
+  const sl = septicLabel(S);
+  if (L) { L.push({ x: sx, y: sy, lines: [['Sump', 'st', 1]], fs: 0.5, minFs: 0.4, pri: 5, drop: true, area: { x: sx - 1.6, y: sy - 1.6, w: 3.2, h: 3.2 } }); if (tx != null) L.push({ x: tx, y: ty, lines: [[sl, 'st', 1]], fs: 0.55, minFs: 0.4, pri: 5, drop: true, area: { x: tx - 3, y: ty - 1.6, w: 6, h: 3.2 } }); return h + '</g>'; }
+  return h + '<text x="' + sx + '" y="' + (sy + 0.25) + '" class="st">Sump</text>' + (tx != null ? '<text x="' + tx + '" y="' + (ty + 0.25) + '" class="st">' + sl + '</text>' : '') + '</g>';
 }
 // parking at the back, reached by a side passage (gali)
 function rearParkGeom(b) {
@@ -1696,7 +1763,7 @@ function vastuPanel(o, b) {
 /* ---------- drawing: plan, furniture, elevation ---------- */
 function ftIn(v) { const t = Math.round(v * 12), f = Math.floor(t / 12), i = t % 12; return f + '′' + (i ? i + '″' : ''); }
 function roomLabel(room, F, D) {
-  if (D.brief.bare && (room.type === 'open' || (room.type === 'terrace' && room.covered && F.fi > 0))) return 'Free space';
+  if (D.brief.bare && !room.label && (room.type === 'open' || (room.type === 'terrace' && room.covered && F.fi > 0))) return 'Free space';
   if (room.label && room.type !== 'bedroom') return room.label;
   if (room.type === 'bedroom') { const all = D.options[0] ? null : null; return room.label || 'Bedroom'; }
   if (room.type === 'living' && D.combo && F.fi === 0) return 'Living + dining';
@@ -3566,7 +3633,7 @@ function planSvg(D, o, F, opts) {
     if (opts.furn) { h += furniture(room, F, SW, LB, D, o); furnOf(D, o, F, room).forEach(q => { if (!q.d3only && q.w && !q.veh && q.role !== 'pillow') OB.push(q); }); }
   });
   terraceDoors(D, o, F).forEach(t => { h += svgDoor(t.seg, t.side, true); });
-  if (g0) h += rearParkSvg(b, o, LB) + siteSvg(b, LB, OB) + gatesSvg(D, o, LB, OB);
+  if (g0) h += rearParkSvg(b, o, LB) + siteSvg(b, LB, OB, septicOf(D, o)) + gatesSvg(D, o, LB, OB);
   if (g0 && o.ext) h += extStairSvg(o.ext, true);
   h += columnsSvg(D, o, F.fi);
   SW.forEach(q => OB.push(q));
@@ -3823,8 +3890,8 @@ function facadePrims(D, o) {
       }
       case 'pergola': case 'gable': case 'parapetgl': case 'chhatri': {
         const tb = G.bays.filter(B => B.top === G.maxTop), xa = Math.min(...tb.map(B => B.x)), xb = Math.max(...tb.map(B => B.x + B.w)), ry = G.yOf(G.maxTop + 1), fz = (G.cells.find(cl => cl.c === tb[0].c) || { fz: G.by1 }).fz;
-        if (id === 'pergola') { add('<rect x="' + xa + '" y="' + (ry - G.par - 4) + '" width="' + (xb - xa) + '" height=".4" fill="' + E.col + '"/>' + [xa + 0.3, xb - 0.6].map(x => '<rect x="' + x + '" y="' + (ry - G.par - 4) + '" width=".3" height="' + (4 + G.par) + '" fill="' + E.col + '"/>').join('')); for (let x = xa; x < xb; x += 1.5) R3(x, ry - G.par - 4.2, ry - G.par - 3.8, fz - 8, 0.3, 8, E.col); qty[id] = (xb - xa) * 8; }
-        if (id === 'gable') { const pk = ry - G.par - 6; add('<path d="M' + (xa - 1.2) + ' ' + (ry - 0.2) + ' L' + ((xa + xb) / 2) + ' ' + pk + ' L' + (xb + 1.2) + ' ' + (ry - 0.2) + 'Z" fill="' + (st.roof || E.col) + '" stroke="#5E2F17" stroke-width=".12"/>' + Array.from({ length: 6 }, (_, i) => '<line x1="' + (xa + (i + 1) * (xb - xa) / 7) + '" y1="' + (ry - 0.2 - (6 + G.par - 0.2) * (1 - Math.abs((i + 1) / 7 - 0.5) * 2)) + '" x2="' + (xa + (i + 1) * (xb - xa) / 7) + '" y2="' + (ry - 0.2) + '" stroke="#7A3A20" stroke-width=".06"/>').join('')); R3(xa - 1.2, pk, ry, fz - 20, xb - xa + 2.4, 20, st.roof || E.col, { gable: 1 }); qty[id] = (xb - xa) * 22; }
+        if (id === 'pergola') { add('<rect x="' + xa + '" y="' + (ry - G.par - 4) + '" width="' + (xb - xa) + '" height=".4" fill="' + E.col + '"/>' + [xa + 0.3, xb - 0.6].map(x => '<rect x="' + x + '" y="' + (ry - G.par - 4) + '" width=".3" height="' + (4 + G.par) + '" fill="' + E.col + '"/>').join('')); for (let x = xa; x < xb; x += 1.5) R3(x, ry - G.par - 4.2, ry - G.par - 3.8, fz - 8, 0.3, 8, E.col); [xa + 0.3, xb - 0.6].forEach(x => [fz, fz - 7.7].forEach(z => R3(x, ry - G.par - 4.2, ry, z, 0.3, 0.3, E.col))); [fz, fz - 7.7].forEach(z => R3(xa + 0.3, ry - G.par - 4.4, ry - G.par - 4.0, z, xb - xa - 0.6, 0.3, E.col)); qty[id] = (xb - xa) * 8; } // posts at the four corners and a beam on each side carry the slats
+        if (id === 'gable') { const pk = ry - G.par - 6; add('<path d="M' + (xa - 1.2) + ' ' + (ry - 0.2) + ' L' + ((xa + xb) / 2) + ' ' + pk + ' L' + (xb + 1.2) + ' ' + (ry - 0.2) + 'Z" fill="' + (st.roof || E.col) + '" stroke="#5E2F17" stroke-width=".12"/>' + Array.from({ length: 6 }, (_, i) => '<line x1="' + (xa + (i + 1) * (xb - xa) / 7) + '" y1="' + (ry - 0.2 - (6 + G.par - 0.2) * (1 - Math.abs((i + 1) / 7 - 0.5) * 2)) + '" x2="' + (xa + (i + 1) * (xb - xa) / 7) + '" y2="' + (ry - 0.2) + '" stroke="#7A3A20" stroke-width=".06"/>').join('')); R3(xa - 1.2, pk, ry, fz + 1.2, xb - xa + 2.4, fz - G.b.setR + 2.4, st.roof || E.col, { gable: 1 }); qty[id] = (xb - xa) * 22; }
         if (id === 'parapetgl') { add('<rect x="' + xa + '" y="' + (ry - G.par) + '" width="' + (xb - xa) + '" height="' + G.par + '" fill="' + E.col + '" opacity=".6" stroke="#2E3236" stroke-width=".1"/>'); R3(xa, ry - G.par, ry, fz, xb - xa, 0.1, E.col, { op: 0.5 }); qty[id] = xb - xa; }
         if (id === 'chhatri') { [xa + 0.3, xb - 3.3].forEach(x => { add('<rect x="' + x + '" y="' + (ry - G.par - 3.2) + '" width="3" height=".35" fill="' + E.col + '"/>' + [x + 0.2, x + 2.6].map(px => '<rect x="' + px + '" y="' + (ry - G.par - 2.85) + '" width=".25" height="2.85" fill="' + E.col + '"/>').join('') + '<path d="M' + x + ' ' + (ry - G.par - 3.2) + ' Q' + (x + 1.5) + ' ' + (ry - G.par - 5.6) + ' ' + (x + 3) + ' ' + (ry - G.par - 3.2) + 'Z" fill="' + E.col + '" stroke="#9C7A47" stroke-width=".08"/><circle cx="' + (x + 1.5) + '" cy="' + (ry - G.par - 5.4) + '" r=".2" fill="#C9963C"/>'); R3(x, ry - G.par - 5.4, ry - G.par, fz - 3, 3, 3, E.col, { dome: 1 }); }); qty[id] = 2; }
         break;
@@ -3862,7 +3929,7 @@ function facade3D(T, D, o, grp, box, mat, night) {
     const m = mat(q.col, q.op ? { transparent: true, opacity: q.op, roughness: 0.2 } : q.glow ? { emissive: q.col, emissiveIntensity: night ? 1.2 : 0.3 } : { roughness: 0.8 });
     if (q.cyl) { const me = new T.Mesh(new T.CylinderGeometry(q.w / 2, q.w / 2 * 1.1, q.h, 18), m); me.position.set(q.x + q.w / 2, q.h0 + q.h / 2, q.z - q.d / 2); me.castShadow = true; grp.add(me); return; }
     if (q.dome) { const me = new T.Mesh(new T.SphereGeometry(q.w / 2, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), m); me.position.set(q.x + q.w / 2, q.h0 + q.h * 0.4, q.z + q.d / 2); me.scale.y = 1.3; grp.add(me); box(q.x, q.h0, q.z, q.w, q.h * 0.4, q.d, m); return; }
-    if (q.gable) { const g = new T.CylinderGeometry(0.0001, q.w / 2, q.h, 4, 1); g.rotateY(Math.PI / 4); const me = new T.Mesh(g, m); me.scale.set(1, 1, q.d / q.w); me.position.set(q.x + q.w / 2, q.h0 + q.h / 2, q.z - (q.d < 5 ? -q.d / 2 : q.d / 2)); me.castShadow = true; grp.add(me); return; }
+    if (q.gable) { const me = new T.Mesh(hipGeom(T, q.x, q.z - q.d, q.w, q.d, q.h), pbrMat(T, 'rooftile', q.col)); me.position.y = q.h0; me.castShadow = true; grp.add(me); return; } // the sloped roof covers the whole top floor
     if (q.arch) { const me = new T.Mesh(new T.TorusGeometry(q.w / 2, 0.25, 8, 24, Math.PI), m); me.position.set(q.x + q.w / 2, q.h0, q.z + 0.15); grp.add(me); return; }
     box(q.x, q.h0, q.z, q.w, q.h, q.d, m);
     if (q.glow && night) { const p = new T.PointLight('#FFD27A', q.up ? 14 : 6, q.up ? 14 : 8, 2); p.position.set(q.x + q.w / 2, q.h0 + (q.up ? 0.5 : 0), q.z + 0.6); grp.add(p); }
@@ -5943,20 +6010,40 @@ function projectQuoteScr() {
 // no frames, glass, railings, cladding, lights, furniture or colour — what the core package hands over
 const CORE_GREY = '#B8B5AE';
 function bare3d(ds) { return ds && ds.bare != null ? !!ds.bare : (ST.pkg || 'core') === 'core'; }
+// below ground: manhole covers of the septic tank always; in the architect model also the tank, the soak pit and an indicative foundation
+// (isolated footings under every column, pedestals and plinth beams — the structural engineer designs the real one after the soil test)
+function under3D(T, D, o, box0, mat, xray) {
+  const box = (...a) => { const me = box0(...a); if (me && xray) me.userData.keep = 1; return me; }; box.grp = box0.grp;
+  const b = D.brief, S = septicOf(D, o), conc = mat('#8E8A82'), cover = mat('#7D8287', { roughness: 0.6 });
+  if (S && S.w) { const long = S.w >= S.h; (long ? [S.x + S.w / 3, S.x + S.w * 5 / 6].map(x => [x, S.y + S.h / 2]) : [S.y + S.h / 3, S.y + S.h * 5 / 6].map(y => [S.x + S.w / 2, y])).forEach(([x, y]) => box(x - 0.9, 0.04, y - 0.9, 1.8, 0.12, 1.8, cover, false)); }
+  if (!xray) return;
+  if (S && S.w) { const dep = S.Hm * 3.281 + 0.5, wm = mat('#4F7A93', { transparent: true, opacity: 0.85 }), water = mat('#5C7A52', { transparent: true, opacity: 0.6 }), long = S.w >= S.h;
+    box(S.x, -dep - 0.5, S.y, S.w, 0.5, S.h, conc, false); // base slab
+    [[S.x, S.y, S.w, 0.75], [S.x, S.y + S.h - 0.75, S.w, 0.75], [S.x, S.y, 0.75, S.h], [S.x + S.w - 0.75, S.y, 0.75, S.h]].forEach(([x, z, w, d]) => box(x, -dep, z, w, dep, d, wm, false));
+    if (long) box(S.x + S.w * 2 / 3 - 0.37, -dep, S.y, 0.75, dep, S.h, wm, false); else box(S.x, -dep, S.y + S.h * 2 / 3 - 0.37, S.w, dep, 0.75, wm, false); // baffle wall: two chambers
+    box(S.x + 0.75, -dep, S.y + 0.75, S.w - 1.5, dep - 1.3, S.h - 1.5, water, false); box(S.x, -0.5, S.y, S.w, 0.45, S.h, conc, false); // liquid and cover slab
+    if (S.pit) { const P = S.pit, g = new T.CylinderGeometry(P.r, P.r, 6, 20, 1, true), me = new T.Mesh(g, mat('#7A5C3E', { transparent: true, opacity: 0.85, side: T.DoubleSide })); me.position.set(P.x, -3, P.y); me.userData.keep = 1; D3add(box, me); } }
+  // foundation: columns sit where the grid lines of the ground floor cross; footing size grows with the floors above
+  const { xs, ys } = gridOf(D, o), nF = o.floors.length, fs = nF >= 3 ? 6 : nF === 2 ? 5 : 4, fd = 5, ftg = mat('#A0784F'), ped = mat('#6F6A63'), beam = mat('#8A8F96');
+  xs.forEach(x => ys.forEach(y => { box(x - fs / 2 - 0.25, -fd - 0.25, y - fs / 2 - 0.25, fs + 0.5, 0.25, fs + 0.5, conc, false); box(x - fs / 2, -fd, y - fs / 2, fs, 1.5, fs, ftg, false); box(x - fs / 4, -fd + 1.5, y - fs / 4, fs / 2, 0.6, fs / 2, ftg, false); box(x - 0.5, -fd + 2.1, y - 0.5, 1, fd - 2.1, 1, ped, false); }));
+  ys.forEach(y => box(xs[0] - 0.4, -1.25, y - 0.4, xs[xs.length - 1] - xs[0] + 0.8, 1.25, 0.8, beam, false)); xs.forEach(x => box(x - 0.4, -1.25, ys[0] - 0.4, 0.8, 1.25, ys[ys.length - 1] - ys[0] + 0.8, beam, false)); // plinth beams
+}
+function D3add(box, me) { const g = box.grp; if (g) g.add(me); }
 function buildHouse3D(T, D, o, opts) {
   const b = D.brief, LK = lookOf(b, o), st = opts.bare ? Object.assign({}, LK.st, { wall: CORE_GREY, accent: '#8A8781', trim: CORE_GREY, roof: null }) : LK.st, grp = new T.Group(), nF = o.floors.length, FM = frameOf(D, o), { xs, ys } = FM.Gd;
   const mats = {};
   const mat = (c, o2) => { const k = c + JSON.stringify(o2 || {}); if (!mats[k]) mats[k] = new T.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.85, metalness: 0 }, o2 || {})); return mats[k]; };
-  const box = (x, y, z, w, h, d, m, shadow) => { if (w <= 0.01 || h <= 0.01 || d <= 0.01) return null; const g = new T.BoxGeometry(w, h, d); if (m && m.userData.wuv) boxWorldUV(g, w, h, d, m.userData.wuv); const me = new T.Mesh(g, m); me.position.set(x + w / 2, y + h / 2, z + d / 2); me.castShadow = shadow !== false; me.receiveShadow = true; grp.add(me); return me; };
+  const box = (x, y, z, w, h, d, m, shadow) => { if (w <= 0.01 || h <= 0.01 || d <= 0.01) return null; const g = new T.BoxGeometry(w, h, d); if (m && m.userData.wuv) boxWorldUV(g, w, h, d, m.userData.wuv); const me = new T.Mesh(g, m); me.position.set(x + w / 2, y + h / 2, z + d / 2); me.castShadow = shadow !== false; me.receiveShadow = true; grp.add(me); return me; }; box.grp = grp;
   const intCol = opts.bare ? CORE_GREY : LK.int.sw[0], slabCol = mat('#E7E5E0');
   const floorCol = { kitchen: '#D8D2C6', bath: '#C9D3D6', parking: '#9AA0A6', terrace: '#B9B2A6', stair: '#BDB6AA', passage: '#E3DCCF', open: '#9FBF8F', store: '#D5CFC4' };
   const ext = { x0: b.sL, x1: b.w - b.sR, y0: b.setR + o.G.backyard, y1: b.d - b.setF };
   const onEdge = (x1, y1, x2, y2) => (Math.abs(y1 - ext.y0) < 0.05 && Math.abs(y2 - ext.y0) < 0.05) || (Math.abs(y1 - ext.y1) < 0.05 && Math.abs(y2 - ext.y1) < 0.05) || (Math.abs(x1 - ext.x0) < 0.05 && Math.abs(x2 - ext.x0) < 0.05) || (Math.abs(x1 - ext.x1) < 0.05 && Math.abs(x2 - ext.x1) < 0.05);
   // ground, road, plot
   if (!opts.inSite) {
-  box(-15, -0.2, -15, b.w + 30, 0.2, b.d + 30, pbrMat(T, 'grass', '#86A866'), false);
-  box(-15, -0.15, b.d + 1.5, b.w + 30, 0.17, 14, mat('#55595E'), false);
-  box(0, 0, 0, b.w, 0.04, b.d, pbrMat(T, 'grass', '#7EA35A'), false);
+  // architect model: the ground turns see-through and the foundation and septic tank show below it
+  const xray = typeof ST !== 'undefined' && ST.look3d === 'model' && opts.cut == null && !opts.walk, gm = xray ? mat('#E8E4DC', { transparent: true, opacity: 0.16, depthWrite: false }) : null, keep = me => { if (me) me.userData.keep = 1; };
+  [box(-15, -0.2, -15, b.w + 30, 0.2, b.d + 30, gm || pbrMat(T, 'grass', '#86A866'), false), box(-15, -0.15, b.d + 1.5, b.w + 30, 0.17, 14, gm || mat('#55595E'), false), box(0, 0, 0, b.w, 0.04, b.d, gm || pbrMat(T, 'grass', '#7EA35A'), false)].forEach(me => xray && keep(me));
+  under3D(T, D, o, box, mat, xray);
   // paved drive and walk-in path from the gates to the house, a hedge along the front wall between the gates
   { const by1 = b.d - b.setF, pav = pbrMat(T, 'pavers', extFinish().paving || '#B5AFA5'); let G = []; try { G = gatesOf(D, o); } catch (e) {}
     G.forEach(gt => { const x0 = gt.kind === 'walk' && gt.mx != null ? gt.mx - 1.75 : gt.x0, x1 = gt.kind === 'walk' && gt.mx != null ? gt.mx + 1.75 : gt.x1; if (b.d - by1 > 0.6) box(x0, 0.04, by1, x1 - x0, 0.05, b.d - by1 - 0.4, pav, false); });
@@ -6113,7 +6200,7 @@ function buildHouse3D(T, D, o, opts) {
       if (sd === door.side) { const [dx1, dy1, dx2, dy2] = door.seg, da = horiz ? Math.min(dx1, dx2) : Math.min(dy1, dy2), dz = horiz ? Math.max(dx1, dx2) : Math.max(dy1, dy2); piece(a, da, 0, hM); piece(dz, z, 0, hM); piece(da, dz, DOOR_H, hM); if (opts.bare) {} else if (horiz) box(da, R0, at - 0.06, dz - da, DOOR_H, 0.12, mat(st.wood)); else box(at - 0.06, R0, da, 0.12, DOOR_H, dz - da, mat(st.wood)); }
       else piece(a, z, 0, hM);
     });
-    if (st.roof) { const g = new T.CylinderGeometry(0.35, Math.SQRT1_2, 1, 4, 1); g.rotateY(Math.PI / 4); const me = new T.Mesh(g, mat(st.roof)); me.scale.set(M.w + 2.4, 3.2, M.h + 2.4); me.position.set(M.x + M.w / 2, R0 + hM + 1.6, M.y + M.h / 2); me.castShadow = true; grp.add(me); }
+    if (st.roof) { const g = new T.CylinderGeometry(0.35, Math.SQRT1_2, 1, 4, 1); g.rotateY(Math.PI / 4); const me = new T.Mesh(g, mat(st.roof)); me.scale.set(M.w + 1.2, 2.2, M.h + 1.2); me.position.set(M.x + M.w / 2, R0 + hM + 1.1, M.y + M.h / 2); me.castShadow = true; grp.add(me); }
     else {
       box(M.x - 1, R0 + hM, M.y - 1, M.w + 2, 0.5, M.h + 2, slabCol);
     }
@@ -6382,7 +6469,7 @@ function seedStyle(seed, ti) { if (!seed) return ti >= 2 ? 'contemporary' : 'mod
 function tierBrief(noGrid) {
   const ti = TI[ST.tier], h = ST.home;
   const bare = !isVilla() && (h.use || 'family') === 'family', baths = Math.max(1, h.bhk) + (bare ? 0 : 1); // every bedroom attached (+ a common bath unless only the asked-for rooms are drawn)
-  const B = { page: ST.desPage || 0, w: ST.plot.w, d: ST.plot.d, facing: ST.plot.facing, floors: h.floors, bhk: Math.max(1, h.bhk), xr: xrOf(h), bare, baths, cbath: !!h.cbath && !isVilla(), parking: h.park.kind !== 'none', park: Object.assign({}, h.park), seed: ST.seed, tier: ti, pooja: h.pooja, vastu: h.vastu, roof: h.roof || 'single', paint: ST.paint && ST.paint !== 'auto' ? ST.paint : undefined, space: h.space || 'balanced', balc: ST.balc && BALC[ST.balc] ? (BALC[ST.balc].t <= ti ? ST.balc : 'cantilever') : 'none', style: ST.style || seedStyle(ST.seed, ti), finish: 'standard', setF: 5, setR: 3, setS: 3 };
+  const B = { page: ST.desPage || 0, septic: h.septic || 'auto', w: ST.plot.w, d: ST.plot.d, facing: ST.plot.facing, floors: h.floors, bhk: Math.max(1, h.bhk), xr: xrOf(h), bare, baths, cbath: !!h.cbath && !isVilla(), parking: h.park.kind !== 'none', park: Object.assign({}, h.park), seed: ST.seed, tier: ti, pooja: h.pooja, vastu: h.vastu, roof: h.roof || 'single', paint: ST.paint && ST.paint !== 'auto' ? ST.paint : undefined, space: h.space || 'balanced', balc: ST.balc && BALC[ST.balc] ? (BALC[ST.balc].t <= ti ? ST.balc : 'cantilever') : 'none', style: ST.style || seedStyle(ST.seed, ti), finish: 'standard', setF: 5, setR: 3, setS: 3 };
   if (!isVilla()) { const sb = setbackOf(); B.setF = sb.f; B.setR = sb.r; B.setS = sb.s; }
   if (isVilla()) { B.villa = true; B.villaV = villaLook(B.seed); if (!h.space || h.space === 'balanced') B.space = 'spacious'; if (!ST.style) B.style = ['mediterranean', 'heritage'].includes(B.villaV) ? 'odia' : 'contemporary'; if (!ST.balc) B.balc = B.villaV === 'resort' ? 'glass' : B.villaV === 'tropical' ? 'planter' : 'loggia'; }
   if (h.split === 'floors' && h.floors > 1 && !isVilla()) { B.perFloor = (h.perFloor || []).slice(0, h.floors); while (B.perFloor.length < h.floors) B.perFloor.push(1); B.bhk = B.perFloor.reduce((a, v) => a + v, 0); B.baths = B.bhk + (bare ? 0 : h.floors); }
@@ -6963,9 +7050,9 @@ function fitVerdict(prog, o) {
 }
 // optional rooms the owner can add after choosing the home size (sizes come from the room list above)
 // which extra rooms the plan can draw: dining (1 and 2 BHK), study, store and a guest bedroom on the ground floor
-const XDRAW = ['stairs', 'dining', 'study', 'store', 'guest', 'utility', 'helper', 'lounge', 'puja', 'balcony'];
+const XDRAW = ['stairs', 'dining', 'study', 'store', 'guest', 'utility', 'helper', 'lounge', 'puja', 'balcony', 'dress', 'sitout', 'cbath'];
 const stairOn = h => h.floors > 1 || !!(h.extras && h.extras.stairs);
-function xrOf(h) { if (isVilla()) return undefined; const e = h.extras || {}, on = k => !!(e[k] && xAvail(k, h)); return { dining: on('dining'), study: on('study') ? 1 : 0, store: on('store') ? 1 : 0, guest: on('guest') ? 1 : 0, utility: on('utility') ? 1 : 0, helper: on('helper') ? 1 : 0, lounge: on('lounge'), stairs: stairOn(h) }; }
+function xrOf(h) { if (isVilla()) return undefined; const e = h.extras || {}, on = k => !!(e[k] && xAvail(k, h)); return { dining: on('dining'), study: on('study') ? 1 : 0, store: on('store') ? 1 : 0, guest: on('guest') ? 1 : 0, utility: on('utility') ? 1 : 0, helper: on('helper') ? 1 : 0, dress: on('dress') ? 1 : 0, sitout: on('sitout') ? 1 : 0, lounge: on('lounge'), stairs: stairOn(h) }; }
 const XTRA = ['stairs', 'guest', 'dining', 'study', 'store', 'utility', 'helper', 'lounge', 'sitout', 'puja', 'dress', 'balcony', 'lift'];
 const xAvail = (k, h) => !(((k === 'balcony' || k === 'lift') && h.floors < 2) || (k === 'lounge' && (h.floors < 2 || pfOn(h))));
 function xArea(k, h) { if (k === 'stairs') return FIT_STAIR; if (k === 'balcony') return 0; const S = FIT_SPACE[h.space || 'balanced'] || FIT_SPACE.balanced, q = RQ_BY[k]; return Math.round(q.min[0] * q.min[1] * S.k * (1 + S.circ) / (1 - FIT_WALL)); }
@@ -7006,6 +7093,8 @@ function homeCheck(D, o) {
   const h = ST.home, pf = pfOn(h), P = FIT_PROG[Math.min(5, Math.max(0, h.bhk))], V = pf ? fitFloors(pfList(h), fitOpts(h)) : fitVerdict(P, fitOpts(h)), short = o ? planShort(D, o) : ['No layout could be drawn.'];
   const notes = (D ? D.warn : []).concat(o && o.walkNote ? [o.walkNote] : []);
   let st = V.st; if (short.length && st === 'ok') st = 'tight'; if (!o) st = 'no';
+  // extra rooms drawn in free cells of the plan: when only they tip the estimate over and the plan holds them all, it is tight, not too small
+  if (st === 'no' && o && extraArea(h) > 0 && !(D.warn || []).some(w => /did not fit|do not fit|does not fit/.test(w))) { const o0 = Object.assign({}, fitOpts(h), { extra: 0 }); if ((pf ? fitFloors(pfList(h), o0) : fitVerdict(P, o0)).st !== 'no') st = 'tight'; }
   // the smallest changes that make it fit: one change first, then two together
   const fixes = [];
   if (st !== 'ok') {
@@ -7048,7 +7137,7 @@ SCR.home = () => {
   let plan = '<div class="hm-card"><div class="ph hm-ph"><div class="seg2 sm">' + (o ? o.floors.map((x, i) => '<button class="' + (!isRoof && i === ds.floor ? 'on' : '') + '" data-a="floor" data-v="' + i + '">' + esc(x.label.replace(' floor', '')) + '</button>').join('') + '<button class="' + (isRoof ? 'on' : '') + '" data-a="floor" data-v="' + nF + '">Roof</button>' : '') + '</div>' +
     (o && o.custom ? '<div class="seg2 sm"><button class="on">Yours</button><button data-a="gridreset">Reset</button></div>' : '') +
     (o && !isRoof ? '<button class="tog vtog' + (h.vastu ? ' on' : '') + '" data-a="tog" data-v="vastu" title="Place the rooms by Vastu"><span class="dot"></span>Vastu</button>' : '') +
-    (o && !isRoof ? '<button class="tog vtog' + (ds.edit ? ' on' : '') + '" data-a="gedit"><span class="dot"></span>Resize rooms</button><button class="tog vtog' + (ds.meas ? ' on' : '') + '" data-a="meas"><span class="dot"></span>Measure</button>' : '') + '</div>' +
+    (o && !isRoof ? '<button class="tog vtog' + (ds.edit ? ' on' : '') + '" data-a="gedit"><span class="dot"></span>Resize rooms</button><button class="tog vtog' + (ds.meas ? ' on' : '') + '" data-a="meas"><span class="dot"></span>Measure</button>' : '') + (o ? '<button class="tog vtog' + (ST.planDark ? ' on' : '') + '" data-a="pdark" title="Dark 2D plan"><span class="dot"></span>Dark plan</button>' : '') + '</div>' +
     // try other designs right here: each layout redraws the plan above at once; "New design" brings a fresh set
     (o && !o.custom ? '<div class="hm-des"><b>Design</b><div class="seg2 sm opts-ab">' + D.options.map((x, i) => '<button class="' + (i === ds.opt ? 'on' : '') + '" data-a="opt" data-v="' + i + '" title="Vastu ' + x.vastu.filter(v => v.ok === 'good').length + ' of ' + x.vastu.length + '">' + x.id + '</button>').join('') + '</div><button class="btn sm ghost nd-btn" data-a="newdesign" title="Show me a different design"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>New design</button></div>' : '');
   if (o) plan += (ds.edit && !isRoof ? '<p class="edit-hint">Drag a gold line. The rooms on both sides change together, on every floor. Sizes update as you drag.</p>' : '') +
@@ -7064,6 +7153,8 @@ SCR.home = () => {
     (pfOn(h) ? pfList(h).map((v, f) => '<div class="bm"><b>' + FLOOR_NAME[f] + '</b><div class="rq-cats">' + [1, 2, 3, 4].map(k => '<button class="rq-c' + (v === k ? ' on' : '') + '" data-a="hpfl" data-i="' + f + '" data-v="' + k + '">' + k + ' BHK</button>').join('') + '</div></div>').join('')
       : '') +
     (use !== 'villa' ? '<div class="bm"><b>Bathrooms</b><div class="rq-cats">' + chip('cbath', 0, !h.cbath, 'Attached only<i>every bedroom has its own toilet and bath</i>') + chip('cbath', 1, !!h.cbath, 'Attached + common<i>plus one separate bathroom for family and guests' + (pfOn(h) ? ' on every floor' : '') + '</i>') + '</div></div>' : '') +
+    (use !== 'villa' ? (() => { const S = o ? septicOf(D, o) : null, cur = h.septic || 'auto'; return '<div class="bm"><b>Septic tank</b><div class="rq-cats">' + SEPTIC_MODES.map(([k, n, d]) => chip('hsep', k, cur === k, n + '<i>' + d + '</i>')).join('') + '</div>' +
+      (S && S.mode !== 'sewer' ? '<p class="hint">' + (S.none ? 'No spot fits this tank here — choose “Best spot”, or a sewer line.' : 'For ' + S.users + ' people (IS 2470): inside ' + S.Lm + ' × ' + S.Bm + ' m, ' + S.Hm + ' m deep with free board; outside about ' + ftIn(S.Lo) + ' × ' + ftIn(S.Bo) + '. Two chambers (2 : 1) with a manhole over each, in the ' + (DIR_NAME[S.zone] || S.zone) + ', ' + (S.side === 'inside' ? 'under the ' + (S.host.type === 'parking' ? 'parking' : 'open area') : S.side === 'front' ? 'in the front open space, near the road for the cleaning tanker' : 'in the ' + S.side + ' open space') + (S.pit ? ', with a ' + ftIn(S.pit.r * 2) + ' soak pit beside it' : '') + '. ' + S.notes.join(' ') + ' Size and depth are confirmed by your engineer after the soil test.') + '</p>' : '') + '</div>'; })() : '') +
     '<div class="bm"><b>Room sizes</b><div class="rq-cats">' + Object.keys(FIT_SPACE).map(k => { const S = FIT_SPACE[k], bd = Math.round(10 * Math.sqrt(S.k) * 2) / 2; return chip('hspace', k, (h.space || 'balanced') === k, S.n + '<i>bedroom ≈ ' + bd + ' × ' + bd + ' ft</i>'); }).join('') + '</div></div>' +
     '<div class="bm"><b>Parking</b><div class="rq-cats">' + [['none', 'None'], ['2w', 'Bike'], ['4w', 'Car'], ['both', 'Car + bike']].map(x => chip('pk', x[0], h.park.kind === x[0], x[1])).join('') + '</div></div>' +
     (use === 'villa' ? '<div class="bm"><b>More</b><div class="rq-cats">' + chip('tog', 'pooja', h.pooja, 'Puja room') + chip('tog', 'vastu', h.vastu, 'Follow Vastu') + '</div></div>' : '') +
@@ -7093,10 +7184,12 @@ SCR.home = () => {
     // 3 · optional rooms: only what the space left over can still hold
     const free = Math.floor(C.V.avail * 0.85 - C.V.need), tightFree = C.V.avail - C.V.need, rm = Math.max(0, free);
     const must = h.floors > 1, bOn = !!(ST.balc && ST.balc !== 'none');
-    const items = XTRA.filter(k => xAvail(k, h)).map(k => ({ k, n: k === 'stairs' ? 'Stairs' : k === 'puja' ? 'Puja room' : RQ_BY[k].n.replace(/ \/.*$/, ''), a: xArea(k, h), on: k === 'puja' ? !!h.pooja : k === 'balcony' ? bOn : k === 'stairs' ? stairOn(h) : !!(h.extras && h.extras[k]) }));
+    const items = XTRA.filter(k => xAvail(k, h)).map(k => ({ k, n: k === 'stairs' ? 'Stairs' : k === 'puja' ? 'Puja room' : RQ_BY[k].n.replace(/ \/.*$/, ''), a: xArea(k, h), on: k === 'puja' ? !!h.pooja : k === 'balcony' ? bOn : k === 'stairs' ? stairOn(h) : !!(h.extras && h.extras[k]) })).concat(isVilla() ? [] : [{ k: 'cbath', n: 'Common bathroom', a: 0, on: !!h.cbath }]);
     const drawn = x => XDRAW.includes(x.k), free0 = x => x.a === 0;
-    const can = x => x.on || free0(x) || x.a <= free, tight = x => !x.on && !can(x) && x.a <= tightFree;
-    const sub = x => x.k === 'stairs' && must ? 'needed · on plan' : x.on ? (drawn(x) ? 'on plan' : 'area only') : free0(x) ? 'no extra area' : '+' + x.a + ' sq ft' + (tight(x) ? ' · tight' : '') + (drawn(x) ? '' : ' · area only');
+    const cells = o ? o.floors.reduce((n, F) => n + F.rooms.filter(r => !r.void && !r.label && (r.type === 'open' || (r.type === 'terrace' && r.covered))).length, 0) : 0;
+    const can = x => x.on || free0(x) || x.a <= free || (drawn(x) && x.k !== 'stairs' && cells > 0), tight = x => !x.on && !can(x) && x.a <= tightFree;
+    const cbOn = !!o && o.floors.some(F => F.rooms.some(r => !r.void && (r.subs || []).some(x => x.type === 'powder')));
+    const sub = x => x.k === 'stairs' && must ? 'needed · on plan' : x.on ? (x.k === 'cbath' && !cbOn ? 'no free spot — remove an extra room' : drawn(x) ? 'on plan' : 'area only') : free0(x) ? 'no extra area' : drawn(x) && cells > 0 && x.a > free ? 'fills the free space' : '+' + x.a + ' sq ft' + (tight(x) ? ' · tight' : '') + (drawn(x) ? '' : ' · area only');
     const chipx = x => '<button class="rq-c' + (x.on ? ' on' : '') + '" data-a="hx" data-v="' + x.k + '"' + ((x.k === 'stairs' && must) || !(can(x) || tight(x)) ? ' disabled' : '') + '>' + esc(x.n) + '<i>' + sub(x) + '</i></button>';
     const fits = items.filter(can), tights = items.filter(tight), no = items.filter(x => !can(x) && !tight(x));
     xtra = '<section class="rq-sec"><h4>3 · Add more rooms</h4>' + (C.st === 'no' ? '<p class="hint">There is no space for extra rooms yet. Use one of the better options above first.</p>'
@@ -7202,7 +7295,7 @@ SCR.layout = () => {
   // studio: the picture stays on one side, the choices on the other
   h += '<div class="studio"><div class="st-prev' + (ST.prevMin ? ' min' : '') + '">';
   // one bar: options, a new design, the drawings
-  h += '<div class="lbar">' + (o.custom ? '<div class="seg2 sm opts-ab"><button class="on">Yours</button><button data-a="gridreset">Reset</button></div>' : '<div class="seg2 sm opts-ab">' + D.options.map((x, i) => '<button class="' + (i === ds.opt ? 'on' : '') + '" data-a="opt" data-v="' + i + '" title="Vastu ' + x.vastu.filter(v => v.ok === 'good').length + ' of ' + x.vastu.length + '">' + x.id + '</button>').join('') + '</div>') + '<button class="btn sm ghost nd-btn" data-a="newdesign" title="Show me a different design"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>New design</button><button class="btn sm ghost" data-a="cad">Drawings</button><button class="btn sm ghost prevtog" data-a="prevtog">' + (ST.prevMin ? 'Show picture' : 'Hide picture') + '</button></div>';
+  h += '<div class="lbar">' + (o.custom ? '<div class="seg2 sm opts-ab"><button class="on">Yours</button><button data-a="gridreset">Reset</button></div>' : '<div class="seg2 sm opts-ab">' + D.options.map((x, i) => '<button class="' + (i === ds.opt ? 'on' : '') + '" data-a="opt" data-v="' + i + '" title="Vastu ' + x.vastu.filter(v => v.ok === 'good').length + ' of ' + x.vastu.length + '">' + x.id + '</button>').join('') + '</div>') + '<button class="btn sm ghost nd-btn" data-a="newdesign" title="Show me a different design"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>New design</button><button class="btn sm ghost" data-a="cad">Drawings</button><button class="tog vtog' + (ST.planDark ? ' on' : '') + '" data-a="pdark" title="Dark 2D plan"><span class="dot"></span>Dark plan</button><button class="btn sm ghost prevtog" data-a="prevtog">' + (ST.prevMin ? 'Show picture' : 'Hide picture') + '</button></div>';
   // one view at a time
   const VIEWS = (b.site ? [['land', b.site.villa ? 'Estate' : 'Land']] : []).concat([['plan', 'Plan'], ['rooms', 'Rooms'], ['3d', '3D'], ['front', 'Front'], ['lights', 'Lights']]);
   h += '<div class="seg2 vsw" role="tablist">' + VIEWS.map(v => '<button role="tab" class="' + (view === v[0] ? 'on' : '') + '" data-a="view" data-v="' + v[0] + '">' + v[1] + '</button>').join('') + '</div>';
@@ -7674,6 +7767,7 @@ function dress3D(T, root, model, noEdges) {
     if (!o.isMesh || !o.geometry) return;
     const m = o.material; if (!m || !m.color) return;
     const gp = o.geometry.parameters || {}, isBox = o.geometry.type === 'BoxGeometry', big = isBox ? [gp.width, gp.height, gp.depth].filter(v => v > 0.6).length >= 2 && Math.max(gp.width, gp.height, gp.depth) > 1.2 : false;
+    if (o.userData.keep) return; // the see-through ground and what is under it keep their own colours
     const glassy = m.transparent && m.opacity < 0.95;
     if (model) {
       m.color.getHSL(hsl); const e = m.emissive && (m.emissive.r + m.emissive.g + m.emissive.b) > 0.05;
@@ -9605,6 +9699,7 @@ function zoomFull(svg) {
 }
 function render() {
   if (typeof dispose3D === 'function') dispose3D();
+  document.documentElement.toggleAttribute('data-plandark', !!ST.planDark);
   const c = cur(), F = flow(), wide = ['purpose', 'layout', 'structure', 'materials', 'quote', 'budget'].includes(c), homeW = c === 'home' && !isProj() && ST.home.use !== 'rent';
   $('#prog').style.width = (ST.step / (F.length - 1) * 100) + '%';
   $('#stepl').textContent = ST.step ? 'Step ' + ST.step + ' of ' + (F.length - 1) + ' · ' + STEP_TITLE[c] : '';
@@ -9682,10 +9777,11 @@ const ACT = {
   hfloors: el => keepY(() => { ST.home.floors = +el.dataset.v; const R = reqState(); if (ST.home.floors > 1 && !R.balcony.n && R._bal == null) { R.balcony.n = 1; R._bal = 1; } reqSync(); if (ST.home.view !== 'roof' && ST.home.view >= ST.home.floors) ST.home.view = 0; }),
   hfl: el => keepY(() => { ST.home.floors = +el.dataset.v; if (S.design) S.design.floor = 0; if (ST.home.floors > 1 && (!ST.balc || ST.balc === 'none') && ST.home._balAuto == null) { ST.balc = 'cantilever'; ST.home._balAuto = 1; } }),
   hbhk: el => keepY(() => { ST.home.bhk = +el.dataset.v; ST.home.sized = true; }),
-  hx: el => keepY(() => { const h = ST.home, k = el.dataset.v; if (k === 'puja') h.pooja = !h.pooja; else if (k === 'balcony') ST.balc = ST.balc && ST.balc !== 'none' ? 'none' : 'cantilever'; else { h.extras = h.extras || {}; h.extras[k] = !h.extras[k]; } }),
+  hx: el => keepY(() => { const h = ST.home, k = el.dataset.v; if (k === 'cbath') { h.cbath = !h.cbath; S.design = null; ST.grid = null; } else if (k === 'puja') h.pooja = !h.pooja; else if (k === 'balcony') ST.balc = ST.balc && ST.balc !== 'none' ? 'none' : 'cantilever'; else { h.extras = h.extras || {}; h.extras[k] = !h.extras[k]; } }),
   hpfl: el => keepY(() => { const h = ST.home; h.perFloor = pfList(Object.assign({}, h, { floors: 3 })); h.perFloor[+el.dataset.i] = +el.dataset.v; }),
   hpfall: el => keepY(() => { const h = ST.home; h.perFloor = [1, 2, 3].map(() => +el.dataset.v); h.sized = true; }),
   hspace: el => keepY(() => { ST.home.space = el.dataset.v; }),
+  hsep: el => keepY(() => { ST.home.septic = el.dataset.v; S.design = null; ST.grid = null; }),
   cbath: el => keepY(() => { ST.home.cbath = el.dataset.v === '1'; S.design = null; ST.grid = null; }),
   hfix: el => keepY(() => { const h = ST.home, c = JSON.parse(el.dataset.v); h.sized = true; if (c.perFloor) h.perFloor = c.perFloor.concat((h.perFloor || []).slice(c.perFloor.length)); if (c.bhk) h.bhk = c.bhk; if (c.floors) { h.floors = c.floors; if (S.design) S.design.floor = 0; } if (c.space) h.space = c.space; if (c.park) h.park.kind = c.park; }),
   hview: el => keepY(() => { ST.home.view = el.dataset.v === 'roof' ? 'roof' : +el.dataset.v; }),
@@ -9697,6 +9793,7 @@ const ACT = {
   villav: el => keepY(() => { ST.villaV = el.dataset.v; ST.style = null; ST.balc = null; }),
   vgrid: () => keepY(() => { ST.vgrid = !ST.vgrid; }),
   gedit: () => keepY(() => { S.design.edit = !S.design.edit; if (S.design.edit) S.design.meas = false; }),
+  pdark: () => keepY(() => { ST.planDark = !ST.planDark; }),
   meas: () => keepY(() => { S.design.meas = !S.design.meas; if (S.design.meas) S.design.edit = false; }),
   walk: async () => { show3dView(); const ds = S.design; if (ds.walk) { ds.walk = false; keepY(() => {}); return; } const host = $('#dz3d'); if (host) host.innerHTML = '<p class="load">Loading the walk-through…</p>'; try { if (!window.THREE) await loadThree(); } catch (e) { if (host) host.innerHTML = '<p class="load">3D could not load. Check your internet and try again.</p>'; return; } ds.walk = true; ds.show3d = true; ds.night = false; keepY(() => {}); setTimeout(() => { const el = document.getElementById('dz3d'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 200); },
   paint: el => keepY(() => { ST.paint = el.dataset.v; ST.paintX = null; }),
