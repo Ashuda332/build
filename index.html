@@ -7817,7 +7817,10 @@ function walkMap(D, o) {
         if (!(u > 0.45 && u < SG.L - 0.45 && v > 0.45 && v < SG.S - 0.45) && !ok(f, x, z)) continue; // keep off the stair walls, except at its door
         if (u >= SG.L - SG.landE) out.push({ f, h: base }); // entry / arrival landing
         else if (up && u <= SG.landM) out.push({ f, h: base + FH / 2 }); // mid landing
-        else if (up) { const t = Math.max(0, Math.min(1, (u - SG.landM) / SG.run)); out.push({ f, h: v < SG.half ? base + (1 - t) * FH / 2 : base + FH / 2 + t * FH / 2 }); }
+        else if (up) { // on a tread: its top, one step at a time (flight A counts up from the entry landing, flight B from the mid landing)
+          const k = i => Math.max(0, Math.min(SG.n - 1, Math.floor(i)));
+          out.push({ f, h: v < SG.half ? base + (k((SG.L - SG.landE - u) / SG.tread) + 1) * SG.rise : base + FH / 2 + (k((u - SG.landM) / SG.tread) + 1) * SG.rise });
+        }
         continue;
       }
       if (!ok(f, x, z)) continue;
