@@ -7802,7 +7802,36 @@ function walkMap(D, o) {
   };
   const roomAt = (f, x, z) => { const L = floors[f]; if (!L) return null; for (const r of L.rooms) for (const s of r.subs) if (inR(s, x, z, 0)) return { name: ROOM[s.type] ? ROOM[s.type].name : s.type, w: s.w, h: s.h }; const r = L.rooms.find(q => inR(q.rect, x, z, 0)); return r ? { name: roomLabel(r, o.floors[f], D), w: r.rect.w, h: r.rect.h } : f === 0 ? { name: z > b.d - b.setF ? 'Front yard' : 'Outside' } : null; };
   const md = doorPlan(D, o, o.floors[0]).doors.find(d => d.kind === 'main'), start = md ? { x: (md.seg[0] + md.seg[2]) / 2, z: Math.max(md.seg[1], md.seg[3]) + 6, yaw: 0 } : { x: b.w / 2, z: b.d - 2, yaw: 0 };
-  return { floors, ok, roomAt, start, EYE, stair: f => { const s = o.floors[f] && o.floors[f].rooms.find(r => r.type === 'stair' && !r.void); return s ? { x: s.rect.x + s.rect.w / 2, z: s.rect.y + s.rect.h / 2 } : null; } };
+  // walking surfaces: the floor of a room, or the stair (landings and the two flights, as built in buildHouse3D).
+  // Every floor that has a surface under (x, z) offers one; the walker takes the one nearest its own height, so
+  // it climbs flight A to the mid landing, flight B to the next floor's landing, and walks back down the same way.
+  const FM = frameOf(D, o), SG = FM.stair ? stairGeom(FM.stair) : null, nF = o.floors.length, STEP = PLINTH + 0.3;
+  const hasStair = f => !!floors[f] && floors[f].rooms.some(r => r.type === 'stair');
+  const stairUV = (x, z) => { if (!SG) return null; const R = SG.M; if (x < R.x || x > R.x + R.w || z < R.y || z > R.y + R.h) return null; const along = SG.vert ? z : x, across = SG.vert ? x : z; const a0 = SG.vert ? R.y : R.x; return { u: SG.flip ? a0 + SG.L - along : along - a0, v: across - (SG.vert ? R.x : R.y) }; };
+  const surfaces = (x, z) => {
+    const out = [], st = stairUV(x, z);
+    for (let f = 0; f < nF; f++) {
+      const base = PLINTH + f * FH;
+      if (st && hasStair(f)) {
+        const { u, v } = st, up = f < nF - 1; // a flight leaves this floor only when there is a floor above to walk onto
+        if (!(u > 0.45 && u < SG.L - 0.45 && v > 0.45 && v < SG.S - 0.45) && !ok(f, x, z)) continue; // keep off the stair walls, except at its door
+        if (u >= SG.L - SG.landE) out.push({ f, h: base }); // entry / arrival landing
+        else if (up && u <= SG.landM) out.push({ f, h: base + FH / 2 }); // mid landing
+        else if (up) { // on a tread: its top, one step at a time (flight A counts up from the entry landing, flight B from the mid landing)
+          const k = i => Math.max(0, Math.min(SG.n - 1, Math.floor(i)));
+          out.push({ f, h: v < SG.half ? base + (k((SG.L - SG.landE - u) / SG.tread) + 1) * SG.rise : base + FH / 2 + (k((u - SG.landM) / SG.tread) + 1) * SG.rise });
+        }
+        continue;
+      }
+      if (!ok(f, x, z)) continue;
+      out.push({ f, h: base + (f === 0 && !floors[0].built.some(rr => x > rr.rect.x && x < rr.rect.x + rr.rect.w && z > rr.rect.y && z < rr.rect.y + rr.rect.h) ? -PLINTH : 0) });
+    }
+    return out;
+  };
+  // the surface to step onto from height y (null: a wall, a gap or too high a step)
+  const surf = (y, x, z) => { let best = null; surfaces(x, z).forEach(sf => { const d = Math.abs(sf.h - y); if (d <= STEP && (!best || d < best.d)) best = { f: sf.f, h: sf.h, d }; }); return best; };
+  const groundAt = (f, x, z) => { const c = surfaces(x, z).filter(sf => sf.f === f); return c.length ? c.reduce((m, sf) => Math.abs(sf.h - (PLINTH + f * FH)) < Math.abs(m.h - (PLINTH + f * FH)) ? sf : m).h : PLINTH + f * FH; };
+  return { floors, ok, roomAt, start, EYE, surf, groundAt, stair: f => { if (!SG || !hasStair(f)) return null; const lu = SG.L - SG.landE / 2, lv = SG.S / 2; return SG.vert ? { x: SG.vAbs(lv), z: SG.uAbs(lu) } : { x: SG.uAbs(lu), z: SG.vAbs(lv) }; } };
 }
 // inside the studio the 3D keeps to the height of the screen so the choices stay in view
 function studioH(host, H) { if (!host || !host.closest || !host.closest('.st-prev')) return H; return Math.max(230, Math.min(H, Math.round(window.innerHeight * (window.innerWidth < 1100 ? 0.36 : 0.66)))); }
@@ -7819,12 +7848,12 @@ function mountWalk(host, D, o) {
   const house = buildHouse3D(T, D, o, { furn: true, walk: true, cut: null }); sc.add(house); dress3D(T, house, false);
   const doors = house.userData.doors || [];
   const cam = new T.PerspectiveCamera(68, W / H, 0.15, 900), lamp = new T.PointLight('#FFF3DC', 25, 26, 1.6); sc.add(lamp);
-  const P = { x: M.start.x, z: M.start.z, f: 0, yaw: M.start.yaw, pitch: -0.05 }, keys = {}; V3.walkP = P; V3.walkM = M;
+  const P = { x: M.start.x, z: M.start.z, f: 0, y: M.groundAt(0, M.start.x, M.start.z), yaw: M.start.yaw, pitch: -0.05 }, keys = {}; V3.walkP = P; V3.walkM = M;
   // smooth motion: eased velocity and turning, look target eased, camera height eased over steps
   const SM = { vx: 0, vz: 0, vt: 0, ty: P.yaw, tp: P.pitch, cy: null, tour: null }, fade = wrap.querySelector('.w-fade');
   const TOUR = []; o.floors.forEach((F, f) => F.rooms.filter(rr => !rr.void && isBuilt(rr) && !['store', 'stair', 'passage', 'parking', 'bath', 'powder'].includes(rr.type)).forEach(rr => { const c = mainRect(rr), x = c.x + c.w / 2, z = c.y + c.h / 2; if (M.ok(f, x, z)) TOUR.push({ f, x, z, n: roomLabel(rr, F, D) }); }));
   const stopTour = () => { if (SM.tour) { SM.tour = null; const bt = wrap.querySelector('[data-wt]'); if (bt) bt.classList.remove('on'); } };
-  const jump = (f, x, z, yaw) => { fade.classList.add('on'); setTimeout(() => { P.f = f; P.x = x; P.z = z; if (yaw != null) { P.yaw = SM.ty = yaw; } SM.vx = SM.vz = 0; SM.cy = null; fade.classList.remove('on'); }, 260); };
+  const jump = (f, x, z, yaw) => { fade.classList.add('on'); setTimeout(() => { P.f = f; P.x = x; P.z = z; P.y = M.groundAt(f, x, z); if (yaw != null) { P.yaw = SM.ty = yaw; } SM.vx = SM.vz = 0; SM.cy = null; fade.classList.remove('on'); }, 260); };
   // minimap: the plan of the current floor with a moving dot
   const mini = wrap.querySelector('.w-mini'); let dot = null, miniF = -1;
   const drawMini = () => { if (miniF === P.f) return; miniF = P.f; mini.innerHTML = planSvg(D, o, o.floors[P.f], { furn: false }); const svg = mini.querySelector('svg'); if (!svg) return; dot = document.createElementNS('http://www.w3.org/2000/svg', 'g'); dot.innerHTML = '<circle r="1.1" fill="#C0392B" stroke="#fff" stroke-width="0.3"/><path d="M0 0 L0 -3.2" stroke="#C0392B" stroke-width="0.5"/>'; svg.appendChild(dot); };
@@ -7841,9 +7870,12 @@ function mountWalk(host, D, o) {
     { const tx = (-Math.sin(P.yaw) * fwd + Math.cos(P.yaw) * side) * 6.5, tz = (-Math.cos(P.yaw) * fwd - Math.sin(P.yaw) * side) * 6.5; SM.vx += (tx - SM.vx) * ease(7); SM.vz += (tz - SM.vz) * ease(7); }
     if (Math.abs(SM.vx) + Math.abs(SM.vz) > 0.01) {
       const dx = SM.vx * dt, dz = SM.vz * dt;
-      if (M.ok(P.f, P.x + dx, P.z + dz)) { P.x += dx; P.z += dz; } else if (M.ok(P.f, P.x + dx, P.z)) { P.x += dx; SM.vz *= 0.5; } else if (M.ok(P.f, P.x, P.z + dz)) { P.z += dz; SM.vx *= 0.5; } else { SM.vx *= 0.3; SM.vz *= 0.3; }
+      // step onto the surface under the new spot (floor, landing or stair tread): this is what carries you up
+      // and down the stair and onto the next floor
+      const go = (nx, nz) => { const sf = M.surf(P.y, nx, nz); if (!sf) return false; P.x = nx; P.z = nz; P.f = sf.f; P.y = sf.h; return true; };
+      if (go(P.x + dx, P.z + dz)) {} else if (go(P.x + dx, P.z)) SM.vz *= 0.5; else if (go(P.x, P.z + dz)) SM.vx *= 0.5; else { SM.vx *= 0.3; SM.vz *= 0.3; }
     }
-    const base = PLINTH + P.f * FH + (P.f === 0 && !M.floors[0].built.some(rr => P.x > rr.rect.x && P.x < rr.rect.x + rr.rect.w && P.z > rr.rect.y && P.z < rr.rect.y + rr.rect.h) ? -PLINTH : 0);
+    const base = P.y;
     const ty = base + M.EYE; SM.cy = SM.cy == null ? ty : SM.cy + (ty - SM.cy) * ease(10);
     cam.position.set(P.x, SM.cy, P.z); cam.rotation.set(0, 0, 0); cam.rotateY(P.yaw); cam.rotateX(P.pitch);
     lamp.position.set(P.x, base + 7.5, P.z);
